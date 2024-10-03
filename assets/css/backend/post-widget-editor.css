@@ -1,0 +1,29 @@
+.elementor-control-content_style,
+.elementor-control-title_style,
+.elementor-control-taxonomy_style,
+.elementor-control-read_more_style,
+.elementor-control-post_meta_style,
+.elementor-control-custom_field_style,
+.elementor-control-product_price_style,
+.elementor-control-product_badge_style,
+.elementor-control-product_rating_style,
+.elementor-control-buy_now_style,
+.elementor-control-post_pin_style,
+.elementor-control-edit_options_style {
+    display: none;
+}
+
+.show-content .elementor-control-content_style,
+.show-title .elementor-control-title_style,
+.show-taxonomy .elementor-control-taxonomy_style,
+.show-read-more .elementor-control-read_more_style,
+.show-meta .elementor-control-post_meta_style,
+.show-custom-field .elementor-control-custom_field_style,
+.show-price .elementor-control-product_price_style,
+.show-badge .elementor-control-product_badge_style,
+.show-rating .elementor-control-product_rating_style,
+.show-buy .elementor-control-buy_now_style,
+.show-bookmark .elementor-control-post_pin_style,
+.show-edit .elementor-control-edit_options_style {
+    display: initial !important;
+}
