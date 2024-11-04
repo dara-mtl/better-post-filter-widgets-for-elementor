@@ -458,40 +458,30 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
  
 		$this->end_controls_section();
 		
-		$this->start_controls_section(
-			'pre_filter_section',
-			[
-				'label' => __( 'Pre-Filter ', 'bpf-widget' ),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-			]
-		);
+		//$this->start_controls_section(
+		//	'pre_filter_section',
+		//	[
+		//		'label' => __( 'Pre-Filter ', 'bpf-widget' ),
+		//		'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+		//	]
+		//);
 		
-        $this->add_control('post_status', [
-            'label' => esc_html__('Post Status', 'cwm-widget'),
-            'type' => \Elementor\Controls_Manager::SELECT2,
-            'multiple' => true,
-            'default' => 'publish',
-            'options' => [
-                'publish' => 'Published',
-                'pending' => 'Pending',
-                'draft' => 'Draft',
-                'private' => 'Private',
-                'trash' => 'Trashed',
-            ],
-			'frontend_available' => true,
-        ]);
+        //$this->add_control('post_status', [
+        //    'label' => esc_html__('Post Status', 'cwm-widget'),
+        //    'type' => \Elementor\Controls_Manager::SELECT2,
+        //    'multiple' => true,
+        //    'default' => 'publish',
+        //    'options' => [
+        //        'publish' => 'Published',
+        //        'pending' => 'Pending',
+        //        'draft' => 'Draft',
+        //        'private' => 'Private',
+        //        'trash' => 'Trashed',
+        //    ],
+		//	'frontend_available' => true,
+        //]);
 		
-        $this->add_control('dynamic_filtering', [
-            'label' => esc_html__('Dynamic Archive Filtering', 'bpf-widget'),
-            'type' => \Elementor\Controls_Manager::SWITCHER,
-            'label_on' => esc_html__('Yes', 'bpf-widget'),
-            'label_off' => esc_html__('No', 'bpf-widget'),
-            'return_value' => 'yes',
-            'default' => '',
-            'frontend_available' => true,
-        ]);
-		
-		$this->end_controls_section();
+		//$this->end_controls_section();
 
 		$this->start_controls_section(
 			'settings_section',
@@ -500,6 +490,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
+		
+        $this->add_control('dynamic_filtering', [
+            'label' => esc_html__('Dynamic Archive Filtering', 'bpf-widget'),
+            'type' => \Elementor\Controls_Manager::SWITCHER,
+            'label_on' => esc_html__('Yes', 'bpf-widget'),
+            'label_off' => esc_html__('No', 'bpf-widget'),
+            'return_value' => 'yes',
+            'default' => '',
+			'separator' => 'before',
+            'frontend_available' => true,
+        ]);
 		
         $this->add_control('show_reset', [
             'label' => esc_html__('Display Reset Button', 'bpf-widget'),

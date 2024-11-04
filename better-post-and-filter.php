@@ -4,8 +4,8 @@ Plugin Name: Better Post & Filter Widgets for Elementor
 Description: Post & filter widgets for Elementor.
 Plugin URI: https://cambodiawebmaster.com/
 Author: CWM
-Version: 1.0.0
-Elementor tested up to: 3.17.1
+Version: 1.0.1
+Elementor tested up to: 3.25.4
 Author URI: https://cambodiawebmaster.com/
 Text Domain: bpf-widget
 Domain Path: /lang
@@ -207,7 +207,7 @@ final class BPF_Elementor {
 		add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'backend_widget_scripts' ] );
 
 		include_once( 'inc/classes/helper-class.php' );
-		//include_once( 'inc/classes/pagination-class.php' );
+		//include_once( 'bpf-dynamic-tag.php' );
 		include_once( 'inc/classes/ajax-class.php' );
 
     }

@@ -7,17 +7,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 class BPF_Ajax {
 	
 	public function change_post_status() {
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' ) ) {
-			die ( 'Access Denied');
+		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : '';
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+		// Combine nonce and capability check
+		if ( ! wp_verify_nonce( $nonce, 'ajax-nonce' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			die( 'Access Denied' );
 		}
-		
-		$post_id = isset($_POST['post_id']) ? $_POST['post_id'] : '';
-		
-		wp_update_post(array(
-			'ID' => $post_id,
-			'post_status' => 'publish'
+
+		// Get the current date and time
+		$current_date = current_time( 'mysql' );
+		$post_status = get_post_status( $post_id );
+		$new_status = ( $post_status === 'publish' ) ? 'draft' : 'publish';
+
+		// Update post status and publication date
+		wp_update_post( array(
+			'ID'             => $post_id,
+			'post_status'    => $new_status,
+			'post_date'      => $current_date,
+			'post_date_gmt'  => get_gmt_from_date( $current_date )
 		));
-		
+
 		die();
 	}
 	
@@ -28,8 +38,13 @@ class BPF_Ajax {
 		}
 
 		// Sanitize post_id and pin_class
-		$post_id = isset($_POST['post_id']) ? sanitize_text_field($_POST['post_id']) : '';
+		$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
 		$pin_class = isset($_POST['pin_class']) ? sanitize_text_field($_POST['pin_class']) : '';
+
+		// Ensure pin_class is either 'pin' or 'unpin'
+		if ($pin_class !== 'pin' && $pin_class !== 'unpin') {
+			die('Invalid operation');
+		}
 
 		$user_id = get_current_user_id();
 		$post_list = [];
@@ -40,20 +55,18 @@ class BPF_Ajax {
 				$post_list = array();
 			}
 		} else {
-			if(isset($_COOKIE['post_id_list'])) {
+			if (isset($_COOKIE['post_id_list'])) {
 				$post_list = json_decode(stripslashes($_COOKIE['post_id_list']), true);
-				// Check if json_decode failed
-				if (json_last_error() !== JSON_ERROR_NONE) {
-					die('Error: Invalid cookie value');
-				}
-				// Check if post_list is not an array
-				if (!is_array($post_list)) {
+
+				// Check if json_decode failed or post_list is not an array
+				if (json_last_error() !== JSON_ERROR_NONE || !is_array($post_list)) {
 					$post_list = [];
 				}
 			}
 		}
 
-		if (str_contains($pin_class, 'unpin')) {
+		// Handle pin/unpin action
+		if ($pin_class === 'unpin') {
 			if (($key = array_search($post_id, $post_list)) !== false) {
 				unset($post_list[$key]);
 			}
@@ -63,6 +76,7 @@ class BPF_Ajax {
 			}
 		}
 
+		// Save post_list either to user_meta or cookies
 		if (!empty($user_id)) {
 			update_user_meta($user_id, 'post_id_list', $post_list);
 		} else {
@@ -70,7 +84,7 @@ class BPF_Ajax {
 		}
 
 		die();
-	}	
+	}
 	
 	public function delete_filter_transient() {
 		delete_transient('filter_query');
@@ -101,15 +115,15 @@ class BPF_Ajax {
 		// Logical operators with default values
 		$group_logic = strtoupper($_POST['group_logic'] ?? '') ?: '';
 		$meta_key = sanitize_key($_POST['order_by_meta'] ?? '');
-		$order = in_array(strtoupper($_POST['order'] ?? ''), array('DESC', 'ASC')) ? strtoupper($_POST['order']) : '';
-		$order_by = sanitize_key($_POST['order_by'] ?? '');
+		$order = in_array(strtoupper($_POST['order'] ?? ''), array('DESC', 'ASC')) ? strtoupper($_POST['order']) : 'ASC';
+		$order_by = sanitize_key($_POST['order_by'] ?? 'date');
 		
 		$search_terms = isset($_POST['search_query']) ? wp_kses_post($_POST['search_query']) : '';
 
 		$dynamic_filtering = isset($_POST['dynamic_filtering']) ? $_POST['dynamic_filtering'] : false;
 
 		$post_type = sanitize_text_field($_POST['post_type'] ?? 'any');
-		$post_status = isset($_POST['post_status']) && is_array($_POST['post_status']) ? array_map('sanitize_text_field', $_POST['post_status']) : array('publish');
+		//$post_status = isset($_POST['post_status']) && is_array($_POST['post_status']) ? array_map('sanitize_text_field', $_POST['post_status']) : array('publish');
 	
 		$is_empty = true;
 		
@@ -119,25 +133,24 @@ class BPF_Ajax {
 		set_query_var('page_num', $paged);
 		
 		$args = apply_filters('bpf_ajax_query_args', array(
-			's' => $search_terms,
 			'order' => $order,
 			'orderby' => $order_by,
 			'post_type' => $post_type,
-			'fields' => 'ids',
 			'paged' => $paged,
-			'cache_results' => false,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
 		));
 		
-		if (!empty($post_status)) {
-			$args['post_status'] = $post_status;
+		if (!empty($search_terms)) {
+			$args['s'] = $search_terms;
 		}
 		
+		//if (!empty($post_status)) {
+		//	$args['post_status'] = $post_status;
+		//}
+		
 		if ($dynamic_filtering) {
-			$archive_type = sanitize_text_field($_POST['archive_type']);
+			$archive_type = isset($_POST['archive_type']) ? sanitize_text_field($_POST['archive_type']) : '';
 			$archive_taxonomy = isset($_POST['archive_taxonomy']) ? sanitize_text_field($_POST['archive_taxonomy']) : '';
-			$archive_id = absint($_POST['archive_id']);
+			$archive_id = isset($_POST['archive_id']) ? absint($_POST['archive_id']) : 0;
 
 			// Add conditions based on the archive type
 			switch ($archive_type) {
@@ -308,16 +321,16 @@ class BPF_Ajax {
 		}
 		
 		//Fix for Elementor Pro
-		$widget_data['settings']['posts_post_type'] = $post_type;
+		//$widget_data['settings']['posts_post_type'] = $post_type;
 		
 		set_transient('filter_query', $args, 60*60*24);
-
-		echo json_encode(array(
+		error_log('Query Args: ' . print_r($args, true));
+		echo wp_json_encode(array(
 			//'arg' => $args,
+			//'base' => $base_url,
 			'html' => $document->render_element( $widget_data )
-			//'base' => $base_url
 		));
-
+		
 		die();
 	}
 	

@@ -26,26 +26,34 @@
 				let pageID = window.elementorFrontendConfig.post.id;
 				
 				const filterSetting = this.$element.data('settings');
-				const targetPostWidget = filterSetting.target_selector;
 				
-				if (!targetPostWidget) {
+				//Fix for backend
+				if (!filterSetting) {
 					return;
 				}
 				
-				let groupLogic = filterSetting.group_logic;
-				let dynamicFiltering = filterSetting.dynamic_filtering;
-				let scrollToTop = filterSetting.scroll_to_top;
-				let postStatus = filterSetting.post_status;
+				const targetPostWidget = filterSetting.target_selector;
 				
-				const targetSelector = $(targetPostWidget);
-				const widgetID = targetSelector.data('id');
-				const originalState = targetSelector.html();
-				const loader = targetSelector.find('.loader');
+				if (!targetPostWidget.length) {
+					return;
+				}
 				
-				const pagination = targetSelector.find('.pagination');
+				let groupLogic = filterSetting.group_logic,
+					dynamicFiltering = filterSetting.dynamic_filtering,
+					scrollToTop = filterSetting.scroll_to_top;
+					
+				//let postStatus = filterSetting.post_status;
+				
+				const targetSelector = $(targetPostWidget),
+					  widgetID = targetSelector.data('id'),
+					  originalState = targetSelector.html(),
+					  loader = targetSelector.find('.loader'),
+					  pagination = targetSelector.find('.pagination');
+					  
 				var maxPage = pagination.data('max-page');
 				
 				let paginationType = '';
+				
 				var paginationNext = '';
 				var filterWidgetObservers = filterWidgetObservers || {};
 				
@@ -178,7 +186,6 @@
 				}
 				
 				function get_form_values(paged) {
-					//targetSelector.removeClass('filter-initialized');
 					var postContainer = targetSelector.find('.post-container'),
 					post_type = $('form.form-tax').data('post-type'),
 					order = '',
@@ -309,7 +316,7 @@
 							custom_field_output: custom_field_output,
 							custom_field_like_output: custom_field_like_output,
 							numeric_output: numeric_output,
-							post_status: postStatus,
+							//post_status: postStatus,
 							post_type: post_type,
 							order: order,
 							order_by: order_by,
@@ -443,14 +450,14 @@
 							
 							if (targetSelector.hasClass('filter-active') && paginationType == 'infinite') {
 								debounce(function(e) {
-									bpf_infinite_scroll();
-								}, 600)();	
+									bpf_infinite_scroll(widgetID, targetSelector);
+								}, 800)();	
 							}
 							
 							if (targetSelector.hasClass('filter-active') && paginationType == 'cwm_infinite') {
 								debounce(function(e) {
-									elementor_infinite_scroll();
-								}, 600)();
+									elementor_infinite_scroll(widgetID, targetSelector);
+								}, 800)();
 							}
 							
 							elementorFrontend.elementsHandler.runReadyTrigger($(targetPostWidget));
@@ -466,55 +473,32 @@
 					});
 				}
 				
-				function bpf_infinite_scroll_bak() {   
-						var paginationNext = $(document).find(targetPostWidget + ' .pagination-filter a.next');
-						var scrollAnchor = targetSelector.find('.e-load-more-anchor');
-						
-						var observer = new IntersectionObserver(function(entries) {
-							entries.forEach(function(entry) {
-								if (entry.isIntersecting) {
-									if (!ajaxInProgress && paginationNext.length && targetSelector.hasClass('filter-active')) {
-										ajaxInProgress = true;
-										paginationNext.click();
-										currentPage = currentPage + 1;
-									}
-								}
-							});
-						}, {
-							root: null,
-							rootMargin: '0px',
-							threshold: 0.1
-						});
-
-						observer.observe(scrollAnchor.get(0));
-				}
-				
 				function bpf_infinite_scroll(widgetID, targetSelector) {
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						paginationNext = $(document).find(targetPostWidget + ' .pagination-filter a.next');
-					
-					if (paginationNext.length && scrollAnchor.length && currentPage <= maxPage) {
+						
+					if (!paginationNext.length) {
+						if (filterWidgetObservers[widgetID]) {
+							filterWidgetObservers[widgetID].disconnect();
+							filterWidgetObservers[widgetID] = null;
+						}
+						return;
+					}
+
+					if (paginationNext.length && scrollAnchor.length) {
 						if (!filterWidgetObservers[widgetID]) {
 							filterWidgetObservers[widgetID] = new IntersectionObserver(function(entries) {
 								entries.forEach(function(entry) {
 									if (entry.isIntersecting) {
-										var paginationNext = $(document).find(targetPostWidget + ' .pagination-filter a.next'),
-											maxPage = targetSelector.find('.pagination').data('max-page'),
-											currentPage = scrollAnchor.data('page');
+										var paginationNext = $(document).find(targetPostWidget + ' .pagination-filter a.next');
 										
 										if (!ajaxInProgress && paginationNext.length && targetSelector.hasClass('filter-active')) {
 											ajaxInProgress = true;
 											paginationNext.click();
-											currentPage++;
 										}
 									}
 								});
 								
-								var paginationNext = $(document).find(targetPostWidget + ' .pagination-filter a.next');
-								
-								if (!paginationNext.length) {
-									filterWidgetObservers[widgetID].unobserve(scrollAnchor.get(0));
-								}
 							}, {
 								root: null,
 								rootMargin: infinite_threshold,
@@ -523,29 +507,11 @@
 						}
 						
 						filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));	
-						$(window).on('resize', function() {
-							if (scrollAnchor.length && !ajaxInProgress && currentPage <= maxPage) {
-								filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));
-							}
-						});
-					}
-				}
-				
-				function elementor_infinite_scroll_deprecated() {
-					var scrollHeight = $(document).height(),
-						scrollPos = $(window).height() + $(window).scrollTop();
-					
-					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
-						currentPage = scrollAnchor.data('page'),
-						maxPage = scrollAnchor.data('max-page') - 1;
-					
-					if ((scrollHeight - scrollPos <= 300) && !ajaxInProgress && currentPage <= maxPage) {
-						var next_page = scrollAnchor.data('next-page');
-						if (next_page) {
-							currentPage = currentPage + 1;
-							ajaxInProgress = true;
-							get_form_values(currentPage);
-						}
+						//$(window).on('resize', function() {
+						//	if (scrollAnchor.length && !ajaxInProgress && currentPage <= maxPage) {
+						//		filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));
+						//	}
+						//});
 					}
 				}
 				
@@ -553,7 +519,15 @@
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						currentPage = scrollAnchor.data('page'),
 						maxPage = scrollAnchor.data('max-page');
-						
+
+					if (currentPage === maxPage) {
+						if (filterWidgetObservers[widgetID]) {
+							filterWidgetObservers[widgetID].disconnect();
+							filterWidgetObservers[widgetID] = null;
+						}
+						return;
+					}
+	
 					if (scrollAnchor.length && currentPage < maxPage) {
 						if (!filterWidgetObservers[widgetID]) {
 							filterWidgetObservers[widgetID] = new IntersectionObserver(function(entries) {
@@ -566,10 +540,6 @@
 										}
 									}
 								});
-
-								if (currentPage >= maxPage) {
-									filterWidgetObservers[widgetID].unobserve(scrollAnchor.get(0));
-								}
 							}, {
 								root: null,
 								rootMargin: infinite_threshold,
@@ -579,11 +549,11 @@
 
 						filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));
 						
-						$(window).on('resize', function() {
-							if (scrollAnchor.length && !ajaxInProgress && currentPage <= maxPage) {
-								filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));
-							}
-						});
+						//$(window).on('resize', function() {
+						//	if (scrollAnchor.length && !ajaxInProgress && currentPage <= maxPage) {
+						//		filterWidgetObservers[widgetID].observe(scrollAnchor.get(0));
+						//	}
+						//});
 					}
 				}
 				

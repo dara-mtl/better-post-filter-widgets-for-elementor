@@ -26,6 +26,25 @@ class BPF_Helper {
 		return $options;
 	}
 	
+	public static function cwm_get_taxonomies($args = [], $output = 'names', $operator = 'and') {
+		global $wp_taxonomies;
+
+		$field = ('names' === $output) ? 'name' : false;
+
+		if (isset($args['object_type'])) {
+			$object_type = (array) $args['object_type'];
+			unset($args['object_type']);
+		}
+
+		$taxonomies = wp_filter_object_list($wp_taxonomies, $args, $operator);
+
+		if ($field) {
+			$taxonomies = wp_list_pluck($taxonomies, $field);
+		}
+
+		return $taxonomies;
+	}
+	
 	public static function cwm_get_post_types() {
 		$post_lists = [];
 		

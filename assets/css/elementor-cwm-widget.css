@@ -331,6 +331,16 @@
   flex-direction: column;
 }
 
+.row-span-expand .inner-content {
+  display: flex;
+  flex-grow: 1;
+}
+
+.row-span-expand .inner-content > div:first-child,
+.row-span-expand .inner-content .e-parent {
+  min-height: 100%;
+}
+
 .post-container.classic .post-wrapper > *:not(a),
 .post-container.banner .post-wrapper > *:not(a),
 .post-container.side .inner-content:not(a) {
@@ -440,7 +450,7 @@ ul.post-taxonomy li,
   display: block;
 }
 
-.post-container.banner .post-wrapper .inner-content {
+.post-container.banner .post-wrapper {
   width: 100%;
   min-height: 285px;
   -webkit-box-pack: end;
@@ -504,10 +514,11 @@ ul.post-taxonomy li,
   pointer-events: none;
 }
 
-.filter-initialized::before,
+.filter-initialized .post-container:not(.infinite)::before,
 .filter-load:not(.load):not([data-settings*='load_more_infinite_scroll'])::before,
 .post-container.banner.load:not(.infinite):not(.load_more)::before,
 .post-container.template.load:not(.infinite):not(.load_more)::before,
+.post-container.template_list.load:not(.infinite):not(.load_more)::before,
 .post-container.custom_html.load:not(.infinite):not(.load_more)::before {
   content: "";
   transition: opacity 0.3s;
@@ -542,29 +553,25 @@ ul.post-taxonomy li,
   animation: cwm-preloader-outer 2s linear infinite;
 }
 
-.post-container.load:not(.infinite):not(.load_more):not(.template):not(.custom_html):not(.banner) .inner-content>* {
+.post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content > * {
   visibility: hidden;
 }
 
-.post-container.side.load:not(.infinite):not(.load_more):not(.template):not(.custom_html):not(.banner) .inner-content {
+.post-container.side.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
   content: url('/wp-content/plugins/better-post-and-filter-widgets-for-elementor/assets/images/CWM-Post-Skeleton.svg');
-  padding: 10px 0 0 10px;
-  max-height: 180px;
+  padding: 0 10px;
+  max-height: 150px;
 }
 
-.post-container.load:not(.infinite):not(.load_more):not(.template):not(.custom_html):not(.banner) .inner-content {
+.post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
   content: url('/wp-content/plugins/better-post-and-filter-widgets-for-elementor/assets/images/CWM-Post-Skeleton.svg');
-  padding: 10px 0 0 0;
+  padding-top: 10px;
+  max-height: 150px;
 }
 
 .post-container.load .inner-content .no-post,
 .filter-initialized .inner-content .no-post {
   visibility: visible !important;
-}
-
-.cwm-infinite-scroll-preloader {
-  opacity: 0;
-  transition: all 0.3s ease;
 }
 
 .post-container.load .cwm-infinite-scroll-preloader {
@@ -573,11 +580,11 @@ ul.post-taxonomy li,
   margin: 20px auto;
 }
 
-.post-container:not(.infinite):not(.load_more):not(.template):not(.custom_html):not(.banner).load .post-image img {
+.post-container:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner).load .post-image img {
   opacity: 0;
 }
 
-.post-container:not(.infinite):not(.load_more):not(.template):not(.custom_html):not(.banner).load .post-image {
+.post-container:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner).load .post-image {
   background: #d3d3d3;
   background-image: none !important;
   -webkit-animation: skeleton-loading 1s infinite alternate;
@@ -838,17 +845,19 @@ ul.taxonomy-filter.yes li:nth-child(n + 6) {
 }
 
 @media only screen and (max-width: 767px) {
-  .post-container.side .post-wrapper {
-    -webkit-box-orient: vertical !important;
+.elementor-widget-post-widget:not(.keep-sideways) .post-container.side .post-wrapper {
+	-webkit-box-orient: vertical !important;
     -webkit-box-direction: normal !important;
     -ms-flex-direction: column !important;
     flex-direction: column !important;
   }
-  .post-container.side .post-image,
-  .post-container.side .inner-content {
+  
+  .elementor-widget-post-widget:not(.keep-sideways) .post-container.side .post-image,
+  .elementor-widget-post-widget:not(.keep-sideways) .post-container.side .inner-content {
     width: 100% !important;
     margin-right: 0;
   }
+  
   .post-container.side.load .inner-content::before {
     background-position: initial !important;
   }

@@ -138,7 +138,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 'classic' => 'Classic',
                 'side' => 'On Side',
                 'banner' => 'Banner',
-                'template' => 'Loop Grid',
+                'template' => 'Template',
+				'template_grid' => 'Template Grid',
 				'custom_html' => 'Custom HTML',
             ],
         ]);
@@ -164,10 +165,27 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                     'grid-template-columns: repeat({{VALUE}},1fr)',
             ],
 			'frontend_available' => true,
+			'render_type' => 'template',
             'condition' => [
                 'classic_layout' => ['grid','masonry'],
             ],
         ]);
+		
+		$this->add_control(
+			'keep_sideways',
+			[
+				'label' => esc_html__( 'Keep sideways on mobile', 'bpf-widget' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => esc_html__( 'Yes', 'bpf-widget' ),
+				'label_off' => esc_html__( 'No', 'bpf-widget' ),
+				'return_value' => 'keep-sideways',
+				'prefix_class' => '',
+				'default' => '',
+				'condition' => [
+					'post_skin' => 'side',
+				],
+			]
+		);
 
         $this->add_control('skin_template', [
             'label' => esc_html__('Template', 'bpf-widget'),
@@ -179,25 +197,13 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             ],
         ]);
 		
-        $this->add_control('skin_template_alternate', [
-            'label' => esc_html__('Add Extra Template', 'bpf-widget'),
-            'type' => \Elementor\Controls_Manager::SWITCHER,
-            'default' => '',
-            'label_on' => __('Yes', 'bpf-widget'),
-            'label_off' => __('No', 'bpf-widget'),
-            'return_value' => 'yes',
-			'separator' => 'before',
-            'condition' => [
-                'post_skin' => 'template',
-            ],
-        ]);
-		
 		$template_repeater = new Repeater();
 		
 		$template_repeater->add_control('extra_template_id', [
 			'label' => esc_html__('Choose a Template', 'bpf-widget'),
 			'type' => \Elementor\Controls_Manager::SELECT,
 			'options' => BPF_Helper::get_elementor_templates(),
+			'prevent_empty' => true,
 			'label_block' => true,
 		]);
 		
@@ -252,14 +258,12 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         ]);
 		
 		$this->add_control('extra_skin_list', [
-			'label' => esc_html__('Extra Templates', 'bpf-widget'),
+			'label' => esc_html__('Template Grid', 'bpf-widget'),
 			'type' => \Elementor\Controls_Manager::REPEATER,
 			'fields' => $template_repeater->get_controls(),
 			'condition' => [
-				'post_skin' => 'template',
-				'skin_template_alternate!' => '',
+				'post_skin' => 'template_grid',
 			],
-			'title_field' => 'Alternate Template',
 		]);
 		
         $this->add_control('skin_custom_html', [
@@ -296,7 +300,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('html_tag', [
             'type' => \Elementor\Controls_Manager::SELECT,
             'label' => esc_html__('Title HTML Tag', 'bpf-widget'),
-            'default' => 'div',
+            'default' => 'h3',
             'options' => [
                 'h1' => 'h1',
                 'h2' => 'h2',
@@ -309,12 +313,15 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 'p' => 'p',
             ],
 			'separator' => 'before',
+            'condition' => [
+                'post_skin!' => ['template', 'template_list'],
+            ],
         ]);
 		
         $this->add_control('post_html_tag', [
             'type' => \Elementor\Controls_Manager::SELECT,
             'label' => esc_html__('Post HTML Tag', 'bpf-widget'),
-            'default' => 'div',
+            'default' => 'article',
             'options' => [
                 'div' => 'div',
                 'article' => 'article',
@@ -1296,7 +1303,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'label' => esc_html__('Post Content', 'bpf-widget'),
             'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
             'condition' => [
-                'post_skin!' => ['template'],
+                'post_skin!' => ['template', 'template_list'],
             ],
         ]);
 
@@ -1382,7 +1389,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'label' => esc_html__('Query', 'bpf-widget'),
             'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
         ]);
-
+		
         //get post type
         $post_type_args = [
             'public' => true,
@@ -1391,14 +1398,6 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $output = 'names';
         $operator = 'and';
         $post_types = get_post_types($post_type_args, $output, $operator);
-        $items_post_type = [];
-
-        if ($post_types) {
-			$items_post_type['any'] = 'Any';
-            foreach ($post_types as $post_type) {
-                $items_post_type[$post_type] = ucfirst($post_type);
-            }
-        }
 
         //get post id
         $post_ids = get_posts([
@@ -1436,7 +1435,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'label' => esc_html__('Post Type', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::SELECT,
             'default' => 'post',
-            'options' => $items_post_type,
+            'options' => BPF_Helper::cwm_get_post_types(),
             'condition' => [
                 'query_type' => 'custom',
             ],
@@ -1491,6 +1490,15 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'condition' => [
                 'query_type' => [ 'custom', 'user' ],
             ],
+        ]);
+		
+        $this->add_control('post_offset', [
+            'label' => esc_html__('Offset', 'bpf-widget'),
+            'type' => \Elementor\Controls_Manager::NUMBER,
+			'min' => 0,
+			'max' => 100,
+			'step' => 1,
+			'default' => '0',
         ]);
 
         $taxonomies = [];
@@ -5801,6 +5809,10 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			$query_args['paged'] = $paged;
         }
 		
+		if (!empty($settings['post_offset']) && $settings['post_offset'] != 0) {
+			$query_args['offset'] = $settings['post_offset'];
+		}
+		
 		$post_in_id = 'post__in_'. $settings['post_type'];
 		
 		if($settings['include_post_id']) {
@@ -5940,7 +5952,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				$combined_css = '';
 				//$template_css_urls = []; // Array to store the URLs for debugging
 
-				if ($settings['skin_template']) {
+				if ($settings['skin_template'] || $settings['post_skin'] === 'template_grid') {
 					$main_template_id = intval($settings['skin_template']);
 					$main_css_content = $this->get_template_css_content($main_template_id);
 					if ($main_css_content) {
@@ -6013,16 +6025,18 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$row_span = $extra_template['row_span'];
 							$column_span_style = $column_span > 1 ? 'grid-column: span '.$column_span.';' : '';
 							$row_span_style = $row_span > 1 ? 'grid-row: span '.$row_span.';' : '';
+							//$row_span_style = $row_span > 1 ? 'grid-row: span '.$row_span.'; display: flex; flex-direction: column;' : '';
 							break;
 						}
 					}
 
 					$style = trim("$column_span_style $row_span_style");
 					$style_attribute = $style ? 'style="'.$style.'"' : '';
+					$extra_class = $style_attribute ? 'row-span-expand' : '';
 
-					if ($settings['skin_template']) {
+					if ($settings['skin_template'] || $settings['post_skin'] === 'template_grid') {
 						if ($use_extra_template) {
-							echo '<'. $post_html_tag .' class="post-wrapper" '.$style_attribute.'><div class="inner-content">';
+							echo '<'. $post_html_tag .' class="post-wrapper '. $extra_class .'" '.$style_attribute.'><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($extra_template_id);
 							echo '</div></'. $post_html_tag .'>';
 						} else {
@@ -6318,116 +6332,50 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 echo '</div>';
 
 				if ('numbers' === $settings['pagination'] || 'numbers_and_prev_next' === $settings['pagination']) {
-					$total_pages = $cwm_query->max_num_pages;
+					$total_pages = absint($cwm_query->max_num_pages);
 
 					if ($total_pages > 1) {
-						// Set the base URL and current page number
-						$base = '';
-						$current_page = 1;
+						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						if ($settings['query_type'] === 'main') {
-							$link_unescaped = get_pagenum_link(1, false);
-							$base = strtok($link_unescaped, '?') . '%_%';
-							$current_page = max(1, get_query_var('paged'));	
-						} elseif ($settings['query_type'] === 'custom') {
-							$base = add_query_arg('paged', '%#%');
-							$current_page = max(1, get_query_var('paged'));
-								
-							if (is_home() || is_archive()) {
-								$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-								$current_page = max(1, get_query_var('paged'));
-							}
-							if (is_front_page()) {
-								$link_unescaped = get_pagenum_link(1, false);
-								$base = strtok($link_unescaped, '?') . '%_%';								
-								$current_page = max(1, get_query_var('page'));
-							}
-							if (is_author()) {
-								$base = add_query_arg('page', '%#%');
-								$current_page = max(1, get_query_var('page'));
-							}
-							if (is_single()) {
-								if (!is_page()) {
-									$base = add_query_arg('page_num', '%#%');
-									$current_page = max(1, get_query_var('page_num'));
-								} else {
-									$base = add_query_arg('page', '%#%');
-									$current_page = max(1, get_query_var('page'));
-								}
-							}
-							
-						}
+						$current_page = max(1, min($current_page, $total_pages));
 
-						$nav_start = '<nav class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. $total_pages .'" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination" role="navigation" data-page="'. esc_attr($current_page) .'" data-max-page="'. esc_attr($total_pages) .'" aria-label="Pagination">';
 						
 						echo $nav_start;
 
 						echo paginate_links([
-							'base' => $base,
-							'current' => $current_page,
-							'total' => $total_pages,
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »') : false,
+							'base'      => esc_url($base),
+							'format'    => (strpos($base, '%#%') !== false) ? 'page/%#%/' : '?paged=%#%',
+							'current'   => $current_page,
+							'total'     => $total_pages,
+							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';
 					}
-
 				}
 
 				if ('load_more' === $settings['pagination'] || 'infinite' === $settings['pagination']) {
-					$total_pages = $cwm_query->max_num_pages;
+					$total_pages = absint($cwm_query->max_num_pages);
 					
-					if ($total_pages > 1) {						
-						// Set the base URL and current page number
-						$base = '';
-						$current_page = 1;
-
-						if ($settings['query_type'] === 'main') {
-							$link_unescaped = get_pagenum_link(1, false);
-							$base = strtok($link_unescaped, '?') . '%_%';
-							$current_page = max(1, get_query_var('paged'));
-						} elseif ($settings['query_type'] === 'custom') {
-							$base = add_query_arg('paged', '%#%');
-							$current_page = max(1, get_query_var('paged'));
-								
-							if (is_home() || is_archive()) {
-								$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-								$current_page = max(1, get_query_var('paged'));
-							}
-							if (is_front_page()) {
-								$link_unescaped = get_pagenum_link(1, false);
-								$base = strtok($link_unescaped, '?') . '%_%';								
-								$current_page = max(1, get_query_var('page'));
-							}
-							if (is_author()) {
-								$base = add_query_arg('page', '%#%');
-								$current_page = max(1, get_query_var('page'));
-							}
-							if (is_single()) {
-								if (!is_page()) {
-									$base = add_query_arg('page_num', '%#%');
-									$current_page = max(1, get_query_var('page_num'));
-								} else {
-									$base = add_query_arg('page', '%#%');
-									$current_page = max(1, get_query_var('page'));
-								}
-							}
-							
-						}
+					if ($total_pages > 1) {
+						list($base, $current_page) = $this->get_pagination_base_current($settings);
+					
+						$current_page = max(1, min($current_page, $total_pages));
 						
 						$nav_start = '<nav style="display: none;" class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. $total_pages .'" aria-label="Pagination">';
+						$nav_start .= '<noscript><style>.pagination { display: block !important; }</style></noscript>';
 						
 						echo $nav_start;
-
 						echo paginate_links([
-							'base' => $base,
-							'current' => $current_page,
-							'total' => $total_pages,
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »') : false,
+							'base'      => esc_url($base),
+							'format'    => (strpos($base, '%#%') !== false) ? 'page/%#%/' : '?paged=%#%',
+							'current'   => $current_page,
+							'total'     => $total_pages,
+							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
 						]);
-
 						echo '</nav>';
 						
 						if('infinite' === $settings['pagination'] && $settings['hide_infinite_load'] != 'yes') {
@@ -6639,46 +6587,20 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					$total_users = $user_query->get_total();
 		
 					if ($total_users > 1) {						
-						// Set the base URL and current page number
-						$base = '';
-						$current_page = '';
+						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						$base = add_query_arg('paged', '%#%');
-						$current_page = max(1, get_query_var('paged'));
-								
-						if (is_home() || is_archive()) {
-							$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-							$current_page = max(1, get_query_var('paged'));
-						}
-						if (is_front_page()) {
-							$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-							$current_page = max(1, get_query_var('page'));
-						}
-						if (is_author()) {
-							$base = add_query_arg('page', '%#%');
-							$current_page = max(1, get_query_var('page'));
-						}
-						if (is_single()) {
-							if (is_single() && !is_page()) {
-								$base = add_query_arg('page_num', '%#%');
-								$current_page = max(1, get_query_var('page_num'));
-							}
-							if (is_page()) {
-								$base = add_query_arg('page', '%#%');
-								$current_page = max(1, get_query_var('page'));
-							}
-						}
+						$current_page = max(1, min($current_page, ceil($total_users / $settings['posts_per_page'])));
 						
 						$nav_start = '<nav class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. ceil( $total_users / $settings['posts_per_page'] ) .'" aria-label="Pagination">';
 
 						echo $nav_start;
 
 						echo paginate_links([
-							'base' => $base,
+							'base' => esc_url($base),
 							'current' => $current_page,
-							'total' => ceil( $total_users / $settings['posts_per_page'] ),
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »') : false,
+							'total' => ceil($total_users / $settings['posts_per_page']),
+							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';
@@ -6689,54 +6611,23 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					$total_users = $user_query->get_total();
 					
 					if ($total_users > 1) {					
-						// Set the base URL and current page number
-						$base = '';
-						$current_page = '';
+						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						// Set the base URL and current page number
-						$base = '';
-						$current_page = '';
-
-						$base = add_query_arg('paged', '%#%');
-						$current_page = max(1, get_query_var('paged'));
-								
-						if (is_home() || is_archive()) {
-							$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-							$current_page = max(1, get_query_var('paged'));
-						}
-						if (is_front_page()) {
-							$base = trailingslashit(get_pagenum_link(1)) . '%_%';
-							$current_page = max(1, get_query_var('page'));
-						}
-						if (is_author()) {
-							$base = add_query_arg('page', '%#%');
-							$current_page = max(1, get_query_var('page'));
-						}
-						if (is_single()) {
-							if (is_single() && !is_page()) {
-								$base = add_query_arg('page_num', '%#%');
-								$current_page = max(1, get_query_var('page_num'));
-							}
-							if (is_page()) {
-								$base = add_query_arg('page', '%#%');
-								$current_page = max(1, get_query_var('page'));
-							}
-						}
+						$current_page = max(1, min($current_page, ceil($total_users / $settings['posts_per_page'])));
 						
 						$nav_start = '<nav style="display: none;" class="pagination" data-page="'. $current_page .'" data-max-page="'. ceil( $total_users / $settings['posts_per_page'] ) .'" role="navigation" aria-label="Pagination">';
+						$nav_start .= '<noscript><style>.pagination { display: block !important; }</style></noscript>';
 						
 						echo $nav_start;
-
 						echo paginate_links([
-							'base' => $base,
+							'base' => esc_url($base),
 							'current' => $current_page,
-							'total' => ceil( $total_users / $settings['posts_per_page'] ),
-							'prev_text' => __('« prev'),
-							'next_text' => __('next »'),
+							'total' => ceil($total_users / $settings['posts_per_page']),
+							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';	
-						
 						echo '
 						<div class="elementor-button-wrapper load-more-wrapper">
 							<a href="#" class="elementor-button load-more">Load More</a>
@@ -6765,4 +6656,48 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             }
 			}
     } //end of render function
+	
+	private function get_pagination_base_current($settings) {
+		global $wp;
+		$base = '';
+		
+		$link_unescaped = get_pagenum_link(1, false);
+		$base = strtok($link_unescaped, '?') . '%_%';
+		$current_page = 1;
+
+		if ($settings['query_type'] === 'main') {
+			$current_page = max(1, get_query_var('paged'));
+			//$base = add_query_arg('paged', '%#%');
+		} elseif ($settings['query_type'] === 'custom') {
+			// Custom query pagination handling
+			if (is_home() || is_archive() || is_post_type_archive()) {
+				// Home, Archive, Post Type Archive
+				//$base = trailingslashit(get_pagenum_link(1)) . '%_%';
+				$base = add_query_arg('page_num', '%#%');
+				$current_page = max(1, get_query_var('page_num'));
+			} elseif (is_front_page()) {
+				// Front page
+				$current_page = max(1, get_query_var('page'));
+			} elseif (is_author() || is_single() || is_page()) {
+				// Author archive, single post/page
+				$base = add_query_arg('page_num', '%#%');
+				$current_page = max(1, get_query_var('page_num'));
+			} elseif (is_search()) {
+				// Fix for search results page
+				$base = add_query_arg('page_num', '%#%', home_url($wp->request));
+				$current_page = max(1, get_query_var('page_num'));
+			} elseif (is_tax()) {
+				// Taxonomy archive pagination
+				$term = get_queried_object();
+				$base = get_term_link($term) . 'page/%#%/';
+				$current_page = max(1, get_query_var('paged'));
+			} else {
+			// General fallback
+				$current_page = max(1, get_query_var('paged'));
+			}
+		}
+
+		return [$base, $current_page];
+	}
+	
 }
