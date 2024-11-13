@@ -1,6 +1,6 @@
 <?php
 
-namespace Custom_Dynamic_Tag\Tags;
+namespace BPF_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
@@ -21,7 +21,7 @@ class Custom_Field extends Tag {
 	}
 
 	public function get_group() {
-		return 'custom-dynamic-tags';
+		return 'bpf-dynamic-tags';
 	}
 
 	public function get_categories() {
@@ -54,7 +54,7 @@ class Custom_Field extends Tag {
 					'tax' => esc_html__( 'Taxonomy', 'bpf-widget' ),
 					'user' => esc_html__( 'User', 'bpf-widget' ),
 					'author' => esc_html__( 'Author', 'bpf-widget' ),
-					'theme' => esc_html__( 'Theme Options', 'bpf-widget' ),
+					'theme' => esc_html__( 'Theme Option', 'bpf-widget' ),
 				],
 			]
 		);
@@ -62,7 +62,7 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'option_key',
 			[
-				'label' => esc_html__('Theme Option Key', 'bpf-widget'),
+				'label' => esc_html__('Option Key', 'bpf-widget'),
 				'type' => Controls_Manager::TEXT,
 				'condition'    => array(
 					'field_source' => 'theme',

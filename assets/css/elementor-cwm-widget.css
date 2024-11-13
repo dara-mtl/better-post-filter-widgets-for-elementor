@@ -652,7 +652,7 @@ ul.post-taxonomy li,
   color: rgba(0, 0, 0, 0.2);
   width: 1.15em;
   height: 1.15em;
-  border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
   border-radius: 50% !important;
   transform: translateY(-0.075em);
   display: grid;
@@ -782,6 +782,10 @@ ul.taxonomy-filter.yes li:nth-child(n + 6) {
   transform: translate(0, -50%);
 }
 
+.list-style {
+  display: inline-block;
+}
+
 .list-style input[type="checkbox"] {
   display: none;
 }
@@ -812,14 +816,20 @@ ul.taxonomy-filter.yes li:nth-child(n + 6) {
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
   appearance: none !important;
-  border-radius: 0 !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60' fill='rgb(25,25,25)'><polygon points='10,10 50,10 30,50'/></svg>")
     no-repeat !important;
   background-color: #fff !important;
   background-size: 14px !important;
   background-position: calc(100% - 20px) 50% !important;
   background-repeat: no-repeat !important;
+}
+
+.cwm-select2,
+.cwm-multi-select2 {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .cwm-multi-select2 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
@@ -830,7 +840,6 @@ ul.taxonomy-filter.yes li:nth-child(n + 6) {
 .cwm-multi-select2 .select2-search__field {
   border-width: 0 !important;
   margin-top: 6px !important;
-  padding: 0 11px !important;
 }
 
 .no-posts-found::after,

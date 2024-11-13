@@ -1,6 +1,6 @@
 <?php
 
-namespace Custom_Dynamic_Tag\Tags;
+namespace BPF_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;

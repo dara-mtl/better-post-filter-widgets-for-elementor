@@ -121,13 +121,16 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	}
 
 	protected function render() {
-		
 		$settings = $this->get_settings_for_display();
 		
 		$post_count = 0;
-		$count_text = $post_count > 1 ? ' results' : ' results';
-		echo '<div class="filter-post-count">'. $post_count . $count_text .' found</div>';
-
+		
+		$count_text = sprintf(
+			_n( '%s result found', '%s results found', $post_count === 1 ? 1 : 2, 'bpf-widget' ),
+			number_format_i18n( $post_count )
+		);
+		
+		echo '<div class="filter-post-count">' . esc_html( $count_text ) . '</div>';
 	}
 
 }

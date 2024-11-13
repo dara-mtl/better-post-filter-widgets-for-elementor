@@ -1,6 +1,6 @@
 <?php
 
-namespace Custom_Dynamic_Tag\Tags;
+namespace BPF_Dynamic_Tag\Tags;
 
 use Elementor\Core\DynamicTags\Data_Tag;
 use Elementor\Modules\DynamicTags\Module as TagsModule;

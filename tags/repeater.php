@@ -1,6 +1,6 @@
 <?php
 
-namespace Custom_Dynamic_Tag\Tags;
+namespace BPF_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
@@ -25,7 +25,7 @@ class Repeater extends Tag {
 
 	public function get_group()
 	{
-		return 'custom-dynamic-tags';
+		return 'bpf-dynamic-tags';
 	}
 
 	public function get_categories()
@@ -128,6 +128,9 @@ class Repeater extends Tag {
 				'label' => esc_html__('Child Key 1', 'bpf-widget'),
 				'type' => Controls_Manager::TEXT,
 				'separator' => 'before',
+				'condition'    => array(
+					'custom_key!' => '',
+				)
 			]
 		);
 		
@@ -138,6 +141,7 @@ class Repeater extends Tag {
 				'type' => Controls_Manager::TEXT,
 				'condition'    => array(
 					'child_key_1!' => '',
+					'custom_key!' => '',
 				)
 			]
 		);
@@ -149,6 +153,7 @@ class Repeater extends Tag {
 				'type' => Controls_Manager::TEXT,
 				'condition'    => array(
 					'child_key_2!' => '',
+					'custom_key!' => '',
 				)
 			]
 		);
@@ -160,6 +165,7 @@ class Repeater extends Tag {
 				'type' => Controls_Manager::TEXT,
 				'condition'    => array(
 					'child_key_3!' => '',
+					'custom_key!' => '',
 				)
 			]
 		);

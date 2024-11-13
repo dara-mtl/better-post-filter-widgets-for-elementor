@@ -1,4 +1,9 @@
 <?php
+	
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 function add_elementor_custom_widget_categories( $elements_manager ) {
 
     $elements_manager->add_category(

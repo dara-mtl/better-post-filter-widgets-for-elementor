@@ -1,6 +1,6 @@
 <?php
 
-namespace Custom_Dynamic_Tag\Tags;
+namespace BPF_Dynamic_Tag\Tags;
 use Elementor\Controls_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -47,7 +47,7 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 		}
 
 		if ( strpos($current_url, 'preview_nonce') !== false || is_admin() ) {
-			echo 'This is the post content. The full content will only display on the live page.';
+			echo esc_html__('This is the post content. The full content will only display on the live page.', 'bpf-widget' );
 		} else {
 			if ( !empty($post_content) ) {
 				echo $post_content;

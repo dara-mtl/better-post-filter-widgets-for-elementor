@@ -129,6 +129,17 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             ],
             'frontend_available' => true,
         ]);
+		
+		$this->add_control('carousel_breakpoints', [
+			'type' => \Elementor\Controls_Manager::SELECT,
+			'label' => esc_html__('Trigger Point', 'bpf-widget'),
+			'options' => BPF_Helper::get_elementor_breakpoints(),
+			'default' => '',
+			'frontend_available' => true,
+			'condition' => [
+				'classic_layout' => 'carousel',
+			],
+		]);
 
         $this->add_control('post_skin', [
             'type' => \Elementor\Controls_Manager::SELECT,
@@ -166,9 +177,6 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             ],
 			'frontend_available' => true,
 			'render_type' => 'template',
-            'condition' => [
-                'classic_layout' => ['grid','masonry'],
-            ],
         ]);
 		
 		$this->add_control(
@@ -186,6 +194,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				],
 			]
 		);
+		
+		$skin_template_options_json = json_encode(BPF_Helper::get_elementor_templates());
 
         $this->add_control('skin_template', [
             'label' => esc_html__('Template', 'bpf-widget'),
@@ -208,7 +218,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		]);
 		
 		$template_repeater->add_control('grid_position', [
-			'label' => esc_html__( 'Position', 'bpf-widget' ),
+			'label' => esc_html__('Position', 'bpf-widget'),
 			'type' => \Elementor\Controls_Manager::NUMBER,
 			'min' => 1,
 			'step' => 1,
@@ -261,6 +271,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'label' => esc_html__('Template Grid', 'bpf-widget'),
 			'type' => \Elementor\Controls_Manager::REPEATER,
 			'fields' => $template_repeater->get_controls(),
+			'prevent_empty' => true,
+			'title_field' => "<# let skin_labels = $skin_template_options_json; let skin_label = skin_labels[extra_template_id]; #>{{{ skin_label }}}",
 			'condition' => [
 				'post_skin' => 'template_grid',
 			],
@@ -483,8 +495,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $repeater->add_control('display_date_format', [
             'label' => esc_html__('Date Format', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-            'default' => 'Y/m/d',
-			'placeholder' => 'Y/m/d',
+            'default' => __('Y/m/d', 'bpf-widget'),
+			'placeholder' => __('Y/m/d', 'bpf-widget'),
             'condition' => [
                 'post_content' => 'Post Meta',
 				'display_meta_date' => 'yes',
@@ -537,8 +549,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $repeater->add_control('on_sale_text', [
             'label' => esc_html__('On Sale Text', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'Sale',
-			'placeholder' => 'Sale',
+			'default' => esc_html__('Sale', 'bpf-widget'),
+			'placeholder' => esc_html__('Sale', 'bpf-widget'),
             'separator' => 'after',
             'condition' => [
                 'post_content' => 'Product Bagde',
@@ -561,8 +573,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $repeater->add_control('new_arrival_text', [
             'label' => esc_html__('New Arrival Text', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'New Arrival',
-			'placeholder' => 'New Arrival',
+			'default' => esc_html__('New Arrival', 'bpf-widget'),
+			'placeholder' => esc_html__('New Arrival', 'bpf-widget'),
             'separator' => 'after',
             'condition' => [
                 'post_content' => 'Product Bagde',
@@ -585,23 +597,12 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $repeater->add_control('best_seller_text', [
             'label' => esc_html__('Best Seller Text', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'Best Seller',
-			'placeholder' => 'Best Seller',
+			'default' => esc_html__('Best Seller', 'bpf-widget'),
+			'placeholder' => esc_html__('Best Seller', 'bpf-widget'),
             'separator' => 'after',
             'condition' => [
                 'post_content' => 'Product Bagde',
 				'display_best_seller' => 'yes',
-            ],
-        ]);
-
-        $repeater->add_control('post_taxonomy', [
-            'label' => esc_html__('Select Taxonomies', 'bpf-widget'),
-            'type' => \Elementor\Controls_Manager::SELECT2,
-            'label_block' => true,
-            'multiple' => true,
-            'options' => BPF_Helper::get_taxonomies_options(),
-            'condition' => [
-                'post_content' => 'Taxonomy',
             ],
         ]);
 
@@ -649,7 +650,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'dynamic' => [
 				'active' => false,
 			],
-            'placeholder' => 'Enter a custom field',
+            'placeholder' => esc_html__('Enter a custom field', 'bpf-widget'),
             'label_block' => true,
             'condition' => [
                 'post_content' => 'Custom Field',
@@ -662,7 +663,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'dynamic' => [
 				'active' => false,
 			],
-            'placeholder' => 'Enter a custom field key',
+            'placeholder' => esc_html__('Enter a custom field key', 'bpf-widget'),
             'label_block' => true,
             'condition' => [
                 'post_content' => 'User Meta',
@@ -1433,9 +1434,11 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
         $this->add_control('post_type', [
             'label' => esc_html__('Post Type', 'bpf-widget'),
-            'type' => \Elementor\Controls_Manager::SELECT,
+            'type' => \Elementor\Controls_Manager::SELECT2,
             'default' => 'post',
+			'multiple' => true,
             'options' => BPF_Helper::cwm_get_post_types(),
+			'label_block' => true,
             'condition' => [
                 'query_type' => 'custom',
             ],
@@ -1453,22 +1456,10 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 'private' => 'Private',
                 'trash' => 'Trashed',
             ],
+			'label_block' => true,
 			'frontend_available' => true,
             'condition' => [
                 'query_type' => 'custom',
-            ],
-        ]);
-
-        $this->add_control('order', [
-            'type' => \Elementor\Controls_Manager::SELECT,
-            'label' => esc_html__('Order', 'bpf-widget'),
-            'default' => 'DESC',
-            'options' => [
-                'DESC' => 'Descending',
-                'ASC' => 'Ascending',
-            ],
-            'condition' => [
-                'query_type' => [ 'custom', 'user' ],
             ],
         ]);
 
@@ -1477,15 +1468,43 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'label' => esc_html__('Order By', 'bpf-widget'),
             'default' => 'date',
             'options' => [
-                'date' => 'Date',
-                'modified' => 'Last Modified Date',
-                'rand' => 'Random',
-                'comment_count' => 'Comment Count',
-                'title' => 'Title',
-                'ID' => 'Post ID',
-                'author' => 'Post Author',
-                'menu_order' => 'Menu Order',
-                'relevance' => 'Relevance',
+				'date' => esc_html__( 'Date', 'bpf-widget'),
+				'modified' => esc_html__( 'Last Modified', 'bpf-widget'),
+				'rand' => esc_html__( 'Random', 'bpf-widget'),
+				'comment_count' => esc_html__( 'Comment Count', 'bpf-widget'),
+				'title' => esc_html__( 'Title', 'bpf-widget'),
+                'ID' => esc_html__( 'Post ID', 'bpf-widget'),
+                'author' => esc_html__( 'Author', 'bpf-widget'),
+                'menu_order' => esc_html__( 'Menu Order', 'bpf-widget'),
+                'relevance' => esc_html__( 'Relevance', 'bpf-widget'),
+				'meta_value' => esc_html__( 'Custom Field', 'bpf-widget'),
+				'meta_value_num' => esc_html__( 'Custom Field (Numeric)', 'bpf-widget'),
+            ],
+            'condition' => [
+                'query_type' => [ 'custom', 'user' ],
+            ],
+        ]);
+		
+        $this->add_control('sort_by_meta', [
+            'label' => esc_html__('Field Key', 'bpf-widget'),
+            'type' => \Elementor\Controls_Manager::TEXT,
+			'dynamic' => [
+				'active' => false,
+			],
+            'placeholder' => esc_html__( 'Enter a meta key', 'bpf-widget'),
+            'label_block' => true,
+            'condition' => [
+                'orderby' => [ 'meta_value', 'meta_value_num' ],
+            ],
+        ]);
+		
+        $this->add_control('order', [
+            'type' => \Elementor\Controls_Manager::SELECT,
+            'label' => esc_html__('Order', 'bpf-widget'),
+            'default' => 'DESC',
+            'options' => [
+                'DESC' => 'Descending',
+                'ASC' => 'Ascending',
             ],
             'condition' => [
                 'query_type' => [ 'custom', 'user' ],
@@ -2069,8 +2088,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('search_button_text', [
             'label' => esc_html__('Button Text', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'Search',
-            'placeholder' => 'Search',
+			'default' => esc_html__('Search', 'bpf-widget'),
+            'placeholder' => esc_html__('Search', 'bpf-widget'),
             'condition' => [
                 'use_ajax_search' => 'yes',
             ],
@@ -2079,8 +2098,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('search_placeholder_text', [
             'label' => esc_html__('Placeholder', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'Type & Hit Enter...',
-            'placeholder' => 'Type & Hit Enter...',
+			'default' => esc_html__('Type & Hit Enter...', 'bpf-widget'),
+            'placeholder' => esc_html__('Type & Hit Enter...', 'bpf-widget'),
             'condition' => [
                 'use_ajax_search' => 'yes',
             ],
@@ -2102,7 +2121,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('post_external_url', [
             'label' => esc_html__('External URL', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-            'placeholder' => 'Paste URL or use a custom field',
+            'placeholder' => esc_html__('Paste URL or use a custom field', 'bpf-widget'),
             'label_block' => true,
             'condition' => [
                 'post_skin!' => ['template'],
@@ -2127,7 +2146,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('include_post_id', [
             'label' => esc_html__('Include Posts by ID', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-            'placeholder' => 'Comma Separated List',
+            'placeholder' => esc_html__('Comma Separated List', 'bpf-widget'),
             'label_block' => true,
 			'separator' => 'before',
         ]);
@@ -2135,7 +2154,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('exclude_post_id', [
             'label' => esc_html__('Exclude Posts by ID', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-            'placeholder' => 'Comma Separated List',
+            'placeholder' => esc_html__('Comma Separated List', 'bpf-widget'),
             'label_block' => true,
         ]);
 
@@ -5800,10 +5819,25 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'ignore_sticky_posts' => 'yes' === $settings['sticky_posts'] ? 0 : 1,
 			'fields' => 'ids',
 		];
+		
+		if (!empty($settings['sort_by_meta'])) {
+			$query_args['meta_key'] = $settings['sort_by_meta'];
+		}
 
-        if (!empty($settings['post_type'])) {
-			$query_args['post_type'] = $settings['post_type'];
-        }
+		// Initialize an array to store the post types
+		$post_types_array = [];
+
+		// Check if post_type is set and convert to an array if it's a single value
+		if (!empty($settings['post_type'])) {
+			// If it's a string, convert it to an array with one element
+			$post_types_array = is_array($settings['post_type']) ? $settings['post_type'] : [$settings['post_type']];
+			
+			// Sanitize and filter to ensure only valid post types
+			$post_types_array = array_filter($post_types_array, 'post_type_exists');
+			
+			// Use the post_types_array in the query_args
+			$query_args['post_type'] = $post_types_array;
+		}
 		
         if ($settings['pagination'] != 'none') {
 			$query_args['paged'] = $paged;
@@ -5813,7 +5847,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			$query_args['offset'] = $settings['post_offset'];
 		}
 		
-		$post_in_id = 'post__in_'. $settings['post_type'];
+		$post_in_id = 'post__in_'. implode('_', $post_types_array);
 		
 		if($settings['include_post_id']) {
 			$post_ids = explode(',', $settings['include_post_id']);
@@ -5841,7 +5875,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		
 		$pinned_post = $settings['pinned_posts'] ? 'pinned_post_query' : '';
 		
-		$post_not_in_id = 'post__not_in_'. $settings['post_type'];
+		$post_not_in_id = 'post__not_in_'. implode('_', $post_types_array);
 		if($settings['exclude_post_id']) {
 			$exclude_post_ids = explode(',', $settings['exclude_post_id']);
 			$query_args['post__not_in'] = $exclude_post_ids;
@@ -5850,7 +5884,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         }
 		
         if ($settings['related_posts']) {
-			if($settings['post_type'] === 'post') {
+			if (in_array('post', $post_types_array)) {
 				$query_args['category__in'] = wp_get_post_categories( get_the_ID() );
 				$query_args['post__not_in'] = array( get_the_ID() );
 			} else {
@@ -5870,7 +5904,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			}
         }
 
-		$taxonomy = get_object_taxonomies($settings['post_type'], 'objects');
+		$taxonomy = get_object_taxonomies(implode('_', $post_types_array), 'objects');
 			$tax_cat_in     = '';
 			$tax_cat_not_in = '';
 			$tax_tag_in     = '';
@@ -5880,9 +5914,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 				foreach ( $taxonomy as $index => $tax ) {
 
-					$tax_control_key = $index .'_'. $settings['post_type'];
+					$tax_control_key = $index .'_'. implode('_', $post_types_array);
 
-						if ( 'post' === $settings['post_type'] ) {
+						if ( 'post' === implode('_', $post_types_array) ) {
 							if ( 'post_tag' === $index ) {
 								$tax_control_key = 'tags';
 							} elseif ( 'category' === $index ) {
@@ -5892,7 +5926,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 					if ( ! empty( $settings[ $tax_control_key ] ) ) {
 
-						$operator = $settings[ $index .'_'. $settings['post_type'] .'_filter_type' ];
+						$operator = $settings[ $index .'_'. implode('_', $post_types_array) .'_filter_type' ];
 						
 						$query_args['tax_query'][] = array(
 							'taxonomy' => $index,
@@ -6106,15 +6140,15 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						$before = '';
 						$after = '';
 						
-						$item['field_before'] ? $before = '<span class="pseudo">'. str_replace("#", $counter, $item['field_before']) .'</span>' : $before = '';
-						$item['field_after'] ? $after = '<span class="pseudo">'. str_replace("#", $counter, $item['field_after']) .'</span>' : $after = '';				
+						$before = $item['field_before'] ? '<span class="pseudo">' . BPF_Helper::sanitize_text_with_svg(str_replace("#", $counter, $item['field_before'])) . '</span>' : '';
+						$after = $item['field_after'] ? '<span class="pseudo">' . BPF_Helper::sanitize_text_with_svg(str_replace("#", $counter, $item['field_after'])) . '</span>' : '';			
 						
 						//Display Title
 						if ($item['post_content'] === 'Title') {
 							if($item['post_title_url'] && !empty($permalink)) {
-								echo '<'. $settings['html_tag'] .' class="post-title elementor-repeater-item-' . $item['_id'] .'"><a href="'. $permalink .'" '. $new_tab .'>'. $before . wp_trim_words( get_the_title(), $item['title_length'], '...' ) . $after .'</a></'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $before . esc_html( wp_trim_words( get_the_title(), $item['title_length'], '...' ) ) . $after .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. $settings['html_tag'] .' class="post-title elementor-repeater-item-' . $item['_id'] .'">'. $before . wp_trim_words( get_the_title(), $item['title_length'], '...' ) . $after .'</'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html( wp_trim_words( get_the_title(), $item['title_length'], '...' ) ) . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						
@@ -6123,19 +6157,19 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$content = get_the_content();
 							$content = apply_filters( 'the_content', $content );
 							$content = str_replace( ']]>', ']]&gt;', $content );
-							echo '<div class="post-content elementor-repeater-item-' . $item['_id'] .'"><p>'. $before . wp_trim_words( $content, $item['description_length'], '...' ) . $after .'</p></div>';
+							echo '<div class="post-content elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_trim_words( $content, $item['description_length'], '...' ) . $after .'</p></div>';
 						}
 						
 						//Display Excerpt
 						if ($item['post_content'] === 'Excerpt') {     
-							echo '<div class="post-excerpt elementor-repeater-item-' . $item['_id'] .'"><p>'. $before . wp_trim_words( get_the_excerpt(), $item['description_length'], '...' ) . $after .'</p></div>';
+							echo '<div class="post-excerpt elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_trim_words( get_the_excerpt(), $item['description_length'], '...' ) . $after .'</p></div>';
 						}
 						
 						//Display Custom Field
 						if ($item['post_content'] === 'Custom Field') {
 							$custom_field_val = get_post_meta( get_the_ID(), sanitize_key($item['post_field_key']), true );
 							if ($custom_field_val) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . $item['_id'] .'">'. $before . $custom_field_val . $after .'</div>';
+								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $custom_field_val . $after .'</div>';
 							}
 						}
 						
@@ -6143,7 +6177,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						if ($item['post_content'] === 'ACF' && class_exists('ACF')) {
 							$custom_field_val = get_field(sanitize_key($item['post_field_key']), get_the_ID());
 							if ($custom_field_val) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . $item['_id'] .'">'. $before . $custom_field_val . $after .'</div>';
+								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $custom_field_val . $after .'</div>';
 							}
 						}
 						
@@ -6152,7 +6186,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$content = $before . wp_kses_post($item['post_html']) . $after;
 							// Apply do_shortcode to the entire HTML content
 							$content = do_shortcode($content);
-							echo '<div class="post-html elementor-repeater-item-' . $item['_id'] .'">'. $content .'</div>';
+							echo '<div class="post-html elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $content .'</div>';
 						}
 						
 						//Display Post Meta
@@ -6175,7 +6209,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							}
 							$display_comment = $item['display_meta_comment'] == 'yes' ? $item['post_meta_separator'] . $comment_icon . $comment : '';
 								
-							echo '<div class="post-meta elementor-repeater-item-' . $item['_id'] .'">'. $before . $display_author . $display_date . $display_comment . $after .'</div>';
+							echo '<div class="post-meta elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $display_author . $display_date . $display_comment . $after .'</div>';
 						}
 						
 						//Display Taxonomy
@@ -6184,7 +6218,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$terms = wp_get_object_terms(get_the_ID(), $item['post_taxonomy']);
 							
 						if ($terms) {
-							echo '<ul class="post-taxonomy elementor-repeater-item-' . $item['_id'] .'">';
+							echo '<ul class="post-taxonomy elementor-repeater-item-' . esc_attr($item['_id']) .'">';
 								$i = 0;
 							foreach( $terms as $term ) {
 							if ( $terms_nb > $i )
@@ -6202,9 +6236,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						//Display Read More
 						if ($item['post_content'] === 'Read More') {
 							if(!empty($permalink)) {
-								echo '<a class="post-read-more elementor-repeater-item-' . $item['_id'] .'" href="'. $permalink .'" '. $new_tab .'>'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</a>';
+								echo '<a class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</a>';
 							} else {
-								echo '<span class="post-read-more elementor-repeater-item-' . $item['_id'] .'">'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</span>';
+								echo '<span class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</span>';
 							}
 						}
 						
@@ -6231,7 +6265,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 							if (($item['post_pin_logged_out'] && !empty($user_id)) || empty($item['post_pin_logged_out'])) {
 								$class = in_array($post_id, $post_list) ? 'unpin' : '';
-								echo '<a class="post-pin elementor-repeater-item-' . $item['_id'] . ' ' . $class . '" href="#" data-postid="'. $post_id .'">'. $before . '<span class="pin-text">'. $pin_icon .'<span class="text">'. $item['pin_text'] .'</span></span><span class="unpin-text">'. $unpin_icon .'<span class="text">'. $item['unpin_text'] .'</span></span>' . $after .'</a>';
+								echo '<a class="post-pin elementor-repeater-item-' . esc_attr($item['_id']) . ' ' . $class . '" href="#" data-postid="'. $post_id .'">'. $before . '<span class="pin-text">'. $pin_icon .'<span class="text">'. $item['pin_text'] .'</span></span><span class="unpin-text">'. $unpin_icon .'<span class="text">'. $item['unpin_text'] .'</span></span>' . $after .'</a>';
 							}
 						}
 						
@@ -6258,7 +6292,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$item['display_edit_option'] == 'yes' ? $edit = '<a class="edit-post" href="'. $edit_url .'">'. $edit_icon . $item['edit_option_text'] .'</a>' : $edit = '';
 							$item['display_delete_option'] == 'yes' ? $delete = '<a class="delete-post" href="'. get_delete_post_link( $post_id ) .'">'. $delete_icon . $item['delete_option_text'] .'</a>' : $delete = '';
 							if(current_user_can( 'edit_post', $post_id ) && (get_post_field( 'post_author', $post_id ) == $current_user->ID))  {
-								echo '<div class="edit-options elementor-repeater-item-' . $item['_id'] .'">'. $republish . $edit . $unpublish . $delete .'</div>';
+								echo '<div class="edit-options elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $republish . $edit . $unpublish . $delete .'</div>';
 							}
 						}
 						
@@ -6269,7 +6303,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						//Display Product Price
 						if ($item['post_content'] === 'Product Price') {
 							if($product) {
-								echo '<div class="product-price elementor-repeater-item-' . $item['_id'] .'">'. $before . $product->get_price_html() . $after .'</div>';
+								echo '<div class="product-price elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $product->get_price_html() . $after .'</div>';
 							}
 						}
 						
@@ -6281,40 +6315,40 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 								for ($i = 1; $i <= 5; $i++) { 
 									$i <= $product_rating ? $stars .= "<span class='star-full'>&#9733;</span>" : $stars .= "<span class='star-empty'>&#9734;</span>";
 								}
-								echo '<div class="product-rating elementor-repeater-item-' . $item['_id'] .'">'. $before . $stars . $after .'</div>';
+								echo '<div class="product-rating elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $stars . $after .'</div>';
 							}
 						}
 						
 						//Display Buy Now Button
 						if ($item['post_content'] === 'Buy Now') {
 							if( $product->is_type( 'variable' ) ) {
-								echo '<a class="product-buy-now variable elementor-repeater-item-' . $item['_id'] .'" href="'. get_the_permalink() .'" '. $new_tab .'>'. $before . 'Choose an option' . $after .'</a>';
+								echo '<a class="product-buy-now variable elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. get_the_permalink() .'" '. $new_tab .'>'. $before . 'Choose an option' . $after .'</a>';
 							} 
 							if( $product->is_type( 'simple' ) ) {
-								echo '<a class="product-buy-now simple elementor-repeater-item-' . $item['_id'] .'" href="'. wc_get_checkout_url() .'?add-to-cart='. get_the_ID() .'" '. $new_tab .'>'. $before . $item['product_buy_now_text'] . $after .'</a>';
+								echo '<a class="product-buy-now simple elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. wc_get_checkout_url() .'?add-to-cart='. get_the_ID() .'" '. $new_tab .'>'. $before . $item['product_buy_now_text'] . $after .'</a>';
 							}
 						}
 						
 						//Display Product Bagde
 						if ($item['post_content'] === 'Product Bagde') {							
 							if($item['display_on_sale'] && $product->is_on_sale()) {
-								echo '<div class="product-badge elementor-repeater-item-' . $item['_id'] .'">'. $before . $item['on_sale_text'] . $after .'</div>';
+								echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['on_sale_text'] . $after .'</div>';
 							} elseif($item['display_new_arrival'] && $item['display_best_seller']) {
 								$newness_days = 30;
 								$created = strtotime( $product->get_date_created() );
 							if ( $product->is_featured() ) {
-									echo '<div class="product-badge elementor-repeater-item-' . $item['_id'] .'">'. $before . $item['best_seller_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['best_seller_text'] . $after .'</div>';
 								}
 							elseif ( ( time() - ( 60 * 60 * 24 * $newness_days ) ) < $created ) {
-									echo '<div class="product-badge elementor-repeater-item-' . $item['_id'] .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
 							}
 							} elseif(!$item['display_new_arrival'] && $item['display_best_seller']) {
 								if ( $product->is_featured() ) {
-									echo '<div class="product-badge elementor-repeater-item-' . $item['_id'] .'">'. $before . $item['best_seller_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['best_seller_text'] . $after .'</div>';
 								}
 							} elseif($item['display_new_arrival'] && !$item['display_best_seller']) {
 								if ( ( time() - ( 60 * 60 * 24 * $newness_days ) ) < $created ) {
-									echo '<div class="product-badge elementor-repeater-item-' . $item['_id'] .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
 								}
 							}
 						}
@@ -6515,53 +6549,53 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						// WordPress Username
 						if ($item['post_content'] === 'Username') {
 							if ($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. $settings['html_tag'] .' class="user-username elementor-repeater-item-' . $item['_id'] .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->user_login .'</a></'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->user_login .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. $settings['html_tag'] .' class="user-username elementor-repeater-item-' . $item['_id'] .'">'. $before . $user->user_login . $after .'</'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $user->user_login . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}					
 						
 						//Display Name
 						if ($item['post_content'] === 'Display Name') {
 							if($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. $settings['html_tag'] .' class="user-display-name elementor-repeater-item-' . $item['_id'] .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->display_name .'</a></'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->display_name .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. $settings['html_tag'] .' class="user-display-name elementor-repeater-item-' . $item['_id'] .'">'. $before . $user->display_name . $after .'</'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $user->display_name . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						//Display Full Name
 						if ($item['post_content'] === 'Full Name') {
 							if($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. $settings['html_tag'] .' class="user-full-name elementor-repeater-item-' . $item['_id'] .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->first_name .' '. $user->last_name .'</a></'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->first_name .' '. $user->last_name .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. $settings['html_tag'] .' class="user-full-name elementor-repeater-item-' . $item['_id'] .'">'. $user->first_name .' '. $user->last_name .'</'. $settings['html_tag'] .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $user->first_name .' '. $user->last_name .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						//Display User Meta
 						if ($item['post_content'] === 'User Meta') {
 							$custom_field_val = get_user_meta( $user_id, $item['user_field_key'], true );
 							if ($custom_field_val) {
-								echo '<div class="user-meta-field elementor-repeater-item-' . $item['_id'] .'">'. $custom_field_val .'</div>';
+								echo '<div class="user-meta-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $custom_field_val .'</div>';
 							}
 						}
 						//Display Email
 						if ($item['post_content'] === 'User Email') {
-							echo '<'. $settings['html_tag'] .' class="user-email elementor-repeater-item-' . $item['_id'] .'">'. $user->user_email .'</'. $settings['html_tag'] .'>';
+							echo '<'. esc_attr($settings['html_tag']) .' class="user-email elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $user->user_email .'</'. esc_attr($settings['html_tag']) .'>';
 						}
 						//Display User Role
 						if ($item['post_content'] === 'User Role') {
-							echo '<'. $settings['html_tag'] .' class="user-role elementor-repeater-item-' . $item['_id'] .'">'. implode(', ', array_map('ucwords', $user->roles)) .'</'. $settings['html_tag'] .'>';
+							echo '<'. esc_attr($settings['html_tag']) .' class="user-role elementor-repeater-item-' . esc_attr($item['_id']) .'">'. implode(', ', array_map('ucwords', $user->roles)) .'</'. esc_attr($settings['html_tag']) .'>';
 						}
 						//Display User ID
 						if ($item['post_content'] === 'User ID') {
-							echo '<'. $settings['html_tag'] .' class="user-id elementor-repeater-item-' . $item['_id'] .'">'. $user_id .'</'. $settings['html_tag'] .'>';
+							echo '<'. esc_attr($settings['html_tag']) .' class="user-id elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $user_id .'</'. esc_attr($settings['html_tag']) .'>';
 						}
 						//Display Visit Profile
 						if ($item['post_content'] === 'Visit Profile') {
 							if(!empty($permalink)) {
-								echo '<a class="visit-profile elementor-repeater-item-' . $item['_id'] .'" href="'. $permalink .'" '. $new_tab .'>'. $item['visit_profile_text'] .'</a>';
+								echo '<a class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. $item['visit_profile_text'] .'</a>';
 							} else {
-								echo '<span class="visit-profile elementor-repeater-item-' . $item['_id'] .'">'. $item['visit_profile_text'] .'</span>';
+								echo '<span class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $item['visit_profile_text'] .'</span>';
 							}
 						}
 						// Display HTML with Shortcode Support
@@ -6571,7 +6605,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							// Apply do_shortcode to the entire HTML content
 							$content = do_shortcode($content);
 
-							echo '<div class="post-html elementor-repeater-item-' . $item['_id'] .'">'. $content .'</div>';
+							echo '<div class="post-html elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $content .'</div>';
 						}
 						
 					endforeach;

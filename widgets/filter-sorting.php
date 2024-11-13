@@ -118,16 +118,18 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
 			'default' => 'title',
             'options' => [
-				'' => 'Default',
-                'ID' => 'ID',
-                'rand' => 'Random',
-                'author' => 'Author',
-				'modified' => 'Last Modified',
-				'title' => 'Title',
-				'date' => 'Date',
-				'comment_count' => 'Comments',
-				'meta_value' => 'Custom Field',
-				'meta_value_num' => 'Custom Field (Numeric)',
+				'' => esc_html__( 'Default', 'bpf-widget'),
+				'date' => esc_html__( 'Date', 'bpf-widget'),
+				'modified' => esc_html__( 'Last Modified', 'bpf-widget'),
+				'rand' => esc_html__( 'Random', 'bpf-widget'),
+				'comment_count' => esc_html__( 'Comment Count', 'bpf-widget'),
+				'title' => esc_html__( 'Title', 'bpf-widget'),
+                'ID' => esc_html__( 'Post ID', 'bpf-widget'),
+                'author' => esc_html__( 'Author', 'bpf-widget'),
+                'menu_order' => esc_html__( 'Menu Order', 'bpf-widget'),
+                'relevance' => esc_html__( 'Relevance', 'bpf-widget'),
+				'meta_value' => esc_html__( 'Custom Field', 'bpf-widget'),
+				'meta_value_num' => esc_html__( 'Custom Field (Numeric)', 'bpf-widget'),
             ],
         ]);
 		
@@ -137,7 +139,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 			'dynamic' => [
 				'active' => false,
 			],
-            'placeholder' => 'Enter a meta key',
+            'placeholder' => esc_html__( 'Enter a meta key', 'bpf-widget'),
             'label_block' => true,
             'condition' => [
                 'sort_by' => [ 'meta_value', 'meta_value_num' ],

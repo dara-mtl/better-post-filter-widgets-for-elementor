@@ -130,7 +130,7 @@ class BPF_Helper {
 			'order' => 'ASC',
 		);
 		$elementor_templates = get_posts($args);
-		$options = ['' => esc_html__('Select...', 'cwm-widget')];
+		$options = ['' => esc_html__('Select...', 'bpf-widget')];
 
 		if(!empty($elementor_templates)) {
 			foreach ($elementor_templates as $elementor_template) {
@@ -152,7 +152,7 @@ class BPF_Helper {
 		}
 
 		$options = [
-			'' => esc_html__('Select...', 'cwm-widget'),
+			'' => esc_html__('Select...', 'bpf-widget'),
 		];
 
 		foreach ($roles as $role_key => $role_name) {
@@ -171,7 +171,7 @@ class BPF_Helper {
 		}
 		
 		$options = [
-			'' => esc_html__('Select...', 'cwm-widget'),
+			'' => esc_html__('Select...', 'bpf-widget'),
 		];
 
 		foreach ($user_meta_data as $key => $value) {
@@ -220,110 +220,149 @@ class BPF_Helper {
 	}
 	
 	public static function sanitize_text_with_svg($input) {
-        // Define allowed HTML tags and attributes
-        $allowed_html = [
-            'i' => [ 'class' => [] ], // Allow <i> tags
-            'b' => [], // Allow <b> tags
-            'strong' => [], // Allow <strong> tags
-            'em' => [], // Allow <em> tags
-            'u' => [], // Allow <u> tags
-            'br' => [], // Allow <br> tags
-            'svg' => [ // Allow SVG tags and attributes
-                'xmlns' => [],
-                'width' => [],
-                'height' => [],
-                'viewBox' => [],
-                'preserveAspectRatio' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-                'd' => [],
-                'x' => [],
-                'y' => [],
-                'cx' => [],
-                'cy' => [],
-                'r' => [],
-                'rx' => [],
-                'ry' => [],
-                'points' => [],
-                'transform' => [],
-            ],
-            'path' => [ // Allow <path> tags and attributes
-                'd' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-                'transform' => [],
-            ],
-            'circle' => [ // Allow <circle> tags and attributes
-                'cx' => [],
-                'cy' => [],
-                'r' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-            ],
-            'rect' => [ // Allow <rect> tags and attributes
-                'x' => [],
-                'y' => [],
-                'width' => [],
-                'height' => [],
-                'rx' => [],
-                'ry' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-            ],
-            'line' => [ // Allow <line> tags and attributes
-                'x1' => [],
-                'y1' => [],
-                'x2' => [],
-                'y2' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-            ],
-            'polygon' => [ // Allow <polygon> tags and attributes
-                'points' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-            ],
-            'polyline' => [ // Allow <polyline> tags and attributes
-                'points' => [],
-                'fill' => [],
-                'stroke' => [],
-                'stroke-width' => [],
-            ],
-            'text' => [ // Allow <text> tags and attributes
-                'x' => [],
-                'y' => [],
-                'fill' => [],
-                'font-size' => [],
-                'font-family' => [],
-                'text-anchor' => [],
-            ],
-            'tspan' => [ // Allow <tspan> tags and attributes
-                'x' => [],
-                'y' => [],
-                'fill' => [],
-                'font-size' => [],
-                'font-family' => [],
-            ],
-        ];
+		// Define allowed HTML tags and attributes
+		$allowed_html = [
+			'i' => [ 'class' => [] ],
+			'b' => [],
+			'strong' => [],
+			'em' => [],
+			'u' => [],
+			'br' => [],
+			'svg' => [
+				'xmlns' => [],
+				'width' => [],
+				'height' => [],
+				'viewBox' => [],
+				'preserveAspectRatio' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+				'd' => [],
+				'x' => [],
+				'y' => [],
+				'cx' => [],
+				'cy' => [],
+				'r' => [],
+				'rx' => [],
+				'ry' => [],
+				'points' => [],
+				'transform' => [],
+				'dy' => [],
+				'dx' => [],
+			],
+			'path' => [
+				'd' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+				'transform' => [],
+			],
+			'circle' => [
+				'cx' => [],
+				'cy' => [],
+				'r' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+			],
+			'rect' => [
+				'x' => [],
+				'y' => [],
+				'width' => [],
+				'height' => [],
+				'rx' => [],
+				'ry' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+			],
+			'line' => [
+				'x1' => [],
+				'y1' => [],
+				'x2' => [],
+				'y2' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+			],
+			'polygon' => [
+				'points' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+			],
+			'polyline' => [
+				'points' => [],
+				'fill' => [],
+				'stroke' => [],
+				'stroke-width' => [],
+			],
+			'text' => [
+				'x' => [],
+				'y' => [],
+				'fill' => [],
+				'font-size' => [],
+				'font-family' => [],
+				'text-anchor' => [],
+			],
+			'tspan' => [
+				'x' => [],
+				'y' => [],
+				'fill' => [],
+				'font-size' => [],
+				'font-family' => [],
+				'dy' => [],
+				'dx' => [],
+			],
+		];
 
-        // Extract the original viewBox attribute value if present
-        preg_match('/<svg[^>]*viewBox=["\']([^"\']*)["\'][^>]*>/', $input, $matches);
-        $viewBox = isset($matches[1]) ? $matches[1] : '';
+		// Extract the original viewBox attribute value if present
+		preg_match('/<svg[^>]*viewBox=["\']([^"\']*)["\'][^>]*>/', $input, $matches);
+		$viewBox = isset($matches[1]) ? $matches[1] : '';
 
-        // Sanitize the input using wp_kses
-        $sanitized_input = wp_kses($input, $allowed_html);
+		// Sanitize the input using wp_kses
+		$sanitized_input = wp_kses($input, $allowed_html);
 
-        // Re-insert the viewBox attribute if it was present
-        if ($viewBox) {
-            $sanitized_input = preg_replace('/<svg([^>]*)>/', '<svg$1 viewBox="' . esc_attr($viewBox) . '">', $sanitized_input);
-        }
+		// Re-insert the viewBox attribute if it was present
+		if ($viewBox) {
+			$sanitized_input = preg_replace('/<svg([^>]*)>/', '<svg$1 viewBox="' . esc_attr($viewBox) . '">', $sanitized_input);
+		}
 
-        return $sanitized_input;
-    }
+		// Allow '#' in attributes
+		$sanitized_input = preg_replace('/(fill|stroke)=["\'](#[a-fA-F0-9]{3,6})["\']/', '$1="$2"', $sanitized_input);
+
+		return $sanitized_input;
+	}
+	
+	public static function get_elementor_breakpoints() {
+		// Ensure Elementor is initialized
+		if ( \Elementor\Plugin::$instance ) {
+			// Get the breakpoints manager
+			$breakpoints_manager = \Elementor\Plugin::$instance->breakpoints;
+
+			// Check if custom breakpoints are active
+			if ( $breakpoints_manager ) {
+				// Get breakpoints
+				$breakpoints = $breakpoints_manager->get_breakpoints();
+
+				// Simplify the structure to reverse the current key-value relationship
+				$breakpoint_labels = [];
+
+				// Add empty option to the beginning of the array
+				$breakpoint_labels[''] = __( 'None', 'bpf-widget' );
+
+				foreach ($breakpoints as $key => $breakpoint) {
+					$label = $breakpoint->get_label();
+					$value = $breakpoint->get_value(); // Get the numeric value
+
+					// Reverse the key-value relationship
+					$breakpoint_labels[$value] = $label;
+				}
+
+				return $breakpoint_labels;
+			}
+		}
+
+		return [];
+	}
 
 }

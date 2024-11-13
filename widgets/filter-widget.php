@@ -178,10 +178,10 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
         ]);
 		
         $repeater->add_control('filter_title', [
-            'label' => esc_html__('Filter Label', 'bpf-widget'),
+            'label' => esc_html__('Group Label', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => 'New Filter',
-			'placeholder' => 'New Filter',
+			'default' => esc_html__('New Filter', 'bpf-widget'),
+			'placeholder' => esc_html__('New Filter', 'bpf-widget'),
 			'separator' => 'after',
 			'dynamic' => [
 				'active' => true,
@@ -215,7 +215,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			'dynamic' => [
 				'active' => false,
 			],
-            'placeholder' => 'Enter a meta key',
+            'placeholder' => esc_html__('Enter a meta key'),
             'label_block' => true,
             'condition' => [
                 'select_filter' => [ 'Custom Field', 'Numeric' ],
@@ -236,11 +236,11 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
 			'default' => 'range',
             'options' => [
-				'range' => 'Range',
-                'checkboxes' => 'Checkboxes',
-                'radio' => 'Radio Buttons',
-                'list' => 'Label List',
-				'dropdown' => 'Dropdown',
+				'range' => esc_html__('Range', 'bpf-widget'),
+                'checkboxes' => esc_html__('Checkboxes', 'bpf-widget'),
+                'radio' => esc_html__('Radio Buttons', 'bpf-widget'),
+                'list' => esc_html__('Label List', 'bpf-widget'),
+				'dropdown' => esc_html__('Dropdown', 'bpf-widget'),
             ],
 			'separator' => 'before',
             'condition' => [
@@ -253,12 +253,12 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
 			'default' => 'checkboxes',
             'options' => [
-                'checkboxes' => 'Checkboxes',
-                'radio' => 'Radio Buttons',
-                'list' => 'Label List',
-				'dropdown' => 'Dropdown',
-				'select2' => 'Select2',
-				'input' => 'Input Field',
+                'checkboxes' => esc_html__('Checkboxes', 'bpf-widget'),
+                'radio' => esc_html__('Radio Buttons', 'bpf-widget'),
+                'list' => esc_html__('Label List', 'bpf-widget'),
+				'dropdown' => esc_html__('Dropdown', 'bpf-widget'),
+				'select2' => esc_html__('Select2', 'bpf-widget'),
+				'input' => esc_html__('Input Field', 'bpf-widget'),
             ],
 			'separator' => 'before',
             'condition' => [
@@ -283,11 +283,11 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
 			'default' => 'checkboxes',
             'options' => [
-                'checkboxes' => 'Checkboxes',
-                'radio' => 'Radio Buttons',
-                'list' => 'Label List',
-				'dropdown' => 'Dropdown',
-				'select2' => 'Select2',
+                'checkboxes' => esc_html__('Checkboxes', 'bpf-widget'),
+                'radio' => esc_html__('Radio Buttons', 'bpf-widget'),
+                'list' => esc_html__('Label List', 'bpf-widget'),
+				'dropdown' => esc_html__('Dropdown', 'bpf-widget'),
+				'select2' => esc_html__('Select2', 'bpf-widget'),
             ],
 			'separator' => 'before',
             'condition' => [
@@ -328,12 +328,12 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
             'default' => 'name',
             'options' => [
-                'name' => 'Name',
-                'slug' => 'Slug',
-                'count' => 'Count',
-                'term_group' => 'Term Group',
-                'term_order' => 'Term Order',
-				'term_id' => 'Term ID',
+                'name' => esc_html__('Name', 'bpf-widget'),
+                'slug' => esc_html__('Slug', 'bpf-widget'),
+                'count' => esc_html__('Count', 'bpf-widget'),
+                'term_group' => esc_html__('Term Group', 'bpf-widget'),
+                'term_order' => esc_html__('Term Order', 'bpf-widget'),
+				'term_id' => esc_html__('Term ID', 'bpf-widget'),
             ],
             'condition' => [
                 'select_filter' => 'Taxonomy',
@@ -358,8 +358,8 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'type' => \Elementor\Controls_Manager::SELECT,
             'default' => 'OR',
             'options' => [
-				'OR' => 'OR',
-                'AND' => 'AND',
+				'OR' => esc_html__('OR', 'bpf-widget'),
+                'AND' => esc_html__('AND', 'bpf-widget'),
 				//'IN' => 'IN',
 				//'NOT IN' => 'NOT IN',
 				//'EXISTS' => 'EXISTS',
@@ -441,19 +441,43 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'label' => esc_html__('Filter List', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::REPEATER,
             'fields' => $repeater->get_controls(),
+			'default' => [
+				[
+					'filter_by' => esc_html__( 'category', 'bpf-widget' ),
+				],
+			],
+			'prevent_empty' => true,
             'title_field' => '{{{ filter_title }}}',
         ]);
+		
+		$this->add_control(
+			'group_options_title',
+			[
+				'label' => esc_html__( 'Parent Options', 'bpf-widget' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
 		
         $this->add_control('group_logic', [
             'label' => esc_html__('Parent Logic', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::SELECT,
             'default' => 'AND',
             'options' => [
-                'AND' => 'AND',
-                'OR' => 'OR',
+                'AND' => esc_html__('AND', 'bpf-widget'),
+                'OR' => esc_html__('OR', 'bpf-widget'),
             ],
-			'separator' => 'before',
 			'frontend_available' => true,
+        ]);
+		
+        $this->add_control('dynamic_filtering', [
+            'label' => esc_html__('Dynamic Archive Filtering', 'bpf-widget'),
+            'type' => \Elementor\Controls_Manager::SWITCHER,
+            'label_on' => esc_html__('Yes', 'bpf-widget'),
+            'label_off' => esc_html__('No', 'bpf-widget'),
+            'return_value' => 'yes',
+            'default' => '',
+            'frontend_available' => true,
         ]);
  
 		$this->end_controls_section();
@@ -491,17 +515,6 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			]
 		);
 		
-        $this->add_control('dynamic_filtering', [
-            'label' => esc_html__('Dynamic Archive Filtering', 'bpf-widget'),
-            'type' => \Elementor\Controls_Manager::SWITCHER,
-            'label_on' => esc_html__('Yes', 'bpf-widget'),
-            'label_off' => esc_html__('No', 'bpf-widget'),
-            'return_value' => 'yes',
-            'default' => '',
-			'separator' => 'before',
-            'frontend_available' => true,
-        ]);
-		
         $this->add_control('show_reset', [
             'label' => esc_html__('Display Reset Button', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::SWITCHER,
@@ -512,6 +525,18 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
             'return_value' => 'yes',
         ]);
 		
+		$this->add_control(
+			'reset_text',
+			[
+				'label' => __('Reset Button Text', 'bpf-widget'),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => __('Reset', 'bpf-widget'),
+				'condition' => [
+					'show_reset' => 'yes',
+				],
+			]
+		);
+		
         $this->add_control('use_submit', [
             'label' => esc_html__('Display Submit Button', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::SWITCHER,
@@ -521,6 +546,18 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			'separator' => 'before',
             'return_value' => 'yes',
         ]);
+		
+		$this->add_control(
+			'submit_text',
+			[
+				'label' => __('Submit Button Text', 'bpf-widget'),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => __('Submit', 'bpf-widget'),
+			   'condition' => [
+					'use_submit' => 'yes',
+				],
+			]
+		);
 		
         $this->add_control('display_animation', [
             'label' => esc_html__('Display Loading Animation', 'bpf-widget'),
@@ -603,7 +640,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'section_title',
 			array(
-				'label' => __( 'Filter Label', 'bpf-widget' ),
+				'label' => __( 'Group Label', 'bpf-widget' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			)
 		);
@@ -620,28 +657,6 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
-		$this->add_control(
-			'filter_title_default',
-			array(
-				'type'  => Controls_Manager::HEADING,
-				'label' => __( 'Default Typography', 'bpf-widget' ),
-			)
-		);
-
-		$this->add_control(
-			'filter_title_color',
-			array(
-				'label'     => __( 'Default Font Color', 'bpf-widget' ),
-				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
-				'selectors' => array(
-					'{{WRAPPER}} .filter-title' => 'color: {{VALUE}};',
-				),
-			)
-		);
-
 		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			array(
@@ -650,6 +665,20 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
 				),
 				'selector' => '{{WRAPPER}} .filter-title',
+			)
+		);
+
+		$this->add_control(
+			'filter_title_color',
+			array(
+				'label'     => __( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'global'    => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .filter-title' => 'color: {{VALUE}};',
+				),
 			)
 		);
 
@@ -674,29 +703,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				),
 			)
 		);
-
-		$this->add_control(
-			'filter_label_default',
-			array(
-				'type'  => Controls_Manager::HEADING,
-				'label' => __( 'Default Typography', 'bpf-widget' ),
-			)
-		);
-
-		$this->add_control(
-			'filter_label_color',
-			array(
-				'label'     => __( 'Default Font Color', 'bpf-widget' ),
-				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
-				'selectors' => array(
-					'{{WRAPPER}} .form-tax label' => 'color: {{VALUE}};',
-				),
-			)
-		);
-
+		
 		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			array(
@@ -705,6 +712,20 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
 				),
 				'selector' => '{{WRAPPER}} .form-tax label',
+			)
+		);
+
+		$this->add_control(
+			'filter_label_color',
+			array(
+				'label'     => __( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'global'    => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .form-tax label' => 'color: {{VALUE}};',
+				),
 			)
 		);
 
@@ -725,14 +746,14 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				'global'   => array(
 					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
 				),
-				'selector' => '{{WRAPPER}} .form-tax input, {{WRAPPER}} .form-tax textarea',
+				'selector' => '{{WRAPPER}} .form-tax input:not([type="radio"]):not([type="checkbox"]), {{WRAPPER}} .form-tax textarea',
 			)
 		);
 
 		$this->add_control(
 			'filter_field_color',
 			array(
-				'label'     => __( 'Text Color', 'bpf-widget' ),
+				'label'     => __( 'Color', 'bpf-widget' ),
 				'type'      => Controls_Manager::COLOR,
 				'global'    => array(
 					'default' => Global_Colors::COLOR_PRIMARY,
@@ -791,7 +812,18 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				),
 			)
 		);
+		
+		$this->start_controls_tabs(
+			'input_style_tabs'
+		);
 
+		$this->start_controls_tab(
+			'input_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'bpf-widget' ),
+			]
+		);
+		
 		$this->add_group_control(
 			Group_Control_Border::get_type(),
 			array(
@@ -800,17 +832,6 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			)
 		);
 		
-		$this->add_control(
-			'filter_input_focus',
-			array(
-				'label'     => __( 'Focus Border Color', 'bpf-widget' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => array(
-					'{{WRAPPER}} select:focus,  {{WRAPPER}} .form-tax input:focus, {{WRAPPER}} .form-tax input:focus, {{WRAPPER}} .form-tax textarea.cmb2-textarea:focus, {{WRAPPER}} .form-tax .cmb2-file:focus' => 'border-color: {{VALUE}} !important;',
-				),
-			)
-		);
-
 		$this->add_responsive_control(
 			'filter_input_border_radius',
 			array(
@@ -823,6 +844,69 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->end_controls_tab();
+		
+		$this->start_controls_tab(
+			'input_style_focus_tab',
+			[
+				'label' => esc_html__( 'Focus', 'bpf-widget' ),
+			]
+		);
+		
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_input_focus_border',
+				'selector' => '{{WRAPPER}} select:focus, {{WRAPPER}} .form-tax input:focus, {{WRAPPER}} .form-tax textarea:focus, {{WRAPPER}} .form-tax .cmb2-file:focus',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+		
+		$this->start_controls_section(
+			'section_checkbox_radio',
+			array(
+				'label' => __( 'Checkbox/Radio', 'bpf-widget' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+		
+		$this->add_responsive_control(
+			'checkbox_radio_size',
+			array(
+				'label'      => __( 'Size', 'bpf-widget' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', 'em', '%', 'rem' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .form-tax input[type="radio"], {{WRAPPER}} .form-tax input[type="checkbox"]' => 'font-size: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+		
+		$this->add_control(
+			'checkbox_radio_selected_color',
+			array(
+				'label'     => __( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .form-tax input[type="radio"]:checked::before, {{WRAPPER}} .form-tax input[type="checkbox"]:checked::before' => 'background: {{VALUE}} !important;',
+				),
+			)
+		);
+		
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'label'    => __( 'Checkbox/Radio Border', 'bpf-widget' ),
+				'name'     => 'checkbox_radio_border',
+				'selector' => '{{WRAPPER}} .form-tax input[type="radio"], {{WRAPPER}} .form-tax input[type="checkbox"]',
+			)
+		);
+		
 		$this->end_controls_section();
 		
 		$this->start_controls_section(
@@ -861,33 +945,92 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					'size' => 42,
 				],
 				'selectors'  => array(
-					'{{WRAPPER}} .cwm-select2 .select2-selection, {{WRAPPER}} .cwm-select2 .select2-selection__rendered' => 'height: {{SIZE}}{{UNIT}}; line-height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .cwm-select2 .select2-selection, {{WRAPPER}} .cwm-select2 .select2-selection__rendered' => 'height: auto; line-height: {{SIZE}}{{UNIT}};',
 				)
 			)
 		);
-
-		$this->add_responsive_control(
-			'filter_select2_padding',
+				
+		$this->add_control(
+			'selection_select2_title',
+			[
+				'label' => esc_html__( 'Selection', 'bpf-widget' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+			]
+		);
+		
+		$this->add_control(
+			'selection_select2_color',
 			array(
-				'label'      => __( 'Padding', 'bpf-widget' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => array( 'px', 'em', '%', 'rem' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .select2-selection' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				'label'     => __( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .cwm-multi-select2 .select2-search input, {{WRAPPER}} .select2-selection--single .select2-selection__rendered, .select2-results__options, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice__remove' => 'color: {{VALUE}}',
+				),
+			)
+		);
+		
+		$this->add_control(
+			'selection_select2_background',
+			array(
+				'label'     => __( 'Background Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .cwm-multi-select2 .select2-search, {{WRAPPER}} .select2-selection--single .select2-selection__rendered, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice, .select2-results__options' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
 		
 		$this->add_responsive_control(
-			'filter_select2_margin',
+			'selection_select2_padding',
+			array(
+				'label'      => __( 'Padding', 'bpf-widget' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%', 'rem' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .cwm-multi-select2 .select2-search, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+		
+		$this->add_responsive_control(
+			'selection_select2_margin',
 			array(
 				'label'      => __( 'Margin', 'bpf-widget' ),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', 'em', '%', 'rem' ),
 				'selectors'  => array(
-					'{{WRAPPER}} .select2-selection' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .cwm-multi-select2 .select2-search, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 			)
+		);
+		
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'selection_select2_border',
+				'selector' => '{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice, {{WRAPPER}} .form-tax .cwm-select2 .select2-selection',
+			)
+		);
+		
+		$this->add_responsive_control(
+			'selection_select2_border_radius',
+			array(
+				'label'      => __( 'Border Radius', 'bpf-widget' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				),
+			)
+		);
+		
+		$this->add_control(
+			'dropdown_select2_title',
+			[
+				'label' => esc_html__( 'Dropdown', 'bpf-widget' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator'  => 'before',
+			]
 		);
 
 		$this->add_group_control(
@@ -914,72 +1057,9 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'      => __( 'Border Radius', 'bpf-widget' ),
 				'type'       => Controls_Manager::DIMENSIONS,
-				'separator'  => 'after',
 				'size_units' => array( 'px' ),
 				'selectors'  => array(
 					'{{WRAPPER}} .select2-selection, .select2-dropdown' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
-				),
-			)
-		);
-		
-		$this->add_control(
-			'selection_select2',
-			[
-				'label' => esc_html__( 'Selection', 'bpf-widget' ),
-				'type' => \Elementor\Controls_Manager::HEADING,
-			]
-		);
-		
-		$this->add_control(
-			'selection_select2_color',
-			array(
-				'label'     => __( 'Color', 'bpf-widget' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => array(
-					'{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice, {{WRAPPER}} .cwm-multi-select2 .select2-selection__choice__remove' => 'color: {{VALUE}}',
-				),
-			)
-		);
-		
-		$this->add_control(
-			'selection_select2_background',
-			array(
-				'label'     => __( 'Background Color', 'bpf-widget' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => array(
-					'{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'background-color: {{VALUE}}',
-				),
-			)
-		);
-		
-		$this->add_responsive_control(
-			'selection_select2_padding',
-			array(
-				'label'      => __( 'Padding', 'bpf-widget' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => array( 'px', 'em', '%', 'rem' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				),
-			)
-		);
-		
-		$this->add_group_control(
-			Group_Control_Border::get_type(),
-			array(
-				'name'     => 'selection_select2_border',
-				'selector' => '{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice',
-			)
-		);
-		
-		$this->add_responsive_control(
-			'selection_select2_border_radius',
-			array(
-				'label'      => __( 'Border Radius', 'bpf-widget' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => array( 'px' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .cwm-multi-select2 .select2-selection__choice' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 				),
 			)
 		);
@@ -1415,17 +1495,10 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		
 	}
 
-	protected function render() {	
+	protected function render() {
 	$settings = $this->get_settings_for_display();
 	
-	if(!$settings['target_selector'] && strpos($current_url, 'preview_nonce') !== false || !$settings['target_selector'] && is_admin()) {
-		echo 'Enter a post widget ID or class to enable the filter.';
-		return;
-	} elseif (!$settings['target_selector']) {
-		return;
-	}
-	
-	$widget_id = $this->get_id();
+	$widget_id = esc_attr($this->get_id());
 	
 	//Declare var
 	$show_counter = '';
@@ -1435,9 +1508,11 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 	if($settings['filter_list']) {
 		$index = 0;
 		echo '
-		<div class="filter-container" data-target-post-widget="'. $settings['target_selector'] .'">
-		<form id="filter-'. $widget_id .'" class="form-tax elementor-grid" action="/" method="get" autocomplete="on" data-post-type="'. $settings['filter_post_type'] .'">';
+		<div class="filter-container" data-target-post-widget="'. esc_attr($settings['target_selector']) .'">
+		<form id="filter-'. $widget_id .'" class="form-tax elementor-grid" action="/" method="get" autocomplete="on" data-post-type="'. esc_attr($settings['filter_post_type']) .'">';
 
+		wp_nonce_field('filter_widget_nonce_action', 'filter_widget_nonce_field');
+		
 		if(is_archive()) {
 			$queried_object = get_queried_object();
 			$archive_type = '';
@@ -1452,17 +1527,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				$archive_type = 'post_type';
 			}
 
-			echo '<input type="hidden" name="archive_type" value="' . esc_attr($archive_type) . '">';
+			echo '<input type="hidden" name="archive_type" value="'. esc_attr($archive_type) . '">';
 
 			if ($archive_type === 'taxonomy' && $queried_object instanceof WP_Term) {
 				echo '
-				<input type="hidden" name="archive_id" value="' . esc_attr($queried_object->term_id) . '">
-				<input type="hidden" name="archive_taxonomy" value="' . esc_attr($queried_object->taxonomy) . '">
+				<input type="hidden" name="archive_id" value="'. esc_attr($queried_object->term_id) . '">
+				<input type="hidden" name="archive_taxonomy" value="'. esc_attr($queried_object->taxonomy) . '">
 				';
 			} elseif ($archive_type === 'post_type' && $queried_object instanceof WP_Post_Type) {
-				echo '<input type="hidden" name="archive_post_type" value="' . esc_attr($queried_object->name) . '">';
+				echo '<input type="hidden" name="archive_post_type" value="'. esc_attr($queried_object->name) . '">';
 			} elseif ($queried_object instanceof WP_User) {
-				echo '<input type="hidden" name="archive_id" value="' . esc_attr($queried_object->ID) . '">';
+				echo '<input type="hidden" name="archive_id" value="'. esc_attr($queried_object->ID) . '">';
 			}
 		}
 		
@@ -1472,7 +1547,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['select_filter'] === 'Taxonomy') {
 		
 		// Check if transient exists
-        $transient_key = 'filter_widget_taxonomy_' . $item['filter_by'];
+        $transient_key = 'filter_widget_taxonomy_'. $item['filter_by'];
 		
         $hiterms = get_transient($transient_key);		
 		$display_empty = $item['display_empty'] === 'yes' ? false : true;
@@ -1500,20 +1575,20 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			';
 
 			foreach ($hiterms as $key => $hiterms){
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">More...</li>' : '';
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $hiterms->count .')' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
 				
 				echo '
 				<li>
-				<label for="'. $hiterms->slug .'-'. $widget_id .'">
-				<input type="checkbox" id="'. $hiterms->slug .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['filter_by'] .'" data-taxonomy="'. $hiterms->taxonomy .'" value="'. $hiterms->term_id .'" />
-				<span>'. $hiterms->name . $show_counter .'</span>
+				<label for="'. esc_attr($hiterms->slug) .'-'. $widget_id .'">
+				<input type="checkbox" id="'. esc_attr($hiterms->slug) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['filter_by']) .'" data-taxonomy="'. esc_attr($hiterms->taxonomy) .'" value="'. esc_attr($hiterms->term_id) .'" />
+				<span>'. esc_html($hiterms->name) . $show_counter .'</span>
 				</label>
 				</li>
 				';
 				
 				if($item['show_hierarchy'] === 'yes') {
-				$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterms->term_id;
+				$lowterms_transient_key = 'filter_widget_lowterms_'. $item['filter_by'] . '_'. $hiterms->term_id;
 				$lowterms = get_transient($lowterms_transient_key);
 
 				// Bypass transient for users with editing capabilities
@@ -1534,12 +1609,12 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					$low_terms_group_end = $item['toggle_child'] ? '</span>' : '';
 					echo $low_terms_group_start;
 					foreach($lowterms as $key => $lowterms) :
-					$show_counter = $item['show_counter'] === 'yes' ? ' ('. $lowterms->count .')' : '';
+					$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($lowterms->count) .')' : '';
 						echo '
 						<li class="low-terms '. $toggleable_class .'">
-						<label for="'. $lowterms->slug .'-'. $widget_id .'">
-						<input type="checkbox" id="'. $lowterms->slug .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['filter_by'] .'" data-taxonomy="'. $lowterms->taxonomy .'" value="'. $lowterms->term_id .'" />
-						<span>'. $lowterms->name . $show_counter .'</span>
+						<label for="'. esc_attr($lowterms->slug) .'-'. $widget_id .'">
+						<input type="checkbox" id="'. esc_attr($lowterms->slug) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['filter_by']) .'" data-taxonomy="'. esc_attr($lowterms->taxonomy) .'" value="'. esc_attr($lowterms->term_id) .'" />
+						<span>'. esc_html($lowterms->name) . $show_counter .'</span>
 						</label>
 						</li>';
 						if (!$item['toggle_child']) {
@@ -1563,20 +1638,20 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['filter_style'] === 'radio' || $item['filter_style_cf'] === 'radio') {
 			$term_index = 0;
 			echo '
-			<div class="flex-wrapper '. $item['filter_by'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-taxonomy-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<ul class="taxonomy-filter '. $item['show_toggle'] .'">
+			<div class="flex-wrapper '. esc_attr($item['filter_by']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
+			<div class="cwm-taxonomy-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 			foreach ($hiterms as $key => $hiterms){
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">More...</li>' : '';
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $hiterms->count .')' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
 				
 				echo '
 				<li>
-				<label for="'. $hiterms->slug .'-'. $widget_id .'">
-				<input type="radio" id="'. $hiterms->slug .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['filter_by'] .'" data-taxonomy="'. $hiterms->taxonomy .'" value="'. $hiterms->term_id .'" />
-				<span>'. $hiterms->name . $show_counter .'</span>
+				<label for="'. esc_attr($hiterms->slug) .'-'. $widget_id .'">
+				<input type="radio" id="'. esc_attr($hiterms->slug) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['filter_by']) .'" data-taxonomy="'. esc_attr($hiterms->taxonomy) .'" value="'. esc_attr($hiterms->term_id) .'" />
+				<span>'. esc_html($hiterms->name) . $show_counter .'</span>
 				</label>
 				</li>
 				';
@@ -1596,12 +1671,12 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					$low_terms_group_end = $item['toggle_child'] ? '</span>' : '';
 					echo $low_terms_group_start;
 					foreach($lowterms as $key => $lowterms) :
-					$show_counter = $item['show_counter'] === 'yes' ? ' ('. $lowterms->count .')' : '';
+					$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($lowterms->count) .')' : '';
 						echo '
 						<li class="low-terms '. $toggleable_class .'">
-						<label for="'. $lowterms->slug .'-'. $widget_id .'">
-						<input type="radio" id="'. $lowterms->slug .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['filter_by'] .'" data-taxonomy="'. $lowterms->taxonomy .'" value="'. $lowterms->term_id .'" />
-						<span>'. $lowterms->name . $show_counter .'</span>
+						<label for="'. esc_attr($lowterms->slug) .'-'. $widget_id .'">
+						<input type="radio" id="'. esc_attr($lowterms->slug) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['filter_by']) .'" data-taxonomy="'. esc_attr($lowterms->taxonomy) .'" value="'. esc_attr($lowterms->term_id) .'" />
+						<span>'. esc_html($lowterms->name) . $show_counter .'</span>
 						</label>
 						</li>';
 						if (!$item['toggle_child']) {
@@ -1624,18 +1699,18 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		
 		if($item['filter_style'] === 'list' || $item['filter_style_cf'] === 'list') {
 			echo '
-			<div class="flex-wrapper '. $item['filter_by'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-taxonomy-wrapper" data-logic="'. $item['filter_logic'] .'">
+			<div class="flex-wrapper '. esc_attr($item['filter_by']) .'">
+			<div class="filter-title">'. esc_attr($item['filter_title']) . '</div>
+			<div class="cwm-taxonomy-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
 			<ul class="taxonomy-filter">
 			';
 			foreach ($hiterms as $key => $hiterms){
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $hiterms->count .')' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
 				echo '
 				<li class="list-style">
-				<label for="'. $hiterms->slug .'-'. $widget_id .'">
-				<input type="checkbox" id="'. $hiterms->slug .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['filter_by'] .'" data-taxonomy="'. $hiterms->taxonomy .'" value="'. $hiterms->term_id .'" />
-				<span>'. $hiterms->name . $show_counter .'</span>
+				<label for="'. esc_attr($hiterms->slug) .'-'. $widget_id .'">
+				<input type="checkbox" id="'. esc_attr($hiterms->slug) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['filter_by']) .'" data-taxonomy="'. esc_attr($hiterms->taxonomy) .'" value="'. esc_attr($hiterms->term_id) .'" />
+				<span>'. esc_html($hiterms->name) . $show_counter .'</span>
 				</label>
 				</li>
 				';
@@ -1667,15 +1742,15 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			}
 	
 			echo '
-			<div class="flex-wrapper '. $item['filter_by'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-taxonomy-wrapper '. $select2_class .'" data-logic="'. $item['filter_logic'] .'">
-			<select id="'. $item['filter_by'] .'-'. $widget_id .'">'.
+			<div class="flex-wrapper '. esc_attr($item['filter_by']) .'">
+			<div class="filter-title">'. esc_attr($item['filter_title']) . '</div>
+			<div class="cwm-taxonomy-wrapper '. $select2_class .'" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<select id="'. esc_attr($item['filter_by']) .'-'. $widget_id .'">'.
 			$default_val;
 
 			foreach ($hiterms as $key => $hiterms){
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $hiterms->count .')' : '';
-				echo '<option data-category="'. $hiterms->term_id .'" data-taxonomy="'. $hiterms->taxonomy .'" value="'. $hiterms->term_id .'">'. $hiterms->name . $show_counter .'</option>';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
+				echo '<option data-category="'. esc_attr($hiterms->term_id) .'" data-taxonomy="'. esc_attr($hiterms->taxonomy) .'" value="'. esc_attr($hiterms->term_id) .'">'. esc_html($hiterms->name) . $show_counter .'</option>';
 			}
 			echo '
 			</select>
@@ -1688,12 +1763,12 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['select_filter'] === 'Custom Field') {
 			
 		if($item['filter_style_cf'] === 'input') {
-			$placeholder = $item['text_input_placeholder'] ? $item['text_input_placeholder'] : '';
+			$placeholder = esc_html($item['text_input_placeholder']) ? esc_html($item['text_input_placeholder']) : '';
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<input type="text" class="input-text" id="input-text-'. $item['meta_key'] .'-'. $widget_id .'" name="post_meta" data-taxonomy="'. $item['meta_key'] .'" placeholder="'. $placeholder .'">
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
+			<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<input type="text" class="input-text" id="input-text-'. esc_attr($item['meta_key']) .'-'. $widget_id .'" name="post_meta" data-taxonomy="'. esc_attr($item['meta_key']) .'" placeholder="'. esc_html($placeholder) .'">
 			</div>
 			</div>
 			';
@@ -1701,7 +1776,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 
 		if ($item['meta_key']) {
 			// Check if transient exists
-			$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'];
+			$meta_terms_transient_key = 'filter_widget_meta_terms_'. $item['meta_key'];
 			$terms = get_transient($meta_terms_transient_key);
 
 			// Bypass transient for users with editing capabilities
@@ -1773,20 +1848,20 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['filter_style'] === 'checkboxes' || $item['filter_style_cf'] === 'checkboxes') {
 			$term_index = 0;
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<ul class="taxonomy-filter '. $item['show_toggle'] .'">
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
+			<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 			foreach ($terms as $result){
 				$toggleable_class = ($term_index > 5 && $item['show_toggle']) ? 'toggleable' : '';
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">More...</li>' : '';
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $result->count .')' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				
 				echo '
 				<li class="'. $toggleable_class .'">
-				<label for="'. $result .'-'. $widget_id .'">
-				<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result . $show_counter .'" />
+				<label for="'. esc_attr($result) .'-'. $widget_id .'">
+				<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. ($item['meta_key']) .'" value="'. esc_attr($result) . $show_counter .'" />
 				<span>'. $result .'</span>
 				</label>
 				</li>
@@ -1812,8 +1887,8 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			';
 			foreach ($terms as $result){
 				$toggleable_class = ($term_index > 5 && $item['show_toggle']) ? 'toggleable' : '';
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">More...</li>' : '';
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $result->count .')' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				
 				echo '
 				<li class="'. $toggleable_class .'">
@@ -1836,17 +1911,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		
 		if($item['filter_style'] === 'list' || $item['filter_style_cf'] === 'list') {
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<ul class="taxonomy-filter '. $item['show_toggle'] .'">
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+			<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 			foreach ($terms as $result){
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $result->count .')' : '';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				echo '
 				<li class="list-style">
 				<label for="'. $result .'-'. $widget_id .'">
-				<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result . $show_counter .'" />
+				<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. $result . $show_counter .'" />
 				<span>'. $result .'</span>
 				</label>
 				</li>
@@ -1879,15 +1954,15 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			}
 			
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-custom-field-wrapper '. $select2_class .'" data-logic="'. $item['filter_logic'] .'">
-			<select id="'. $item['meta_key'] .'-'. $widget_id .'">'.
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
+			<div class="cwm-custom-field-wrapper '. $select2_class .'" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<select id="'. esc_attr($item['meta_key']) .'-'. $widget_id .'">'.
 			$default_val;
 			
 			foreach ($terms as $result) {
-				$show_counter = $item['show_counter'] === 'yes' ? ' ('. $result->count .')' : '';
-				echo '<option data-category="'. $result .'" data-taxonomy="'. $item['meta_key'] .'" value="'.$result.'">'. $result . $show_counter .'</option>';
+				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
+				echo '<option data-category="'. $result .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. $result .'">'. $result . $show_counter .'</option>';
 			}
 			echo '
 			</select>
@@ -1903,7 +1978,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			$terms = array();
 			
 			if (!empty($item['meta_key'])) {
-				$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'];
+				$numeric_transient_key = 'filter_widget_numeric_'. $item['meta_key'];
 				$all_posts_transient = get_transient($numeric_transient_key);
 
 				// Bypass transient for users with editing capabilities or if transient doesn't exist
@@ -1982,11 +2057,11 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			}
 
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-				<div class="filter-title">'. $item['filter_title']. '</div>
-				<div class="cwm-numeric-wrapper" data-logic="'. $item['filter_logic'] .'">
-					<span class="field-wrapper"><span class="before">'.$item['insert_before_field'].'</span><input type="number" class="cwm-filter-range-'. $index .'" name="min_price" data-taxonomy="'. $item['meta_key'] .'" data-base-value="'. $min_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $min_value .'"></span>
-					<span class="field-wrapper"><span class="before">'.$item['insert_before_field'].'</span><input type="number" class="cwm-filter-range-'. $index .'" name="max_price" data-taxonomy="'. $item['meta_key'] .'" data-base-value="'. $max_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $max_value .'"></span>
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+				<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
+				<div class="cwm-numeric-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+					<span class="field-wrapper"><span class="before">'. $item['insert_before_field'] .'</span><input type="number" class="cwm-filter-range-'. $index .'" name="min_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. $min_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $min_value .'"></span>
+					<span class="field-wrapper"><span class="before">'. $item['insert_before_field'] .'</span><input type="number" class="cwm-filter-range-'. $index .'" name="max_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. $max_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $max_value .'"></span>
 				</div>
 			</div>
 			';
@@ -1994,17 +2069,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			
 			if($item['filter_style_numeric'] === 'checkboxes') {
 				echo '
-				<div class="flex-wrapper '. $item['meta_key'] .'">
-				<div class="filter-title">'. $item['filter_title']. '</div>
-				<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-				<ul class="taxonomy-filter '. $item['show_toggle_numeric'] .'">
+				<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+				<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+				<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+				<ul class="taxonomy-filter '. esc_attr($item['show_toggle_numeric']) .'">
 				';
 				foreach ($terms as $result){
 					echo '
 					<li>
-					<label for="'. $result .'-'. $widget_id .'">
-					<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result .'" />
-					<span>'. $result .'</span>
+					<label for="'. esc_attr($result) .'-'. $widget_id .'">
+					<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) .'" />
+					<span>'. esc_html($result) .'</span>
 					</label>
 					</li>
 					';
@@ -2017,17 +2092,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			}
 			
 			if($item['filter_style_numeric'] === 'radio') {
-				echo '<div class="flex-wrapper '. $item['meta_key'] .'">
-				<div class="filter-title">'. $item['filter_title']. '</div>
-				<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-				<ul class="taxonomy-filter '. $item['show_toggle_numeric'] .'">
+				echo '<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+				<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+				<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+				<ul class="taxonomy-filter '. esc_attr($item['show_toggle_numeric']) .'">
 				';
 				foreach ($terms as $result){
 					echo '
 					<li>
-					<label for="'. $result .'-'. $widget_id .'">
-					<input type="radio" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result .'" />
-					<span>'. $result .'</span>
+					<label for="'. esc_attr($result) .'-'. $widget_id .'">
+					<input type="radio" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) .'" />
+					<span>'. esc_html($result) .'</span>
 					</label>
 					</li>
 					';
@@ -2041,17 +2116,17 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			
 			if($item['filter_style_numeric'] === 'list') {
 				echo '
-				<div class="flex-wrapper '. $item['meta_key'] .'">
-				<div class="filter-title">'. $item['filter_title']. '</div>
-				<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-				<ul class="taxonomy-filter '. $item['show_toggle_numeric'] .'">
+				<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+				<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+				<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+				<ul class="taxonomy-filter '. esc_attr($item['show_toggle_numeric']) .'">
 				';
 				foreach ($terms as $result){
 					echo '
 					<li class="list-style">
-					<label for="'. $result .'-'. $widget_id .'">
-					<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result .'" />
-					<span>'. $result .'</span>
+					<label for="'. esc_attr($result) .'-'. $widget_id .'">
+					<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) .'" />
+					<span>'. esc_html($result) .'</span>
 					</label>
 					</li>
 					';
@@ -2067,16 +2142,19 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		
 		}
 		
-		if($settings['use_submit']) {
-			echo '<button type="submit" value="submit" class="submit-form">Submit</button>';
+		$submit_text = !empty($settings['submit_text']) ? $settings['submit_text'] : __('Submit', 'bpf-widget');
+		$reset_text = !empty($settings['reset_text']) ? $settings['reset_text'] : __('Reset', 'bpf-widget');
+
+		if ($settings['use_submit']) {
+			echo '<button type="submit" value="submit" class="submit-form">' . esc_html($submit_text) . '</button>';
 		}
-		
-		if($settings['show_reset']) {
-			echo '<button type="reset" class="reset-form" value="reset" onclick="this.form.reset();">Reset</button>';
+
+		if ($settings['show_reset']) {
+			echo '<button type="reset" class="reset-form" value="reset" onclick="this.form.reset();">' . esc_html($reset_text) . '</button>';
 		}
 		
 		if($settings['nothing_found_message']) {
-			echo '<div class="no-post-message" data-target-post-widget="'. $settings['target_selector'] .'" style="display:none;">'. $settings['nothing_found_message'] .'</div>';
+			echo '<div class="no-post-message" data-target-post-widget="'. esc_attr($settings['target_selector']) .'" style="display:none;">'. esc_html($settings['nothing_found_message']) .'</div>';
 		}
 		
 		echo '</form></div>';

@@ -419,7 +419,8 @@
 
 			postCarousel: function () {
 				var settings = this.getElementSettings(),
-					wrapper = this.$element.find( '.cwm-swiper' );
+					widgetId = this.$element.data('id'), // unique widget identifier
+					wrapper = this.$element.find('.cwm-swiper'); // target the shared class
 
 				if (wrapper.length === 0) {
 					return;
@@ -430,155 +431,200 @@
 				if (Swiper) {
 					Swiper.destroy(true, true);
 					Swiper = null;
-				}
-
-				wrapper.addClass('swiper swiper-container');
-				wrapper.children('.post-wrapper').addClass('swiper-slide').wrapAll('<div class="swiper-wrapper"></div>');
-
-				const defaultNext = $('<div class="swiper-button-next cwm-slider-arrow"></div>');
-				const defaultPrev = $('<div class="swiper-button-prev cwm-slider-arrow"></div>');
-				const defaultPagi = $('<div class="swiper-pagination"></div>');
-
-				const noNext = $('<div style="display:none;" class="swiper-button-next cwm-slider-arrow"></div>');
-				const noPrev = $('<div style="display:none;" class="swiper-button-prev cwm-slider-arrow"></div>');
-				const noPagi = $('<div style="display:none;" class="swiper-pagination"></div>');
-
-				// append controls: next prev pagination
-				if (settings.post_slider_arrows) {
-					wrapper
-						.append(defaultNext)
-						.append(defaultPrev);
 				} else {
-					wrapper
-						.append(noNext)
-						.append(noPrev);
+					wrapper.removeClass('cwm-swiper');
 				}
 
-				if (settings.post_slider_pagination) {
-					wrapper.append(defaultPagi);
-				} else {
-					wrapper.append(noPagi);
-				}
+				let breakpoint = settings.carousel_breakpoints ? parseInt(settings.carousel_breakpoints) : 0;
 
-				const autoplayed = settings.post_slider_autoplay || false;
+				const initializeSwiper = () => {
+					// Unique classes based on widget ID
+					wrapper.removeClass('elementor-grid').addClass(`swiper swiper-container cwm-swiper-${widgetId}`);
+					wrapper.children('.post-wrapper').addClass('swiper-slide').wrapAll('<div class="swiper-wrapper"></div>');
 
-				if (autoplayed) {
-					settings.autoplay = {
-						'delay': settings.post_slider_autoplay_delay,
+					const defaultNext = $(`<div class="swiper-button-next cwm-slider-arrow-${widgetId}"></div>`);
+					const defaultPrev = $(`<div class="swiper-button-prev cwm-slider-arrow-${widgetId}"></div>`);
+					const defaultPagi = $(`<div class="swiper-pagination swiper-pagination-${widgetId}"></div>`);
+
+					const noNext = $(`<div style="display:none;" class="swiper-button-next cwm-slider-arrow-${widgetId}"></div>`);
+					const noPrev = $(`<div style="display:none;" class="swiper-button-prev cwm-slider-arrow-${widgetId}"></div>`);
+					const noPagi = $(`<div style="display:none;" class="swiper-pagination swiper-pagination-${widgetId}"></div>`);
+
+					if (settings.post_slider_arrows) {
+						wrapper.append(defaultNext).append(defaultPrev);
+					} else {
+						wrapper.append(noNext).append(noPrev);
+					}
+
+					if (settings.post_slider_pagination) {
+						wrapper.append(defaultPagi);
+					} else {
+						wrapper.append(noPagi);
+					}
+
+					const autoplayed = settings.post_slider_autoplay || false;
+
+					if (autoplayed) {
+						settings.autoplay = {
+							'delay': settings.post_slider_autoplay_delay,
+						};
+					} else {
+						settings.autoplay = false;
+					}
+
+					const breakpointsSettings = {};
+					const breakpoints = elementorFrontend.config.responsive.breakpoints;
+
+					// mobile
+					breakpointsSettings[breakpoints.mobile.value] = {
+						slidesPerView: parseFloat(settings.post_slider_slides_per_view_mobile) || 1,
+						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_mobile) || 1,
+						spaceBetween: parseFloat(settings.post_slider_gap_mobile) || parseFloat(settings.post_slider_gap) || 0,
 					};
-				} else {
-					settings.autoplay = false;
-				}
 
-				const breakpointsSettings = {};
-				const breakpoints = elementorFrontend.config.responsive.breakpoints;
+					// mobile extra
+					if (settings.post_slider_slides_per_view_mobile_extra !== undefined) {
+						breakpointsSettings[breakpoints.mobile_extra.value] = {
+							slidesPerView: parseFloat(settings.post_slider_slides_per_view_mobile_extra) || 1,
+							slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_mobile_extra) || 1,
+							spaceBetween: parseFloat(settings.post_slider_gap_mobile_extra) || parseFloat(settings.post_slider_gap) || 0,
+						};
+					}
 
-				// mobile
-				breakpointsSettings[breakpoints.mobile.value] = {
-					slidesPerView: parseFloat(settings.post_slider_slides_per_view_mobile) || 1,
-					slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_mobile) || 1,
-					spaceBetween: parseFloat(settings.post_slider_gap_mobile) || parseFloat(settings.post_slider_gap) || 0,
+					// tablet
+					breakpointsSettings[breakpoints.tablet.value] = {
+						slidesPerView: parseFloat(settings.post_slider_slides_per_view_tablet) || 1,
+						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_tablet) || 1,
+						spaceBetween: parseFloat(settings.post_slider_gap_tablet) || parseFloat(settings.post_slider_gap) || 0,
+					};
+
+					// tablet extra
+					if (settings.post_slider_slides_per_view_tablet_extra !== undefined) {
+						breakpointsSettings[breakpoints.tablet_extra.value] = {
+							slidesPerView: parseFloat(settings.post_slider_slides_per_view_tablet_extra) || 1,
+							slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_tablet_extra) || 1,
+							spaceBetween: parseFloat(settings.post_slider_gap_tablet_extra) || parseFloat(settings.post_slider_gap) || 0,
+						};
+					}
+
+					// Laptop
+					breakpointsSettings[breakpoints.laptop.value] = {
+						slidesPerView: parseFloat(settings.post_slider_slides_per_view) || 1,
+						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll) || 1,
+						spaceBetween: parseFloat(settings.post_slider_gap) || 0,
+					};
+
+					// widescreen
+					if (settings.post_slider_slides_per_view_widescreen !== undefined) {
+						breakpointsSettings[breakpoints.widescreen.value] = {
+							slidesPerView: parseFloat(settings.post_slider_slides_per_view_widescreen) || 1,
+							slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_widescreen) || 1,
+							spaceBetween: parseFloat(settings.post_slider_gap_widescreen) || parseFloat(settings.post_slider_gap) || 0,
+						};
+					}
+
+					if (settings.post_slider_transition_effect === 'fade') {
+						settings.breakpoints = {};
+					} else {
+						settings.breakpoints = breakpointsSettings;
+					}
+
+					const layoutSettings = {
+						allowTouchMove: settings.post_slider_allow_touch_move === 'yes',
+						autoHeight: settings.post_slider_auto_h === 'yes',
+						effect: settings.post_slider_transition_effect,
+						direction: 'horizontal',
+						loop: settings.post_slider_loop === 'yes',
+						centerInsufficientSlides: false,
+						parallax: settings.post_slider_parallax === 'yes',
+						handleElementorBreakpoints: true,
+						speed: settings.post_slider_speed,
+						slidesPerView: parseFloat(settings.post_slider_slides_per_view),
+						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll),
+						spaceBetween: parseFloat(settings.post_slider_gap),
+						breakpoints: settings.breakpoints,
+						centeredSlides: settings.post_slider_centered_slides === 'yes',
+						centeredSlidesBounds: settings.post_slider_slides_round_lenghts === 'yes',
+						navigation: {
+							nextEl: `.swiper-button-next.cwm-slider-arrow-${widgetId}`,
+							prevEl: `.swiper-button-prev.cwm-slider-arrow-${widgetId}`,
+						},
+						pagination: {
+							el: `.swiper-pagination-${widgetId}`,
+							type: settings.post_slider_pagination_type,
+							clickable: true,
+						},
+						autoplay: settings.autoplay,
+						mousewheel: settings.post_slider_allow_mousewheel === 'yes',
+						watchOverflow: true,
+					};
+
+					if (settings.post_slider_lazy_load === 'yes') {
+						layoutSettings.preloadImages = false;
+						layoutSettings.lazy = {
+							loadPrevNext: true
+						};
+					}
+
+					if ('undefined' === typeof Swiper) {
+						const asyncSwiper = elementorFrontend.utils.swiper;
+
+						new asyncSwiper(wrapper, layoutSettings).then((newSwiperInstance) => {
+							Swiper = newSwiperInstance;
+							this.syncPagination();
+						});
+					} else {
+						const asyncSwiper = elementorFrontend.utils.swiper;
+
+						new asyncSwiper(wrapper, layoutSettings).then((newSwiperInstance) => {
+							Swiper = newSwiperInstance;
+							this.syncPagination();
+						});
+
+						if (Swiper) {
+							Swiper = new Swiper(wrapper, layoutSettings);
+						}
+
+						this.syncPagination();
+					}
 				};
 
-				// mobile extra
-				if (settings.post_slider_slides_per_view_mobile_extra !== undefined) {
-					breakpointsSettings[breakpoints.mobile_extra.value] = {
-						slidesPerView: parseFloat(settings.post_slider_slides_per_view_mobile_extra) || 1,
-						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_mobile_extra) || 1,
-						spaceBetween: parseFloat(settings.post_slider_gap_mobile_extra) || parseFloat(settings.post_slider_gap) || 0,
-					};
-				}
+				const destroySwiper = () => {
+					if (Swiper && typeof Swiper.destroy === 'function') {
+						Swiper.destroy(true, true);
+						Swiper = null;
 
-				// tablet
-				breakpointsSettings[breakpoints.tablet.value] = {
-					slidesPerView: parseFloat(settings.post_slider_slides_per_view_tablet) || 1,
-					slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_tablet) || 1,
-					spaceBetween: parseFloat(settings.post_slider_gap_tablet) || parseFloat(settings.post_slider_gap) || 0,
+						wrapper.removeClass(`swiper swiper-container cwm-swiper-${widgetId}`).addClass('elementor-grid');
+						wrapper.find('.post-wrapper').removeClass('swiper-slide').unwrap('.swiper-wrapper');
+
+						wrapper.find(`.swiper-button-next.cwm-slider-arrow-${widgetId}, .swiper-button-prev.cwm-slider-arrow-${widgetId}, .swiper-pagination-${widgetId}`).remove();
+						wrapper.find('.post-wrapper').removeAttr('style');
+
+						wrapper.addClass('elementor-grid');
+					}
 				};
 
-				// tablet extra
-				if (settings.post_slider_slides_per_view_tablet_extra !== undefined) {
-					breakpointsSettings[breakpoints.tablet_extra.value] = {
-						slidesPerView: parseFloat(settings.post_slider_slides_per_view_tablet_extra) || 1,
-						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_tablet_extra) || 1,
-						spaceBetween: parseFloat(settings.post_slider_gap_tablet_extra) || parseFloat(settings.post_slider_gap) || 0,
-					};
-				}
-			
-				// Laptop
-				breakpointsSettings[breakpoints.laptop.value] = {
-					slidesPerView: parseFloat(settings.post_slider_slides_per_view) || 1,
-					slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll) || 1,
-					spaceBetween: parseFloat(settings.post_slider_gap) || 0,
+				const toggleSwiperOnBreakpoint = () => {
+					const windowWidth = $(window).width();
+					const shouldActivateCarousel = windowWidth <= breakpoint;
+
+					if (shouldActivateCarousel && !Swiper) {
+						initializeSwiper();
+					} else if (!shouldActivateCarousel && Swiper) {
+						destroySwiper();
+					}
 				};
 
-				// widescreen
-				if (settings.post_slider_slides_per_view_widescreen !== undefined) {
-					breakpointsSettings[breakpoints.widescreen.value] = {
-						slidesPerView: parseFloat(settings.post_slider_slides_per_view_widescreen) || 1,
-						slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll_widescreen) || 1,
-						spaceBetween: parseFloat(settings.post_slider_gap_widescreen) || parseFloat(settings.post_slider_gap) || 0,
-					};
-				}
-				
-				if (settings.post_slider_transition_effect === 'fade') {
-					settings.breakpoints = {}; // no breakpoints needed in this case
+				if (!settings.carousel_breakpoints || settings.carousel_breakpoints.length === 0) {
+					initializeSwiper();
 				} else {
-					settings.breakpoints = breakpointsSettings;
-				}
+					toggleSwiperOnBreakpoint();
 
-				const layoutSettings = {
-					allowTouchMove: settings.post_slider_allow_touch_move === 'yes',
-					autoHeight: settings.post_slider_auto_h === 'yes',
-					effect: settings.post_slider_transition_effect,
-					direction: 'horizontal',
-					loop: settings.post_slider_loop === 'yes',
-					centerInsufficientSlides: false,
-					parallax: settings.post_slider_parallax === 'yes',
-					handleElementorBreakpoints : true,
-					speed: settings.post_slider_speed,
-					slidesPerView: parseFloat(settings.post_slider_slides_per_view),
-					slidesPerGroup: parseInt(settings.post_slider_slides_to_scroll),
-					spaceBetween: parseFloat(settings.post_slider_gap),
-					breakpoints: settings.breakpoints,
-					centeredSlides: settings.post_slider_centered_slides === 'yes',
-					centeredSlidesBounds: settings.post_slider_slides_round_lenghts === 'yes',
-					navigation: {
-						nextEl: '.swiper-button-next',
-						prevEl: '.swiper-button-prev',
-					},
-					pagination: {
-						el: '.swiper-pagination',
-						type: settings.post_slider_pagination_type,
-						clickable: true,
-					},
-					autoplay: settings.autoplay,
-					mousewheel: settings.post_slider_allow_mousewheel === 'yes',
-					watchOverflow: true,
-				};
-				
-				if (settings.post_slider_lazy_load === 'yes') {
-					layoutSettings.preloadImages = false;
-					layoutSettings.lazy = {
-						loadPrevNext: true
-					};
-				}
-
-				if ( 'undefined' === typeof Swiper ) {
-					const asyncSwiper = elementorFrontend.utils.swiper;
- 
-				new asyncSwiper( wrapper, layoutSettings ).then( ( newSwiperInstance ) => {
-					//console.log( 'New Swiper instance is ready: ', newSwiperInstance );
-					Swiper = newSwiperInstance;
-					this.syncPagination();
-				} );
-				} else {
-					//console.log( 'Swiper global variable is ready, create a new instance: ', Swiper );
-					Swiper = new Swiper( wrapper, layoutSettings );
-					this.syncPagination();
+					$(window).off('resize.' + widgetId);
+					$(window).on('resize.' + widgetId, this.debounce(toggleSwiperOnBreakpoint, 200));
 				}
 			},
-			
+	
 			syncPagination: function () {
 				const slider_A_element = document.querySelector('#sync1 .swiper-container');
 				const slider_B_element = document.querySelector('#sync2 .swiper-container');

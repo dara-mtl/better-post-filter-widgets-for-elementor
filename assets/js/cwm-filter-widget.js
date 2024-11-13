@@ -11,15 +11,45 @@
 				let ajaxInProgress = false;
 				
 				if ($(".cwm-select2")[0]) {
-					$(".cwm-select2 select").prop('multiple', false).select2();
+					var parentElement = $(".cwm-select2");
+					$(".cwm-select2 select").prop('multiple', false).select2({
+						dropdownParent: parentElement,
+					});
+					
+					$(".cwm-select2").css({
+						"visibility": "visible",
+						"opacity": "1",
+						"transition": "opacity 0.3s ease-in-out"
+					});
 				}
 				
 				if ($(".cwm-multi-select2")[0]) {
+					var parentElement = $(".cwm-multi-select2");
+
 					$(".cwm-multi-select2 select").prop('multiple', true).select2({
-						placeholder: 'Choose an option'
+						dropdownParent: parentElement,
 					});
-					
+
 					$(".cwm-multi-select2 select").val(null).trigger('change');
+
+					$(".cwm-multi-select2").css({
+						"visibility": "visible",
+						"opacity": "1",
+						"transition": "opacity 0.3s ease-in-out"
+					});
+
+					function updatePlusSymbol() {
+						var $rendered = $(".cwm-multi-select2 .select2-selection__rendered");
+
+						$rendered.find(".select2-selection__e-plus-button").remove();
+
+						if ($(".cwm-multi-select2 select").val().length === 0) {
+							$rendered.prepend('<span class="select2-selection__choice select2-selection__e-plus-button">+</span>');
+						}
+					}
+					
+					updatePlusSymbol();
+					$(".cwm-multi-select2 select").on('change', updatePlusSymbol);
 				}
 				
 				const widgetContainer = this.$element.find('.elementor-widget-container');
