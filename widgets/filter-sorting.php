@@ -311,7 +311,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		echo '<select>';
 		foreach ( $settings['order_by_list'] as $item ) {
 			$sort_title = $item['sort_title'] ? $item['sort_title'] : 'Sort by: '. $item['sort_by'] .' ('. $item['order'] .')';
-			echo '<option data-order="'. $item['order'] .'" data-meta="'. $item['sort_by_meta'] .'" value="'. $item['sort_by'] .'">'. $sort_title .'</option>';
+			echo '<option data-order="'. esc_attr($item['order']) .'" data-meta="'. esc_attr($item['sort_by_meta']) .'" value="'. esc_attr($item['sort_by']) .'">'. esc_html($sort_title) .'</option>';
 		}
 		echo '</select>';
 		echo '</form></div>';

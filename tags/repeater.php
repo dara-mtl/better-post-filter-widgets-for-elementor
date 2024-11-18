@@ -195,6 +195,48 @@ class Repeater extends Tag {
 				'separator' => 'before',
 			]
 		);
+		
+		// Add "Toggle Title Tag" field
+		$this->add_control(
+			'toggle_title_tag',
+			[
+				'label' => esc_html__('Title Tag', 'bpf-widget'),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'default' => 'h3',
+				'options' => [
+					'h1' => esc_html__('h1', 'bpf-widget'),
+					'h2' => esc_html__('h2', 'bpf-widget'),
+					'h3' => esc_html__('h3', 'bpf-widget'),
+					'h4' => esc_html__('h4', 'bpf-widget'),
+					'h5' => esc_html__('h5', 'bpf-widget'),
+					'h6' => esc_html__('h6', 'bpf-widget'),
+					'span' => esc_html__('span', 'bpf-widget'),
+					'div' => esc_html__('div', 'bpf-widget'),
+				],
+				'condition' => [
+					'child_html_tag' => 'toggle',
+				],
+			]
+		);
+
+		// Add "Toggle Content Tag" field
+		$this->add_control(
+			'toggle_content_tag',
+			[
+				'label' => esc_html__('Content Tag', 'bpf-widget'),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'default' => 'div',
+				'options' => [
+					'div' => esc_html__('div', 'bpf-widget'),
+					'span' => esc_html__('span', 'bpf-widget'),
+					'p' => esc_html__('p', 'bpf-widget'),
+					'section' => esc_html__('section', 'bpf-widget'),
+				],
+				'condition' => [
+					'child_html_tag' => 'toggle',
+				],
+			]
+		);
 
 	}
 
@@ -266,13 +308,16 @@ class Repeater extends Tag {
 				.toggle-wrapper{border:1px solid #ddd;}.repeater-toggle{display:none}.repeater-toggle+label{cursor:pointer;display:block;padding:10px;background:#f5f5f5;position:relative;transition:background-color 0.3s ease}.repeater-toggle+label:hover{background-color:#e0e0e0}.repeater-toggle+label::after{content:"❯";position:absolute;right:10px;transition:transform 0.3s ease}.repeater-toggle:checked+label::after{transform:rotate(90deg)}.repeater-toggle:checked+label+.toggle-content{display:block;opacity:1;height:auto;padding:10px;overflow:hidden;transform:translateY(0)}.toggle-content{opacity:0;transform:translateY(-10px);height:0;padding:0;overflow:hidden;position:relative;transition:height 0.3s ease,opacity 0.15s,transform 0.3s ease}
 			</style>';
 
-			// Render each entry with dynamic toggling and proper HTML structure
+			// Render each entry with dynamic tags and toggling
 			foreach ($entries as $entry) {
 				$toggle_id = 'toggle-' . uniqid();
 				$toggle_title = '';
 				$toggle_content = '';
 
-				// Assuming the first field is the title and the second is the content
+				// Get the tag settings
+				$toggle_title_tag = $this->get_settings('toggle_title_tag') ?: 'div'; // Default to <div>
+				$toggle_content_tag = $this->get_settings('toggle_content_tag') ?: 'div'; // Default to <div>
+
 				for ($counter = 1; $counter <= $max_child_keys; $counter++) {
 					$child_key = "child_key_{$counter}";
 					$setting_value = $this->get_settings($child_key);
@@ -284,7 +329,7 @@ class Repeater extends Tag {
 						$after = isset($value_parts[2]) ? $value_parts[2] : '';
 
 						$child_value = $entry[$child_value_key] ?? '';
-						
+
 						if ($counter === 1) {
 							// Use the first child as the toggle title
 							$toggle_title = $before . str_replace("#", $class_nb, $child_value) . $after;
@@ -297,8 +342,10 @@ class Repeater extends Tag {
 
 				// Print each toggle item with dynamic content
 				echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr($toggle_id) . '" />';
-				echo '<label for="' . esc_attr($toggle_id) . '">' . $toggle_title . '</label>';
-				echo '<div class="toggle-content">' . $toggle_content . '</div></div>';
+				echo '<label for="' . esc_attr($toggle_id) . '">';
+				echo '<' . esc_attr($toggle_title_tag) . ' class="toggle-title">' . esc_html($toggle_title) . '</' . esc_attr($toggle_title_tag) . '>';
+				echo '</label>';
+				echo '<' . esc_attr($toggle_content_tag) . ' class="toggle-content">' . esc_html($toggle_content) . '</' . esc_attr($toggle_content_tag) . '></div>';
 			}
 		} elseif ($html_tag === 'table') {
 			echo '<table class="repeater-table"><tr>';

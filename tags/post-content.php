@@ -3,6 +3,7 @@
 namespace BPF_Dynamic_Tag\Tags;
 use Elementor\Controls_Manager;
 
+// If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -42,17 +43,15 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 		
 		if($max_length){
 			$post_content =  wp_trim_words($trimmed_content, $max_length, '...' ) ;
-		} else {
-			
 		}
 
 		if ( strpos($current_url, 'preview_nonce') !== false || is_admin() ) {
 			echo esc_html__('This is the post content. The full content will only display on the live page.', 'bpf-widget' );
 		} else {
 			if ( !empty($post_content) ) {
-				echo $post_content;
+				echo wp_kses_post($post_content);
 			} else {
-				echo the_content();
+				echo wp_kses_post(the_content());
 			}
 		}
 	}

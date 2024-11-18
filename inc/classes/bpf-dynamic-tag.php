@@ -1,14 +1,14 @@
 <?php
 
-namespace BPF_Dynamic_Tag;
+namespace BPF_Dynamic_Tag\Classes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
 class BPF_Dynamic_Tag {
-	const TAG_DIR = __DIR__ . '/tags/';
-    const TAG_NAMESPACE = __NAMESPACE__ . '\\tags\\';
+	const TAG_DIR = __DIR__ . '/../../tags/';
+    const TAG_NAMESPACE = 'BPF_Dynamic_Tag\\Tags\\';
 
 	private $tags_list = array(
 		'custom-field' => 'Custom_Field',

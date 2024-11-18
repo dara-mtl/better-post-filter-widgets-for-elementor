@@ -208,6 +208,8 @@ class Custom_Field extends Tag {
 			}
 		}
 		
-		echo ($need_autop == 'yes') ? wpautop(wp_kses_post_deep($value)) : wp_kses_post_deep($value);
+		$value = wp_kses_post($value);
+		
+		echo ($need_autop == 'yes') ? wpautop($value) : $value;
 	}
 }

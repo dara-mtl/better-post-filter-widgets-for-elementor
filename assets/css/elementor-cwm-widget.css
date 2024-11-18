@@ -446,6 +446,10 @@ ul.post-taxonomy li,
   display: block;
 }
 
+.swiper-initialized + .pagination {
+  display: none;
+}
+
 .post-wrapper .post-image a {
   display: block;
 }

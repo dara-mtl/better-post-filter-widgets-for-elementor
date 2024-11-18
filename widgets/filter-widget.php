@@ -1568,14 +1568,14 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['filter_style'] === 'checkboxes' || $item['filter_style_cf'] === 'checkboxes') {
 			$term_index = 0;
 			echo '
-			<div class="flex-wrapper '. $item['filter_by'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-taxonomy-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<ul class="taxonomy-filter '. $item['show_toggle'] .'">
+			<div class="flex-wrapper '. esc_attr($item['filter_by']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+			<div class="cwm-taxonomy-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 
 			foreach ($hiterms as $key => $hiterms){
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. esc_html(esc_html__('More...', 'bpf-widget')) . '</li>' : '';
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
 				
 				echo '
@@ -1644,7 +1644,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 			foreach ($hiterms as $key => $hiterms){
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. esc_html__('More...', 'bpf-widget') . '</li>' : '';
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($hiterms->count) .')' : '';
 				
 				echo '
@@ -1728,7 +1728,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 
 			// Initialize select2_class and default_val
 			$select2_class = '';
-			$default_val = '<option value="">Choose an option</option>';
+			$default_val = '<option value="">' . esc_html__('Choose an option', 'bpf-widget') . '</option>';
 
 			// Determine the select2 class
 			if ($item['filter_style'] === 'select2' || $item['filter_style_cf'] === 'select2') {
@@ -1855,14 +1855,14 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			';
 			foreach ($terms as $result){
 				$toggleable_class = ($term_index > 5 && $item['show_toggle']) ? 'toggleable' : '';
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. esc_html__('More...', 'bpf-widget') . '</li>' : '';
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				
 				echo '
 				<li class="'. $toggleable_class .'">
 				<label for="'. esc_attr($result) .'-'. $widget_id .'">
-				<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. ($item['meta_key']) .'" value="'. esc_attr($result) . $show_counter .'" />
-				<span>'. $result .'</span>
+				<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) . $show_counter .'" />
+				<span>'. esc_html($result) .'</span>
 				</label>
 				</li>
 				';
@@ -1880,21 +1880,21 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		if($item['filter_style'] === 'radio' || $item['filter_style_cf'] === 'radio') {
 			$term_index = 0;
 			echo '
-			<div class="flex-wrapper '. $item['meta_key'] .'">
-			<div class="filter-title">'. $item['filter_title']. '</div>
-			<div class="cwm-custom-field-wrapper" data-logic="'. $item['filter_logic'] .'">
-			<ul class="taxonomy-filter '. $item['show_toggle'] .'">
+			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
+			<div class="filter-title">'. esc_html($item['filter_title']) .'</div>
+			<div class="cwm-custom-field-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
+			<ul class="taxonomy-filter '. esc_attr($item['show_toggle']) .'">
 			';
 			foreach ($terms as $result){
 				$toggleable_class = ($term_index > 5 && $item['show_toggle']) ? 'toggleable' : '';
-				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. __('More...', 'bpf-widget') . '</li>' : '';
+				$toggle_li = ($term_index > 5 && $item['show_toggle']) ? '<li class="more">'. esc_html__('More...', 'bpf-widget') . '</li>' : '';
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				
 				echo '
 				<li class="'. $toggleable_class .'">
-				<label for="'. $result .'-'. $widget_id .'">
-				<input type="radio" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. $item['meta_key'] .'" data-taxonomy="'. $item['meta_key'] .'" value="'. $result . $show_counter .'" />
-				<span>'. $result .'</span>
+				<label for="'. esc_attr($result) .'-'. $widget_id .'">
+				<input type="radio" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) . $show_counter .'" />
+				<span>'. esc_html($result) .'</span>
 				</label>
 				</li>
 				';
@@ -1920,9 +1920,9 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
 				echo '
 				<li class="list-style">
-				<label for="'. $result .'-'. $widget_id .'">
-				<input type="checkbox" id="'. $result .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. $result . $show_counter .'" />
-				<span>'. $result .'</span>
+				<label for="'. esc_attr($result) .'-'. $widget_id .'">
+				<input type="checkbox" id="'. esc_attr($result) .'-'. $widget_id .'" class="cwm-filter-item" name="'. esc_attr($item['meta_key']) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) . $show_counter .'" />
+				<span>'. esc_html($result) .'</span>
 				</label>
 				</li>
 				';
@@ -1940,7 +1940,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 
 			// Initialize select2_class and default_val
 			$select2_class = '';
-			$default_val = '<option value="">Choose an option</option>';
+			$default_val = '<option value="">' . esc_html__('Choose an option', 'bpf-widget') . '</option>';
 
 			// Determine the select2 class
 			if ($item['filter_style'] === 'select2' || $item['filter_style_cf'] === 'select2') {
@@ -1962,7 +1962,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			
 			foreach ($terms as $result) {
 				$show_counter = $item['show_counter'] === 'yes' ? ' ('. intval($result->count) .')' : '';
-				echo '<option data-category="'. $result .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. $result .'">'. $result . $show_counter .'</option>';
+				echo '<option data-category="'. esc_attr($result) .'" data-taxonomy="'. esc_attr($item['meta_key']) .'" value="'. esc_attr($result) .'">'. esc_html($result) . $show_counter .'</option>';
 			}
 			echo '
 			</select>
@@ -2060,8 +2060,8 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			<div class="flex-wrapper '. esc_attr($item['meta_key']) .'">
 				<div class="filter-title">'. esc_html($item['filter_title']) . '</div>
 				<div class="cwm-numeric-wrapper" data-logic="'. esc_attr($item['filter_logic']) .'">
-					<span class="field-wrapper"><span class="before">'. $item['insert_before_field'] .'</span><input type="number" class="cwm-filter-range-'. $index .'" name="min_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. $min_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $min_value .'"></span>
-					<span class="field-wrapper"><span class="before">'. $item['insert_before_field'] .'</span><input type="number" class="cwm-filter-range-'. $index .'" name="max_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. $max_value .'" step="1" min="'. $min_value .'" max="'. $max_value .'" value="'. $max_value .'"></span>
+					<span class="field-wrapper"><span class="before">'. esc_html($item['insert_before_field']) .'</span><input type="number" class="cwm-filter-range-'. esc_attr($index) .'" name="min_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. esc_attr($min_value) .'" step="1" min="'. esc_attr($min_value) .'" max="'. esc_attr($max_value) .'" value="'. esc_attr($min_value) .'"></span>
+					<span class="field-wrapper"><span class="before">'. esc_html($item['insert_before_field']) .'</span><input type="number" class="cwm-filter-range-'. esc_attr($index) .'" name="max_price" data-taxonomy="'. esc_attr($item['meta_key']) .'" data-base-value="'. esc_attr($max_value) .'" step="1" min="'. esc_attr($min_value) .'" max="'. esc_attr($max_value) .'" value="'. esc_attr($max_value) .'"></span>
 				</div>
 			</div>
 			';

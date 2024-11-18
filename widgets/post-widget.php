@@ -132,7 +132,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		
 		$this->add_control('carousel_breakpoints', [
 			'type' => \Elementor\Controls_Manager::SELECT,
-			'label' => esc_html__('Trigger Point', 'bpf-widget'),
+			'label' => esc_html__('Trigger Breakpoint', 'bpf-widget'),
 			'options' => BPF_Helper::get_elementor_breakpoints(),
 			'default' => '',
 			'frontend_available' => true,
@@ -154,6 +154,22 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				'custom_html' => 'Custom HTML',
             ],
         ]);
+		
+		$this->add_control(
+			'keep_sideways',
+			[
+				'label' => esc_html__( 'Keep sideways on mobile', 'bpf-widget' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => esc_html__( 'Yes', 'bpf-widget' ),
+				'label_off' => esc_html__( 'No', 'bpf-widget' ),
+				'return_value' => 'keep-sideways',
+				'prefix_class' => '',
+				'default' => '',
+				'condition' => [
+					'post_skin' => 'side',
+				],
+			]
+		);
 		
         $this->add_responsive_control('nb_columns', [
             'type' => \Elementor\Controls_Manager::SELECT,
@@ -178,22 +194,6 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'frontend_available' => true,
 			'render_type' => 'template',
         ]);
-		
-		$this->add_control(
-			'keep_sideways',
-			[
-				'label' => esc_html__( 'Keep sideways on mobile', 'bpf-widget' ),
-				'type' => \Elementor\Controls_Manager::SWITCHER,
-				'label_on' => esc_html__( 'Yes', 'bpf-widget' ),
-				'label_off' => esc_html__( 'No', 'bpf-widget' ),
-				'return_value' => 'keep-sideways',
-				'prefix_class' => '',
-				'default' => '',
-				'condition' => [
-					'post_skin' => 'side',
-				],
-			]
-		);
 		
 		$skin_template_options_json = json_encode(BPF_Helper::get_elementor_templates());
 
@@ -2000,9 +2000,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->start_controls_section('pagination_section', [
             'label' => esc_html__('Pagination', 'bpf-widget'),
             'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-            'condition' => [
-                'classic_layout!' => 'carousel',
-            ],
+            //'condition' => [
+            //    'classic_layout!' => 'carousel',
+            //],
         ]);
 
         $this->add_control('pagination', [
@@ -2016,6 +2016,24 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 'load_more' => 'Load More Button',
                 'infinite' => 'Infinite',
             ],
+            'condition' => [
+                'classic_layout!' => 'carousel',
+            ],
+            'frontend_available' => true,
+        ]);
+		
+        $this->add_control('pagination_carousel', [
+            'type' => \Elementor\Controls_Manager::SELECT,
+            'label' => esc_html__('Pagination', 'bpf-widget'),
+            'default' => 'none',
+            'options' => [
+                'none' => 'None',
+                'numbers' => 'Numbers',
+                'numbers_and_prev_next' => 'Numbers + Previous/Next',
+            ],
+            'condition' => [
+                'classic_layout' => 'carousel',
+            ],
             'frontend_available' => true,
         ]);
 		
@@ -2027,9 +2045,21 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
             'return_value' => 'yes',
             'default' => 'yes',
             'frontend_available' => true,
-            'condition' => [
-                'pagination' => ['numbers','numbers_and_prev_next', 'load_more'],
-            ],
+			'conditions' => [
+				'relation' => 'or',
+				'terms' => [
+					[
+						'name' => 'pagination',
+						'operator' => 'in',
+						'value' => ['numbers', 'numbers_and_prev_next', 'load_more'],
+					],
+					[
+						'name' => 'pagination_carousel',
+						'operator' => 'in',
+						'value' => ['numbers', 'numbers_and_prev_next'],
+					],
+				],
+			],
         ]);
 		
         $this->add_control('hide_infinite_load', [
@@ -2088,8 +2118,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('search_button_text', [
             'label' => esc_html__('Button Text', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => esc_html__('Search', 'bpf-widget'),
-            'placeholder' => esc_html__('Search', 'bpf-widget'),
+			'default' => __('Search', 'bpf-widget'),
+            'placeholder' => __('Search', 'bpf-widget'),
             'condition' => [
                 'use_ajax_search' => 'yes',
             ],
@@ -2098,8 +2128,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->add_control('search_placeholder_text', [
             'label' => esc_html__('Placeholder', 'bpf-widget'),
             'type' => \Elementor\Controls_Manager::TEXT,
-			'default' => esc_html__('Type & Hit Enter...', 'bpf-widget'),
-            'placeholder' => esc_html__('Type & Hit Enter...', 'bpf-widget'),
+			'default' => __('Type & Hit Enter...', 'bpf-widget'),
+            'placeholder' => __('Type & Hit Enter...', 'bpf-widget'),
             'condition' => [
                 'use_ajax_search' => 'yes',
             ],
@@ -5183,10 +5213,21 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
         $this->start_controls_section('pagination_style', [
             'label' => esc_html__('Pagination', 'bpf-widget'),
             'tab' => \Elementor\Controls_Manager::TAB_STYLE,
-            'condition' => [
-                'pagination' => ['numbers', 'numbers_and_prev_next'],
-                'classic_layout!' => 'carousel',
-            ],
+			'conditions' => [
+				'relation' => 'or',
+				'terms' => [
+					[
+						'name' => 'pagination',
+						'operator' => 'in',
+						'value' => ['numbers', 'numbers_and_prev_next'],
+					],
+					[
+						'name' => 'pagination_carousel',
+						'operator' => 'in',
+						'value' => ['numbers', 'numbers_and_prev_next'],
+					],
+				],
+			],
         ]);
 
         $this->add_control('pagination_gap', [
@@ -5785,11 +5826,19 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$lazy_load = $settings['post_slider_lazy_load'] == 'yes' ? 'swiper-lazy' : '';
 		$class_swiper = 'elementor-grid';
 		$image = '';
+		$pagination = '';
+		if (isset($settings['classic_layout']) && 'carousel' === $settings['classic_layout']) {
+			$pagination = isset($settings['pagination_carousel']) ? $settings['pagination_carousel'] : 'none';
+		} else {
+			// Use the regular pagination if not in carousel layout
+			$pagination = isset($settings['pagination']) ? $settings['pagination'] : 'none';
+		}
+		
 		if($settings['use_ajax_search']) {
-			$search_query = isset($_POST['search_query']) ? $_POST['search_query'] : '';
-			$placeholder_text = isset($settings['search_placeholder_text']) ? $settings['search_placeholder_text'] : '';
-			$button_text = isset($settings['search_button_text']) ? $settings['search_button_text'] : 'Search';
-			echo '<div class="search-container"><form action="/" method="get" autocomplete="on"><input type="text" name="s" placeholder="'. $placeholder_text .'" id="keyword" class="input_search" value="'. $search_query .'"><button type="submit">'. $button_text .'</button></form></div>';
+			$search_query = isset($_POST['search_query']) ? sanitize_text_field($_POST['search_query']) : '';
+			$placeholder_text = isset($settings['search_placeholder_text']) ? esc_attr($settings['search_placeholder_text']) : '';
+			$button_text = isset($settings['search_button_text']) ? esc_html($settings['search_button_text']) : 'Search';
+			echo '<div class="search-container"><form action="/" method="get" autocomplete="on"><input type="text" name="s" placeholder="'. $placeholder_text .'" id="keyword" class="input_search" value="'. esc_attr($search_query) .'"><button type="submit">'. $button_text .'</button></form></div>';
 		}	
         if ($settings['classic_layout'] == 'carousel') {
 			$class_swiper = 'elementor-grid cwm-swiper';
@@ -5839,7 +5888,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			$query_args['post_type'] = $post_types_array;
 		}
 		
-        if ($settings['pagination'] != 'none') {
+        if ($pagination != 'none') {
 			$query_args['paged'] = $paged;
         }
 		
@@ -5986,7 +6035,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				$combined_css = '';
 				//$template_css_urls = []; // Array to store the URLs for debugging
 
-				if ($settings['skin_template'] || $settings['post_skin'] === 'template_grid') {
+				// Sanitize and validate settings before using them
+				if (!empty($settings['skin_template']) && is_numeric($settings['skin_template'])) {
 					$main_template_id = intval($settings['skin_template']);
 					$main_css_content = $this->get_template_css_content($main_template_id);
 					if ($main_css_content) {
@@ -5997,21 +6047,23 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 				// Collect CSS contents for the extra templates
 				foreach ($extra_templates_by_position as $extra_template) {
-					$extra_template_id = intval($extra_template['extra_template_id']);
-					$extra_css_content = $this->get_template_css_content($extra_template_id);
-					if ($extra_css_content) {
-						$combined_css .= $extra_css_content;
-						//$template_css_urls[$extra_template_id] = $extra_css_content; // Store content for debugging
+					if (isset($extra_template['extra_template_id']) && is_numeric($extra_template['extra_template_id'])) {
+						$extra_template_id = intval($extra_template['extra_template_id']);
+						$extra_css_content = $this->get_template_css_content($extra_template_id);
+						if ($extra_css_content) {
+							$combined_css .= $extra_css_content;
+							//$template_css_urls[$extra_template_id] = $extra_css_content; // Store content for debugging
+						}
 					}
 				}
 
-				// Output combined CSS
-				if ($combined_css) {
-					echo '<style id="elementor-combined-css">' . $combined_css . '</style>';
+				// Output combined CSS only if not empty
+				if (!empty($combined_css)) {
+					echo '<style id="elementor-combined-css">' . wp_kses($combined_css, array()) . '</style>';
 				}
 				
                 echo '
-				<div class="post-container '. $settings['pagination'] .' '. $skin .' '. $pinned_post .'" data-total-post="'. $cwm_query->found_posts .'">
+				<div class="post-container ' . esc_attr($pagination . ' ' . $skin . ' ' . $pinned_post) . '" data-total-post="' . absint($cwm_query->found_posts) . '">
                 <div class="post-container-inner">
 				<div class="'. $class_swiper .'">
 				';
@@ -6028,7 +6080,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						$external_url = get_post_meta( get_the_ID(), $settings['post_external_url'], true );
 						
 						if(strpos($settings['post_external_url'],'http') !== false) {
-							$external_url = $settings['post_external_url'];
+							$external_url = esc_url($settings['post_external_url']);
 						}
 						if ($external_url) {
 							$permalink = $external_url;
@@ -6090,46 +6142,52 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace("#EXCERPT#", esc_html(get_the_excerpt()), $html_content);
 						$html_content = str_replace("#IMAGE#", $image, $html_content);
 						echo '<' . $post_html_tag . ' class="post-wrapper"><div class="inner-content">';
-						echo wp_kses_post($html_content);
+						echo $html_content;
 						echo '</div></' . $post_html_tag . '>';
 					} else {
 					echo '<'. $post_html_tag .' class="post-wrapper">';
 						if ($settings['show_featured_image'] == 'yes') {
 							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
 							
+							// Prepare escaped URLs
+							$image_url = esc_url(get_the_post_thumbnail_url($cwm_query->ID, $image_size));
+							$placeholder_image_url = esc_url(plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-' . esc_attr($settings['img-aspect-ratio']) . '.png');
+							$default_image_url = esc_url($settings['post_default_image']['url']);
+
+							// Lazy load image
 							if ($settings['img_equal_height'] == 'yes') {
+								if ($lazy_load) {
+									$image = '<img class="swiper-lazy" data-background="' . $image_url . '" src="' . $placeholder_image_url . '" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
+								} else {
+									$image = '<img style="background-image: url(' . $image_url . ')" src="' . $placeholder_image_url . '" alt="Post Image Placeholder"/>';
+								}
+								if (!$image_url) {
 									if ($lazy_load) {
-										$image = '<img class="swiper-lazy" data-background="'. get_the_post_thumbnail_url($cwm_query->ID, $image_size) .'" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
+										$image = '<img class="swiper-lazy" data-background="' . $default_image_url . '" src="' . $placeholder_image_url . '" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
 									} else {
-										$image = '<img style="background-image: url('. get_the_post_thumbnail_url($cwm_query->ID, $image_size) .')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Post Image Placeholder"/>';
-									}
-								if (!get_the_post_thumbnail_url()) {
-									if ($lazy_load) {
-										$image = '<img class="swiper-lazy" data-background="'. $settings['post_default_image']['url'] .'" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
-									} else {
-										$image = '<img style="background-image: url('. $settings['post_default_image']['url'] .')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Post Image Placeholder"/>';
+										$image = '<img style="background-image: url(' . $default_image_url . ')" src="' . $placeholder_image_url . '" alt="Post Image Placeholder"/>';
 									}
 								}
 							} else {
 								if ($lazy_load) {
-									$post_thumbnail_url = get_the_post_thumbnail_url($cwm_query->ID, $image_size);
-									$image = '<img class="swiper-lazy" data-src="'. $post_thumbnail_url .'"><div class="swiper-lazy-preloader"></div>';
+									$image = '<img class="swiper-lazy" data-src="' . $image_url . '"><div class="swiper-lazy-preloader"></div>';
 								} else {
-									$image = get_the_post_thumbnail($cwm_query->ID, $image_size);
+									$image = wp_kses_post(get_the_post_thumbnail($cwm_query->ID, $image_size));
 								}
 								if (!$image) {
 									if ($lazy_load) {
-										$image = '<img class="swiper-lazy" data-src="'. $settings['post_default_image']['url'] .'" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
+										$image = '<img class="swiper-lazy" data-src="' . $default_image_url . '" alt="Post Image Placeholder"/><div class="swiper-lazy-preloader"></div>';
 									} else {
-										$image = '<img src="'. $settings['post_default_image']['url'] .'" alt="Post Image Placeholder"/>';
+										$image = '<img src="' . $default_image_url . '" alt="Post Image Placeholder"/>';
 									}
 								}
 							}
 							
+							// Output HTML with escaped values
 							if ($settings['post_image_url'] && !empty($permalink)) {
-								echo '<div class="post-image"><a href="'. $permalink .'" '. $new_tab .'>'. $image . $overlay .'</a></div>';
+								echo '<div class="post-image"><a href="' . $permalink . '" ' . $new_tab . '>' . $image . $overlay . '</a></div>';
 							} else {
-								echo '<div class="post-image">'. $image . $overlay .'</div>';
+								echo '<div class="post-image">' . $image . $overlay . '</div>';
 							}
 						}
 					echo '<div class="inner-content">';
@@ -6146,9 +6204,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						//Display Title
 						if ($item['post_content'] === 'Title') {
 							if($item['post_title_url'] && !empty($permalink)) {
-								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $before . esc_html( wp_trim_words( get_the_title(), $item['title_length'], '...' ) ) . $after .'</a></'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $before . esc_html( wp_trim_words( get_the_title(), absint($item['title_length']), '...' ) ) . $after .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html( wp_trim_words( get_the_title(), $item['title_length'], '...' ) ) . $after .'</'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="post-title elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html( wp_trim_words( get_the_title(), absint($item['title_length']), '...' ) ) . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						
@@ -6157,19 +6215,19 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$content = get_the_content();
 							$content = apply_filters( 'the_content', $content );
 							$content = str_replace( ']]>', ']]&gt;', $content );
-							echo '<div class="post-content elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_trim_words( $content, $item['description_length'], '...' ) . $after .'</p></div>';
+							echo '<div class="post-content elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_kses_post(wp_trim_words( $content, absint($item['description_length']), '...' )) . $after .'</p></div>';
 						}
 						
 						//Display Excerpt
 						if ($item['post_content'] === 'Excerpt') {     
-							echo '<div class="post-excerpt elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_trim_words( get_the_excerpt(), $item['description_length'], '...' ) . $after .'</p></div>';
+							echo '<div class="post-excerpt elementor-repeater-item-' . esc_attr($item['_id']) .'"><p>'. $before . wp_trim_words( get_the_excerpt(), absint($item['description_length']), '...' ) . $after .'</p></div>';
 						}
 						
 						//Display Custom Field
 						if ($item['post_content'] === 'Custom Field') {
 							$custom_field_val = get_post_meta( get_the_ID(), sanitize_key($item['post_field_key']), true );
 							if ($custom_field_val) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $custom_field_val . $after .'</div>';
+								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($custom_field_val) . $after .'</div>';
 							}
 						}
 						
@@ -6177,7 +6235,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						if ($item['post_content'] === 'ACF' && class_exists('ACF')) {
 							$custom_field_val = get_field(sanitize_key($item['post_field_key']), get_the_ID());
 							if ($custom_field_val) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $custom_field_val . $after .'</div>';
+								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($custom_field_val) . $after .'</div>';
 							}
 						}
 						
@@ -6236,9 +6294,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						//Display Read More
 						if ($item['post_content'] === 'Read More') {
 							if(!empty($permalink)) {
-								echo '<a class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</a>';
+								echo '<a class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. $before . esc_html($item['post_read_more_text']) . $after .'</a>';
 							} else {
-								echo '<span class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . sanitize_text_field($item['post_read_more_text']) . $after .'</span>';
+								echo '<span class="post-read-more elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['post_read_more_text']) . $after .'</span>';
 							}
 						}
 						
@@ -6265,7 +6323,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 							if (($item['post_pin_logged_out'] && !empty($user_id)) || empty($item['post_pin_logged_out'])) {
 								$class = in_array($post_id, $post_list) ? 'unpin' : '';
-								echo '<a class="post-pin elementor-repeater-item-' . esc_attr($item['_id']) . ' ' . $class . '" href="#" data-postid="'. $post_id .'">'. $before . '<span class="pin-text">'. $pin_icon .'<span class="text">'. $item['pin_text'] .'</span></span><span class="unpin-text">'. $unpin_icon .'<span class="text">'. $item['unpin_text'] .'</span></span>' . $after .'</a>';
+								echo '<a class="post-pin elementor-repeater-item-' . esc_attr($item['_id']) . ' ' . $class . '" href="#" data-postid="'. $post_id .'">'. $before . '<span class="pin-text">'. $pin_icon .'<span class="text">'. esc_html($item['pin_text']) .'</span></span><span class="unpin-text">'. $unpin_icon .'<span class="text">'. esc_html($item['unpin_text']) .'</span></span>' . $after .'</a>';
 							}
 						}
 						
@@ -6280,17 +6338,17 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							$post_id = get_the_ID();
 							$edit_url = $item['edit_url'] ? str_replace('#ID#', $post_id, $item['edit_url']) : '#';
 							if( get_post_status() == 'draft' ) {
-								$item['display_republish_option'] == 'yes' ? $republish = '<a class="edit-button" data-postid="'.$post_id.'" href="#">'. $republish_icon . BPF_Helper::sanitize_text_with_svg($input = $item['republish_option_text']) .'</a>' : $republish = '';
+								$item['display_republish_option'] == 'yes' ? $republish = '<a class="edit-button" data-postid="'. esc_attr($post_id) .'" href="#">'. $republish_icon . BPF_Helper::sanitize_text_with_svg($input = $item['republish_option_text']) .'</a>' : $republish = '';
 							} else {
 								$republish = '';
 							}
 							if( get_post_status() == 'publish' ) {
-								$item['display_unpublish_option'] == 'yes' ? $unpublish = '<a class="unpublish-button" data-postid="'.$post_id.'" href="#">'. $unpublish_icon . BPF_Helper::sanitize_text_with_svg($input =$item['unpublish_option_text']) .'</a>' : $unpublish = '';
+								$item['display_unpublish_option'] == 'yes' ? $unpublish = '<a class="unpublish-button" data-postid="'. esc_attr($post_id) .'" href="#">'. $unpublish_icon . BPF_Helper::sanitize_text_with_svg($input =$item['unpublish_option_text']) .'</a>' : $unpublish = '';
 							} else {
 								$unpublish = '';
 							}
-							$item['display_edit_option'] == 'yes' ? $edit = '<a class="edit-post" href="'. $edit_url .'">'. $edit_icon . $item['edit_option_text'] .'</a>' : $edit = '';
-							$item['display_delete_option'] == 'yes' ? $delete = '<a class="delete-post" href="'. get_delete_post_link( $post_id ) .'">'. $delete_icon . $item['delete_option_text'] .'</a>' : $delete = '';
+							$item['display_edit_option'] == 'yes' ? $edit = '<a class="edit-post" href="'. $edit_url .'">'. $edit_icon . esc_html($item['edit_option_text']) .'</a>' : $edit = '';
+							$item['display_delete_option'] == 'yes' ? $delete = '<a class="delete-post" href="'. get_delete_post_link( $post_id ) .'">'. $delete_icon . esc_html($item['delete_option_text']) .'</a>' : $delete = '';
 							if(current_user_can( 'edit_post', $post_id ) && (get_post_field( 'post_author', $post_id ) == $current_user->ID))  {
 								echo '<div class="edit-options elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $republish . $edit . $unpublish . $delete .'</div>';
 							}
@@ -6319,36 +6377,36 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							}
 						}
 						
-						//Display Buy Now Button
+						// Display Buy Now Button
 						if ($item['post_content'] === 'Buy Now') {
 							if( $product->is_type( 'variable' ) ) {
-								echo '<a class="product-buy-now variable elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. get_the_permalink() .'" '. $new_tab .'>'. $before . 'Choose an option' . $after .'</a>';
+								echo '<a class="product-buy-now variable elementor-repeater-item-' . esc_attr($item['_id']) .'" href="' . esc_url(get_the_permalink()) . '" ' . $new_tab . '>' . $before . esc_html__('Choose an option', 'bpf-widget') . $after . '</a>';
 							} 
 							if( $product->is_type( 'simple' ) ) {
-								echo '<a class="product-buy-now simple elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. wc_get_checkout_url() .'?add-to-cart='. get_the_ID() .'" '. $new_tab .'>'. $before . $item['product_buy_now_text'] . $after .'</a>';
+								echo '<a class="product-buy-now simple elementor-repeater-item-' . esc_attr($item['_id']) .'" href="' . esc_url(wc_get_checkout_url() . '?add-to-cart=' . get_the_ID()) . '" ' . $new_tab . '>' . $before . esc_html__($item['product_buy_now_text'], 'bpf-widget' ) . $after . '</a>';
 							}
 						}
 						
 						//Display Product Bagde
 						if ($item['post_content'] === 'Product Bagde') {							
 							if($item['display_on_sale'] && $product->is_on_sale()) {
-								echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['on_sale_text'] . $after .'</div>';
-							} elseif($item['display_new_arrival'] && $item['display_best_seller']) {
+								echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['on_sale_text']) . $after .'</div>';
+							} elseif ($item['display_new_arrival'] && $item['display_best_seller']) {
 								$newness_days = 30;
 								$created = strtotime( $product->get_date_created() );
 							if ( $product->is_featured() ) {
-									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['best_seller_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['best_seller_text']) . $after .'</div>';
 								}
 							elseif ( ( time() - ( 60 * 60 * 24 * $newness_days ) ) < $created ) {
-									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['new_arrival_text']) . $after .'</div>';
 							}
-							} elseif(!$item['display_new_arrival'] && $item['display_best_seller']) {
+							} elseif (!$item['display_new_arrival'] && $item['display_best_seller']) {
 								if ( $product->is_featured() ) {
-									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['best_seller_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['best_seller_text']) . $after .'</div>';
 								}
-							} elseif($item['display_new_arrival'] && !$item['display_best_seller']) {
+							} elseif ($item['display_new_arrival'] && !$item['display_best_seller']) {
 								if ( ( time() - ( 60 * 60 * 24 * $newness_days ) ) < $created ) {
-									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $item['new_arrival_text'] . $after .'</div>';
+									echo '<div class="product-badge elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($item['new_arrival_text']) . $after .'</div>';
 								}
 							}
 						}
@@ -6365,13 +6423,13 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
                 endwhile;
                 echo '</div>';
 
-				if ('numbers' === $settings['pagination'] || 'numbers_and_prev_next' === $settings['pagination']) {
+				if ('numbers' === $pagination || 'numbers_and_prev_next' === $pagination) {
 					$total_pages = absint($cwm_query->max_num_pages);
 
 					if ($total_pages > 1) {
 						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						$current_page = max(1, min($current_page, $total_pages));
+						$current_page = absint(max(1, min($current_page, $total_pages)));
 
 						$nav_start = '<nav class="pagination" role="navigation" data-page="'. esc_attr($current_page) .'" data-max-page="'. esc_attr($total_pages) .'" aria-label="Pagination">';
 						
@@ -6382,21 +6440,21 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							'format'    => (strpos($base, '%#%') !== false) ? 'page/%#%/' : '?paged=%#%',
 							'current'   => $current_page,
 							'total'     => $total_pages,
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
+							'prev_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';
 					}
 				}
 
-				if ('load_more' === $settings['pagination'] || 'infinite' === $settings['pagination']) {
+				if ('load_more' === $pagination || 'infinite' === $pagination) {
 					$total_pages = absint($cwm_query->max_num_pages);
 					
 					if ($total_pages > 1) {
 						list($base, $current_page) = $this->get_pagination_base_current($settings);
 					
-						$current_page = max(1, min($current_page, $total_pages));
+						$current_page = absint(max(1, min($current_page, $total_pages)));
 						
 						$nav_start = '<nav style="display: none;" class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. $total_pages .'" aria-label="Pagination">';
 						$nav_start .= '<noscript><style>.pagination { display: block !important; }</style></noscript>';
@@ -6407,12 +6465,12 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							'format'    => (strpos($base, '%#%') !== false) ? 'page/%#%/' : '?paged=%#%',
 							'current'   => $current_page,
 							'total'     => $total_pages,
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
+							'prev_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('next »', 'bpf-widget') : false,
 						]);
 						echo '</nav>';
 						
-						if('infinite' === $settings['pagination'] && $settings['hide_infinite_load'] != 'yes') {
+						if('infinite' === $pagination && $settings['hide_infinite_load'] != 'yes') {
 						echo '
 						<div class="cwm-infinite-scroll-preloader">
 						<span class="preloader-inner">
@@ -6428,7 +6486,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						';
 						}
 						
-						if('load_more' === $settings['pagination']) {
+						if('load_more' === $pagination) {
 						echo '
 						<div class="elementor-button-wrapper load-more-wrapper">
 							<a href="#" class="elementor-button load-more">Load More</a>
@@ -6443,16 +6501,16 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				</div>
 				</div>
 				';
-				if ('infinite' === $settings['pagination']) {
+				if ('infinite' === $pagination) {
 					echo '
 						<div class="e-load-more-anchor"></div>
 					';
 				}
             } else {
 				echo '
-				<div class="post-container '. $skin .' '. $pinned_post .'">
+				<div class="post-container '. esc_attr($skin .' '. $pinned_post) .'">
 					<div class="post-container-inner">
-						<div class="no-post">'. $settings['nothing_found_message'] .'</div>
+						<div class="no-post">'. esc_html($settings['nothing_found_message']) .'</div>
 					</div>
 				</div>
 				';
@@ -6484,15 +6542,15 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				$after = '';
                 echo '
 				<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div>
-				<div class="post-container '. $settings['pagination'] .' '. $skin .' '. $pinned_post .'" data-nb-column="'. $settings['post_slider_slides_per_view'] .'">
+				<div class="post-container '. esc_attr($pagination .' '. $skin .' '. $pinned_post) .'" data-nb-column="'. esc_attr($settings['post_slider_slides_per_view']) .'">
                 <div class="post-container-inner">
 				<div class="'. $class_swiper .'">
 				';
 				// Loop through the users
 				foreach ($user_query->get_results() as $user) {
 					global $user_id;
-					$user_id = $user->ID;
-					$user_profile_url = get_author_posts_url($user_id);
+					$user_id = absint($user->ID);
+					$user_profile_url = esc_url(get_author_posts_url($user_id));
 					$new_tab = '';
 					$permalink = esc_url($user_profile_url);
 					
@@ -6508,37 +6566,38 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 						if ($settings['img_equal_height'] == 'yes') {
 							if ($profile_picture_url) {
-								if($lazy_load) {
-									$image = '<img class="swiper-lazy" data-background="'. $profile_picture_url .'" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
+								if ($lazy_load) {
+									$image = '<img class="swiper-lazy" data-background="' . esc_url($profile_picture_url) . '" src="' . plugin_dir_url(__DIR__) . 'assets/images/CWM-Placeholder-Image-' . esc_attr($settings['img-aspect-ratio']) . '.png" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
 								} else {
-									$image = '<img style="background-image: url('. $profile_picture_url .')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Profile Picture Placeholder"/>';
+									$image = '<img style="background-image: url(' . esc_url($profile_picture_url) . ')" src="' . plugin_dir_url(__DIR__) . 'assets/images/CWM-Placeholder-Image-' . esc_attr($settings['img-aspect-ratio']) . '.png" alt="Profile Picture Placeholder"/>';
 								}
 							} else {
-								if($lazy_load) {
-									$image = '<img class="swiper-lazy" data-background="'. $settings['post_default_image']['url'] .'" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
+								if ($lazy_load) {
+									$image = '<img class="swiper-lazy" data-background="' . esc_url($settings['post_default_image']['url']) . '" src="' . plugin_dir_url(__DIR__) . 'assets/images/CWM-Placeholder-Image-' . esc_attr($settings['img-aspect-ratio']) . '.png" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
 								} else {
-									$image = '<img style="background-image: url('. $settings['post_default_image']['url'] .')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/CWM-Placeholder-Image-'.$settings['img-aspect-ratio'].'.png" alt="Profile Picture Placeholder"/>';
+									$image = '<img style="background-image: url(' . esc_url($settings['post_default_image']['url']) . ')" src="' . plugin_dir_url(__DIR__) . 'assets/images/CWM-Placeholder-Image-' . esc_attr($settings['img-aspect-ratio']) . '.png" alt="Profile Picture Placeholder"/>';
 								}
 							}
 						} else {
-								if($lazy_load) {
-									$image = '<img class="swiper-lazy" data-src="'. $profile_picture_url .'" alt="Profile Picture"/><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = '<img src="'. $profile_picture_url .'" alt="Profile Picture"/>';
-								}
+							if ($lazy_load) {
+								$image = '<img class="swiper-lazy" data-src="' . esc_url($profile_picture_url) . '" alt="Profile Picture"/><div class="swiper-lazy-preloader"></div>';
+							} else {
+								$image = '<img src="' . esc_url($profile_picture_url) . '" alt="Profile Picture"/>';
+							}
 							if (!$image) {
-								if($lazy_load) {
-									$image = '<img class="swiper-lazy" data-src="'. $settings['post_default_image']['url'] .'" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
+								if ($lazy_load) {
+									$image = '<img class="swiper-lazy" data-src="' . esc_url($settings['post_default_image']['url']) . '" alt="Profile Picture Placeholder"/><div class="swiper-lazy-preloader"></div>';
 								} else {
-									$image = '<img src="'. $settings['post_default_image']['url'] .'" alt="Profile Picture Placeholder"/>';
+									$image = '<img src="' . esc_url($settings['post_default_image']['url']) . '" alt="Profile Picture Placeholder"/>';
 								}
 							}
 						}
 
+						// If post image URL is set and not empty
 						if ($settings['post_image_url'] && !empty($permalink)) {
-							echo '<div class="post-image"><a href="'. $permalink .'" '. $new_tab .'>'. $image . $overlay .'</a></div>';
+							echo '<div class="post-image"><a href="' . esc_url($permalink) . '" ' . esc_attr($new_tab) . '>' . $image . $overlay . '</a></div>';
 						} else {
-							echo '<div class="post-image">'. $image . $overlay .'</div>';
+							echo '<div class="post-image">' . $image . $overlay . '</div>';
 						}
 					}
 
@@ -6549,42 +6608,42 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						// WordPress Username
 						if ($item['post_content'] === 'Username') {
 							if ($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->user_login .'</a></'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. esc_html($user->user_login) .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $user->user_login . $after .'</'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-username elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($user->user_login) . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}					
 						
 						//Display Name
 						if ($item['post_content'] === 'Display Name') {
 							if($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->display_name .'</a></'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. esc_html($user->display_name) .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . $user->display_name . $after .'</'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-display-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $before . esc_html($user->display_name) . $after .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						//Display Full Name
 						if ($item['post_content'] === 'Full Name') {
 							if($item['display_name_url'] && !empty($permalink)) {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. $user->first_name .' '. $user->last_name .'</a></'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'"><a href="'. $permalink .'" '. $new_tab .'>'. esc_html($user->first_name .' '. $user->last_name) .'</a></'. esc_attr($settings['html_tag']) .'>';
 							} else {
-								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $user->first_name .' '. $user->last_name .'</'. esc_attr($settings['html_tag']) .'>';
+								echo '<'. esc_attr($settings['html_tag']) .' class="user-full-name elementor-repeater-item-' . esc_attr($item['_id']) .'">'. esc_html($user->first_name .' '. $user->last_name) .'</'. esc_attr($settings['html_tag']) .'>';
 							}
 						}
 						//Display User Meta
 						if ($item['post_content'] === 'User Meta') {
-							$custom_field_val = get_user_meta( $user_id, $item['user_field_key'], true );
+							$custom_field_val = get_user_meta( $user_id, sanitize_key($item['user_field_key']), true );
 							if ($custom_field_val) {
-								echo '<div class="user-meta-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $custom_field_val .'</div>';
+								echo '<div class="user-meta-field elementor-repeater-item-' . esc_attr($item['_id']) .'">'. esc_html($custom_field_val) .'</div>';
 							}
 						}
 						//Display Email
 						if ($item['post_content'] === 'User Email') {
-							echo '<'. esc_attr($settings['html_tag']) .' class="user-email elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $user->user_email .'</'. esc_attr($settings['html_tag']) .'>';
+							echo '<'. esc_attr($settings['html_tag']) .' class="user-email elementor-repeater-item-' . esc_attr($item['_id']) .'">'. esc_url($user->user_email) .'</'. esc_attr($settings['html_tag']) .'>';
 						}
 						//Display User Role
 						if ($item['post_content'] === 'User Role') {
-							echo '<'. esc_attr($settings['html_tag']) .' class="user-role elementor-repeater-item-' . esc_attr($item['_id']) .'">'. implode(', ', array_map('ucwords', $user->roles)) .'</'. esc_attr($settings['html_tag']) .'>';
+							echo '<' . esc_attr($settings['html_tag']) . ' class="user-role elementor-repeater-item-' . esc_attr($item['_id']) . '">' . implode(', ', array_map(function($role) { return esc_html(ucwords($role)); }, $user->roles)) . '</' . esc_attr($settings['html_tag']) . '>';
 						}
 						//Display User ID
 						if ($item['post_content'] === 'User ID') {
@@ -6593,9 +6652,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						//Display Visit Profile
 						if ($item['post_content'] === 'Visit Profile') {
 							if(!empty($permalink)) {
-								echo '<a class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. $item['visit_profile_text'] .'</a>';
+								echo '<a class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'" href="'. $permalink .'" '. $new_tab .'>'. esc_html($item['visit_profile_text']) .'</a>';
 							} else {
-								echo '<span class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'">'. $item['visit_profile_text'] .'</span>';
+								echo '<span class="visit-profile elementor-repeater-item-' . esc_attr($item['_id']) .'">'. esc_html($item['visit_profile_text']) .'</span>';
 							}
 						}
 						// Display HTML with Shortcode Support
@@ -6617,13 +6676,13 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				echo '
 				</div>
 				';
-				if ('numbers' === $settings['pagination'] || 'numbers_and_prev_next' === $settings['pagination']) {
+				if ('numbers' === $pagination || 'numbers_and_prev_next' === $pagination) {
 					$total_users = $user_query->get_total();
 		
 					if ($total_users > 1) {						
 						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						$current_page = max(1, min($current_page, ceil($total_users / $settings['posts_per_page'])));
+						$current_page = absint(max(1, min($current_page, ceil($total_users / $settings['posts_per_page']))));
 						
 						$nav_start = '<nav class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. ceil( $total_users / $settings['posts_per_page'] ) .'" aria-label="Pagination">';
 
@@ -6633,23 +6692,23 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							'base' => esc_url($base),
 							'current' => $current_page,
 							'total' => ceil($total_users / $settings['posts_per_page']),
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
+							'prev_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';
 					}
 
 				}
-				if ('load_more' === $settings['pagination'] || 'infinite' === $settings['pagination']) {
-					$total_users = $user_query->get_total();
+				if ('load_more' === $pagination || 'infinite' === $pagination) {
+					$total_users = absint($user_query->get_total());
 					
 					if ($total_users > 1) {					
 						list($base, $current_page) = $this->get_pagination_base_current($settings);
 
-						$current_page = max(1, min($current_page, ceil($total_users / $settings['posts_per_page'])));
+						$current_page = absint(max(1, min($current_page, ceil($total_users / $settings['posts_per_page']))));
 						
-						$nav_start = '<nav style="display: none;" class="pagination" data-page="'. $current_page .'" data-max-page="'. ceil( $total_users / $settings['posts_per_page'] ) .'" role="navigation" aria-label="Pagination">';
+						$nav_start = '<nav style="display: none;" class="pagination" role="navigation" data-page="'. $current_page .'" data-max-page="'. ceil( $total_users / $settings['posts_per_page'] ) .'" aria-label="Pagination">';
 						$nav_start .= '<noscript><style>.pagination { display: block !important; }</style></noscript>';
 						
 						echo $nav_start;
@@ -6657,16 +6716,35 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 							'base' => esc_url($base),
 							'current' => $current_page,
 							'total' => ceil($total_users / $settings['posts_per_page']),
-							'prev_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('« prev', 'bpf-widget') : false,
-							'next_text' => ('numbers_and_prev_next' === $settings['pagination']) ? __('next »', 'bpf-widget') : false,
+							'prev_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('« prev', 'bpf-widget') : false,
+							'next_text' => ('numbers_and_prev_next' === $pagination) ? esc_html__('next »', 'bpf-widget') : false,
 						]);
 
 						echo '</nav>';	
+
+						if('infinite' === $pagination && $settings['hide_infinite_load'] != 'yes') {
+						echo '
+						<div class="cwm-infinite-scroll-preloader">
+						<span class="preloader-inner">
+							  <span class="preloader-inner-gap"></span>
+							  <span class="preloader-inner-left">
+								  <span class="preloader-inner-half-circle"></span>
+							  </span>
+							  <span class="preloader-inner-right">
+								  <span class="preloader-inner-half-circle"></span>
+							  </span>
+						 </span>
+						 </div>
+						';
+						}
+						
+						if('load_more' === $pagination) {
 						echo '
 						<div class="elementor-button-wrapper load-more-wrapper">
 							<a href="#" class="elementor-button load-more">Load More</a>
 						</div>
 						';
+						}
 					}
 
 				}
@@ -6674,16 +6752,16 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				</div>
 				</div>
 				';
-				if ('infinite' === $settings['pagination']) {
+				if ('infinite' === $pagination) {
 					echo '
 						<div class="e-load-more-anchor"></div>
 					';
 				}
 			} else {
 				echo '
-				<div class="post-container '. $skin .' '. $pinned_post .'">
+				<div class="post-container '. esc_attr($skin .' '. $pinned_post) .'">
 					<div class="post-container-inner">
-						<div class="no-post">'. $settings['nothing_found_message'] .'</div>
+						<div class="no-post">'. esc_html($settings['nothing_found_message']) .'</div>
 					</div>
 				</div>
 				';
@@ -6702,7 +6780,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		if ($settings['query_type'] === 'main') {
 			$current_page = max(1, get_query_var('paged'));
 			//$base = add_query_arg('paged', '%#%');
-		} elseif ($settings['query_type'] === 'custom') {
+		} elseif ($settings['query_type'] === 'custom' || $settings['query_type'] === 'user') {
 			// Custom query pagination handling
 			if (is_home() || is_archive() || is_post_type_archive()) {
 				// Home, Archive, Post Type Archive

@@ -355,7 +355,7 @@ class BPF_Helper {
 					$value = $breakpoint->get_value(); // Get the numeric value
 
 					// Reverse the key-value relationship
-					$breakpoint_labels[$value] = $label;
+					$breakpoint_labels[$value] = $value .'px';
 				}
 
 				return $breakpoint_labels;

@@ -245,6 +245,7 @@
 					}
 					ajaxInProgress = false;
 					self.fetchMasonry();
+					self.postCarousel();
 				}
 
 				$element.on('click', '.pagination a', function(e) {

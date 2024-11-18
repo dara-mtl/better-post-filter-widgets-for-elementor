@@ -7,12 +7,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class BPF_Ajax {
 	
 	public function change_post_status() {
-		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : '';
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0; // Sanitize post ID
 
-		// Combine nonce and capability check
-		if ( ! wp_verify_nonce( $nonce, 'ajax-nonce' ) || ! current_user_can( 'edit_post', $post_id ) ) {
-			die( 'Access Denied' );
+		// Check if nonce is set and verify it
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 
 		// Get the current date and time
@@ -21,20 +20,25 @@ class BPF_Ajax {
 		$new_status = ( $post_status === 'publish' ) ? 'draft' : 'publish';
 
 		// Update post status and publication date
-		wp_update_post( array(
+		$result = wp_update_post( array(
 			'ID'             => $post_id,
 			'post_status'    => $new_status,
 			'post_date'      => $current_date,
 			'post_date_gmt'  => get_gmt_from_date( $current_date )
 		));
 
-		die();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => 'Failed to update post status' ) );
+		}
+		
+		wp_die();
+		
 	}
 	
 	public function pin_post() {
 		// Check if nonce is set and verify it
 		if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ajax-nonce')) {
-			die('Access Denied');
+			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 
 		// Sanitize post_id and pin_class
@@ -43,7 +47,7 @@ class BPF_Ajax {
 
 		// Ensure pin_class is either 'pin' or 'unpin'
 		if ($pin_class !== 'pin' && $pin_class !== 'unpin') {
-			die('Invalid operation');
+			wp_send_json_error( array( 'message' => 'Invalid operation' ) );
 		}
 
 		$user_id = get_current_user_id();
@@ -83,7 +87,7 @@ class BPF_Ajax {
 			setcookie('post_id_list', json_encode($post_list), time() + (86400 * 30), "/"); // 86400 = 1 day
 		}
 
-		die();
+		wp_die();
 	}
 	
 	public function delete_filter_transient() {
@@ -91,9 +95,8 @@ class BPF_Ajax {
 	}
 	
 	public function post_filter_results() {
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' ) ) {
-			http_response_code(403);
-			die ( 'Access Denied');
+		if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ajax-nonce')) {
+			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 		
 		if(empty(absint( $_POST['page_id'] ))) {
@@ -255,7 +258,7 @@ class BPF_Ajax {
 			foreach ($custom_field_like_output as $key => $value) {
 				$query = array(
 					'key' => sanitize_key($value['taxonomy']),
-					'value' => implode(' ', $value['terms']),
+					'value' => implode(' ', array_map('sanitize_text_field', (array) $value['terms'])),
 					'compare' => 'LIKE',
 				);
 				
@@ -331,7 +334,7 @@ class BPF_Ajax {
 			'html' => $document->render_element( $widget_data )
 		));
 		
-		die();
+		wp_die();
 	}
 	
 	public function pre_get_posts_filter($query) {

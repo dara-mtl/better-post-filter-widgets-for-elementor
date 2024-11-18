@@ -187,7 +187,6 @@
 					var url = targetSelector.find('.e-load-more-anchor').data('next-page');
 					if (url) {
 						var paged = getPageNumber(url);
-						paged = match ? match[1] : null;
 						get_form_values(paged);
 					} else {
 						$(document).find(targetPostWidget + ' .pagination-filter a.next').click();
@@ -456,7 +455,7 @@
 								paginationType = targetSelector.data('settings').pagination || targetSelector.data('settings').pagination_type;
 							
 							// Check for maxPage in the usual place or the Elementor Pro widget
-							var scrollAnchor = $('.e-load-more-anchor');
+							var scrollAnchor = targetSelector.find('.e-load-more-anchor');
 							if (scrollAnchor.length) {
 								var currentPage = scrollAnchor.data('page');
 									maxPage = scrollAnchor.data('max-page') - 1;
