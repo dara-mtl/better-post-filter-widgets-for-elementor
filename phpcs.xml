@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Better Post and Filter Widgets for Elementor" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+    <description>A custom ruleset for Better Post and Filter Widgets for Elementor</description>
+
+    <!-- Include all files in the current directory -->
+    <file>.</file>
+
+    <!-- Exclude unnecessary directories -->
+    <exclude-pattern>/docroot/wp-admin/*</exclude-pattern>
+    <exclude-pattern>/docroot/wp-includes/*</exclude-pattern>
+    <exclude-pattern>/docroot/wp-*.php</exclude-pattern>
+    <exclude-pattern>/docroot/index.php</exclude-pattern>
+    <exclude-pattern>/docroot/xmlrpc.php</exclude-pattern>
+    <exclude-pattern>/docroot/wp-content/plugins/*</exclude-pattern>
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+
+    <!-- Prevent minified JavaScript files from being analyzed -->
+    <exclude-pattern>*.min.js</exclude-pattern>
+	<exclude-pattern>*.min.css</exclude-pattern>
+
+    <!-- Set basepath and parallel options -->
+    <arg name="basepath" value="."/>
+    <arg name="parallel" value="8"/>
+
+    <!-- Include the WordPress-Extra standard -->
+    <rule ref="WordPress-Extra">
+        <!-- Exclude specific sniffs -->
+        <exclude name="WordPress.Security.EscapeOutput"/>
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Generic.Arrays.DisallowLongArraySyntax"/>
+    </rule>
+
+    <!-- Include WordPress-Docs rules -->
+    <rule ref="WordPress-Docs"/>
+
+    <!-- Enable PHP cross-version compatibility checks if PHPCompatibilityWP is installed -->
+    <!-- Uncomment the below lines to enable -->
+    <!--
+    <config name="testVersion" value="5.6-"/>
+    <rule ref="PHPCompatibilityWP">
+        <include-pattern>*\.php</include-pattern>
+    </rule>
+    -->
+
+    <!-- Custom sniff configurations -->
+    <config name="minimum_wp_version" value="6.0"/>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="better-widgets"/>
+                <element value="library-textdomain"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="bpw_"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

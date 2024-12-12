@@ -7,7 +7,6 @@
 				this.changePostStatus();
 				this.getPinnedPosts();
 				this.getPostsByAjax();
-				this.getAjaxSearch();
 				this.postCarousel();
             },
 			
@@ -111,7 +110,7 @@
 			changePostStatus: function () {
 				$(document).off('click', '.edit-button, .unpublish-button').on('click', '.edit-button, .unpublish-button', function(e){
 					var post_id = $(this).attr('data-postid');
-					var editButton = $(this); // Declare editButton
+					var editButton = $(this);
 
 					$.ajax({
 						type: "POST",
@@ -125,7 +124,7 @@
 						success: function( data ) {
 							editButton.removeAttr('href').removeAttr('onclick').text('Done!');
 						},
-						error: function( jqXHR, textStatus, errorThrown ) { // Error handling
+						error: function( jqXHR, textStatus, errorThrown ) {
 							console.log('AJAX request failed: ' + textStatus + ', ' + errorThrown);
 						}
 					});
@@ -199,6 +198,20 @@
 					var infinite_threshold = '0px';
 				}
 				
+				function post_count() {
+						let postCount = $element.find( '.post-container' ).data( 'total-post' );
+
+						if (postCount === undefined) {
+							postCount = 0;
+						}
+
+						postCount = Number( postCount );
+
+						$('.filter-post-count .number').text(postCount);
+				}
+				
+				 post_count();
+				
 				function loadPage(page_url) {
 					if (paginationType == 'infinite' || paginationType == 'load_more') {
 						var loadMoreButton = $element.find('.load-more');
@@ -243,6 +256,7 @@
 							behavior: 'smooth'
 						});
 					}
+					post_count();
 					ajaxInProgress = false;
 					self.fetchMasonry();
 					self.postCarousel();
@@ -260,7 +274,7 @@
 					loadPage($(this).attr('href'));
 				});
 
-				$element.off('click.postWidget', '.load-more').on('click', '.load-more', function(e) {
+				$element.off('click', '.load-more').on('click', '.load-more', function(e) {
 					if ($(this).hasClass('load-more-filter')) {
 						return;
 					}
@@ -309,112 +323,39 @@
 
 						postWidgetObservers[widgetID].observe($paginationElement.get(0));
 					}
-					
-					//$(window).on('resize', function() {
-					//	if ($paginationElement.length && !ajaxInProgress) {
-					//		postWidgetObservers[widgetID].observe($paginationElement.get(0));
-					//	}
-					//});
-				}
-			},
-			
-			getAjaxSearch: function() {
-				//Check if the filter widget is on the same page, if yes, run the other script instead
-				if ($('div.filter-container').length) {
-					return;
 				}
 				
-				var paged = '';
-				
-				var settings = this.getElementSettings(),
-					scroll_to_top = settings.scroll_to_top,
-					post_status = settings.post_status,
-					post_type = settings.post_type_search;
-					
-				var widgetContainer = this.$element,
-					postContainer = widgetContainer.find('.post-container'),
-					loader = widgetContainer.find('.loader'),
-					widgetID = widgetContainer.data('id'),
-					pageID = window.elementorFrontendConfig.post.id,
-					originalState = widgetContainer.html();
-				
-				if(pageID === 0 || pageID === 'undefined') {
-					pageID = $(document).find('main div').data('elementor-id');
-				}				
+				const sequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+				let index = 0;
+				const message = 'Follow the white rabbit: https://wpsmartwidgets.com/';
 
-				widgetContainer.on( 'click', '.pagination-filter a', function(e) {
-					var url = $(this).attr('href');
-					var hashes = url.split("?")[1];
-					var paged = hashes.split("=")[1];
-					get_search_values(paged);
-					e.preventDefault();
-				});
-
-				widgetContainer.on( 'submit', '.search-container form', function() {
-					get_search_values();
-					return false;
-				});
-					
-				function get_search_values(paged) {
-					postContainer.addClass('load');
-					if(postContainer.hasClass('shortcode') || postContainer.hasClass('template')) {
-						loader.fadeIn();
-					}
-					var input = $('.search-container form').find('input[name="s"]');
-					var query = input.val();
-
-					$.ajax({
-						type: "POST",
-						url : ajax_var.url,
-						async: true,
-						data: {
-							action: 'post_filter_results',
-							widget_id: widgetID,
-							page_id: pageID,
-							search_query: query,
-							post_type: post_type,
-							paged: paged,
-							base: window.location.pathname,
-							nonce: ajax_var.nonce,
-						},
-						success: function (data) {
-							var response = JSON.parse(data),
-								html = response.html,
-								base = response.base;
-
-							if (data === '0') {
-								widgetContainer.off();
-								widgetContainer.html(originalState).removeClass('load');
-							} else {
-								loader.fadeOut();
-								widgetContainer.html(html).fadeIn().removeClass('load');
-								var pagination = widgetContainer.find('nav[aria-label="Pagination"]');
-								pagination.addClass('pagination-filter');                    
-								pagination.find('a.page-numbers').each(function() {
-									var href = $(this).attr('href');
-									if (base.endsWith('/')) {
-										base = base.slice(0, -1);
-									}
-									var newHref = href.replace("/wp-admin/admin-ajax.php", base);
-									$(this).attr('href', newHref);
-								});
-							}
-						},
-						complete: function () {
-							if (scroll_to_top == 'yes') {
-								window.scrollTo({
-									top: postContainer.offset().top - 150,
-									behavior: 'smooth'
-								});
-							}
-											
-							elementorFrontend.elementsHandler.runReadyTrigger(widgetContainer);
-							if (elementorFrontend.config.experimentalFeatures.e_lazyload) {
-								document.dispatchEvent(new Event('elementor/lazyload/observe'));
-							}
-
+				$(document).off('keydown').on('keydown', function (event) {
+					if (event.keyCode === sequence[index]) {
+						index++;
+						if (index === sequence.length) {
+							trigger();
+							index = 0;
 						}
-					});
+					} else {
+						index = 0;
+					}
+				});
+
+				function trigger() {
+					const notification = document.createElement('div');
+					notification.textContent = message;
+					notification.style.position = 'fixed';
+					notification.style.bottom = '10px';
+					notification.style.right = '10px';
+					notification.style.backgroundColor = '#333';
+					notification.style.color = '#fff';
+					notification.style.padding = '10px';
+					notification.style.zIndex = '1000';
+					document.body.appendChild(notification);
+					
+					setTimeout(() => {
+						notification.remove();
+					}, 5000);
 				}
 			},
 

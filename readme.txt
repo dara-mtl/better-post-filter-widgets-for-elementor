@@ -1,12 +1,12 @@
 === Better Post & Filter Widgets for Elementor ===
-Contributor: Dara
+Contributor: [WP Smart Widgets](https://wpsmartwidgets.com)
 Tags: elementor filter, post filter, product filter, ajax filter, page builder, taxonomy filter, custom post type, WooCommerce filter
 Stable tag: 1.0.0
-Requires at least: 4.6
-Tested up to: 6.3
-Requires PHP: 5.7
-License: GPLv2 or later
-License URI: [GNU General Public License](https://www.gnu.org/licenses/gpl-2.0.html)
+Requires at least: 5.9
+Tested up to: 6.7.1
+Requires PHP: 5.4
+License: GPLv3 or later
+License URI: [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.html)
 
 Exclusively designed for Elementor, this versatile filtering plugin lets you take full control of your WordPress and WooCommerce content effortlessly. Filter any post type based on diverse criteria, seamlessly integrating with Elementor.
 
@@ -14,7 +14,7 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 Exclusively designed for Elementor, this versatile filtering plugin lets you take full control of your WordPress and WooCommerce content effortlessly. Filter any post type based on diverse criteria, seamlessly integrating with Elementor.
 
 ### Filter Widget Key Features:
-- Compatible with ANY post widget, providing exceptional flexibility.
+- Compatible with Elementor Pro post widget, ACF, WooCommerce and most translation plugins.
 - Versatile filtering for any post type.
 - Customizable filter items list with easy re-ordering options.
 - Filter sources include taxonomies, custom field/ACF, and numeric fields.
@@ -34,6 +34,16 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 - Flexible query system with AJAX pagination.
 - Customize widget content and style like native Elementor widgets.
 
+### Unique Features:
+
+#### Dynamic Tags:
+- Includes a series of dynamic tags, allowing users to fully utilize template grids with the free version.
+- Exclusive Repeater Field Tag: Use repeater fields directly in the Elementor frontend for more dynamic content control.
+
+#### Dynamic Group:
+- Allows users to use more than one dynamic tag in a single widget content.
+- Enables adding multiple dynamic tags either as content, data attributes, classes, or IDs to the widget.
+
 ### Supports AJAX
 Enhance your user experience! AJAX empowers both the filter and post widgets, eliminating the need to reload the page, ensuring a seamless and uninterrupted browsing experience.
 
@@ -47,10 +57,4 @@ Enhance your user experience! AJAX empowers both the filter and post widgets, el
 - Tailor the filter to your needs with ease with the help of a dedicated hook.
 
 == FAQs ==
-- Find support for this plugin [documentation](https://cambodiawebmaster.com/resources/&utm_source=repository) or ask your question on the support [forum](https://wordpress.org/support/plugin/filter-everything/).
-
-== Installation ==
-- Easily install via the WordPress dashboard or upload via FTP. Follow the [documentation](https://cambodiawebmaster.com/resources/quickstart/) for a quick start.
-
-**Screenshots:**
-- View common filter settings, smartphone filtering, mobile views, filter set with filters, single filter fields, and URL prefixes settings.
+- Find support for this plugin [documentation](https://wpsmartwidgets.com/).

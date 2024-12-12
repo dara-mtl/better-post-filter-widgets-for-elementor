@@ -1,4 +1,10 @@
 <?php
+/**
+ * Posts Found Widget.
+ *
+ * @package BPF_Widgets
+ * @since 1.0.0
+ */
 
 use Elementor\Controls_Manager;
 use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
@@ -8,6 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // If this file is called directly, abort.
 }
 
+/**
+ * BPF_Posts_Found_Widget class
+ *
+ * Provides the functionality for the Posts Found widget in Elementor.
+ * This widget displays the number of posts found according to the query.
+ *
+ * @since 1.0.0
+ */
 class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 
 	/**
@@ -65,19 +79,37 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	public function get_categories() {
 		return [ 'better-post-and-filter-widgets' ];
 	}
-	
+
+	/**
+	 * Get widget styles dependencies.
+	 *
+	 * Retrieve the list of stylesheets that the widget depends on.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 *
+	 * @return array List of style dependencies.
+	 */
 	public function get_style_depends() {
 		return [
 			'bpf-widget-style',
 		];
-
 	}
-	
+
+	/**
+	 * Get widget scripts dependencies.
+	 *
+	 * Retrieve the list of scripts that the widget depends on.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 *
+	 * @return array List of script dependencies.
+	 */
 	public function get_script_depends() {
 		return [
 			'filter-widget-script',
 		];
-
 	}
 
 	/**
@@ -88,12 +120,14 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	 * @since 1.0.0
 	 * @access protected
 	 */
-
-	protected function register_controls() {		
-        $this->start_controls_section('section_container_style', [
-            'label' => esc_html__('Posts Found', 'bpf-widget'),
-            'tab' => \Elementor\Controls_Manager::TAB_STYLE,
-        ]);
+	protected function register_controls() {
+		$this->start_controls_section(
+			'section_container_style',
+			[
+				'label' => esc_html__( 'Posts Found', 'bpf-widget' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
 
 		$this->add_control(
 			'post_found_color',
@@ -117,20 +151,27 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
-		$this->end_controls_section();		
+		$this->end_controls_section();
 	}
 
+	/**
+	 * Render the widget output on the frontend.
+	 *
+	 * Outputs the Posts Found widget content, including the post count.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 */
 	protected function render() {
-		$settings = $this->get_settings_for_display();
-		
+		$settings   = $this->get_settings_for_display();
 		$post_count = 0;
-		
-		$count_text = sprintf(
-			_n( '%s result found', '%s results found', $post_count === 1 ? 1 : 2, 'bpf-widget' ),
-			number_format_i18n( $post_count )
-		);
-		
-		echo '<div class="filter-post-count">' . esc_html( $count_text ) . '</div>';
-	}
 
+		$count_text = sprintf(
+			// translators: %s is the number of results.
+			esc_html__( '%s result(s) found', 'bpf-widget' ),
+			'<span class="number">' . number_format_i18n( $post_count ) . '</span>'
+		);
+
+		echo '<div class="filter-post-count">' . wp_kses_post( $count_text ) . '</div>';
+	}
 }

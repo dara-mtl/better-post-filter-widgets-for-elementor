@@ -1,6 +1,6 @@
 <?php
 /**
- * Author Meta Dynamic Tag.
+ * User Meta Dynamic Tag.
  *
  * @package BPF_Widgets
  * @since 1.0.0
@@ -17,13 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Author_Info_Meta.
+ * Class User_Meta.
  *
- * Dynamic tag for displaying the author meta.
+ * Dynamic tag for displaying the user meta.
  *
  * @since 1.0.0
  */
-class Author_Info_Meta extends Tag {
+class User_Meta extends Tag {
 
 	/**
 	 * Get tag name.
@@ -36,7 +36,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Tag name.
 	 */
 	public function get_name() {
-		return 'author-info-meta';
+		return 'user-meta';
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Author Info', 'bpf-widget' );
+		return esc_html__( 'User Meta', 'bpf-widget' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Dynamic tag group.
 	 */
 	public function get_group() {
-		return 'author';
+		return 'user';
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Author_Info_Meta extends Tag {
 	 *
 	 * This method returns the setting key used by Elementor's panel to identify the
 	 * dynamic tag control. In this case, it returns 'key', which corresponds to the
-	 * field control that selects the type of author information (ID, bio, etc.) to display.
+	 * field control that selects the type of user information (ID, bio, etc.) to display.
 	 *
 	 * @return string The setting key for the dynamic tag control.
 	 */
@@ -116,13 +116,14 @@ class Author_Info_Meta extends Tag {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'display_name',
 				'options' => [
-					'display_name' => esc_html__( 'Display Name', 'bpf-widget' ),
-					'ID'           => esc_html__( 'ID', 'bpf-widget' ),
-					'description'  => esc_html__( 'Bio', 'bpf-widget' ),
-					'email'        => esc_html__( 'Email', 'bpf-widget' ),
-					'url'          => esc_html__( 'Website', 'bpf-widget' ),
-					'profile_url'  => esc_html__( 'Profile URL', 'bpf-widget' ),
-					'meta'         => esc_html__( 'Author Meta', 'bpf-widget' ),
+					'display_name'  => esc_html__( 'Display Name', 'bpf-widget' ),
+					'ID'            => esc_html__( 'ID', 'bpf-widget' ),
+					'description'   => esc_html__( 'Bio', 'bpf-widget' ),
+					'email'         => esc_html__( 'Email', 'bpf-widget' ),
+					'url'           => esc_html__( 'Website', 'bpf-widget' ),
+					'user_nicename' => esc_html__( 'Nicename', 'bpf-widget' ),
+					'profile_url'   => esc_html__( 'Profile URL', 'bpf-widget' ),
+					'meta'          => esc_html__( 'User Meta', 'bpf-widget' ),
 				],
 			]
 		);
@@ -137,12 +138,24 @@ class Author_Info_Meta extends Tag {
 				],
 			]
 		);
+
+		$this->add_control(
+			'user_id',
+			[
+				'label'       => esc_html__( 'User ID', 'bpf-widget' ),
+				'type'        => Controls_Manager::TEXT,
+				'placeholder' => get_current_user_id() ? esc_html( get_current_user_id() ) : esc_html__( 'Current User ID', 'bpf-widget' ),
+				'dynamic'     => [
+					'active' => true,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Render dynamic tag output.
 	 *
-	 * Generates the HTML output for the author meta, with optional trimming based on length control.
+	 * Generates the HTML output for the user meta, with optional trimming based on length control.
 	 *
 	 * @since 1.0.0
 	 * @access public
@@ -150,19 +163,28 @@ class Author_Info_Meta extends Tag {
 	public function render() {
 		$key      = $this->get_settings( 'key' );
 		$meta_key = $this->get_settings( 'meta_key' );
+		$user_id  = $this->get_settings( 'user_id' );
 
 		if ( empty( $key ) && empty( $meta_key ) ) {
 			return;
 		}
 
+		if ( empty( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return;
+		}
+
 		if ( 'profile_url' === $key ) {
-			$value = get_author_posts_url( get_the_author_meta( 'ID' ) );
+			$value = get_author_posts_url( $user_id );
 		} elseif ( 'meta' === $key && ! empty( $meta_key ) ) {
-			$value = get_the_author_meta( $meta_key );
+			$value = get_user_meta( $user_id, $meta_key, true );
 		} elseif ( 'ID' === $key ) {
-			$value = is_author() ? get_queried_object_id() : get_the_author_meta( 'ID' );
+			$value = $user_id;
 		} else {
-			$value = get_the_author_meta( $key );
+			$value = get_the_author_meta( $key, $user_id );
 		}
 
 		echo wp_kses_post( $value );
