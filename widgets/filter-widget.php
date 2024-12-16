@@ -88,7 +88,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 	 *
 	 * Retrieve the list of style dependencies the widget requires.
 	 *
-	 * @since 3.24.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @return array Widget style dependencies.
@@ -117,7 +117,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 	 *
 	 * Used to set scripts dependencies required to run the widget.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @return array Widget scripts dependencies.
@@ -146,7 +146,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 	 *
 	 * Adds different input fields to allow the user to change and customize the widget settings.
 	 *
-	 * @since 3.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 */
 	protected function register_controls() {

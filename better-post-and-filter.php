@@ -60,7 +60,7 @@ final class BPF_Elementor {
 	 * BPF_Elementor constructor.
 	 */
 	public function __construct() {
-		require_once plugin_dir_path( __FILE__ ) . 'inc/pagination-var.php';
+		require_once plugin_dir_path( __FILE__ ) . 'inc/query-var.php';
 		add_action( 'plugins_loaded', [ $this, 'on_plugins_loaded' ] );
 	}
 

@@ -58,8 +58,3 @@ This plugin is licensed under the [GPLv3 or later](https://www.gnu.org/licenses/
 ## Contact
 
 Contributor: [WP Smart Widgets](https://wpsmartwidgets.com)
-Tags: elementor filter, post filter, product filter, ajax filter, page builder, taxonomy filter, custom post type, WooCommerce filter
-Stable tag: 1.0.0
-Requires at least: 4.6
-Tested up to: 6.7.1
-Requires PHP: 5.9

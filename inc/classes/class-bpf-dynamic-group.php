@@ -1,10 +1,8 @@
 <?php
 /**
- * Dynamic Group class for Better Post and Filter Widgets for Elementor.
+ * Handles dynamic group functionality for Elementor widgets.
  *
- * Provides grouping of dynamic tags functionality.
- *
- * @package Better_Post_and_Filter_Widgets_For_Elementor
+ * @package BPF_Widgets
  * @since 1.0.0
  */
 
@@ -22,7 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Includes methods for rendering content and adding custom controls.
  *
  * @since 1.0.0
- * @package Better_Post_and_Filter_Widgets_For_Elementor
  */
 class BPF_Dynamic_Group {
 

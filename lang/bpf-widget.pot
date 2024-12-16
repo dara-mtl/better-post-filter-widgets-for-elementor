@@ -1,0 +1,2189 @@
+# Copyright (C) 2024 BFP Widget
+msgid ""
+msgstr ""
+"Project-Id-Version: BPF_Widgets 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-13 15:13+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: widget-categories.php:23
+msgid "BPF Widgets"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:155
+msgid "Dynamic Group"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:166
+#: inc/classes/class-bpf-dynamic-group.php:199 widgets/filter-sorting.php:121
+#: widgets/filter-widget.php:218 widgets/post-widget.php:456
+#: widgets/post-widget.php:463 widgets/post-widget.php:480
+#: widgets/search-bar.php:125
+msgid "Content"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:173
+msgid "Dynamic Tag"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:187 widgets/filter-widget.php:400
+#: widgets/post-widget.php:1552
+msgid "Advanced"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:194
+msgid "Dynamic Field Output"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:200 tags/author-meta.php:120
+#: tags/user-meta.php:120
+msgid "ID"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:201
+msgid "Class"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:202
+msgid "Data Attribute"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:213
+msgid ""
+"Set custom attributes for the wrapper element. Each attribute in a separate "
+"line. Separate attribute key from the value using Key|Value."
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:224
+msgid "HTML Target"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:228
+msgid "(Optional) Specify a part of the widget’s HTML to replace."
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-group.php:242
+msgid "Repeater List"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-tag.php:72
+msgid "Custom Dynamic Tags"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-tag.php:73 tags/custom-field.php:121
+#: tags/repeater.php:121
+msgid "Post"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-tag.php:74 tags/custom-field.php:124
+#: tags/repeater.php:124 widgets/filter-sorting.php:157
+#: widgets/post-widget.php:1836
+msgid "Author"
+msgstr ""
+
+#: inc/classes/class-bpf-dynamic-tag.php:75 tags/custom-field.php:123
+#: tags/repeater.php:123
+msgid "User"
+msgstr ""
+
+#: inc/classes/class-bpf-helper.php:41
+msgid "No taxonomies found"
+msgstr ""
+
+#: inc/classes/class-bpf-helper.php:118
+msgid "Select a Form"
+msgstr ""
+
+#: inc/classes/class-bpf-helper.php:125
+msgid "Create a Form First"
+msgstr ""
+
+#: inc/classes/class-bpf-helper.php:205 inc/classes/class-bpf-helper.php:232
+#: inc/classes/class-bpf-helper.php:256 tags/pages-url.php:100
+msgid "Select..."
+msgstr ""
+
+#: inc/classes/class-bpf-helper.php:448 widgets/post-widget.php:1453
+#: widgets/post-widget.php:2492 widgets/post-widget.php:2512
+msgid "None"
+msgstr ""
+
+#: tags/author-meta.php:53
+msgid "Author Info"
+msgstr ""
+
+#: tags/author-meta.php:115 tags/user-meta.php:115
+msgid "Field"
+msgstr ""
+
+#: tags/author-meta.php:119 tags/user-meta.php:119 widgets/post-widget.php:500
+msgid "Display Name"
+msgstr ""
+
+#: tags/author-meta.php:121 tags/user-meta.php:121
+msgid "Bio"
+msgstr ""
+
+#: tags/author-meta.php:122 tags/user-meta.php:122
+msgid "Email"
+msgstr ""
+
+#: tags/author-meta.php:123 tags/user-meta.php:123
+msgid "Website"
+msgstr ""
+
+#: tags/author-meta.php:124 tags/user-meta.php:125
+msgid "Profile URL"
+msgstr ""
+
+#: tags/author-meta.php:125
+msgid "Author Meta"
+msgstr ""
+
+#: tags/author-meta.php:133 tags/custom-field.php:189 tags/user-meta.php:134
+msgid "Meta Key"
+msgstr ""
+
+#: tags/custom-field.php:50 widgets/filter-sorting.php:160
+#: widgets/filter-widget.php:244 widgets/post-widget.php:1839
+msgid "Custom Field"
+msgstr ""
+
+#: tags/custom-field.php:117 tags/repeater.php:117
+msgid "Field Source"
+msgstr ""
+
+#: tags/custom-field.php:122 tags/post-terms.php:114 tags/repeater.php:122
+#: widgets/filter-widget.php:243 widgets/post-widget.php:466
+#: widgets/post-widget.php:483 widgets/post-widget.php:3758
+msgid "Taxonomy"
+msgstr ""
+
+#: tags/custom-field.php:125
+msgid "Theme Option"
+msgstr ""
+
+#: tags/custom-field.php:133
+msgid "Option Key"
+msgstr ""
+
+#: tags/custom-field.php:144 tags/repeater.php:144
+#: widgets/filter-sorting.php:156 widgets/post-widget.php:1835
+msgid "Post ID"
+msgstr ""
+
+#: tags/custom-field.php:146 tags/repeater.php:146
+msgid "Current Post ID"
+msgstr ""
+
+#: tags/custom-field.php:159 tags/repeater.php:156
+#: widgets/filter-widget.php:416
+msgid "Term ID"
+msgstr ""
+
+#: tags/custom-field.php:161 tags/repeater.php:158
+msgid "Current Term ID"
+msgstr ""
+
+#: tags/custom-field.php:174 tags/repeater.php:168 tags/user-meta.php:145
+#: widgets/post-widget.php:505
+msgid "User ID"
+msgstr ""
+
+#: tags/custom-field.php:176 tags/repeater.php:170 tags/user-meta.php:147
+msgid "Current User ID"
+msgstr ""
+
+#: tags/custom-field.php:197
+msgid "Add Paragraphs"
+msgstr ""
+
+#: tags/custom-field.php:199 tags/post-terms.php:147 tags/post-terms.php:158
+#: widgets/filter-widget.php:338 widgets/filter-widget.php:373
+#: widgets/filter-widget.php:430 widgets/filter-widget.php:463
+#: widgets/filter-widget.php:479 widgets/filter-widget.php:495
+#: widgets/filter-widget.php:512 widgets/filter-widget.php:528
+#: widgets/filter-widget.php:586 widgets/filter-widget.php:610
+#: widgets/filter-widget.php:635 widgets/filter-widget.php:659
+#: widgets/post-widget.php:208 widgets/post-widget.php:329
+#: widgets/post-widget.php:380 widgets/post-widget.php:530
+#: widgets/post-widget.php:545 widgets/post-widget.php:572
+#: widgets/post-widget.php:588 widgets/post-widget.php:616
+#: widgets/post-widget.php:658 widgets/post-widget.php:686
+#: widgets/post-widget.php:716 widgets/post-widget.php:746
+#: widgets/post-widget.php:938 widgets/post-widget.php:1002
+#: widgets/post-widget.php:1043 widgets/post-widget.php:1085
+#: widgets/post-widget.php:1142 widgets/post-widget.php:1649
+#: widgets/post-widget.php:1674 widgets/post-widget.php:2069
+#: widgets/post-widget.php:2085 widgets/post-widget.php:2114
+#: widgets/post-widget.php:2228 widgets/post-widget.php:2241
+#: widgets/post-widget.php:2299 widgets/post-widget.php:2325
+#: widgets/post-widget.php:2338 widgets/post-widget.php:2351
+#: widgets/post-widget.php:2364 widgets/post-widget.php:2377
+#: widgets/post-widget.php:2390 widgets/post-widget.php:2439
+#: widgets/post-widget.php:2452 widgets/post-widget.php:2465
+#: widgets/post-widget.php:2528 widgets/post-widget.php:2556
+#: widgets/post-widget.php:2609 widgets/post-widget.php:2640
+#: widgets/post-widget.php:3204 widgets/post-widget.php:3363
+#: widgets/search-bar.php:186
+msgid "Yes"
+msgstr ""
+
+#: tags/custom-field.php:200 tags/post-terms.php:148 tags/post-terms.php:159
+#: widgets/filter-widget.php:339 widgets/filter-widget.php:374
+#: widgets/filter-widget.php:431 widgets/filter-widget.php:464
+#: widgets/filter-widget.php:480 widgets/filter-widget.php:496
+#: widgets/filter-widget.php:513 widgets/filter-widget.php:529
+#: widgets/filter-widget.php:587 widgets/filter-widget.php:611
+#: widgets/filter-widget.php:636 widgets/filter-widget.php:660
+#: widgets/post-widget.php:209 widgets/post-widget.php:330
+#: widgets/post-widget.php:381 widgets/post-widget.php:531
+#: widgets/post-widget.php:546 widgets/post-widget.php:573
+#: widgets/post-widget.php:589 widgets/post-widget.php:617
+#: widgets/post-widget.php:659 widgets/post-widget.php:687
+#: widgets/post-widget.php:717 widgets/post-widget.php:747
+#: widgets/post-widget.php:939 widgets/post-widget.php:1003
+#: widgets/post-widget.php:1044 widgets/post-widget.php:1086
+#: widgets/post-widget.php:1143 widgets/post-widget.php:1650
+#: widgets/post-widget.php:1675 widgets/post-widget.php:2070
+#: widgets/post-widget.php:2086 widgets/post-widget.php:2115
+#: widgets/post-widget.php:2229 widgets/post-widget.php:2242
+#: widgets/post-widget.php:2300 widgets/post-widget.php:2326
+#: widgets/post-widget.php:2339 widgets/post-widget.php:2352
+#: widgets/post-widget.php:2365 widgets/post-widget.php:2378
+#: widgets/post-widget.php:2391 widgets/post-widget.php:2440
+#: widgets/post-widget.php:2453 widgets/post-widget.php:2466
+#: widgets/post-widget.php:2529 widgets/post-widget.php:2557
+#: widgets/post-widget.php:2610 widgets/post-widget.php:2641
+#: widgets/post-widget.php:3205 widgets/post-widget.php:3364
+#: widgets/search-bar.php:187
+msgid "No"
+msgstr ""
+
+#: tags/pages-url.php:53 tags/pages-url.php:143
+msgid "Pages URL"
+msgstr ""
+
+#: tags/pages-url.php:110
+msgid "Home Page"
+msgstr ""
+
+#: tags/post-content.php:42 widgets/post-widget.php:517
+#: widgets/post-widget.php:1636 widgets/post-widget.php:1686
+#: widgets/post-widget.php:2944
+msgid "Post Content"
+msgstr ""
+
+#: tags/post-content.php:72 widgets/post-widget.php:774
+msgid "Content Length"
+msgstr ""
+
+#: tags/post-content.php:100
+msgid ""
+"This is the post content. The full content will only display on the live "
+"page."
+msgstr ""
+
+#: tags/post-date.php:41
+msgid "Post Date"
+msgstr ""
+
+#: tags/post-excerpt.php:53
+msgid "Post Excerpt"
+msgstr ""
+
+#: tags/post-excerpt.php:122
+msgid "Excerpt Length"
+msgstr ""
+
+#: tags/post-featured-image.php:81 widgets/post-widget.php:3175
+msgid "Featured Image"
+msgstr ""
+
+#: tags/post-featured-image.php:123
+msgid "Fallback"
+msgstr ""
+
+#: tags/post-terms.php:54
+msgid "Post Terms"
+msgstr ""
+
+#: tags/post-terms.php:124
+msgid "Separator"
+msgstr ""
+
+#: tags/post-terms.php:133
+msgid "Max. Terms"
+msgstr ""
+
+#: tags/post-terms.php:144
+msgid "Parent Terms Only"
+msgstr ""
+
+#: tags/post-terms.php:155
+msgid "Link"
+msgstr ""
+
+#: tags/post-title.php:51
+msgid "Post Title"
+msgstr ""
+
+#: tags/post-title.php:94 widgets/post-widget.php:790
+msgid "Title Length"
+msgstr ""
+
+#: tags/post-url.php:52
+msgid "Post URL"
+msgstr ""
+
+#: tags/repeater.php:54
+msgid "Repeater"
+msgstr ""
+
+#: tags/repeater.php:125
+msgid "Theme Options"
+msgstr ""
+
+#: tags/repeater.php:133
+msgid "Theme Option Key"
+msgstr ""
+
+#: tags/repeater.php:180
+msgid "Parent Key"
+msgstr ""
+
+#: tags/repeater.php:188
+msgid "Child Key 1"
+msgstr ""
+
+#: tags/repeater.php:200
+msgid "Child Key 2"
+msgstr ""
+
+#: tags/repeater.php:212
+msgid "Child Key 3"
+msgstr ""
+
+#: tags/repeater.php:224
+msgid "Child Key 4"
+msgstr ""
+
+#: tags/repeater.php:236
+msgid "HTML Tag"
+msgstr ""
+
+#: tags/repeater.php:240
+msgid "No Tag"
+msgstr ""
+
+#: tags/repeater.php:241 tags/repeater.php:274 widgets/post-widget.php:253
+#: widgets/post-widget.php:273
+msgid "div"
+msgstr ""
+
+#: tags/repeater.php:242 tags/repeater.php:273 widgets/post-widget.php:274
+msgid "span"
+msgstr ""
+
+#: tags/repeater.php:243 widgets/post-widget.php:275
+msgid "p"
+msgstr ""
+
+#: tags/repeater.php:244 tags/repeater.php:267 widgets/post-widget.php:267
+msgid "h1"
+msgstr ""
+
+#: tags/repeater.php:245 tags/repeater.php:268 widgets/post-widget.php:268
+msgid "h2"
+msgstr ""
+
+#: tags/repeater.php:246 tags/repeater.php:269 widgets/post-widget.php:269
+msgid "h3"
+msgstr ""
+
+#: tags/repeater.php:247 tags/repeater.php:270 widgets/post-widget.php:270
+msgid "h4"
+msgstr ""
+
+#: tags/repeater.php:248 tags/repeater.php:271 widgets/post-widget.php:271
+msgid "h5"
+msgstr ""
+
+#: tags/repeater.php:249 tags/repeater.php:272 widgets/post-widget.php:272
+msgid "h6"
+msgstr ""
+
+#: tags/repeater.php:250
+msgid "ul"
+msgstr ""
+
+#: tags/repeater.php:251
+msgid "ol"
+msgstr ""
+
+#: tags/repeater.php:252
+msgid "table"
+msgstr ""
+
+#: tags/repeater.php:253
+msgid "toggle"
+msgstr ""
+
+#: tags/repeater.php:263
+msgid "Title Tag"
+msgstr ""
+
+#: tags/shortcode.php:47 tags/shortcode.php:92
+msgid "Shortcode"
+msgstr ""
+
+#: tags/shortcode.php:94
+msgid "[your-shortcode]"
+msgstr ""
+
+#: tags/user-meta.php:53 tags/user-meta.php:126 widgets/post-widget.php:502
+msgid "User Meta"
+msgstr ""
+
+#: tags/user-meta.php:124
+msgid "Nicename"
+msgstr ""
+
+#: widgets/filter-posts-found.php:52 widgets/filter-posts-found.php:127
+msgid "Posts Found"
+msgstr ""
+
+#: widgets/filter-posts-found.php:135 widgets/filter-sorting.php:321
+#: widgets/filter-widget.php:770 widgets/filter-widget.php:817
+#: widgets/filter-widget.php:852 widgets/filter-widget.php:989
+#: widgets/filter-widget.php:1060 widgets/post-widget.php:1255
+#: widgets/post-widget.php:1598 widgets/post-widget.php:3469
+#: widgets/post-widget.php:3527 widgets/post-widget.php:3642
+#: widgets/post-widget.php:3700 widgets/post-widget.php:3811
+#: widgets/post-widget.php:3870 widgets/post-widget.php:3979
+#: widgets/post-widget.php:4038 widgets/post-widget.php:4149
+#: widgets/post-widget.php:4250 widgets/post-widget.php:4361
+#: widgets/post-widget.php:4419 widgets/post-widget.php:4538
+#: widgets/post-widget.php:4597 widgets/post-widget.php:4716
+#: widgets/post-widget.php:4775 widgets/post-widget.php:4904
+#: widgets/post-widget.php:4972 widgets/post-widget.php:5092
+#: widgets/post-widget.php:5149 widgets/post-widget.php:5258
+#: widgets/post-widget.php:5315 widgets/post-widget.php:5443
+#: widgets/post-widget.php:5511 widgets/post-widget.php:5593
+#: widgets/post-widget.php:5710 widgets/post-widget.php:5783
+#: widgets/post-widget.php:5866 widgets/post-widget.php:5922
+#: widgets/post-widget.php:6114 widgets/post-widget.php:6172
+#: widgets/post-widget.php:6716 widgets/post-widget.php:6816
+#: widgets/post-widget.php:6881 widgets/search-bar.php:232
+#: widgets/search-bar.php:453 widgets/search-bar.php:484
+msgid "Color"
+msgstr ""
+
+#: widgets/filter-posts-found.php:171
+#, php-format
+msgid "%s result(s) found"
+msgstr ""
+
+#: widgets/filter-sorting.php:52
+msgid "Sorting Widget"
+msgstr ""
+
+#: widgets/filter-sorting.php:133 widgets/filter-sorting.php:155
+#: widgets/post-widget.php:462 widgets/post-widget.php:479
+#: widgets/post-widget.php:1834 widgets/post-widget.php:3416
+msgid "Title"
+msgstr ""
+
+#: widgets/filter-sorting.php:146 widgets/filter-widget.php:407
+msgid "Sort By"
+msgstr ""
+
+#: widgets/filter-sorting.php:150 widgets/post-widget.php:1232
+msgid "Default"
+msgstr ""
+
+#: widgets/filter-sorting.php:151 widgets/post-widget.php:1830
+msgid "Date"
+msgstr ""
+
+#: widgets/filter-sorting.php:152 widgets/post-widget.php:1831
+msgid "Last Modified"
+msgstr ""
+
+#: widgets/filter-sorting.php:153 widgets/post-widget.php:1832
+msgid "Random"
+msgstr ""
+
+#: widgets/filter-sorting.php:154 widgets/post-widget.php:1833
+msgid "Comment Count"
+msgstr ""
+
+#: widgets/filter-sorting.php:158 widgets/post-widget.php:1837
+msgid "Menu Order"
+msgstr ""
+
+#: widgets/filter-sorting.php:159 widgets/post-widget.php:1838
+msgid "Relevance"
+msgstr ""
+
+#: widgets/filter-sorting.php:161 widgets/filter-widget.php:245
+#: widgets/post-widget.php:1840
+msgid "Custom Field (Numeric)"
+msgstr ""
+
+#: widgets/filter-sorting.php:169 widgets/filter-widget.php:266
+#: widgets/post-widget.php:834 widgets/post-widget.php:850
+#: widgets/post-widget.php:1851
+msgid "Field Key"
+msgstr ""
+
+#: widgets/filter-sorting.php:174 widgets/filter-widget.php:271
+#: widgets/post-widget.php:1856
+msgid "Enter a meta key"
+msgstr ""
+
+#: widgets/filter-sorting.php:185 widgets/post-widget.php:1868
+msgid "Order"
+msgstr ""
+
+#: widgets/filter-sorting.php:189
+msgid "ASC"
+msgstr ""
+
+#: widgets/filter-sorting.php:190
+msgid "DESC"
+msgstr ""
+
+#: widgets/filter-sorting.php:200
+msgid "Sorting Options"
+msgstr ""
+
+#: widgets/filter-sorting.php:205
+msgid "Sort by default"
+msgstr ""
+
+#: widgets/filter-sorting.php:209
+msgid "Sort by title: alphabetical"
+msgstr ""
+
+#: widgets/filter-sorting.php:214
+msgid "Sort by title: reverse"
+msgstr ""
+
+#: widgets/filter-sorting.php:219
+msgid "By date: newest first"
+msgstr ""
+
+#: widgets/filter-sorting.php:224
+msgid "By date: oldest first"
+msgstr ""
+
+#: widgets/filter-sorting.php:239 widgets/filter-widget.php:302
+#: widgets/filter-widget.php:321 widgets/filter-widget.php:357
+#: widgets/filter-widget.php:1126
+msgid "Dropdown"
+msgstr ""
+
+#: widgets/filter-sorting.php:247 widgets/filter-widget.php:1019
+#: widgets/filter-widget.php:1233 widgets/filter-widget.php:1439
+#: widgets/post-widget.php:3236 widgets/search-bar.php:283
+#: widgets/search-bar.php:350 widgets/search-bar.php:422
+msgid "Width"
+msgstr ""
+
+#: widgets/filter-sorting.php:293 widgets/post-widget.php:1334
+#: widgets/post-widget.php:2846 widgets/post-widget.php:2916
+#: widgets/post-widget.php:3076 widgets/post-widget.php:3146
+#: widgets/post-widget.php:6128 widgets/post-widget.php:6186
+#: widgets/search-bar.php:306 widgets/search-bar.php:374
+msgid "Border"
+msgstr ""
+
+#: widgets/filter-sorting.php:301 widgets/filter-widget.php:934
+#: widgets/filter-widget.php:1114 widgets/filter-widget.php:1154
+#: widgets/filter-widget.php:1310 widgets/filter-widget.php:1516
+#: widgets/post-widget.php:1351 widgets/post-widget.php:2855
+#: widgets/post-widget.php:2925 widgets/post-widget.php:3085
+#: widgets/post-widget.php:3155 widgets/post-widget.php:3339
+#: widgets/post-widget.php:5899 widgets/post-widget.php:6137
+#: widgets/post-widget.php:6197 widgets/post-widget.php:6451
+#: widgets/search-bar.php:315 widgets/search-bar.php:383
+msgid "Border Radius"
+msgstr ""
+
+#: widgets/filter-sorting.php:332 widgets/filter-widget.php:1071
+#: widgets/filter-widget.php:1288 widgets/filter-widget.php:1346
+#: widgets/filter-widget.php:1494 widgets/filter-widget.php:1552
+#: widgets/search-bar.php:254 widgets/search-bar.php:464
+#: widgets/search-bar.php:495
+msgid "Background Color"
+msgstr ""
+
+#: widgets/filter-widget.php:55
+msgid "Filter Widget"
+msgstr ""
+
+#: widgets/filter-widget.php:156
+msgid "Filter Content"
+msgstr ""
+
+#: widgets/filter-widget.php:164 widgets/search-bar.php:133
+msgid "Post Widget Target"
+msgstr ""
+
+#: widgets/filter-widget.php:169 widgets/search-bar.php:138
+msgid "#id, .class"
+msgstr ""
+
+#: widgets/filter-widget.php:177
+msgid "Post Type to Filter"
+msgstr ""
+
+#: widgets/filter-widget.php:189 widgets/post-widget.php:223
+msgid "Columns"
+msgstr ""
+
+#: widgets/filter-widget.php:225 widgets/filter-widget.php:739
+msgid "Group Label"
+msgstr ""
+
+#: widgets/filter-widget.php:227 widgets/filter-widget.php:228
+msgid "New Filter"
+msgstr ""
+
+#: widgets/filter-widget.php:239
+msgid "Data Source"
+msgstr ""
+
+#: widgets/filter-widget.php:253
+msgid "Select a Taxonomy"
+msgstr ""
+
+#: widgets/filter-widget.php:282 widgets/post-widget.php:1559
+msgid "Before"
+msgstr ""
+
+#: widgets/filter-widget.php:294
+msgid "Filter Type"
+msgstr ""
+
+#: widgets/filter-widget.php:298
+msgid "Range"
+msgstr ""
+
+#: widgets/filter-widget.php:299 widgets/filter-widget.php:318
+#: widgets/filter-widget.php:354
+msgid "Checkboxes"
+msgstr ""
+
+#: widgets/filter-widget.php:300 widgets/filter-widget.php:319
+#: widgets/filter-widget.php:355
+msgid "Radio Buttons"
+msgstr ""
+
+#: widgets/filter-widget.php:301 widgets/filter-widget.php:320
+#: widgets/filter-widget.php:356
+msgid "Label List"
+msgstr ""
+
+#: widgets/filter-widget.php:314 widgets/filter-widget.php:350
+msgid "Field Type"
+msgstr ""
+
+#: widgets/filter-widget.php:322 widgets/filter-widget.php:358
+#: widgets/filter-widget.php:1011
+msgid "Select2"
+msgstr ""
+
+#: widgets/filter-widget.php:323
+msgid "Input Field"
+msgstr ""
+
+#: widgets/filter-widget.php:335 widgets/filter-widget.php:370
+msgid "Enable Multiple Select"
+msgstr ""
+
+#: widgets/filter-widget.php:385 widgets/search-bar.php:171
+msgid "Placeholder"
+msgstr ""
+
+#: widgets/filter-widget.php:387 widgets/filter-widget.php:388
+#: widgets/search-bar.php:176 widgets/search-bar.php:177
+msgid "Search by keywords..."
+msgstr ""
+
+#: widgets/filter-widget.php:411
+msgid "Name"
+msgstr ""
+
+#: widgets/filter-widget.php:412
+msgid "Slug"
+msgstr ""
+
+#: widgets/filter-widget.php:413
+msgid "Count"
+msgstr ""
+
+#: widgets/filter-widget.php:414
+msgid "Term Group"
+msgstr ""
+
+#: widgets/filter-widget.php:415
+msgid "Term Order"
+msgstr ""
+
+#: widgets/filter-widget.php:427
+msgid "Display Empty Terms"
+msgstr ""
+
+#: widgets/filter-widget.php:443
+msgid "Group Logic"
+msgstr ""
+
+#: widgets/filter-widget.php:447 widgets/filter-widget.php:575
+msgid "OR"
+msgstr ""
+
+#: widgets/filter-widget.php:448 widgets/filter-widget.php:574
+msgid "AND"
+msgstr ""
+
+#: widgets/filter-widget.php:460
+msgid "Show Post Count"
+msgstr ""
+
+#: widgets/filter-widget.php:476
+msgid "Show Hierarchy"
+msgstr ""
+
+#: widgets/filter-widget.php:492
+msgid "Toggle Child Terms"
+msgstr ""
+
+#: widgets/filter-widget.php:509 widgets/filter-widget.php:525
+msgid "More/Less"
+msgstr ""
+
+#: widgets/filter-widget.php:545
+msgid "Filter List"
+msgstr ""
+
+#: widgets/filter-widget.php:550
+msgid "category"
+msgstr ""
+
+#: widgets/filter-widget.php:561
+msgid "Parent Options"
+msgstr ""
+
+#: widgets/filter-widget.php:570
+msgid "Parent Logic"
+msgstr ""
+
+#: widgets/filter-widget.php:584
+msgid "Dynamic Archive Filtering"
+msgstr ""
+
+#: widgets/filter-widget.php:599 widgets/post-widget.php:2599
+msgid "Additional Options"
+msgstr ""
+
+#: widgets/filter-widget.php:607
+msgid "Display Reset Button"
+msgstr ""
+
+#: widgets/filter-widget.php:620
+msgid "Reset Button Text"
+msgstr ""
+
+#: widgets/filter-widget.php:622 widgets/filter-widget.php:2243
+msgid "Reset"
+msgstr ""
+
+#: widgets/filter-widget.php:632
+msgid "Display Submit Button"
+msgstr ""
+
+#: widgets/filter-widget.php:645
+msgid "Submit Button Text"
+msgstr ""
+
+#: widgets/filter-widget.php:647 widgets/filter-widget.php:2242
+msgid "Submit"
+msgstr ""
+
+#: widgets/filter-widget.php:657 widgets/post-widget.php:2526
+msgid "Scroll to top"
+msgstr ""
+
+#: widgets/filter-widget.php:672 widgets/post-widget.php:2137
+#: widgets/post-widget.php:6872
+msgid "Nothing Found Message"
+msgstr ""
+
+#: widgets/filter-widget.php:675 widgets/post-widget.php:2139
+msgid "It seems we can't find what you're looking for."
+msgstr ""
+
+#: widgets/filter-widget.php:685
+msgid "Filter Container"
+msgstr ""
+
+#: widgets/filter-widget.php:694 widgets/post-widget.php:2689
+msgid "Column Gap"
+msgstr ""
+
+#: widgets/filter-widget.php:716 widgets/post-widget.php:2711
+msgid "Row Gap"
+msgstr ""
+
+#: widgets/filter-widget.php:747
+msgid "Filter Spacing"
+msgstr ""
+
+#: widgets/filter-widget.php:786
+msgid "Input Label"
+msgstr ""
+
+#: widgets/filter-widget.php:794
+msgid "Label Spacing"
+msgstr ""
+
+#: widgets/filter-widget.php:833
+msgid "Input"
+msgstr ""
+
+#: widgets/filter-widget.php:866 widgets/search-bar.php:243
+msgid "Placeholder Color"
+msgstr ""
+
+#: widgets/filter-widget.php:879
+msgid "Field Background"
+msgstr ""
+
+#: widgets/filter-widget.php:890 widgets/filter-widget.php:1082
+#: widgets/filter-widget.php:1256 widgets/filter-widget.php:1462
+#: widgets/post-widget.php:1487 widgets/post-widget.php:1620
+#: widgets/post-widget.php:2819 widgets/post-widget.php:2889
+#: widgets/post-widget.php:3049 widgets/post-widget.php:3119
+#: widgets/post-widget.php:3491 widgets/post-widget.php:3552
+#: widgets/post-widget.php:3664 widgets/post-widget.php:3725
+#: widgets/post-widget.php:3834 widgets/post-widget.php:3893
+#: widgets/post-widget.php:4002 widgets/post-widget.php:4063
+#: widgets/post-widget.php:4171 widgets/post-widget.php:4275
+#: widgets/post-widget.php:4383 widgets/post-widget.php:4444
+#: widgets/post-widget.php:4561 widgets/post-widget.php:4622
+#: widgets/post-widget.php:4739 widgets/post-widget.php:4800
+#: widgets/post-widget.php:4936 widgets/post-widget.php:5006
+#: widgets/post-widget.php:5113 widgets/post-widget.php:5172
+#: widgets/post-widget.php:5279 widgets/post-widget.php:5338
+#: widgets/post-widget.php:5475 widgets/post-widget.php:5546
+#: widgets/post-widget.php:6060 widgets/post-widget.php:6439
+#: widgets/post-widget.php:6737 widgets/post-widget.php:6839
+#: widgets/post-widget.php:6930
+msgid "Padding"
+msgstr ""
+
+#: widgets/filter-widget.php:903 widgets/filter-widget.php:1094
+#: widgets/post-widget.php:1508 widgets/post-widget.php:2832
+#: widgets/post-widget.php:2902 widgets/post-widget.php:3062
+#: widgets/post-widget.php:3132 widgets/post-widget.php:3504
+#: widgets/post-widget.php:3565 widgets/post-widget.php:3677
+#: widgets/post-widget.php:3738 widgets/post-widget.php:3847
+#: widgets/post-widget.php:3906 widgets/post-widget.php:4015
+#: widgets/post-widget.php:4076 widgets/post-widget.php:4184
+#: widgets/post-widget.php:4288 widgets/post-widget.php:4396
+#: widgets/post-widget.php:4457 widgets/post-widget.php:4574
+#: widgets/post-widget.php:4635 widgets/post-widget.php:4752
+#: widgets/post-widget.php:4813 widgets/post-widget.php:4949
+#: widgets/post-widget.php:5019 widgets/post-widget.php:5126
+#: widgets/post-widget.php:5185 widgets/post-widget.php:5292
+#: widgets/post-widget.php:5351 widgets/post-widget.php:5488
+#: widgets/post-widget.php:5559 widgets/post-widget.php:6750
+#: widgets/post-widget.php:6852
+msgid "Margin"
+msgstr ""
+
+#: widgets/filter-widget.php:919 widgets/filter-widget.php:1270
+#: widgets/filter-widget.php:1476 widgets/post-widget.php:1233
+#: widgets/post-widget.php:2801 widgets/post-widget.php:3031
+#: widgets/post-widget.php:3461 widgets/post-widget.php:3634
+#: widgets/post-widget.php:3803 widgets/post-widget.php:3971
+#: widgets/post-widget.php:4141 widgets/post-widget.php:4353
+#: widgets/post-widget.php:4530 widgets/post-widget.php:4708
+#: widgets/post-widget.php:4896 widgets/post-widget.php:5084
+#: widgets/post-widget.php:5250 widgets/post-widget.php:5435
+#: widgets/post-widget.php:5858 widgets/post-widget.php:6094
+#: widgets/post-widget.php:6289 widgets/post-widget.php:6708
+#: widgets/search-bar.php:276 widgets/search-bar.php:446
+msgid "Normal"
+msgstr ""
+
+#: widgets/filter-widget.php:948 widgets/search-bar.php:343
+msgid "Focus"
+msgstr ""
+
+#: widgets/filter-widget.php:969
+msgid "Checkbox/Radio"
+msgstr ""
+
+#: widgets/filter-widget.php:977 widgets/post-widget.php:1199
+#: widgets/post-widget.php:1449 widgets/post-widget.php:1582
+#: widgets/post-widget.php:5379 widgets/post-widget.php:5618
+#: widgets/post-widget.php:6039
+msgid "Size"
+msgstr ""
+
+#: widgets/filter-widget.php:1000
+msgid "Checkbox/Radio Border"
+msgstr ""
+
+#: widgets/filter-widget.php:1035 widgets/post-widget.php:2953
+#: widgets/post-widget.php:3214 widgets/post-widget.php:5808
+msgid "Height"
+msgstr ""
+
+#: widgets/filter-widget.php:1052
+msgid "Selection"
+msgstr ""
+
+#: widgets/filter-widget.php:1143
+msgid "Focus Border Color"
+msgstr ""
+
+#: widgets/filter-widget.php:1168
+msgid "Reset Button"
+msgstr ""
+
+#: widgets/filter-widget.php:1191 widgets/filter-widget.php:1397
+#: widgets/post-widget.php:3434 widgets/post-widget.php:3603
+#: widgets/post-widget.php:3776 widgets/post-widget.php:3944
+#: widgets/post-widget.php:4114 widgets/post-widget.php:4326
+#: widgets/post-widget.php:4503 widgets/post-widget.php:4681
+#: widgets/post-widget.php:4853 widgets/post-widget.php:5057
+#: widgets/post-widget.php:5223 widgets/post-widget.php:5408
+#: widgets/post-widget.php:5670 widgets/post-widget.php:5988
+#: widgets/post-widget.php:6262 widgets/post-widget.php:6681
+#: widgets/post-widget.php:6893
+msgid "Alignment"
+msgstr ""
+
+#: widgets/filter-widget.php:1194 widgets/filter-widget.php:1400
+#: widgets/post-widget.php:1376 widgets/post-widget.php:2736
+#: widgets/post-widget.php:3266 widgets/post-widget.php:3437
+#: widgets/post-widget.php:3606 widgets/post-widget.php:3779
+#: widgets/post-widget.php:3947 widgets/post-widget.php:4117
+#: widgets/post-widget.php:4329 widgets/post-widget.php:4506
+#: widgets/post-widget.php:4684 widgets/post-widget.php:4856
+#: widgets/post-widget.php:5060 widgets/post-widget.php:5226
+#: widgets/post-widget.php:5411 widgets/post-widget.php:5673
+#: widgets/post-widget.php:5991 widgets/post-widget.php:6265
+#: widgets/post-widget.php:6684 widgets/post-widget.php:6896
+msgid "Left"
+msgstr ""
+
+#: widgets/filter-widget.php:1198 widgets/filter-widget.php:1404
+#: widgets/post-widget.php:1380 widgets/post-widget.php:2740
+#: widgets/post-widget.php:3441 widgets/post-widget.php:3610
+#: widgets/post-widget.php:3783 widgets/post-widget.php:3951
+#: widgets/post-widget.php:4121 widgets/post-widget.php:4333
+#: widgets/post-widget.php:4510 widgets/post-widget.php:4688
+#: widgets/post-widget.php:4860 widgets/post-widget.php:5064
+#: widgets/post-widget.php:5230 widgets/post-widget.php:5415
+#: widgets/post-widget.php:5677 widgets/post-widget.php:5995
+#: widgets/post-widget.php:6269 widgets/post-widget.php:6688
+#: widgets/post-widget.php:6900
+msgid "Center"
+msgstr ""
+
+#: widgets/filter-widget.php:1202 widgets/filter-widget.php:1408
+#: widgets/post-widget.php:1384 widgets/post-widget.php:2744
+#: widgets/post-widget.php:3270 widgets/post-widget.php:3445
+#: widgets/post-widget.php:3614 widgets/post-widget.php:3787
+#: widgets/post-widget.php:3955 widgets/post-widget.php:4125
+#: widgets/post-widget.php:4337 widgets/post-widget.php:4514
+#: widgets/post-widget.php:4692 widgets/post-widget.php:4864
+#: widgets/post-widget.php:5068 widgets/post-widget.php:5234
+#: widgets/post-widget.php:5419 widgets/post-widget.php:5681
+#: widgets/post-widget.php:5999 widgets/post-widget.php:6273
+#: widgets/post-widget.php:6692 widgets/post-widget.php:6904
+msgid "Right"
+msgstr ""
+
+#: widgets/filter-widget.php:1217 widgets/filter-widget.php:1423
+#: widgets/post-widget.php:5750 widgets/post-widget.php:5824
+msgid "Spacing"
+msgstr ""
+
+#: widgets/filter-widget.php:1277 widgets/filter-widget.php:1335
+#: widgets/filter-widget.php:1483 widgets/filter-widget.php:1541
+#: widgets/post-widget.php:6545 widgets/post-widget.php:6590
+msgid "Text Color"
+msgstr ""
+
+#: widgets/filter-widget.php:1328 widgets/filter-widget.php:1534
+#: widgets/post-widget.php:1610 widgets/post-widget.php:2870
+#: widgets/post-widget.php:3100 widgets/post-widget.php:3519
+#: widgets/post-widget.php:3692 widgets/post-widget.php:3862
+#: widgets/post-widget.php:4030 widgets/post-widget.php:4242
+#: widgets/post-widget.php:4411 widgets/post-widget.php:4589
+#: widgets/post-widget.php:4767 widgets/post-widget.php:4964
+#: widgets/post-widget.php:5141 widgets/post-widget.php:5307
+#: widgets/post-widget.php:5503 widgets/post-widget.php:5914
+#: widgets/post-widget.php:6152 widgets/post-widget.php:6330
+#: widgets/post-widget.php:6808 widgets/search-bar.php:477
+msgid "Hover"
+msgstr ""
+
+#: widgets/filter-widget.php:1357 widgets/filter-widget.php:1563
+#: widgets/post-widget.php:5947 widgets/post-widget.php:6366
+#: widgets/post-widget.php:6419
+msgid "Border Color"
+msgstr ""
+
+#: widgets/filter-widget.php:1374
+msgid "Submit Button"
+msgstr ""
+
+#: widgets/filter-widget.php:1667 widgets/filter-widget.php:1742
+#: widgets/filter-widget.php:1958 widgets/filter-widget.php:1990
+msgid "More..."
+msgstr ""
+
+#: widgets/filter-widget.php:1667 widgets/filter-widget.php:1742
+#: widgets/filter-widget.php:1958 widgets/filter-widget.php:1990
+msgid "Less..."
+msgstr ""
+
+#: widgets/filter-widget.php:1831 widgets/filter-widget.php:2043
+#: widgets/post-widget.php:7554
+msgid "Choose an option"
+msgstr ""
+
+#: widgets/post-widget.php:49
+msgid "Post Widget"
+msgstr ""
+
+#: widgets/post-widget.php:140 widgets/post-widget.php:162
+#: widgets/post-widget.php:2680
+msgid "Layout"
+msgstr ""
+
+#: widgets/post-widget.php:149
+msgid "Posts Per Page"
+msgstr ""
+
+#: widgets/post-widget.php:165
+msgid "Grid"
+msgstr ""
+
+#: widgets/post-widget.php:166
+msgid "Masonry"
+msgstr ""
+
+#: widgets/post-widget.php:167
+msgid "Carousel"
+msgstr ""
+
+#: widgets/post-widget.php:177
+msgid "Trigger Breakpoint"
+msgstr ""
+
+#: widgets/post-widget.php:191
+msgid "Post Skin"
+msgstr ""
+
+#: widgets/post-widget.php:194
+msgid "Classic"
+msgstr ""
+
+#: widgets/post-widget.php:195
+msgid "On Side"
+msgstr ""
+
+#: widgets/post-widget.php:196
+msgid "Banner"
+msgstr ""
+
+#: widgets/post-widget.php:197
+msgid "Template Grid"
+msgstr ""
+
+#: widgets/post-widget.php:198 widgets/post-widget.php:412
+msgid "Custom HTML"
+msgstr ""
+
+#: widgets/post-widget.php:206
+msgid "Keep sideways on mobile"
+msgstr ""
+
+#: widgets/post-widget.php:225 widgets/post-widget.php:343
+#: widgets/post-widget.php:362 widgets/post-widget.php:398
+#: widgets/post-widget.php:2164 widgets/post-widget.php:2194
+msgid "1"
+msgstr ""
+
+#: widgets/post-widget.php:226 widgets/post-widget.php:344
+#: widgets/post-widget.php:363 widgets/post-widget.php:2166
+#: widgets/post-widget.php:2195
+msgid "2"
+msgstr ""
+
+#: widgets/post-widget.php:227 widgets/post-widget.php:345
+#: widgets/post-widget.php:364 widgets/post-widget.php:2168
+#: widgets/post-widget.php:2196
+msgid "3"
+msgstr ""
+
+#: widgets/post-widget.php:228 widgets/post-widget.php:346
+#: widgets/post-widget.php:365 widgets/post-widget.php:2170
+#: widgets/post-widget.php:2197
+msgid "4"
+msgstr ""
+
+#: widgets/post-widget.php:229 widgets/post-widget.php:347
+#: widgets/post-widget.php:366 widgets/post-widget.php:2172
+#: widgets/post-widget.php:2198
+msgid "5"
+msgstr ""
+
+#: widgets/post-widget.php:230 widgets/post-widget.php:348
+#: widgets/post-widget.php:367 widgets/post-widget.php:2174
+#: widgets/post-widget.php:2199
+msgid "6"
+msgstr ""
+
+#: widgets/post-widget.php:231 widgets/post-widget.php:349
+#: widgets/post-widget.php:368 widgets/post-widget.php:2176
+#: widgets/post-widget.php:2200
+msgid "7"
+msgstr ""
+
+#: widgets/post-widget.php:232 widgets/post-widget.php:350
+#: widgets/post-widget.php:369 widgets/post-widget.php:2178
+#: widgets/post-widget.php:2201
+msgid "8"
+msgstr ""
+
+#: widgets/post-widget.php:250
+msgid "Post HTML Tag"
+msgstr ""
+
+#: widgets/post-widget.php:254
+msgid "article"
+msgstr ""
+
+#: widgets/post-widget.php:264
+msgid "Title HTML Tag"
+msgstr ""
+
+#: widgets/post-widget.php:288
+msgid "Default Template"
+msgstr ""
+
+#: widgets/post-widget.php:304
+msgid "Choose a Template"
+msgstr ""
+
+#: widgets/post-widget.php:315
+msgid "Position"
+msgstr ""
+
+#: widgets/post-widget.php:326
+msgid "Apply Once"
+msgstr ""
+
+#: widgets/post-widget.php:339
+msgid "Column Span"
+msgstr ""
+
+#: widgets/post-widget.php:359
+msgid "Row Span"
+msgstr ""
+
+#: widgets/post-widget.php:377
+msgid "Add Extra Templates"
+msgstr ""
+
+#: widgets/post-widget.php:435
+msgid "Available Tags:"
+msgstr ""
+
+#: widgets/post-widget.php:437
+msgid "#TITLE#, #CONTENT#, #EXCERPT#, #PERMALINK#, #IMAGE#"
+msgstr ""
+
+#: widgets/post-widget.php:464 widgets/post-widget.php:481
+msgid "Excerpt"
+msgstr ""
+
+#: widgets/post-widget.php:465 widgets/post-widget.php:482
+#: widgets/post-widget.php:3926
+msgid "Custom Field/ACF"
+msgstr ""
+
+#: widgets/post-widget.php:467 widgets/post-widget.php:484
+#: widgets/post-widget.php:507 widgets/post-widget.php:866
+#: widgets/post-widget.php:881
+msgid "HTML"
+msgstr ""
+
+#: widgets/post-widget.php:468 widgets/post-widget.php:485
+#: widgets/post-widget.php:4096
+msgid "Post Meta"
+msgstr ""
+
+#: widgets/post-widget.php:469 widgets/post-widget.php:486
+#: widgets/post-widget.php:4308
+msgid "Read More"
+msgstr ""
+
+#: widgets/post-widget.php:470 widgets/post-widget.php:487
+#: widgets/post-widget.php:6518
+msgid "Bookmark"
+msgstr ""
+
+#: widgets/post-widget.php:471 widgets/post-widget.php:488
+#: widgets/post-widget.php:6663
+msgid "Edit Options"
+msgstr ""
+
+#: widgets/post-widget.php:472 widgets/post-widget.php:4835
+msgid "Product Price"
+msgstr ""
+
+#: widgets/post-widget.php:473 widgets/post-widget.php:5371
+msgid "Product Rating"
+msgstr ""
+
+#: widgets/post-widget.php:474 widgets/post-widget.php:924
+#: widgets/post-widget.php:925 widgets/post-widget.php:5039
+msgid "Buy Now"
+msgstr ""
+
+#: widgets/post-widget.php:475 widgets/post-widget.php:5205
+msgid "Product Badge"
+msgstr ""
+
+#: widgets/post-widget.php:495 widgets/post-widget.php:1712
+msgid "User Details"
+msgstr ""
+
+#: widgets/post-widget.php:499
+msgid "Username"
+msgstr ""
+
+#: widgets/post-widget.php:501
+msgid "First/Last Name"
+msgstr ""
+
+#: widgets/post-widget.php:503
+msgid "User Email"
+msgstr ""
+
+#: widgets/post-widget.php:504
+msgid "User Role"
+msgstr ""
+
+#: widgets/post-widget.php:506 widgets/post-widget.php:4655
+msgid "Visit Profile"
+msgstr ""
+
+#: widgets/post-widget.php:527 widgets/post-widget.php:1671
+msgid "Link to Post"
+msgstr ""
+
+#: widgets/post-widget.php:542
+msgid "Link to User Profile"
+msgstr ""
+
+#: widgets/post-widget.php:557
+msgid "Meta Separator"
+msgstr ""
+
+#: widgets/post-widget.php:569
+msgid "Display Post Author"
+msgstr ""
+
+#: widgets/post-widget.php:585
+msgid "Link to Author Page"
+msgstr ""
+
+#: widgets/post-widget.php:601
+msgid "Author Icon"
+msgstr ""
+
+#: widgets/post-widget.php:613
+msgid "Display Post Date"
+msgstr ""
+
+#: widgets/post-widget.php:629
+msgid "Date Format"
+msgstr ""
+
+#: widgets/post-widget.php:631 widgets/post-widget.php:632
+msgid "Y/m/d"
+msgstr ""
+
+#: widgets/post-widget.php:643
+msgid "Date Icon"
+msgstr ""
+
+#: widgets/post-widget.php:655
+msgid "Display Post Comment"
+msgstr ""
+
+#: widgets/post-widget.php:671
+msgid "Comment Icon"
+msgstr ""
+
+#: widgets/post-widget.php:683
+msgid "Display On Sale"
+msgstr ""
+
+#: widgets/post-widget.php:698
+msgid "On Sale Text"
+msgstr ""
+
+#: widgets/post-widget.php:700 widgets/post-widget.php:701
+msgid "Sale"
+msgstr ""
+
+#: widgets/post-widget.php:713
+msgid "Display New Arrival"
+msgstr ""
+
+#: widgets/post-widget.php:728
+msgid "New Arrival Text"
+msgstr ""
+
+#: widgets/post-widget.php:730 widgets/post-widget.php:731
+msgid "New Arrival"
+msgstr ""
+
+#: widgets/post-widget.php:743
+msgid "Display Best Seller"
+msgstr ""
+
+#: widgets/post-widget.php:758
+msgid "Best Seller Text"
+msgstr ""
+
+#: widgets/post-widget.php:760 widgets/post-widget.php:761
+msgid "Best Seller"
+msgstr ""
+
+#: widgets/post-widget.php:775 widgets/post-widget.php:791
+msgid "25"
+msgstr ""
+
+#: widgets/post-widget.php:805
+msgid "Select Taxonomies"
+msgstr ""
+
+#: widgets/post-widget.php:819
+msgid "Max. Terms to Show"
+msgstr ""
+
+#: widgets/post-widget.php:839
+msgid "Enter a custom field"
+msgstr ""
+
+#: widgets/post-widget.php:855
+msgid "Enter a custom field key"
+msgstr ""
+
+#: widgets/post-widget.php:896
+msgid "Read More Text"
+msgstr ""
+
+#: widgets/post-widget.php:898 widgets/post-widget.php:899
+msgid "Read More »"
+msgstr ""
+
+#: widgets/post-widget.php:909
+msgid "Visit Profile Text"
+msgstr ""
+
+#: widgets/post-widget.php:911 widgets/post-widget.php:912
+msgid "Visit Profile »"
+msgstr ""
+
+#: widgets/post-widget.php:922
+msgid "Buy Now Text"
+msgstr ""
+
+#: widgets/post-widget.php:935
+msgid "Hide for Logged-Out Users"
+msgstr ""
+
+#: widgets/post-widget.php:950 widgets/post-widget.php:975
+#: widgets/post-widget.php:1014 widgets/post-widget.php:1056
+#: widgets/post-widget.php:1113 widgets/post-widget.php:1155
+msgid "Icon"
+msgstr ""
+
+#: widgets/post-widget.php:961
+msgid "Bookmarked Text"
+msgstr ""
+
+#: widgets/post-widget.php:963 widgets/post-widget.php:964
+msgid "Pin"
+msgstr ""
+
+#: widgets/post-widget.php:986
+msgid "Unbookmarked Text"
+msgstr ""
+
+#: widgets/post-widget.php:988 widgets/post-widget.php:989
+msgid "Unpin"
+msgstr ""
+
+#: widgets/post-widget.php:999
+msgid "Display Republish"
+msgstr ""
+
+#: widgets/post-widget.php:1026
+msgid "Republish Text"
+msgstr ""
+
+#: widgets/post-widget.php:1028 widgets/post-widget.php:1029
+msgid "Republish"
+msgstr ""
+
+#: widgets/post-widget.php:1040
+msgid "Display Unpublish"
+msgstr ""
+
+#: widgets/post-widget.php:1068
+msgid "Unpublish Text"
+msgstr ""
+
+#: widgets/post-widget.php:1070 widgets/post-widget.php:1071
+msgid "Unpublish"
+msgstr ""
+
+#: widgets/post-widget.php:1082
+msgid "Display Edit"
+msgstr ""
+
+#: widgets/post-widget.php:1098
+msgid "Edit URL"
+msgstr ""
+
+#: widgets/post-widget.php:1100
+msgid "Use #ID# to get the post ID"
+msgstr ""
+
+#: widgets/post-widget.php:1101
+msgid "/your-edit-page?#ID#"
+msgstr ""
+
+#: widgets/post-widget.php:1125
+msgid "Edit Text"
+msgstr ""
+
+#: widgets/post-widget.php:1127 widgets/post-widget.php:1128
+msgid "Edit"
+msgstr ""
+
+#: widgets/post-widget.php:1139
+msgid "Display Delete"
+msgstr ""
+
+#: widgets/post-widget.php:1167
+msgid "Delete Text"
+msgstr ""
+
+#: widgets/post-widget.php:1169 widgets/post-widget.php:1170
+msgid "Delete"
+msgstr ""
+
+#: widgets/post-widget.php:1183
+msgid "Style"
+msgstr ""
+
+#: widgets/post-widget.php:1190
+msgid "Custom"
+msgstr ""
+
+#: widgets/post-widget.php:1192
+msgid "Set custom style that will only affect this specific row."
+msgstr ""
+
+#: widgets/post-widget.php:1219
+msgid "Weight"
+msgstr ""
+
+#: widgets/post-widget.php:1223
+msgid "100 (Thin)"
+msgstr ""
+
+#: widgets/post-widget.php:1224
+msgid "200 (Extra Light)"
+msgstr ""
+
+#: widgets/post-widget.php:1225
+msgid "300 (Light)"
+msgstr ""
+
+#: widgets/post-widget.php:1226
+msgid "400 (Normal)"
+msgstr ""
+
+#: widgets/post-widget.php:1227
+msgid "500 (Medium)"
+msgstr ""
+
+#: widgets/post-widget.php:1228
+msgid "600 (Semi Bold)"
+msgstr ""
+
+#: widgets/post-widget.php:1229
+msgid "700 (Bold)"
+msgstr ""
+
+#: widgets/post-widget.php:1230
+msgid "800 (Extra Bold)"
+msgstr ""
+
+#: widgets/post-widget.php:1231
+msgid "900 (Black)"
+msgstr ""
+
+#: widgets/post-widget.php:1234
+msgid "Bold"
+msgstr ""
+
+#: widgets/post-widget.php:1274
+msgid "Hover Color"
+msgstr ""
+
+#: widgets/post-widget.php:1294 widgets/post-widget.php:2809
+#: widgets/post-widget.php:2878 widgets/post-widget.php:3039
+#: widgets/post-widget.php:3108 widgets/post-widget.php:3481
+#: widgets/post-widget.php:3541 widgets/post-widget.php:3654
+#: widgets/post-widget.php:3714 widgets/post-widget.php:3823
+#: widgets/post-widget.php:3882 widgets/post-widget.php:3991
+#: widgets/post-widget.php:4052 widgets/post-widget.php:4161
+#: widgets/post-widget.php:4264 widgets/post-widget.php:4373
+#: widgets/post-widget.php:4433 widgets/post-widget.php:4550
+#: widgets/post-widget.php:4611 widgets/post-widget.php:4728
+#: widgets/post-widget.php:4789 widgets/post-widget.php:4926
+#: widgets/post-widget.php:4995 widgets/post-widget.php:5103
+#: widgets/post-widget.php:5161 widgets/post-widget.php:5269
+#: widgets/post-widget.php:5327 widgets/post-widget.php:5465
+#: widgets/post-widget.php:5535 widgets/post-widget.php:5878
+#: widgets/post-widget.php:5934 widgets/post-widget.php:6101
+#: widgets/post-widget.php:6159 widgets/post-widget.php:6308
+#: widgets/post-widget.php:6351 widgets/post-widget.php:6404
+#: widgets/post-widget.php:6727 widgets/post-widget.php:6828
+msgid "Background"
+msgstr ""
+
+#: widgets/post-widget.php:1314
+msgid "Hover Background"
+msgstr ""
+
+#: widgets/post-widget.php:1372
+msgid "Horizontal Position"
+msgstr ""
+
+#: widgets/post-widget.php:1411
+msgid "Vertical Position"
+msgstr ""
+
+#: widgets/post-widget.php:1415 widgets/post-widget.php:2770
+#: widgets/post-widget.php:3295
+msgid "Top"
+msgstr ""
+
+#: widgets/post-widget.php:1419 widgets/post-widget.php:2774
+msgid "Middle"
+msgstr ""
+
+#: widgets/post-widget.php:1423 widgets/post-widget.php:2778
+#: widgets/post-widget.php:3299
+msgid "Bottom"
+msgstr ""
+
+#: widgets/post-widget.php:1457
+msgid "Grow"
+msgstr ""
+
+#: widgets/post-widget.php:1461
+msgid "Shrink"
+msgstr ""
+
+#: widgets/post-widget.php:1529
+msgid "Z-Index"
+msgstr ""
+
+#: widgets/post-widget.php:1570
+msgid "After"
+msgstr ""
+
+#: widgets/post-widget.php:1575
+msgid "Use # to get the row number."
+msgstr ""
+
+#: widgets/post-widget.php:1647
+msgid "Show Featured Image"
+msgstr ""
+
+#: widgets/post-widget.php:1737
+msgid "Query"
+msgstr ""
+
+#: widgets/post-widget.php:1776
+msgid "Query Type"
+msgstr ""
+
+#: widgets/post-widget.php:1779
+msgid "Custom Query"
+msgstr ""
+
+#: widgets/post-widget.php:1780
+msgid "Main Query"
+msgstr ""
+
+#: widgets/post-widget.php:1781
+msgid "User Query"
+msgstr ""
+
+#: widgets/post-widget.php:1789
+msgid "Post Type"
+msgstr ""
+
+#: widgets/post-widget.php:1804
+msgid "Post Status"
+msgstr ""
+
+#: widgets/post-widget.php:1809
+msgid "Published"
+msgstr ""
+
+#: widgets/post-widget.php:1810
+msgid "Pending"
+msgstr ""
+
+#: widgets/post-widget.php:1811
+msgid "Draft"
+msgstr ""
+
+#: widgets/post-widget.php:1812
+msgid "Private"
+msgstr ""
+
+#: widgets/post-widget.php:1813
+msgid "Trashed"
+msgstr ""
+
+#: widgets/post-widget.php:1827
+msgid "Order By"
+msgstr ""
+
+#: widgets/post-widget.php:1871
+msgid "Descending"
+msgstr ""
+
+#: widgets/post-widget.php:1872
+msgid "Ascending"
+msgstr ""
+
+#: widgets/post-widget.php:1883
+msgid "Offset"
+msgstr ""
+
+#: widgets/post-widget.php:1924
+#, php-format
+msgid "%s Filter Type"
+msgstr ""
+
+#: widgets/post-widget.php:1934
+#, php-format
+msgid "Include %s"
+msgstr ""
+
+#: widgets/post-widget.php:1939
+#, php-format
+msgid "Exclude %s"
+msgstr ""
+
+#: widgets/post-widget.php:1976
+msgid "Include Posts"
+msgstr ""
+
+#: widgets/post-widget.php:1992
+msgid "Exclude Posts"
+msgstr ""
+
+#: widgets/post-widget.php:2011
+msgid "Include by User Meta"
+msgstr ""
+
+#: widgets/post-widget.php:2024
+msgid "Meta Value"
+msgstr ""
+
+#: widgets/post-widget.php:2037
+msgid "Include by Role"
+msgstr ""
+
+#: widgets/post-widget.php:2051
+msgid "Exclude by Role"
+msgstr ""
+
+#: widgets/post-widget.php:2066
+msgid "Sticky Posts"
+msgstr ""
+
+#: widgets/post-widget.php:2082
+msgid "Related Posts"
+msgstr ""
+
+#: widgets/post-widget.php:2097
+msgid "Select Related Taxonomy"
+msgstr ""
+
+#: widgets/post-widget.php:2111
+msgid "Pinned Posts"
+msgstr ""
+
+#: widgets/post-widget.php:2126
+msgid "Query ID"
+msgstr ""
+
+#: widgets/post-widget.php:2128
+msgid "Give your Query a custom unique ID to allow server side filtering."
+msgstr ""
+
+#: widgets/post-widget.php:2150
+msgid "Carousel Options"
+msgstr ""
+
+#: widgets/post-widget.php:2162
+msgid "Slides Per View"
+msgstr ""
+
+#: widgets/post-widget.php:2165
+msgid "1.5"
+msgstr ""
+
+#: widgets/post-widget.php:2167
+msgid "2.5"
+msgstr ""
+
+#: widgets/post-widget.php:2169
+msgid "3.5"
+msgstr ""
+
+#: widgets/post-widget.php:2171
+msgid "4.5"
+msgstr ""
+
+#: widgets/post-widget.php:2173
+msgid "5.5"
+msgstr ""
+
+#: widgets/post-widget.php:2175
+msgid "6.5"
+msgstr ""
+
+#: widgets/post-widget.php:2177
+msgid "7.5"
+msgstr ""
+
+#: widgets/post-widget.php:2179
+msgid "8.5"
+msgstr ""
+
+#: widgets/post-widget.php:2192
+msgid "Slides to Scroll"
+msgstr ""
+
+#: widgets/post-widget.php:2214
+msgid "Slide Gap"
+msgstr ""
+
+#: widgets/post-widget.php:2226
+msgid "Arrow"
+msgstr ""
+
+#: widgets/post-widget.php:2239 widgets/post-widget.php:2480
+#: widgets/post-widget.php:2489 widgets/post-widget.php:2509
+#: widgets/post-widget.php:6217
+msgid "Pagination"
+msgstr ""
+
+#: widgets/post-widget.php:2253
+msgid "Pagination Type"
+msgstr ""
+
+#: widgets/post-widget.php:2256
+msgid "Bullets"
+msgstr ""
+
+#: widgets/post-widget.php:2257
+msgid "Fraction"
+msgstr ""
+
+#: widgets/post-widget.php:2258
+msgid "Progressbar"
+msgstr ""
+
+#: widgets/post-widget.php:2271
+msgid "Transition Effect"
+msgstr ""
+
+#: widgets/post-widget.php:2274
+msgid "Slide"
+msgstr ""
+
+#: widgets/post-widget.php:2275
+msgid "Fade"
+msgstr ""
+
+#: widgets/post-widget.php:2285
+msgid "Animation Speed"
+msgstr ""
+
+#: widgets/post-widget.php:2297
+msgid "Autoplay"
+msgstr ""
+
+#: widgets/post-widget.php:2311
+msgid "Autoplay Speed"
+msgstr ""
+
+#: widgets/post-widget.php:2323
+msgid "Pause on Hover"
+msgstr ""
+
+#: widgets/post-widget.php:2336
+msgid "Enable Touch Move"
+msgstr ""
+
+#: widgets/post-widget.php:2349
+msgid "Enable Mousewheel"
+msgstr ""
+
+#: widgets/post-widget.php:2362
+msgid "Infinite Loop"
+msgstr ""
+
+#: widgets/post-widget.php:2375
+msgid "Apply Parallax?"
+msgstr ""
+
+#: widgets/post-widget.php:2388
+msgid "Adaptive Height"
+msgstr ""
+
+#: widgets/post-widget.php:2401
+msgid "Slider height"
+msgstr ""
+
+#: widgets/post-widget.php:2437
+msgid "Center Mode"
+msgstr ""
+
+#: widgets/post-widget.php:2450
+msgid "Centered Slide Bounds"
+msgstr ""
+
+#: widgets/post-widget.php:2463
+msgid "Lazy Load"
+msgstr ""
+
+#: widgets/post-widget.php:2493 widgets/post-widget.php:2513
+msgid "Numbers"
+msgstr ""
+
+#: widgets/post-widget.php:2494 widgets/post-widget.php:2514
+msgid "Numbers + Previous/Next"
+msgstr ""
+
+#: widgets/post-widget.php:2495 widgets/post-widget.php:5844
+msgid "Load More Button"
+msgstr ""
+
+#: widgets/post-widget.php:2496
+msgid "Infinite"
+msgstr ""
+
+#: widgets/post-widget.php:2554
+msgid "Hide Spinner"
+msgstr ""
+
+#: widgets/post-widget.php:2569
+msgid "Scroll Threshold"
+msgstr ""
+
+#: widgets/post-widget.php:2607
+msgid "Open Links in New Tab"
+msgstr ""
+
+#: widgets/post-widget.php:2623
+msgid "External URL"
+msgstr ""
+
+#: widgets/post-widget.php:2625
+msgid "Paste URL or use a custom field"
+msgstr ""
+
+#: widgets/post-widget.php:2630
+msgid ""
+"Use this option to replace all existing post URLs with a URL of your choice."
+msgstr ""
+
+#: widgets/post-widget.php:2638
+msgid "Use Post URL as Fallback"
+msgstr ""
+
+#: widgets/post-widget.php:2654
+msgid "Include Posts by ID"
+msgstr ""
+
+#: widgets/post-widget.php:2656 widgets/post-widget.php:2667
+msgid "Comma Separated List"
+msgstr ""
+
+#: widgets/post-widget.php:2665
+msgid "Exclude Posts by ID"
+msgstr ""
+
+#: widgets/post-widget.php:2732
+msgid "Content Horizontal Position"
+msgstr ""
+
+#: widgets/post-widget.php:2766
+msgid "Content Vertical Position"
+msgstr ""
+
+#: widgets/post-widget.php:2972
+msgid "Min. Height"
+msgstr ""
+
+#: widgets/post-widget.php:2990
+msgid "Max. Height"
+msgstr ""
+
+#: widgets/post-widget.php:3007
+msgid "Transition Duration"
+msgstr ""
+
+#: widgets/post-widget.php:3191
+msgid "Fallback Image"
+msgstr ""
+
+#: widgets/post-widget.php:3202
+msgid "Image Equal Height"
+msgstr ""
+
+#: widgets/post-widget.php:3262 widgets/post-widget.php:3291
+msgid "Image Position"
+msgstr ""
+
+#: widgets/post-widget.php:3321
+msgid "Aspect Ratio"
+msgstr ""
+
+#: widgets/post-widget.php:3361
+msgid "Image Overlay"
+msgstr ""
+
+#: widgets/post-widget.php:3387
+msgid "Hover Opacity"
+msgstr ""
+
+#: widgets/post-widget.php:3585
+msgid "Content/Excerpt"
+msgstr ""
+
+#: widgets/post-widget.php:3618
+msgid "Justify"
+msgstr ""
+
+#: widgets/post-widget.php:4199 widgets/post-widget.php:6557
+#: widgets/post-widget.php:6602 widgets/post-widget.php:6765
+msgid "Icon Color"
+msgstr ""
+
+#: widgets/post-widget.php:4210 widgets/post-widget.php:6629
+#: widgets/post-widget.php:6776
+msgid "Icon Size"
+msgstr ""
+
+#: widgets/post-widget.php:4223 widgets/post-widget.php:6643
+#: widgets/post-widget.php:6789
+msgid "Icon Spacing"
+msgstr ""
+
+#: widgets/post-widget.php:4477
+msgid "Username/Display Name"
+msgstr ""
+
+#: widgets/post-widget.php:4878
+msgid "Sales Price Size"
+msgstr ""
+
+#: widgets/post-widget.php:4915 widgets/post-widget.php:4984
+msgid "Sales Price Color"
+msgstr ""
+
+#: widgets/post-widget.php:5454 widgets/post-widget.php:5523
+msgid "Empty Star Color"
+msgstr ""
+
+#: widgets/post-widget.php:5580
+msgid "Bullets Style"
+msgstr ""
+
+#: widgets/post-widget.php:5606 widgets/post-widget.php:5722
+#: widgets/post-widget.php:5796
+msgid "Active Color"
+msgstr ""
+
+#: widgets/post-widget.php:5635
+msgid "Bullets Spacing"
+msgstr ""
+
+#: widgets/post-widget.php:5652
+msgid "Bullets Gap"
+msgstr ""
+
+#: widgets/post-widget.php:5697
+msgid "Fraction Style"
+msgstr ""
+
+#: widgets/post-widget.php:5733 widgets/post-widget.php:6918
+msgid "Font Size"
+msgstr ""
+
+#: widgets/post-widget.php:5770
+msgid "Progressbar Style"
+msgstr ""
+
+#: widgets/post-widget.php:5891 widgets/post-widget.php:6319
+msgid "Border Type"
+msgstr ""
+
+#: widgets/post-widget.php:5966
+msgid "Button Gap"
+msgstr ""
+
+#: widgets/post-widget.php:6003
+msgid "Justified"
+msgstr ""
+
+#: widgets/post-widget.php:6027
+msgid "Arrows Style"
+msgstr ""
+
+#: widgets/post-widget.php:6073
+msgid "Arrows Position"
+msgstr ""
+
+#: widgets/post-widget.php:6240
+msgid "Pagination Gap"
+msgstr ""
+
+#: widgets/post-widget.php:6297 widgets/post-widget.php:6338
+#: widgets/post-widget.php:6391
+msgid "Pagination Color"
+msgstr ""
+
+#: widgets/post-widget.php:6383
+msgid "Active"
+msgstr ""
+
+#: widgets/post-widget.php:6464
+msgid "Space Between Numbers"
+msgstr ""
+
+#: widgets/post-widget.php:6480
+msgid "Spinner"
+msgstr ""
+
+#: widgets/post-widget.php:6504
+msgid "Circle Color"
+msgstr ""
+
+#: widgets/post-widget.php:6537
+msgid "Bookmarked"
+msgstr ""
+
+#: widgets/post-widget.php:6569 widgets/post-widget.php:6614
+msgid "Stroke Color"
+msgstr ""
+
+#: widgets/post-widget.php:6582
+msgid "Unbookmarked"
+msgstr ""
+
+#: widgets/post-widget.php:7434
+msgid "comment"
+msgstr ""
+
+#: widgets/post-widget.php:7434
+msgid "comments"
+msgstr ""
+
+#: widgets/post-widget.php:7611 widgets/post-widget.php:7637
+#: widgets/post-widget.php:7870 widgets/post-widget.php:7894
+msgid "« prev"
+msgstr ""
+
+#: widgets/post-widget.php:7612 widgets/post-widget.php:7638
+#: widgets/post-widget.php:7871 widgets/post-widget.php:7895
+msgid "next »"
+msgstr ""
+
+#: widgets/search-bar.php:52
+msgid "Search Bar Widget"
+msgstr ""
+
+#: widgets/search-bar.php:146
+msgid "Post Type to Search"
+msgstr ""
+
+#: widgets/search-bar.php:148
+msgid ""
+"If both the search widget and filter widgets are present on the same page, "
+"the filter widget's controls will take precedence."
+msgstr ""
+
+#: widgets/search-bar.php:158
+msgid "Button Text"
+msgstr ""
+
+#: widgets/search-bar.php:163 widgets/search-bar.php:164
+msgid "Search"
+msgstr ""
+
+#: widgets/search-bar.php:184
+msgid "Redirect After Submission"
+msgstr ""
+
+#: widgets/search-bar.php:196
+msgid "Redirect URL"
+msgstr ""
+
+#: widgets/search-bar.php:214
+msgid "Search Bar"
+msgstr ""
+
+#: widgets/search-bar.php:265
+msgid "Input Style"
+msgstr ""
+
+#: widgets/search-bar.php:413
+msgid "Button Style"
+msgstr ""

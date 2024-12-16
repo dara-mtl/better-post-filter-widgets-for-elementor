@@ -78,14 +78,14 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
-	 * Get the list of style dependencies for the widget.
+	 * Get style dependencies.
 	 *
-	 * This method returns an array of stylesheets handles that are required to be loaded
-	 * for this widget. Elementor uses this list to ensure that the necessary stylesheets
-	 * are enqueued when the widget is rendered.
+	 * Retrieve the list of style dependencies the widget requires.
 	 *
 	 * @since 1.0.0
-	 * @return string[] An array of style handles.
+	 * @access public
+	 *
+	 * @return array Widget style dependencies.
 	 */
 	public function get_style_depends() {
 		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() || \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
@@ -102,12 +102,14 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
-	 * Get the script dependencies for the widget.
+	 * Retrieve the list of scripts the counter widget depended on.
 	 *
-	 * This function returns an array of scripts that need to be enqueued for the widget to function correctly.
-	 * It may include front-end JavaScript libraries such as jQuery or custom scripts.
+	 * Used to set scripts dependencies required to run the widget.
 	 *
-	 * @return array Array of script dependencies.
+	 * @since 1.0.0
+	 * @access public
+	 *
+	 * @return array Widget scripts dependencies.
 	 */
 	public function get_script_depends() {
 		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() || \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
@@ -7939,7 +7941,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				';
 			}
 		}
-	} //end of render function.
+	}
 
 	/**
 	 * Retrieve the base URL for pagination with the current page.
@@ -7948,6 +7950,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 	 * parameter, if necessary. It ensures that the pagination links are correctly generated
 	 * based on the current page context.
 	 *
+	 * @since 1.0.0
 	 * @param array $settings Settings array that includes query type and other parameters.
 	 * @return string The base URL for pagination with the current page.
 	 */

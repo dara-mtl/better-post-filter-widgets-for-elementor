@@ -143,8 +143,9 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'filter_post_type',
 			[
-				'label'              => esc_html__( 'Post Type to Filter', 'bpf-widget' ),
+				'label'              => esc_html__( 'Post Type to Search', 'bpf-widget' ),
 				'type'               => \Elementor\Controls_Manager::SELECT,
+				'description'        => esc_html__( 'If both the search widget and filter widgets are present on the same page, the filter widget\'s controls will take precedence.' ),
 				'default'            => 'post',
 				'options'            => BPF_Helper::cwm_get_post_types(),
 				'frontend_available' => true,
@@ -156,6 +157,9 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Button Text', 'bpf-widget' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
+				'dynamic'     => [
+					'active' => true,
+				],
 				'default'     => esc_html__( 'Search', 'bpf-widget' ),
 				'placeholder' => esc_html__( 'Search', 'bpf-widget' ),
 			]
@@ -166,6 +170,9 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Placeholder', 'bpf-widget' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
+				'dynamic'     => [
+					'active' => true,
+				],
 				'default'     => esc_html__( 'Search by keywords...', 'bpf-widget' ),
 				'placeholder' => esc_html__( 'Search by keywords...', 'bpf-widget' ),
 			]
@@ -506,6 +513,7 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 	 * This function generates the HTML output for the widget, including content such as
 	 * post listings, styling, and any dynamic data.
 	 *
+	 * @since 1.0.0
 	 * @return void
 	 */
 	protected function render() {
@@ -526,6 +534,7 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="search-post" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
 			<div class="search-container">
 				<input type="text" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder_text ) . '">
+				<input type="hidden" name="post-type" value="' . $settings['filter_post_type'] . '">
 				<button type="submit">' . esc_html( $button_text ) . '</button>
 			</div>
 		</form>';
