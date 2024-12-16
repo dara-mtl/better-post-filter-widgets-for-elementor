@@ -10,7 +10,7 @@
 .elementor-control-buy_now_style,
 .elementor-control-post_pin_style,
 .elementor-control-edit_options_style {
-    display: none;
+	display: none;
 }
 
 .show-content .elementor-control-content_style,
@@ -25,5 +25,5 @@
 .show-buy .elementor-control-buy_now_style,
 .show-bookmark .elementor-control-post_pin_style,
 .show-edit .elementor-control-edit_options_style {
-    display: initial !important;
+	display: initial !important;
 }
