@@ -68,7 +68,7 @@ Enhance your user experience! AJAX empowers both the filter and post widgets, el
 
 ## FAQs
 
-- Find support for this plugin in the [documentation](https://wpsmartwidgets.com/).
+- Find support for this plugin in the [documentation](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/).
 
 ## License
 
