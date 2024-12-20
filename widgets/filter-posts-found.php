@@ -49,7 +49,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return __( 'Posts Found', 'bpf-widget' );
+		return esc_html__( 'Posts Found', 'bpf-widget' );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_found_color',
 			array(
-				'label'     => __( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} .filter-post-count' => 'color: {{VALUE}};',

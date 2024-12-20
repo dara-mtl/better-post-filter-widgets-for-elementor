@@ -132,7 +132,7 @@
 								clearTimeout( timeoutId );
 								timeoutId = setTimeout(
 									() => {
-										func.apply( context, args );
+                                    func.apply( context, args );
 									},
 									delay
 								);
@@ -158,9 +158,9 @@
 						'mouseup keyup touchend',
 						'form.form-tax',
 						function () {
-							interactionTimeout    = setTimeout(
+							interactionTimeout = setTimeout(
 								() => {
-                                isInteracting = false;
+									isInteracting  = false;
 								},
 								700
 							);
@@ -169,7 +169,7 @@
 
 					filterWidget.on(
 						'change keypress',
-						'form.form-tax',
+						'form.form-tax, .cwm-numeric-wrapper input',
 						debounce(
 							function (e) {
 								if ( ! isSubmitPresent && ! isInteracting && (e.type !== 'keypress' || e.which == 13)) {

@@ -52,6 +52,10 @@ class BPF_Dynamic_Group {
 		$dynamic_content = [];
 		$direct_content  = [];
 
+		if ( empty( $settings['dynamic_list'] ) ) {
+			return $widget_content;
+		}
+
 		if ( ! empty( $settings['dynamic_list'] ) ) {
 			foreach ( $settings['dynamic_list'] as $item ) {
 				$dynamic_text   = ! empty( $item['dynamic_fields'] ) ? $item['dynamic_fields'] : '';
@@ -79,16 +83,12 @@ class BPF_Dynamic_Group {
 							break;
 
 						case 'data-attribute':
-							// Split the dynamic text by pipe to get key and value.
 							$data_parts = explode( '|', $dynamic_text );
 
-							// Ensure we have a valid key-value pair.
 							if ( count( $data_parts ) === 2 ) {
-								// Sanitize the attribute key.
 								$data_key   = sanitize_title( trim( $data_parts[0] ) );
 								$data_value = esc_attr( trim( $data_parts[1] ) );
 
-								// Define a blacklist of reserved attributes.
 								$blacklist = [
 									'id',
 									'class',
@@ -99,12 +99,9 @@ class BPF_Dynamic_Group {
 									'data-element_type',
 									'data-widget_type',
 									'data-model-cid',
-								// Add more reserved or conflicting attribute names as necessary.
 								];
 
-								// Check if the attribute key is in the blacklist.
 								if ( ! in_array( $data_key, $blacklist, true ) ) {
-									// Add the data attribute to the widget without prepending "data-".
 									$widget->add_render_attribute( '_wrapper', $data_key, $data_value );
 								}
 							}
@@ -129,9 +126,16 @@ class BPF_Dynamic_Group {
 			$widget_content = preg_replace( $pattern, $replacement, $widget_content );
 		}
 
-		// If no target specified, add direct content at the end, separated by line breaks.
 		if ( ! empty( $direct_content ) ) {
-			$widget_content .= '<br>' . implode( '<br>', $direct_content );
+			if ( preg_match( '/^<([a-zA-Z0-9\-]+)([^>]*)>/', $widget_content, $matches ) ) {
+				$first_tag      = $matches[0];
+				$closing_tag    = "</{$matches[1]}>";
+				$widget_content = preg_replace( '/^<([a-zA-Z0-9\-]+)([^>]*)>/', '', $widget_content );
+				$widget_content = preg_replace( '/<\/([a-zA-Z0-9\-]+)>/', '', $widget_content );
+				$widget_content = $first_tag . implode( ' ', $direct_content ) . $closing_tag;
+			} else {
+				$widget_content = implode( ' ', $direct_content );
+			}
 		}
 
 		return $widget_content;
@@ -170,8 +174,9 @@ class BPF_Dynamic_Group {
 		$repeater->add_control(
 			'dynamic_fields',
 			[
-				'label'       => esc_html__( 'Dynamic Tag', 'bpf-widget' ),
+				'label'       => esc_html__( 'Text/Dynamic Tag', 'bpf-widget' ),
 				'type'        => Controls_Manager::TEXT,
+				'placeholder' => esc_html__( 'Enter text or attach a dynamic tag', 'bpf-widget' ),
 				'label_block' => true,
 				'dynamic'     => [
 					'active' => true,
@@ -243,6 +248,9 @@ class BPF_Dynamic_Group {
 				'type'          => Controls_Manager::REPEATER,
 				'fields'        => $repeater->get_controls(),
 				'prevent_empty' => true,
+				'default'       => [
+					'dynamic_fields' => __( '', 'bpf-widget' ),
+				],
 				'title_field'   => '{{{ dynamic_fields }}}',
 			]
 		);

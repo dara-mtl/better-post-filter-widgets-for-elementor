@@ -145,23 +145,10 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 			[
 				'label'              => esc_html__( 'Post Type to Search', 'bpf-widget' ),
 				'type'               => \Elementor\Controls_Manager::SELECT,
-				'description'        => esc_html__( 'If both the search widget and filter widgets are present on the same page, the filter widget\'s controls will take precedence.' ),
+				'description'        => esc_html__( 'If both the search widget and filter widgets are present on the same page, the filter widget’s controls will take precedence.', 'bpf-widget' ),
 				'default'            => 'post',
 				'options'            => BPF_Helper::cwm_get_post_types(),
 				'frontend_available' => true,
-			]
-		);
-
-		$this->add_control(
-			'search_button_text',
-			[
-				'label'       => esc_html__( 'Button Text', 'bpf-widget' ),
-				'type'        => \Elementor\Controls_Manager::TEXT,
-				'dynamic'     => [
-					'active' => true,
-				],
-				'default'     => esc_html__( 'Search', 'bpf-widget' ),
-				'placeholder' => esc_html__( 'Search', 'bpf-widget' ),
 			]
 		);
 
@@ -175,6 +162,34 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 				],
 				'default'     => esc_html__( 'Search by keywords...', 'bpf-widget' ),
 				'placeholder' => esc_html__( 'Search by keywords...', 'bpf-widget' ),
+			]
+		);
+
+		$this->add_control(
+			'display_submit',
+			[
+				'label'        => esc_html__( 'Display Submit Button', 'bpf-widget' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'bpf-widget' ),
+				'label_off'    => esc_html__( 'No', 'bpf-widget' ),
+				'return_value' => 'yes',
+				'default'      => '',
+			]
+		);
+
+		$this->add_control(
+			'search_button_text',
+			[
+				'label'       => esc_html__( 'Button Text', 'bpf-widget' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'dynamic'     => [
+					'active' => true,
+				],
+				'default'     => esc_html__( 'Search', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Search', 'bpf-widget' ),
+				'condition'   => [
+					'display_submit' => 'yes',
+				],
 			]
 		);
 
@@ -229,7 +244,7 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'search_bar_input_color',
 			[
-				'label'     => __( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container input' => 'color: {{VALUE}};',
@@ -240,7 +255,7 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'search_bar_placeholder_color',
 			[
-				'label'     => __( 'Placeholder Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Placeholder Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container input::placeholder' => 'color: {{VALUE}}',
@@ -251,7 +266,7 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'search_bar_input_background_color',
 			[
-				'label'     => __( 'Background Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Background Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container input' => 'background-color: {{VALUE}};',
@@ -302,17 +317,16 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_group_control(
 			\Elementor\Group_Control_Border::get_type(),
 			[
-				'name'      => 'search_bar_input_border',
-				'label'     => esc_html__( 'Border', 'bpf-widget' ),
-				'separator' => 'before',
-				'selector'  => '{{WRAPPER}} .search-container input',
+				'name'     => 'search_bar_input_border',
+				'label'    => esc_html__( 'Border', 'bpf-widget' ),
+				'selector' => '{{WRAPPER}} .search-container input',
 			]
 		);
 
 		$this->add_control(
 			'search_bar_input_border_radius',
 			[
-				'label'      => __( 'Border Radius', 'bpf-widget' ),
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ '%', 'px' ],
 				'range'      => [
@@ -370,17 +384,16 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_group_control(
 			\Elementor\Group_Control_Border::get_type(),
 			[
-				'name'      => 'search_bar_input_border_focus',
-				'label'     => esc_html__( 'Border', 'bpf-widget' ),
-				'separator' => 'before',
-				'selector'  => '{{WRAPPER}} .search-container input:focus, {{WRAPPER}} .search-container input:focus-visible',
+				'name'     => 'search_bar_input_border_focus',
+				'label'    => esc_html__( 'Border', 'bpf-widget' ),
+				'selector' => '{{WRAPPER}} .search-container input:focus, {{WRAPPER}} .search-container input:focus-visible',
 			]
 		);
 
 		$this->add_control(
 			'search_bar_input_border_radius_focus',
 			[
-				'label'      => __( 'Border Radius', 'bpf-widget' ),
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ '%', 'px' ],
 				'range'      => [
@@ -413,13 +426,16 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Button Style', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::HEADING,
 				'separator' => 'before',
+				'condition' => [
+					'display_submit' => 'yes',
+				],
 			]
 		);
 
 		$this->add_responsive_control(
 			'search_bar_button_width',
 			[
-				'label'      => __( 'Width', 'bpf-widget' ),
+				'label'      => esc_html__( 'Width', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ '%', 'px' ],
 				'range'      => [
@@ -435,6 +451,9 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 				'selectors'  => [
 					'{{WRAPPER}} .search-container button' => 'width: {{SIZE}}{{UNIT}}',
 				],
+				'condition'  => [
+					'display_submit' => 'yes',
+				],
 			]
 		);
 
@@ -443,17 +462,23 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_tab(
 			'search_bar_button_style_normal',
 			[
-				'label' => esc_html__( 'Normal', 'bpf-widget' ),
+				'label'     => esc_html__( 'Normal', 'bpf-widget' ),
+				'condition' => [
+					'display_submit' => 'yes',
+				],
 			]
 		);
 
 		$this->add_control(
 			'search_bar_button_color',
 			[
-				'label'     => __( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container button' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'display_submit' => 'yes',
 				],
 			]
 		);
@@ -461,10 +486,54 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'search_bar_button_background_color',
 			[
-				'label'     => __( 'Background Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Background Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container button' => 'background-color: {{VALUE}};',
+				],
+				'condition' => [
+					'display_submit' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'      => 'search_bar_button_border',
+				'label'     => esc_html__( 'Border', 'bpf-widget' ),
+				'selector'  => '{{WRAPPER}} .search-container button',
+				'condition' => [
+					'display_submit' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'search_bar_button_border_radius',
+			[
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ '%', 'px' ],
+				'range'      => [
+					'px' => [
+						'min' => 0,
+						'max' => 200,
+					],
+					'%'  => [
+						'min' => 0,
+						'max' => 100,
+					],
+				],
+				'default'    => [
+					'size' => 0,
+					'unit' => 'px',
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .search-container button' => 'border-radius: {{SIZE}}{{UNIT}}',
+				],
+				'condition'  => [
+					'display_submit' => 'yes',
 				],
 			]
 		);
@@ -474,17 +543,23 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_tab(
 			'search_bar_button_style_hover',
 			[
-				'label' => esc_html__( 'Hover', 'bpf-widget' ),
+				'label'     => esc_html__( 'Hover', 'bpf-widget' ),
+				'condition' => [
+					'display_submit' => 'yes',
+				],
 			]
 		);
 
 		$this->add_control(
 			'search_bar_button_color_hover',
 			[
-				'label'     => __( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container button:hover' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'display_submit' => 'yes',
 				],
 			]
 		);
@@ -492,10 +567,54 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'search_bar_button_background_color_hover',
 			[
-				'label'     => __( 'Background Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Background Color', 'bpf-widget' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .search-container button:hover' => 'background-color: {{VALUE}};',
+				],
+				'condition' => [
+					'display_submit' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'      => 'search_bar_button_border_hover',
+				'label'     => esc_html__( 'Border', 'bpf-widget' ),
+				'selector'  => '{{WRAPPER}} .search-container button:hover',
+				'condition' => [
+					'display_submit' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'search_bar_button_border_radius_hover',
+			[
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ '%', 'px' ],
+				'range'      => [
+					'px' => [
+						'min' => 0,
+						'max' => 200,
+					],
+					'%'  => [
+						'min' => 0,
+						'max' => 100,
+					],
+				],
+				'default'    => [
+					'size' => 0,
+					'unit' => 'px',
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .search-container button:hover' => 'border-radius: {{SIZE}}{{UNIT}}',
+				],
+				'condition'  => [
+					'display_submit' => 'yes',
 				],
 			]
 		);
@@ -530,13 +649,23 @@ class BPF_Search_Bar_Widget extends \Elementor\Widget_Base {
 		}
 
 		// Render the form.
-		echo '
+		if ( $settings['display_submit'] ) {
+			echo '
 		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="search-post" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
 			<div class="search-container">
 				<input type="text" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder_text ) . '">
-				<input type="hidden" name="post-type" value="' . $settings['filter_post_type'] . '">
+				<input type="hidden" name="post-type" value="' . esc_attr( $settings['filter_post_type'] ) . '">
 				<button type="submit">' . esc_html( $button_text ) . '</button>
 			</div>
 		</form>';
+		} else {
+			echo '
+		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="search-post" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
+			<div class="search-container">
+				<input type="text" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder_text ) . '">
+				<input type="hidden" name="post-type" value="' . esc_attr( $settings['filter_post_type'] ) . '">
+			</div>
+		</form>';
+		}
 	}
 }

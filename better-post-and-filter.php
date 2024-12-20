@@ -5,11 +5,12 @@
  * Plugin URI: https://wpsmartwidgets.com/
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
- * Version: 1.0.3
+ * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
+ * Version: 1.0.4
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.7.1
- * Elementor tested up to: 3.25.4
+ * Elementor tested up to: 3.26.2
  * Text Domain: bpf-widget
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -119,19 +120,27 @@ final class BPF_Elementor {
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-helper.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-tag.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-ajax.php';
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-group.php';
+		// require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-group.php';
 	}
 
 	/**
 	 * Enqueue frontend styles.
 	 */
 	public function widget_styles() {
-		$swiper_version = get_option( 'elementor_experiment-e_swiper_latest' ) === 'active' ? '8.4.5' : '5.3.6';
-		$swiper_path    = ELEMENTOR_ASSETS_URL . 'lib/swiper/' . ( '8.4.5' === $swiper_version ? 'v8' : '' ) . '/css/swiper.min.css';
+		$v8_css_relative_path      = 'wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css';
+		$default_css_relative_path = 'wp-content/plugins/elementor/assets/lib/swiper/css/swiper.min.css';
 
-		wp_enqueue_style( 'swiper', $swiper_path, [], $swiper_version );
+		$v8_css_absolute_path      = ABSPATH . $v8_css_relative_path;
+		$default_css_absolute_path = ABSPATH . $default_css_relative_path;
+
+		$swiper_css_path = file_exists( $v8_css_absolute_path )
+			? ELEMENTOR_ASSETS_URL . 'lib/swiper/v8/css/swiper.min.css'
+			: ELEMENTOR_ASSETS_URL . 'lib/swiper/css/swiper.min.css';
+
+		// Enqueue Swiper CSS.
+		wp_enqueue_style( 'swiper', $swiper_css_path, [], '8.4.5' );
 		wp_enqueue_style( 'bpf-select2-style', ELEMENTOR_ASSETS_URL . 'lib/e-select2/css/e-select2.min.css', [], ELEMENTOR_VERSION );
-		wp_enqueue_style( 'bpf-widget-style', plugins_url( 'assets/css/elementor-cwm-widget.css', __FILE__ ), [], self::VERSION );
+		wp_enqueue_style( 'bpf-widget-style', plugins_url( 'assets/css/min/elementor-cwm-widget.min.css', __FILE__ ), [], self::VERSION );
 	}
 
 	/**
@@ -145,10 +154,17 @@ final class BPF_Elementor {
 	 * Enqueue frontend scripts.
 	 */
 	public function widget_scripts() {
-		$swiper_version = get_option( 'elementor_experiment-e_swiper_latest' ) === 'active' ? '8.4.5' : '5.3.6';
-		$swiper_path    = ELEMENTOR_ASSETS_URL . 'lib/swiper/' . ( '8.4.5' === $swiper_version ? 'v8' : '' ) . '/swiper.min.js';
+		$v8_relative_path      = 'wp-content/plugins/elementor/assets/lib/swiper/v8/swiper.min.js';
+		$default_relative_path = 'wp-content/plugins/elementor/assets/lib/swiper/swiper.min.js';
 
-		wp_register_script( 'swiper', $swiper_path, [], $swiper_version, true );
+		$v8_absolute_path      = ABSPATH . $v8_relative_path;
+		$default_absolute_path = ABSPATH . $default_relative_path;
+
+		$swiper_path = file_exists( $v8_absolute_path )
+			? ELEMENTOR_ASSETS_URL . 'lib/swiper/v8/swiper.min.js'
+			: ELEMENTOR_ASSETS_URL . 'lib/swiper/swiper.min.js';
+
+		wp_register_script( 'swiper', $swiper_path, [], '8.4.5', true );
 		wp_register_script( 'bpf-select2-script', ELEMENTOR_ASSETS_URL . 'lib/e-select2/js/e-select2.full.min.js', [ 'jquery' ], ELEMENTOR_VERSION, true );
 
 		// Localize and enqueue plugin scripts.
@@ -157,10 +173,10 @@ final class BPF_Elementor {
 			'nonce' => wp_create_nonce( 'ajax-nonce' ),
 		];
 
-		wp_register_script( 'post-widget-script', plugins_url( 'assets/js/cwm-post-widget.js', __FILE__ ), [ 'jquery' ], self::VERSION, true );
+		wp_register_script( 'post-widget-script', plugins_url( 'assets/js/min/cwm-post-widget.min.js', __FILE__ ), [ 'jquery' ], self::VERSION, true );
 		wp_localize_script( 'post-widget-script', 'ajax_var', $ajax_params );
 
-		wp_register_script( 'filter-widget-script', plugins_url( 'assets/js/cwm-filter-widget.js', __FILE__ ), [ 'jquery' ], self::VERSION, true );
+		wp_register_script( 'filter-widget-script', plugins_url( 'assets/js/min/cwm-filter-widget.min.js', __FILE__ ), [ 'jquery' ], self::VERSION, true );
 		wp_localize_script( 'filter-widget-script', 'ajax_var', $ajax_params );
 	}
 

@@ -1,16 +1,18 @@
 === Better Post & Filter Widgets for Elementor ===
 Contributor: [WP Smart Widgets](https://wpsmartwidgets.com)
-Tags: elementor filter, post filter, product filter, ajax filter, page builder, taxonomy filter, custom post type, WooCommerce filter
+Donate link: https://wpsmartwidgets.com/donate/
+Tags: elementor filter, post filter, product filter, ajax filter, page builder, taxonomy filter, custom post type, WooCommerce filter, post widget, filter widget
 Stable tag: 1.0.0
 Requires at least: 5.9
 Tested up to: 6.7.1
-Requires PHP: 5.4
+Requires PHP: 7.4
 License: GPLv3 or later
 License URI: [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.html)
 
 Exclusively designed for Elementor, this versatile filtering plugin lets you take full control of your WordPress and WooCommerce content effortlessly. Filter any post type based on diverse criteria, seamlessly integrating with Elementor.
 
 == Description ==
+
 Exclusively designed for Elementor, this versatile filtering plugin lets you take full control of your WordPress and WooCommerce content effortlessly. Filter any post type based on diverse criteria, seamlessly integrating with Elementor.
 
 ### Filter Widget Key Features:
@@ -29,7 +31,7 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 - Effortlessly transform your post list into a dynamic carousel or grid.
 - Make the most of Swiper API with advanced features like pagination styles and parallax effects.
 - Multiple layout options, including classic, on the side, banner, loop grid, and custom HTML.
-- Possibility to create your own custom skin, with any dynamic tags and Elementor widgets
+- Possibility to create your own custom skin, with any dynamic tags and Elementor widgets.
 - Flexible post content options: title, content, excerpt, custom field/ACF, taxonomy, HTML, post meta, read more, bookmark, edit options, product price, product rating, buy now, and product badge.
 - Flexible query system with AJAX pagination.
 - Customize widget content and style like native Elementor widgets.
@@ -54,7 +56,14 @@ Enhance your user experience! AJAX empowers both the filter and post widgets, el
 - Lightweight design, utilizing Elementor's resources to minimize external dependencies.
 
 ### Developer-Friendly:
-- Tailor the filter to your needs with ease with the help of a dedicated hook.
+Tailor the filter to your needs with ease with the help of a dedicated hook.
 
-== FAQs ==
-- Find support for this plugin [documentation](https://wpsmartwidgets.com/).
+= Docs and support =
+
+Find support for this plugin [documentation](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/).
+
+= Screenshots =
+
+1. Overview of the widgets on a page.
+2. Backend view of the Elementor edit screen, showing the filter widget options.
+3. Backend view of the Elementor edit screen, showing the post widget options.

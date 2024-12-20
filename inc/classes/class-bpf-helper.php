@@ -111,7 +111,7 @@ class BPF_Helper {
 			$wpcf7_form_list = get_posts(
 				array(
 					'post_type' => 'wpcf7_contact_form',
-					'showposts' => 999,
+					'showposts' => 20,
 				)
 			);
 
@@ -136,7 +136,7 @@ class BPF_Helper {
 	 * @param int    $posts_per_page Number of posts to retrieve.
 	 * @return array Options array of post titles.
 	 */
-	public static function cwm_get_post_list( $cpt = 'post', $posts_per_page = 100 ) {
+	public static function cwm_get_post_list( $cpt = 'post', $posts_per_page = 20 ) {
 		$options = [];
 
 		$list = get_posts(

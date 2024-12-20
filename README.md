@@ -25,15 +25,34 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 - Flexible query system with AJAX pagination.
 - Customize widget content and style like native Elementor widgets.
 
+## Available Dynamic Tags:
+1.  **Custom Field**: Displays the meta value from user, author, post, taxonomy, or theme options.
+2.  **Repeater**: Retrieves and displays data from any repeater fields (compatible with ACF).
+3.  **Post Content**: Outputs the main content of a post or page.
+4.  **Shortcode**: Executes and displays the output of a WordPress shortcode.
+5.  **Post Title**: Displays the title of the current post or page.
+6.  **Post Date**: Shows the published date of the current post in the desired format.
+7.  **Post URL**: Provides the permalink of the current post or page.
+8.  **Pages URL**: Outputs the URL of any selected page on the site.
+9.  **Post Featured Image**: Displays the featured image of the current post with a fallback image.
+10. **Post Excerpt**: Shows the excerpt of the current post.
+11. **Post Terms**: Retrieves and displays the taxonomy terms (e.g., categories, tags) associated with the post.
+12. **Author Info Meta**: Displays meta information about the author of the post, such as name or bio.
+13. **User Meta**: Retrieves and displays user meta information for the current user or a specified user.
+
 ### Unique Features:
 
-#### Dynamic Tags:
-- Includes a series of dynamic tags, allowing users to fully utilize template grids with the free version.
-- Exclusive Repeater Field Tag: Use repeater fields directly in the Elementor frontend for more dynamic content control.
+#### Repeater Field Tag:
+**Exclusive Repeater Field Tag**: Display any repeater field in the Elementor frontend.
+
+#### Repeater Tag Details
+1. Each row of the Repeater tag can display dynamic content with customizable before and after text. To separate the child key from the values of the before and after content, simply use the `Key|Before|After` syntax.
+2. You can access the current row number within the Repeater tag by using the `#` symbol. This provides a way to dynamically reference the index or position of the row.
+
 
 #### Dynamic Group:
-- Allows users to use more than one dynamic tag in a single widget content.
-- Enables adding multiple dynamic tags either as content, data attributes, classes, or IDs to the widget.
+**Multi-Tag Integration**: Employ more than one dynamic tag within a single widget's content.
+**Versatile Tag Utilization**: Add multiple dynamic tags as content, data attributes, classes, or IDs within the widget.
 
 ### Supports AJAX
 Enhance your user experience! AJAX empowers both the filter and post widgets, eliminating the need to reload the page, ensuring a seamless and uninterrupted browsing experience.

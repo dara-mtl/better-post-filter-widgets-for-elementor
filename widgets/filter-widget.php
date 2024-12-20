@@ -52,7 +52,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return __( 'Filter Widget', 'bpf-widget' );
+		return esc_html__( 'Filter Widget', 'bpf-widget' );
 	}
 
 	/**
@@ -185,9 +185,9 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'nb_columns',
 			[
-				'type'           => \Elementor\Controls_Manager::SELECT,
-				'label'          => esc_html__( 'Columns', 'bpf-widget' ),
-				'options'        => [
+				'type'                 => \Elementor\Controls_Manager::SELECT,
+				'label'                => esc_html__( 'Columns', 'bpf-widget' ),
+				'options'              => [
 					'1' => '1',
 					'2' => '2',
 					'3' => '3',
@@ -197,11 +197,14 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 					'7' => '7',
 					'8' => '8',
 				],
-				'default'        => '1',
-				'tablet_default' => '1',
-				'mobile_default' => '1',
-				'separator'      => 'after',
-				'selectors'      => [
+				'default'              => '1',
+				'widescreen_default'   => '1',
+				'tablet_extra_default' => '1',
+				'tablet_default'       => '1',
+				'mobile_extra_default' => '1',
+				'mobile_default'       => '1',
+				'separator'            => 'after',
+				'selectors'            => [
 					'{{WRAPPER}} .elementor-grid' =>
 						'grid-template-columns: repeat({{VALUE}},1fr)',
 				],
@@ -672,7 +675,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Nothing Found Message', 'bpf-widget' ),
 				'rows'      => 3,
 				'separator' => 'before',
-				'default'   => esc_html__( 'It seems we can\'t find what you\'re looking for.', 'bpf-widget' ),
+				'default'   => esc_html__( 'It seems we can’t find what you’re looking for.', 'bpf-widget' ),
 			]
 		);
 
@@ -954,6 +957,154 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'name'     => 'filter_input_focus_border',
 				'selector' => '{{WRAPPER}} select:focus, {{WRAPPER}} .form-tax input:focus, {{WRAPPER}} .form-tax textarea:focus, {{WRAPPER}} .form-tax .cmb2-file:focus',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_label_list',
+			array(
+				'label' => esc_html__( 'Label List', 'bpf-widget' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'label_list_filter_typography',
+				'global'   => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
+				'selector' => '{{WRAPPER}} .list-style label span',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_list_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'bpf-widget' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'separator'  => 'before',
+				'selectors'  => array(
+					'{{WRAPPER}} .list-style label span' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_list_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'bpf-widget' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .list-style label span' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->start_controls_tabs(
+			'label_list_input_style_tabs'
+		);
+
+		$this->start_controls_tab(
+			'label_list_input_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'bpf-widget' ),
+			]
+		);
+
+		$this->add_control(
+			'label_list_filter_color',
+			array(
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'global'    => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .list-style label span' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'filter_label_list_background',
+			array(
+				'label'     => esc_html__( 'Field Background', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .list-style label span' => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_label_list_border',
+				'selector' => '{{WRAPPER}} .list-style label span',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_list_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .list-style label span' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'label_list_input_style_focus_tab',
+			[
+				'label' => esc_html__( 'Hover', 'bpf-widget' ),
+			]
+		);
+
+		$this->add_control(
+			'label_list_filter_color_hover',
+			array(
+				'label'     => esc_html__( 'Color', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'global'    => array(
+					'default' => Global_Colors::COLOR_PRIMARY,
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .list-style label:hover span, {{WRAPPER}} .list-style label input[type="checkbox"]:checked + span' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'filter_label_list_background_hover',
+			array(
+				'label'     => esc_html__( 'Field Background', 'bpf-widget' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .list-style label:hover span, {{WRAPPER}} .list-style label input[type="checkbox"]:checked + span' => 'background-color: {{VALUE}} !important; background: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_label_list_hover_border',
+				'selector' => '{{WRAPPER}} .list-style label:hover span, {{WRAPPER}} .list-style label input[type="checkbox"]:checked + span',
 			)
 		);
 
@@ -1573,6 +1724,19 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_tabs();
 
 		$this->end_controls_section();
+	}
+
+	/**
+	 * Indicates whether the content is dynamic and should not be cached.
+	 *
+	 * This method should be overridden by widgets or dynamic tags that generate
+	 * content which changes frequently, or is dependent on real-time data,
+	 * ensuring that the content is not cached and is always re-rendered when requested.
+	 *
+	 * @return bool True if the content is dynamic and should not be cached, false otherwise.
+	 */
+	protected function is_dynamic_content(): bool {
+		return true;
 	}
 
 	/**

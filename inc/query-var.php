@@ -35,15 +35,11 @@ add_filter( 'query_vars', 'custom_elementor_query_vars' );
  * @param WP_Query $query The current WP_Query object.
  */
 function custom_elementor_pre_get_posts( $query ) {
-	// Ensure this runs on the main query and not in the admin area
 	if ( ! is_admin() && $query->is_main_query() && is_search() ) {
-		// Check if 'post-type' is present in the query string via $_GET
-		if ( isset( $_GET['post-type'] ) && ! empty( $_GET['post-type'] ) ) {
-			// Modify the post type based on the 'post-type' query variable
-			$post_type = wp_unslash( $_GET['post-type'] ); // Remove slashes added by WordPress
-			$query->set( 'post_type', sanitize_text_field( $post_type ) );
+		if ( isset( $_GET['post-type'] ) && ! empty( $_GET['post-type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$post_type = sanitize_text_field( wp_unslash( $_GET['post-type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- Read-only action for search functionality.
+			$query->set( 'post_type', $post_type );
 		}
 	}
 }
-
 add_action( 'pre_get_posts', 'custom_elementor_pre_get_posts' );

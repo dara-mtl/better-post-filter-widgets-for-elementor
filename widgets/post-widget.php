@@ -46,7 +46,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return __( 'Post Widget', 'bpf-widget' );
+		return esc_html__( 'Post Widget', 'bpf-widget' );
 	}
 
 	/**
@@ -219,9 +219,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'nb_columns',
 			[
-				'type'               => \Elementor\Controls_Manager::SELECT,
-				'label'              => esc_html__( 'Columns', 'bpf-widget' ),
-				'options'            => [
+				'type'                 => \Elementor\Controls_Manager::SELECT,
+				'label'                => esc_html__( 'Columns', 'bpf-widget' ),
+				'options'              => [
 					'1' => esc_html__( '1', 'bpf-widget' ),
 					'2' => esc_html__( '2', 'bpf-widget' ),
 					'3' => esc_html__( '3', 'bpf-widget' ),
@@ -231,15 +231,18 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					'7' => esc_html__( '7', 'bpf-widget' ),
 					'8' => esc_html__( '8', 'bpf-widget' ),
 				],
-				'default'            => '3',
-				'tablet_default'     => '2',
-				'mobile_default'     => '2',
-				'selectors'          => [
+				'default'              => '3',
+				'widescreen_default'   => '5',
+				'tablet_extra_default' => '4',
+				'tablet_default'       => '3',
+				'mobile_extra_default' => '2',
+				'mobile_default'       => '1',
+				'selectors'            => [
 					'{{WRAPPER}} .elementor-grid' =>
 						'grid-template-columns: repeat({{VALUE}},1fr)',
 				],
-				'frontend_available' => true,
-				'render_type'        => 'template',
+				'frontend_available'   => true,
+				'render_type'          => 'template',
 			]
 		);
 
@@ -464,7 +467,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				'Excerpt'        => esc_html__( 'Excerpt', 'bpf-widget' ),
 				'Custom Field'   => esc_html__( 'Custom Field/ACF', 'bpf-widget' ),
 				'Taxonomy'       => esc_html__( 'Taxonomy', 'bpf-widget' ),
-				'HTML'           => esc_html__( 'HTML', 'bpf-widget' ),
+				'HTML'           => esc_html__( 'HTML/Shortcode', 'bpf-widget' ),
 				'Post Meta'      => esc_html__( 'Post Meta', 'bpf-widget' ),
 				'Read More'      => esc_html__( 'Read More', 'bpf-widget' ),
 				'Pin Post'       => esc_html__( 'Bookmark', 'bpf-widget' ),
@@ -481,7 +484,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				'Excerpt'      => esc_html__( 'Excerpt', 'bpf-widget' ),
 				'Custom Field' => esc_html__( 'Custom Field/ACF', 'bpf-widget' ),
 				'Taxonomy'     => esc_html__( 'Taxonomy', 'bpf-widget' ),
-				'HTML'         => esc_html__( 'HTML', 'bpf-widget' ),
+				'HTML'         => esc_html__( 'HTML/Shortcode', 'bpf-widget' ),
 				'Post Meta'    => esc_html__( 'Post Meta', 'bpf-widget' ),
 				'Read More'    => esc_html__( 'Read More', 'bpf-widget' ),
 				'Pin Post'     => esc_html__( 'Bookmark', 'bpf-widget' ),
@@ -504,7 +507,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					'User Role'     => esc_html__( 'User Role', 'bpf-widget' ),
 					'User ID'       => esc_html__( 'User ID', 'bpf-widget' ),
 					'Visit Profile' => esc_html__( 'Visit Profile', 'bpf-widget' ),
-					'HTML'          => esc_html__( 'HTML', 'bpf-widget' ),
+					'HTML'          => esc_html__( 'HTML/Shortcode', 'bpf-widget' ),
 				],
 			]
 		);
@@ -697,8 +700,8 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'On Sale Text', 'bpf-widget' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => esc_html__( 'Sale', 'bpf-widget' ),
-				'placeholder' => esc_html__( 'Sale', 'bpf-widget' ),
+				'default'     => esc_html__( 'On Sale', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'On Sale', 'bpf-widget' ),
 				'separator'   => 'after',
 				'condition'   => [
 					'post_content'    => 'Product Badge',
@@ -1572,7 +1575,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				'dynamic'     => [
 					'active' => true,
 				],
-				'description' => esc_html__( 'Use # to get the row number.', 'bpf-widget' ),
+				'description' => esc_html__( 'Use # to display the row number.', 'bpf-widget' ),
 			]
 		);
 
@@ -1747,27 +1750,27 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$operator   = 'and';
 		$post_types = get_post_types( $post_type_args, $output, $operator );
 
-		$post_ids = get_posts(
-			[
-				'post_type'              => get_post_types(),
-				'post_status'            => 'publish',
-				'fields'                 => 'ids',
-				'posts_per_page'         => 100,
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-			]
-		);
+		// $post_ids = get_posts(
+		// [
+		// 'post_type'              => get_post_types(),
+		// 'post_status'            => 'publish',
+		// 'fields'                 => 'ids',
+		// 'posts_per_page'         => 100,
+		// 'no_found_rows'          => true,
+		// 'update_post_meta_cache' => false,
+		// 'update_post_term_cache' => false,
+		// ]
+		// );
 
-		$items_post_id = [];
+		// $items_post_id = [];
 
-		if ( $post_ids ) {
-			foreach ( $post_ids as $post_id ) {
-				if ( ! empty( get_the_title( $post_id ) ) ) {
-					$items_post_id[ $post_id ] = get_the_title( $post_id );
-				}
-			}
-		}
+		// if ( $post_ids ) {
+		// foreach ( $post_ids as $post_id ) {
+		// if ( ! empty( get_the_title( $post_id ) ) ) {
+		// $items_post_id[ $post_id ] = get_the_title( $post_id );
+		// }
+		// }
+		// }
 
 		$this->add_control(
 			'query_type',
@@ -1977,6 +1980,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						'type'        => \Elementor\Controls_Manager::SELECT2,
 						'label_block' => true,
 						'multiple'    => true,
+						'separator'   => 'before',
 						'default'     => '',
 						'options'     => BPF_Helper::cwm_get_post_list( $post_type ),
 						'condition'   => [
@@ -2136,7 +2140,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 				'type'      => \Elementor\Controls_Manager::TEXTAREA,
 				'label'     => esc_html__( 'Nothing Found Message', 'bpf-widget' ),
 				'rows'      => 3,
-				'default'   => esc_html__( 'It seems we can\'t find what you\'re looking for.', 'bpf-widget' ),
+				'default'   => esc_html__( 'It seems we can’t find what you’re looking for.', 'bpf-widget' ),
 				'separator' => 'before',
 			]
 		);
@@ -2158,9 +2162,9 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'post_slider_slides_per_view',
 			[
-				'type'               => \Elementor\Controls_Manager::SELECT,
-				'label'              => esc_html__( 'Slides Per View', 'bpf-widget' ),
-				'options'            => [
+				'type'                 => \Elementor\Controls_Manager::SELECT,
+				'label'                => esc_html__( 'Slides Per View', 'bpf-widget' ),
+				'options'              => [
 					'1'   => esc_html__( '1', 'bpf-widget' ),
 					'1.5' => esc_html__( '1.5', 'bpf-widget' ),
 					'2'   => esc_html__( '2', 'bpf-widget' ),
@@ -2178,19 +2182,22 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					'8'   => esc_html__( '8', 'bpf-widget' ),
 					'8.5' => esc_html__( '8.5', 'bpf-widget' ),
 				],
-				'default'            => '3',
-				'tablet_default'     => '2',
-				'mobile_default'     => '1',
-				'frontend_available' => true,
+				'default'              => '3',
+				'widescreen_default'   => '5',
+				'tablet_extra_default' => '4',
+				'tablet_default'       => '3',
+				'mobile_extra_default' => '2',
+				'mobile_default'       => '1',
+				'frontend_available'   => true,
 			]
 		);
 
 		$this->add_responsive_control(
 			'post_slider_slides_to_scroll',
 			[
-				'type'               => \Elementor\Controls_Manager::SELECT,
-				'label'              => esc_html__( 'Slides to Scroll', 'bpf-widget' ),
-				'options'            => [
+				'type'                 => \Elementor\Controls_Manager::SELECT,
+				'label'                => esc_html__( 'Slides to Scroll', 'bpf-widget' ),
+				'options'              => [
 					'1' => esc_html__( '1', 'bpf-widget' ),
 					'2' => esc_html__( '2', 'bpf-widget' ),
 					'3' => esc_html__( '3', 'bpf-widget' ),
@@ -2200,10 +2207,13 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					'7' => esc_html__( '7', 'bpf-widget' ),
 					'8' => esc_html__( '8', 'bpf-widget' ),
 				],
-				'default'            => '1',
-				'tablet_default'     => '1',
-				'mobile_default'     => '1',
-				'frontend_available' => true,
+				'default'              => '1',
+				'widescreen_default'   => '1',
+				'tablet_extra_default' => '1',
+				'tablet_default'       => '1',
+				'mobile_extra_default' => '1',
+				'mobile_default'       => '1',
+				'frontend_available'   => true,
 			]
 		);
 
@@ -2517,6 +2527,23 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 					'classic_layout' => 'carousel',
 				],
 				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'display_on_carousel',
+			[
+				'label'              => esc_html__( 'Display on Carousel', 'bpf-widget' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'Yes', 'bpf-widget' ),
+				'label_off'          => esc_html__( 'No', 'bpf-widget' ),
+				'return_value'       => 'display-on-carousel',
+				'default'            => 'yes',
+				'frontend_available' => true,
+				'condition'          => [
+					'classic_layout'       => 'carousel',
+					'pagination_carousel!' => 'none',
+				],
 			]
 		);
 
@@ -7056,11 +7083,18 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			// If it's a string, convert it to an array with one element.
 			$post_types_array = is_array( $settings['post_type'] ) ? $settings['post_type'] : [ $settings['post_type'] ];
 
-			// Sanitize and filter to ensure only valid post types.
-			$post_types_array = array_filter( $post_types_array, 'post_type_exists' );
+			// Handle the "any" case explicitly.
+			if ( in_array( 'any', $post_types_array, true ) ) {
+				$query_args['post_type'] = 'any';
+			} else {
+				// Sanitize and filter to ensure only valid post types.
+				$post_types_array = array_filter( $post_types_array, 'post_type_exists' );
 
-			// Use the post_types_array in the query_args.
-			$query_args['post_type'] = $post_types_array;
+				// Use the post_types_array in the query_args.
+				if ( ! empty( $post_types_array ) ) {
+					$query_args['post_type'] = $post_types_array;
+				}
+			}
 		}
 
 		if ( 'none' !== $pagination ) {
@@ -7599,7 +7633,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, $total_pages ) ) );
 
-						$nav_start = '<nav class="pagination" role="navigation" data-page="' . $current_page . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . $current_page . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
 
 						echo $nav_start; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Line above :)
 						echo paginate_links( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines below :)
@@ -7859,7 +7893,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, ceil( $total_users / $settings['posts_per_page'] ) ) ) );
 
-						$nav_start = '<nav class="pagination" role="navigation" data-page="' . $current_page . '" data-max-page="' . ceil( $total_users / $settings['posts_per_page'] ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . $current_page . '" data-max-page="' . ceil( $total_users / $settings['posts_per_page'] ) . '" aria-label="Pagination">';
 
 						echo $nav_start; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Line above :)
 						echo paginate_links( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines below :)
