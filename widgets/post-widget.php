@@ -7016,6 +7016,19 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
+	 * Indicates whether the content is dynamic and should not be cached.
+	 *
+	 * This method should be overridden by widgets or dynamic tags that generate
+	 * content which changes frequently, or is dependent on real-time data,
+	 * ensuring that the content is not cached and is always re-rendered when requested.
+	 *
+	 * @return bool True if the content is dynamic and should not be cached, false otherwise.
+	 */
+	protected function is_dynamic_content(): bool {
+		return true;
+	}
+
+	/**
 	 * Render post widget output on the frontend.
 	 *
 	 * Written in PHP and used to generate the final HTML.
@@ -7233,45 +7246,48 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		if ( 'main' === $settings['query_type'] || 'custom' === $settings['query_type'] ) {
 			if ( $cwm_query->have_posts() ) {
 
-				$counter                     = 0;
-				$extra_templates_by_position = [];
-				$template_css_urls           = [];
+				$counter = 0;
 
-				if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
-					foreach ( $settings['extra_skin_list'] as $item ) {
-						$extra_templates_by_position[ $item['grid_position'] ] = $item;
-					}
-				}
+				if ( $settings['skin_template'] ) {
+					$extra_templates_by_position = [];
+					$template_css_urls           = [];
 
-				// Collect CSS contents for the main template.
-				$combined_css = '';
-				// $template_css_urls = []; // Array to store the URLs for debugging.
-
-				// Sanitize and validate settings before using them.
-				if ( ! empty( $settings['skin_template'] ) && is_numeric( $settings['skin_template'] ) ) {
-					$main_template_id = intval( $settings['skin_template'] );
-					$main_css_content = $this->get_template_css_content( $main_template_id );
-					if ( $main_css_content ) {
-						$combined_css .= $main_css_content;
-						// $template_css_urls[$main_template_id] = $main_css_content; // Store content for debugging.
-					}
-				}
-
-				// Collect CSS contents for the extra templates.
-				foreach ( $extra_templates_by_position as $extra_template ) {
-					if ( isset( $extra_template['extra_template_id'] ) && is_numeric( $extra_template['extra_template_id'] ) ) {
-						$extra_template_id = intval( $extra_template['extra_template_id'] );
-						$extra_css_content = $this->get_template_css_content( $extra_template_id );
-						if ( $extra_css_content ) {
-							$combined_css .= $extra_css_content;
-							// $template_css_urls[$extra_template_id] = $extra_css_content; // Store content for debugging.
+					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
+						foreach ( $settings['extra_skin_list'] as $item ) {
+							$extra_templates_by_position[ $item['grid_position'] ] = $item;
 						}
 					}
-				}
 
-				// Output combined CSS only if not empty.
-				if ( ! empty( $combined_css ) ) {
-					echo '<style id="elementor-combined-css">' . BPF_Helper::sanitize_css( $combined_css ) . '</style>';  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Use custom sanitization/escaping.
+					// Collect CSS contents for the main template.
+					$combined_css = '';
+					// $template_css_urls = []; // Array to store the URLs for debugging.
+
+					// Sanitize and validate settings before using them.
+					if ( ! empty( $settings['skin_template'] ) && is_numeric( $settings['skin_template'] ) ) {
+						$main_template_id = intval( $settings['skin_template'] );
+						$main_css_content = $this->get_template_css_content( $main_template_id );
+						if ( $main_css_content ) {
+							$combined_css .= $main_css_content;
+							// $template_css_urls[$main_template_id] = $main_css_content; // Store content for debugging.
+						}
+					}
+
+					// Collect CSS contents for the extra templates.
+					foreach ( $extra_templates_by_position as $extra_template ) {
+						if ( isset( $extra_template['extra_template_id'] ) && is_numeric( $extra_template['extra_template_id'] ) ) {
+							$extra_template_id = intval( $extra_template['extra_template_id'] );
+							$extra_css_content = $this->get_template_css_content( $extra_template_id );
+							if ( $extra_css_content ) {
+								$combined_css .= $extra_css_content;
+								// $template_css_urls[$extra_template_id] = $extra_css_content; // Store content for debugging.
+							}
+						}
+					}
+
+					// Output combined CSS only if not empty.
+					if ( ! empty( $combined_css ) ) {
+						echo '<style id="elementor-combined-css">' . BPF_Helper::sanitize_css( $combined_css ) . '</style>';  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Use custom sanitization/escaping.
+					}
 				}
 
 				echo '
@@ -7304,34 +7320,35 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 						}
 					}
 
-					// Check if the current position should have an extra template.
-					$use_extra_template = false;
-					$extra_template_id  = '';
-					$column_span        = 1;
-					$row_span           = 1;
-					$column_span_style  = '';
-					$row_span_style     = '';
-
-					foreach ( $extra_templates_by_position as $position => $extra_template ) {
-						// Check if the template should apply once or be repeated.
-						$apply_once = isset( $extra_template['apply_once'] ) && 'yes' === $extra_template['apply_once'];
-
-						if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
-							$use_extra_template = true;
-							$extra_template_id  = intval( $extra_template['extra_template_id'] );
-							$column_span        = $extra_template['column_span'];
-							$row_span           = $extra_template['row_span'];
-							$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
-							$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
-							break;
-						}
-					}
-
-					$style           = trim( "$column_span_style $row_span_style" );
-					$style_attribute = $style ? 'style="' . esc_attr( $style ) . '"' : '';
-					$extra_class     = $style_attribute ? 'row-span-expand' : '';
-
 					if ( $settings['skin_template'] ) {
+
+						// Check if the current position should have an extra template.
+						$use_extra_template = false;
+						$extra_template_id  = '';
+						$column_span        = 1;
+						$row_span           = 1;
+						$column_span_style  = '';
+						$row_span_style     = '';
+
+						foreach ( $extra_templates_by_position as $position => $extra_template ) {
+							// Check if the template should apply once or be repeated.
+							$apply_once = isset( $extra_template['apply_once'] ) && 'yes' === $extra_template['apply_once'];
+
+							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
+								$use_extra_template = true;
+								$extra_template_id  = intval( $extra_template['extra_template_id'] );
+								$column_span        = $extra_template['column_span'];
+								$row_span           = $extra_template['row_span'];
+								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
+								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
+								break;
+							}
+						}
+
+						$style           = trim( "$column_span_style $row_span_style" );
+						$style_attribute = $style ? 'style="' . esc_attr( $style ) . '"' : '';
+						$extra_class     = $style_attribute ? 'row-span-expand' : '';
+
 						if ( $use_extra_template ) {
 							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . $style_attribute . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $extra_template_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor handles escaping and sanitization of template content.

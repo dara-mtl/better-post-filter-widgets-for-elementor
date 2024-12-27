@@ -327,7 +327,7 @@
 				
 				const sequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
 				let index = 0;
-				const message = 'Follow the white rabbit: https://wpsmartwidgets.com/';
+				const message = 'Follow the white rabbit.';
 
 				$(document).off('keydown').on('keydown', function (event) {
 					if (event.keyCode === sequence[index]) {

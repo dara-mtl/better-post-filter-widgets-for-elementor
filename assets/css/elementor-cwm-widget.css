@@ -641,13 +641,13 @@ ul.post-taxonomy li,
 }
 
 .post-container.side.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
-	content: url('../../assets/images/CWM-Post-Skeleton.svg');
+	content: url('../../images/CWM-Post-Skeleton.svg');
 	padding: 0 10px;
 	max-height: 150px;
 }
 
 .post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
-	content: url('../../assets/images/CWM-Post-Skeleton.svg');
+	content: url('../../images/CWM-Post-Skeleton.svg');
 	padding-top: 10px;
 	max-height: 150px;
 }

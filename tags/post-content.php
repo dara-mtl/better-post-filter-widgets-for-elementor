@@ -101,7 +101,8 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 		} elseif ( ! empty( $post_content ) ) {
 				echo wp_kses_post( $post_content );
 		} else {
-			echo wp_kses_post( the_content() );
+			$full_content = the_content();
+			echo wp_kses_post( $full_content ?? '' );
 		}
 	}
 }

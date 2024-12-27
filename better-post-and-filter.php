@@ -120,7 +120,7 @@ final class BPF_Elementor {
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-helper.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-tag.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-ajax.php';
-		// require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-group.php';
+		// require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpf-dynamic-group.php'; //Disabled until the performance problem is fixed.
 	}
 
 	/**

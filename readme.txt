@@ -2,7 +2,7 @@
 Contributor: [WP Smart Widgets](https://wpsmartwidgets.com)
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor filter, post filter, product filter, ajax filter, page builder, taxonomy filter, custom post type, WooCommerce filter, post widget, filter widget
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires at least: 5.9
 Tested up to: 6.7.1
 Requires PHP: 7.4
@@ -58,11 +58,17 @@ Enhance your user experience! AJAX empowers both the filter and post widgets, el
 ### Developer-Friendly:
 Tailor the filter to your needs with ease with the help of a dedicated hook.
 
-= Docs and support =
+== Installation ==
 
-Find support for this plugin [documentation](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/).
+1. Upload the plugin files to the `/wp-content/plugins/better-post-and-filter-widgets` directory, or install the plugin through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress.
+3. Navigate to the Elementor editor and start using the widgets.
 
-= Screenshots =
+== Docs and Support ==
+
+Find support for this plugin in the [documentation](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/).
+
+== Screenshots ==
 
 1. Overview of the widgets on a page.
 2. Backend view of the Elementor edit screen, showing the filter widget options.
