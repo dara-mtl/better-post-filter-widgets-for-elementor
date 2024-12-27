@@ -249,7 +249,7 @@ class BPF_Dynamic_Group {
 				'fields'        => $repeater->get_controls(),
 				'prevent_empty' => true,
 				'default'       => [
-					'dynamic_fields' => ( '', 'bpf-widget' ),
+					'dynamic_fields' => '',
 				],
 				'title_field'   => '{{{ dynamic_fields }}}',
 			]
