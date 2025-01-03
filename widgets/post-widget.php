@@ -2470,7 +2470,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_slider_lazy_load',
 			[
-				'label'              => esc_html__( 'Lazy Load', 'cwm-widget' ),
+				'label'              => esc_html__( 'Lazy Load', 'bpf-widget' ),
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'Yes', 'bpf-widget' ),
 				'label_off'          => esc_html__( 'No', 'bpf-widget' ),
@@ -2593,7 +2593,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'scroll_threshold',
 			[
-				'label'              => esc_html__( 'Scroll Threshold', 'cwm-widget' ),
+				'label'              => esc_html__( 'Scroll Threshold', 'bpf-widget' ),
 				'type'               => \Elementor\Controls_Manager::SLIDER,
 				'size_units'         => [ 'px', '%' ],
 				'range'              => [
@@ -2825,7 +2825,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_tab(
 			'style_layout_normal_tab',
 			[
-				'label' => esc_html__( 'Normal', 'cwm-widget' ),
+				'label' => esc_html__( 'Normal', 'bpf-widget' ),
 			]
 		);
 
@@ -2833,7 +2833,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'layout_color_normal',
 			[
 				'type'      => \Elementor\Controls_Manager::COLOR,
-				'label'     => esc_html__( 'Background', 'cwm-widget' ),
+				'label'     => esc_html__( 'Background', 'bpf-widget' ),
 				'selectors' => [
 					'{{WRAPPER}} .post-wrapper' => 'background-color: {{VALUE}}',
 				],
@@ -2843,7 +2843,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'layout_padding_normal',
 			[
-				'label'      => esc_html__( 'Padding', 'cwm-widget' ),
+				'label'      => esc_html__( 'Padding', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%', 'em', 'rem' ],
 				'selectors'  => [
@@ -2856,7 +2856,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'layout_margin_normal',
 			[
-				'label'      => esc_html__( 'Margin', 'cwm-widget' ),
+				'label'      => esc_html__( 'Margin', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%', 'em', 'rem' ],
 				'selectors'  => [
@@ -2870,7 +2870,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Border::get_type(),
 			[
 				'name'      => 'border_layout_normal',
-				'label'     => esc_html__( 'Border', 'cwm-widget' ),
+				'label'     => esc_html__( 'Border', 'bpf-widget' ),
 				'separator' => 'before',
 				'selector'  => '{{WRAPPER}} .post-wrapper',
 			]
@@ -2879,7 +2879,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'layout_border_layout_radius',
 			[
-				'label'      => esc_html__( 'Border Radius', 'cwm-widget' ),
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
@@ -2894,7 +2894,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_tab(
 			'style_layout_hover_tab',
 			[
-				'label' => esc_html__( 'Hover', 'cwm-widget' ),
+				'label' => esc_html__( 'Hover', 'bpf-widget' ),
 			]
 		);
 
@@ -2902,7 +2902,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			'layout_color_hover',
 			[
 				'type'      => \Elementor\Controls_Manager::COLOR,
-				'label'     => esc_html__( 'Background', 'cwm-widget' ),
+				'label'     => esc_html__( 'Background', 'bpf-widget' ),
 				'selectors' => [
 					'{{WRAPPER}} .post-wrapper:hover' =>
 						'background-color: {{VALUE}}',
@@ -2913,7 +2913,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'layout_padding_hover',
 			[
-				'label'      => esc_html__( 'Padding', 'cwm-widget' ),
+				'label'      => esc_html__( 'Padding', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%', 'em', 'rem' ],
 				'selectors'  => [
@@ -2926,7 +2926,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'layout_margin_hover',
 			[
-				'label'      => esc_html__( 'Margin', 'cwm-widget' ),
+				'label'      => esc_html__( 'Margin', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%', 'em', 'rem' ],
 				'selectors'  => [
@@ -2940,7 +2940,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Border::get_type(),
 			[
 				'name'      => 'border_layout_hover',
-				'label'     => esc_html__( 'Border', 'cwm-widget' ),
+				'label'     => esc_html__( 'Border', 'bpf-widget' ),
 				'separator' => 'before',
 				'selector'  => '{{WRAPPER}} .post-wrapper:hover ',
 			]
@@ -2949,7 +2949,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'layout_border_layout_radius_hover',
 			[
-				'label'      => esc_html__( 'Border Radius', 'cwm-widget' ),
+				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
@@ -6504,7 +6504,7 @@ class BPF_Post_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'loader_style',
 			[
-				'label'      => esc_html__( 'Spinner', 'cwm-widget' ),
+				'label'      => esc_html__( 'Spinner', 'bpf-widget' ),
 				'tab'        => \Elementor\Controls_Manager::TAB_STYLE,
 				'conditions' => [
 					'relation' => 'or',

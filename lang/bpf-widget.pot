@@ -1,7 +1,7 @@
 # Copyright (C) 2024 BFP Widget
 msgid ""
 msgstr ""
-"Project-Id-Version: BPF_Widgets 1.0.0\n"
+"Project-Id-Version: bpf-widget 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-13 15:13+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

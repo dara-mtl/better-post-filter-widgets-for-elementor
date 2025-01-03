@@ -6,7 +6,7 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.0.4
+ * Version: 1.0.5
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.7.1

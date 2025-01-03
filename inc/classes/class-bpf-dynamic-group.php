@@ -167,7 +167,7 @@ class BPF_Dynamic_Group {
 		$repeater->start_controls_tab(
 			'content',
 			[
-				'label' => esc_html__( 'Content', 'cwm-widget' ),
+				'label' => esc_html__( 'Content', 'bpf-widget' ),
 			]
 		);
 
@@ -189,7 +189,7 @@ class BPF_Dynamic_Group {
 		$repeater->start_controls_tab(
 			'advanced',
 			[
-				'label' => esc_html__( 'Advanced', 'cwm-widget' ),
+				'label' => esc_html__( 'Advanced', 'bpf-widget' ),
 			]
 		);
 

@@ -145,51 +145,45 @@
 						let interactionTimeout;
 
 						// Detect interaction on both desktop and mobile
-						filterWidget.on(
-							'mousedown keydown touchstart',
-							'form.form-tax',
-							function () {
-								isInteracting = true;
-								clearTimeout( interactionTimeout );
-							}
-						);
+						filterWidget.on('mousedown keydown touchstart', 'form.form-tax', function () {
+							isInteracting = true;
+							clearTimeout(interactionTimeout);
+						});
 
-					filterWidget.on(
-						'mouseup keyup touchend',
-						'form.form-tax',
-						function () {
-							interactionTimeout = setTimeout(
-								() => {
-									isInteracting  = false;
-								},
-								700
-							);
-						}
-					);
+						filterWidget.on('mouseup keyup touchend', 'form.form-tax', function () {
+							interactionTimeout = setTimeout(() => {
+								isInteracting = false;
+							}, 700);
+						});
 
-					filterWidget.on(
-						'change keypress',
-						'form.form-tax, .cwm-numeric-wrapper input',
-						debounce(
-							function (e) {
-								if ( ! isSubmitPresent && ! isInteracting && (e.type !== 'keypress' || e.which == 13)) {
+						filterWidget.on('change keydown input', 'form.form-tax, .cwm-numeric-wrapper input', debounce(function (e) {
+							if (!isSubmitPresent) {
+								// Skip interaction check for `change` events or `keydown` with Enter key
+								if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
 									resetURL();
-									targetSelector.addClass( 'filter-initialized' );
-									targetSelector.removeClass( 'filter-active' );
+									targetSelector.addClass('filter-initialized');
+									targetSelector.removeClass('filter-active');
+									get_form_values();
+									return;
+								}
+
+								// Standard flow for interactive events
+								if (!isInteracting) {
+									resetURL();
+									targetSelector.addClass('filter-initialized');
+									targetSelector.removeClass('filter-active');
 									get_form_values();
 								}
-							},
-							700
-						)
-					);
+							}
+						}, 700));
 
-					// filterWidget.on('submit', 'form', function() {
-					// resetURL();
-					// targetSelector.addClass('filter-initialized');
-					// targetSelector.removeClass('filter-active');
-					// get_form_values();
-					// return false;
-					// });
+					filterWidget.on('click', '.submit-form', function() {
+						resetURL();
+						targetSelector.addClass('filter-initialized');
+						targetSelector.removeClass('filter-active');
+						get_form_values();
+						return false;
+					});
 
 					$( document ).on(
 						'change',

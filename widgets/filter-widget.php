@@ -271,7 +271,7 @@ class BPF_Filter_Widget extends \Elementor\Widget_Base {
 				'dynamic'     => [
 					'active' => false,
 				],
-				'placeholder' => esc_html__( 'Enter a meta key' ),
+				'placeholder' => esc_html__( 'Enter a meta key', 'bpf-widget' ),
 				'label_block' => true,
 				'condition'   => [
 					'select_filter' => [ 'Custom Field', 'Numeric' ],
