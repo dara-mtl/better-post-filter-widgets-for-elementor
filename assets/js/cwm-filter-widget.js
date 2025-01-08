@@ -118,9 +118,22 @@
 						let currentPage = 1;
 
 						if (pageID === 0 || pageID === undefined) {
-							pageID = $( 'div[data-elementor-id]' ).first().data( 'elementor-id' );
+							let elementorProArchive = $('div[data-elementor-type^="archive"]').first();
+							if (elementorProArchive.length) {
+								pageID = elementorProArchive.data('elementor-id');
+							}
+
 							if (pageID === 0 || pageID === undefined) {
-								pageID = $( 'main div:first' ).data( 'elementor-id' );
+								pageID = $('div[data-elementor-id]:not(header *)').first().data('elementor-id');
+							}
+
+							if (pageID === 0 || pageID === undefined) {
+								pageID = $('main div:first').data('elementor-id');
+							}
+
+							if (pageID === 0 || pageID === undefined) {
+								let nonHeaderElement = $('div[data-elementor-id]:not([data-elementor-type="header"])').first();
+								pageID = nonHeaderElement.data('elementor-id');
 							}
 						}
 
@@ -145,45 +158,67 @@
 						let interactionTimeout;
 
 						// Detect interaction on both desktop and mobile
-						filterWidget.on('mousedown keydown touchstart', 'form.form-tax', function () {
-							isInteracting = true;
-							clearTimeout(interactionTimeout);
-						});
-
-						filterWidget.on('mouseup keyup touchend', 'form.form-tax', function () {
-							interactionTimeout = setTimeout(() => {
-								isInteracting = false;
-							}, 700);
-						});
-
-						filterWidget.on('change keydown input', 'form.form-tax, .cwm-numeric-wrapper input', debounce(function (e) {
-							if (!isSubmitPresent) {
-								// Skip interaction check for `change` events or `keydown` with Enter key
-								if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
-									resetURL();
-									targetSelector.addClass('filter-initialized');
-									targetSelector.removeClass('filter-active');
-									get_form_values();
-									return;
-								}
-
-								// Standard flow for interactive events
-								if (!isInteracting) {
-									resetURL();
-									targetSelector.addClass('filter-initialized');
-									targetSelector.removeClass('filter-active');
-									get_form_values();
-								}
+						filterWidget.on(
+							'mousedown keydown touchstart',
+							'form.form-tax',
+							function () {
+								isInteracting = true;
+								clearTimeout( interactionTimeout );
 							}
-						}, 700));
+						);
 
-					filterWidget.on('click', '.submit-form', function() {
-						resetURL();
-						targetSelector.addClass('filter-initialized');
-						targetSelector.removeClass('filter-active');
-						get_form_values();
-						return false;
-					});
+						filterWidget.on(
+							'mouseup keyup touchend',
+							'form.form-tax',
+							function () {
+								interactionTimeout    = setTimeout(
+									() => {
+                                    isInteracting = false;
+									},
+									700
+								);
+							}
+						);
+
+						filterWidget.on(
+							'change keydown input',
+							'form.form-tax, .cwm-numeric-wrapper input',
+							debounce(
+								function (e) {
+									if ( ! isSubmitPresent) {
+										// Skip interaction check for `change` events or `keydown` with Enter key
+										if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
+											resetURL();
+											targetSelector.addClass( 'filter-initialized' );
+											targetSelector.removeClass( 'filter-active' );
+											get_form_values();
+											return;
+										}
+
+										// Standard flow for interactive events
+										if ( ! isInteracting) {
+											resetURL();
+											targetSelector.addClass( 'filter-initialized' );
+											targetSelector.removeClass( 'filter-active' );
+											get_form_values();
+										}
+									}
+								},
+								700
+							)
+						);
+
+					filterWidget.on(
+						'click',
+						'.submit-form',
+						function () {
+							resetURL();
+							targetSelector.addClass( 'filter-initialized' );
+							targetSelector.removeClass( 'filter-active' );
+							get_form_values();
+							return false;
+						}
+					);
 
 					$( document ).on(
 						'change',
@@ -727,7 +762,7 @@
 
 					// Disable keyboard enter key for input fields
 					$( 'form.form-tax input' ).on(
-						'keypress',
+						'keydown',
 						function (e) {
 							if (e.which === 13) {
 								e.preventDefault();

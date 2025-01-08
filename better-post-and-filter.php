@@ -6,7 +6,7 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.0.5
+ * Version: 1.0.6
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.7.1
@@ -203,6 +203,68 @@ final class BPF_Elementor {
 		$widgets_manager->register( new \BPF_Search_Bar_Widget() );
 		$widgets_manager->register( new \BPF_Sorting_Widget() );
 		$widgets_manager->register( new \BPF_Posts_Found_Widget() );
+	}
+
+	/**
+	 * Admin notice
+	 *
+	 * Warning when the site doesn't have Elementor installed or activated.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @access public
+	 */
+	public function admin_notice_missing_main_plugin() {
+		$message = sprintf(
+			/* translators: 1: Plugin name 2: Elementor */
+			esc_html__( '"%1$s" requires "%2$s" to be installed and activated.', 'bpf-widget' ),
+			'<strong>' . esc_html__( 'Better Post and Filter Widgets for Elementor', 'bpf-widget' ) . '</strong>',
+			'<strong>' . esc_html__( 'Elementor', 'bpf-widget' ) . '</strong>'
+		);
+
+		printf( '<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- String escaped individually in sprintf().
+	}
+
+	/**
+	 * Admin notice
+	 *
+	 * Warning when the site doesn't have a minimum required Elementor version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @access public
+	 */
+	public function admin_notice_minimum_elementor_version() {
+		$message = sprintf(
+			/* translators: 1: Plugin name 2: Elementor 3: Required Elementor version */
+			esc_html__( '"%1$s" requires "%2$s" version %3$s or greater.', 'bpf-widget' ),
+			'<strong>' . esc_html__( 'Better Post and Filter Widgets for Elementor', 'bpf-widget' ) . '</strong>',
+			'<strong>' . esc_html__( 'Elementor', 'bpf-widget' ) . '</strong>',
+			self::MINIMUM_ELEMENTOR_VERSION
+		);
+
+		printf( '<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- String escaped individually in sprintf().
+	}
+
+	/**
+	 * Admin notice
+	 *
+	 * Warning when the site doesn't have a minimum required PHP version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @access public
+	 */
+	public function admin_notice_minimum_php_version() {
+		$message = sprintf(
+			/* translators: 1: Plugin name 2: PHP 3: Required PHP version */
+			esc_html__( '"%1$s" requires "%2$s" version %3$s or greater.', 'bpf-widget' ),
+			'<strong>' . esc_html__( 'Better Post and Filter Widgets for Elementor', 'bpf-widget' ) . '</strong>',
+			'<strong>' . esc_html__( 'PHP', 'bpf-widget' ) . '</strong>',
+			self::MINIMUM_PHP_VERSION
+		);
+
+		printf( '<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- String escaped individually in sprintf().
 	}
 }
 
