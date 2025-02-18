@@ -2,7 +2,7 @@
 /**
  * Handles the AJAX Functions.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
@@ -11,12 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class BPF_Ajax
+ * Class BPFWE_Ajax
  *
  * Manages AJAX-related functionalities for the plugin.
  * Includes actions such as changing post status, pinning posts, and optimizing filters.
  */
-class BPF_Ajax {
+class BPFWE_Ajax {
 
 	/**
 	 * Changes the status of a post via AJAX.
@@ -82,7 +82,8 @@ class BPF_Ajax {
 				$post_list = array();
 			}
 		} elseif ( isset( $_COOKIE['post_id_list'] ) ) {
-				$post_list = json_decode( wp_unslash( $_COOKIE['post_id_list'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_COOKIE['post_id_list'] is sanitized later using absint.
+				$raw_cookie_data = isset( $_COOKIE['post_id_list'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['post_id_list'] ) ) : '';
+				$post_list       = json_decode( $raw_cookie_data, true );
 
 				// Check if json_decode failed or post_list is not an array.
 			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $post_list ) ) {
@@ -119,7 +120,30 @@ class BPF_Ajax {
 	 * @return void
 	 */
 	public function delete_filter_transient() {
-		delete_transient( 'filter_query' );
+		delete_transient( 'bpfwe_filter_query' );
+	}
+
+	/**
+	 * Recursively sanitize an array.
+	 *
+	 * @param array $data The array to sanitize.
+	 * @param array $sanitization_callbacks Associative array defining the sanitization method per key.
+	 * @return array The sanitized array.
+	 */
+	private function bpfwe_sanitize_nested_data( $data, $sanitization_callbacks ) {
+		$sanitized_array = [];
+
+		foreach ( $data as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$sanitized_array[ sanitize_key( $key ) ] = $this->bpfwe_sanitize_nested_data( $value, $sanitization_callbacks );
+			} else {
+				$sanitized_array[ sanitize_key( $key ) ] = isset( $sanitization_callbacks[ $key ] ) && is_callable( $sanitization_callbacks[ $key ] )
+					? call_user_func( $sanitization_callbacks[ $key ], $value )
+					: sanitize_text_field( $value );
+			}
+		}
+
+		return $sanitized_array;
 	}
 
 	/**
@@ -136,45 +160,55 @@ class BPF_Ajax {
 			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 
-		$page_id   = isset( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
-		$widget_id = isset( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
+		$page_id   = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
+		$widget_id = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
 
 		if ( empty( $page_id ) || empty( $widget_id ) ) {
-			return;
+			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
 		}
 
 		$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
-		// $base_url     = isset( $_POST['base'] ) ? esc_url_raw( wp_unslash( $_POST['base'] ) ) : '';
 
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Arrays
-		$taxonomy_output          = isset( $_POST['taxonomy_output'] ) ? wp_unslash( $_POST['taxonomy_output'] ) : '';
-		$custom_field_output      = isset( $_POST['custom_field_output'] ) ? wp_unslash( $_POST['custom_field_output'] ) : '';
-		$custom_field_like_output = isset( $_POST['custom_field_like_output'] ) ? wp_unslash( $_POST['custom_field_like_output'] ) : '';
-		$numeric_output           = isset( $_POST['numeric_output'] ) ? wp_unslash( $_POST['numeric_output'] ) : '';
-		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// Multidimensional array sanitization and validation.
+		$taxonomy_sanitization_rules = [
+			'taxonomy' => 'sanitize_text_field',
+			'terms'    => function ( $terms ) {
+				return array_map( 'absint', (array) $terms ); },
+			'logic'    => 'sanitize_text_field',
+		];
 
-		$group_logic = isset( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
-		$meta_key    = isset( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
-		$order       = isset( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), array( 'DESC', 'ASC' ), true ) ? strtoupper( wp_unslash( $_POST['order'] ) ) : 'ASC'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Input is sanitized by `in_array()` to ensure only 'ASC' or 'DESC' are allowed.
-		$order_by    = isset( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : 'date';
+		$text_sanitization_rules = [
+			'taxonomy' => 'sanitize_text_field',
+			'terms'    => function ( $terms ) {
+				return array_map( 'sanitize_text_field', (array) $terms ); },
+			'logic'    => 'sanitize_text_field',
+		];
 
-		$search_terms = isset( $_POST['search_query'] ) ? wp_kses_post( wp_unslash( $_POST['search_query'] ) ) : '';
+		// Sanitize all arrays with bpfwe_sanitize_nested_data(), refer to function on line 133.
+		$taxonomy_output          = ! empty( $_POST['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['taxonomy_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$custom_field_output      = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$custom_field_like_output = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$numeric_output           = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		$dynamic_filtering = isset( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
-
-		$post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$group_logic       = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
+		$meta_key          = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
+		$order             = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : 'ASC';
+		$order_by          = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : 'date';
+		$search_terms      = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
+		$dynamic_filtering = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
+		$post_type         = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$paged             = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
 
 		$is_empty = true;
 
-		$paged = isset( $_POST['paged'] ) ? absint( wp_unslash( $_POST['paged'] ) ) : 1;
 		set_query_var( 'paged', $paged );
 		set_query_var( 'page', $paged );
 		set_query_var( 'page_num', $paged );
 
 		$args = apply_filters(
-			'bpf_ajax_query_args',
+			'bpfwe_ajax_query_args',
 			array(
 				'order'     => $order,
 				'orderby'   => $order_by,
@@ -248,7 +282,6 @@ class BPF_Ajax {
 
 				// Add the AND groups as separate subqueries.
 				foreach ( $query_and as $group_and ) {
-					// $args['tax_query'][] = array_merge( [ 'relation' => 'AND' ], $group_and );
 					if ( count( $group_and ) > 1 ) {
 						$args['tax_query'][] = array_merge( [ 'relation' => 'AND' ], $group_and );
 					} else {
@@ -279,7 +312,7 @@ class BPF_Ajax {
 			if ( ! empty( $custom_field_output ) && is_array( $custom_field_output ) ) {
 				foreach ( $custom_field_output as $value ) {
 					// Ensure terms is an array, and sanitize its values.
-					$terms             = is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
+					$terms             = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
 					$grouped_terms_and = [];
 
 					foreach ( $terms as $term ) {
@@ -338,7 +371,7 @@ class BPF_Ajax {
 				foreach ( $numeric_output as $key => $value ) {
 					$query = [
 						'key'     => sanitize_key( $value['taxonomy'] ),
-						'value'   => is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : sanitize_text_field( $value['terms'] ),
+						'value'   => ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : sanitize_text_field( $value['terms'] ),
 						'type'    => 'numeric',
 						'compare' => 'BETWEEN',
 					];
@@ -437,11 +470,11 @@ class BPF_Ajax {
 		}
 
 		if ( true === $is_empty ) {
-			delete_transient( 'filter_query' );
+			delete_transient( 'bpfwe_filter_query' );
 			return;
 		}
 
-		set_transient( 'filter_query', $args, 60 * 60 * 24 );
+		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 		echo wp_json_encode(
 			array(
@@ -450,6 +483,77 @@ class BPF_Ajax {
 		);
 
 		wp_die();
+	}
+
+	/**
+	 * Handles AJAX requests to load page content and extract specified div elements.
+	 *
+	 * This function verifies the request, fetches the specified page content,
+	 * extracts the required div elements based on the provided selectors,
+	 * and returns the content as a JSON response.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function load_page_callback() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+		// Verify the nonce.
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
+			wp_send_json_error( [ 'message' => 'Access Denied' ], 403 );
+		}
+
+		// Fetch and sanitize the URL.
+		$page_url = isset( $_POST['page_url'] ) ? esc_url_raw( wp_unslash( $_POST['page_url'] ) ) : '';
+
+		// Ensure the URL is complete and belongs to the same domain.
+		if ( ! empty( $page_url ) && strpos( $page_url, 'http' ) !== 0 ) {
+			$page_url = home_url( ltrim( $page_url, '/' ) );
+		}
+
+		// Validate the domain to prevent external requests.
+		$parsed_url      = wp_parse_url( $page_url );
+		$parsed_home_url = wp_parse_url( home_url() );
+		if ( empty( $parsed_url['host'] ) || $parsed_url['host'] !== $parsed_home_url['host'] ) {
+			wp_send_json_error( [ 'message' => 'Invalid URL' ], 403 );
+		}
+
+		// Filter cookies to only include authentication-related ones.
+		$allowed_cookies = [ 'wordpress_logged_in_', 'wp-settings-', 'wp-settings-time-' ];
+		$cookies         = [];
+
+		foreach ( $_COOKIE as $name => $value ) {
+			foreach ( $allowed_cookies as $allowed_cookie ) {
+				if ( strpos( $name, $allowed_cookie ) === 0 ) {
+					$cookies[] = new WP_Http_Cookie(
+						[
+							'name'  => sanitize_key( wp_unslash( $name ) ),
+							'value' => sanitize_text_field( wp_unslash( $value ) ),
+						]
+					);
+				}
+			}
+		}
+
+		// Fetch page content securely.
+		$response = wp_safe_remote_get(
+			$page_url,
+			[
+				'cookies' => $cookies,
+				'timeout' => 15,
+			]
+		);
+
+		// Handle errors.
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( [ 'message' => 'Failed to fetch content' ] );
+		}
+
+		// Retrieve the page content.
+		$body = wp_remote_retrieve_body( $response );
+
+		wp_send_json_success( [ 'html' => $body ] );
 	}
 
 	/**
@@ -464,7 +568,7 @@ class BPF_Ajax {
 	 * @return void
 	 */
 	public function pre_get_posts_filter( $query ) {
-		$filter_data = get_transient( 'filter_query' );
+		$filter_data = get_transient( 'bpfwe_filter_query' );
 
 		if ( $filter_data && ! $query->is_main_query() ) {
 			foreach ( $filter_data as $key => $value ) {
@@ -474,54 +578,7 @@ class BPF_Ajax {
 	}
 
 	/**
-	 * Optimizes AJAX requests by disabling unnecessary plugins and WordPress core functionalities.
-	 *
-	 * Filters the plugins loaded during an AJAX request to improve performance.
-	 * Returns the modified list of plugins if conditions are met.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $plugins List of active plugins.
-	 * @return array Modified list of active plugins.
-	 */
-	public function ajax_optimization( $plugins ) {
-		$allowed_ajax_actions = array(
-			'change_post_status'  => true,
-			'pin_post'            => true,
-			'load_mega_menu'      => true,
-			'post_filter_results' => true,
-		);
-
-		// Early exit if not an AJAX request or not in the allowed actions.
-		if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX || ! isset( $allowed_ajax_actions[ $_REQUEST['action'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Not processing any form data.
-			return $plugins;
-		}
-
-		// Disable unnecessary plugins.
-		$plugins = array();
-
-		// Disable unnecessary WordPress core functionalities.
-		add_filter( 'wp_headers', '__return_empty_array', 9999 );
-		add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false' );
-		add_filter( 'xmlrpc_enabled', '__return_false' );
-		add_filter( 'rest_enabled', '__return_false' );
-		add_filter( 'rest_jsonp_enabled', '__return_false' );
-		remove_action( 'wp_head', 'wp_generator' );
-		remove_action( 'wp_head', 'wlwmanifest_link' );
-		remove_action( 'wp_head', 'rsd_link' );
-		remove_action( 'wp_head', 'rest_output_link_wp_head' );
-		remove_action( 'wp_head', 'wp_shortlink_wp_head' );
-		remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head', 10 );
-		remove_action( 'wp_head', 'feed_links', 2 );
-		remove_action( 'wp_head', 'feed_links_extra', 3 );
-		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-		remove_action( 'wp_print_styles', 'print_emoji_styles' );
-
-		return $plugins;
-	}
-
-	/**
-	 * Constructor for the BPF_Ajax class.
+	 * Constructor for the BPFWE_Ajax class.
 	 *
 	 * Initializes AJAX hooks and sets up the class.
 	 *
@@ -542,7 +599,8 @@ class BPF_Ajax {
 		add_action( 'wp_ajax_post_filter_results', [ $this, 'post_filter_results' ] );
 		add_action( 'wp_ajax_nopriv_post_filter_results', [ $this, 'post_filter_results' ] );
 
-		add_filter( 'option_active_plugins', [ $this, 'ajax_optimization' ] );
+		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
+		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
 	}
 }
-new BPF_Ajax();
+new BPFWE_Ajax();

@@ -2,11 +2,11 @@
 /**
  * Shortcode Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
@@ -44,7 +44,7 @@ class Shortcode extends \Elementor\Core\DynamicTags\Tag {
 	 * @return string The title of the dynamic tag.
 	 */
 	public function get_title() {
-		return __( 'Shortcode', 'bpf-widget' );
+		return __( 'Shortcode', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Shortcode extends \Elementor\Core\DynamicTags\Tag {
 	 * @return string The group name.
 	 */
 	public function get_group() {
-		return 'bpf-dynamic-tags';
+		return 'bpfwe-dynamic-tags';
 	}
 
 	/**
@@ -89,9 +89,9 @@ class Shortcode extends \Elementor\Core\DynamicTags\Tag {
 		$this->add_control(
 			'shortcode',
 			[
-				'label'       => esc_html__( 'Shortcode', 'bpf-widget' ),
+				'label'       => esc_html__( 'Shortcode', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXTAREA,
-				'placeholder' => esc_html__( '[your-shortcode]', 'bpf-widget' ),
+				'placeholder' => esc_html__( '[your-shortcode]', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 	}
@@ -113,8 +113,7 @@ class Shortcode extends \Elementor\Core\DynamicTags\Tag {
 
 		$shortcode_string = $settings['shortcode'];
 		$value            = do_shortcode( $shortcode_string );
-		$value            = wp_kses_post( $value );
 
-		echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $value is sanitized with wp_kses_post() before output.
+		echo wp_kses_post( $value );
 	}
 }

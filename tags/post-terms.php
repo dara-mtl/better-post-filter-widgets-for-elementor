@@ -2,13 +2,13 @@
 /**
  * Post Terms Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
-use BPF\Inc\Classes\BPF_Helper;
+use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -51,7 +51,7 @@ class Post_Terms extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Post Terms', 'bpf-widget' );
+		return esc_html__( 'Post Terms', 'better-post-filter-widgets-for-elementor' );
 	}
 
 
@@ -98,9 +98,9 @@ class Post_Terms extends Tag {
 			'object_type'       => [ get_post_type() ],
 		];
 
-		$taxonomy_filter_args = apply_filters( 'bpf_taxonomy_args', $taxonomy_filter_args );
+		$taxonomy_filter_args = apply_filters( 'bpfwe_taxonomy_args', $taxonomy_filter_args );
 
-		$taxonomies = BPF_Helper::cwm_get_taxonomies( $taxonomy_filter_args, 'objects' );
+		$taxonomies = BPFWE_Helper::bpfwe_get_taxonomies( $taxonomy_filter_args, 'objects' );
 
 		$options = [];
 
@@ -111,7 +111,7 @@ class Post_Terms extends Tag {
 		$this->add_control(
 			'taxonomy',
 			[
-				'label'   => esc_html__( 'Taxonomy', 'bpf-widget' ),
+				'label'   => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::SELECT,
 				'options' => $options,
 				'default' => 'post_tag',
@@ -121,7 +121,7 @@ class Post_Terms extends Tag {
 		$this->add_control(
 			'separator',
 			[
-				'label'   => esc_html__( 'Separator', 'bpf-widget' ),
+				'label'   => esc_html__( 'Separator', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::TEXT,
 				'default' => ', ',
 			]
@@ -130,7 +130,7 @@ class Post_Terms extends Tag {
 		$this->add_control(
 			'max_terms',
 			[
-				'label'   => esc_html__( 'Max. Terms', 'bpf-widget' ),
+				'label'   => esc_html__( 'Max. Terms', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::NUMBER,
 				'default' => 5,
 				'min'     => 1,
@@ -141,22 +141,22 @@ class Post_Terms extends Tag {
 		$this->add_control(
 			'parent_terms_only',
 			[
-				'label'     => esc_html__( 'Parent Terms Only', 'bpf-widget' ),
+				'label'     => esc_html__( 'Parent Terms Only', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::SWITCHER,
 				'default'   => 'no',
-				'label_on'  => esc_html__( 'Yes', 'bpf-widget' ),
-				'label_off' => esc_html__( 'No', 'bpf-widget' ),
+				'label_on'  => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off' => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
 		$this->add_control(
 			'link',
 			[
-				'label'     => esc_html__( 'Link', 'bpf-widget' ),
+				'label'     => esc_html__( 'Link', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::SWITCHER,
 				'default'   => 'no',
-				'label_on'  => esc_html__( 'Yes', 'bpf-widget' ),
-				'label_off' => esc_html__( 'No', 'bpf-widget' ),
+				'label_on'  => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off' => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 	}
@@ -202,7 +202,6 @@ class Post_Terms extends Tag {
 			$output[] = $term_name;
 		}
 
-		// Output the terms as a string.
 		echo wp_kses_post( implode( $separator, $output ) );
 	}
 }

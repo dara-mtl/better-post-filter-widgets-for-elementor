@@ -2,11 +2,11 @@
 /**
  * Post Excerpt Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Core\DynamicTags\Tag;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -50,7 +50,7 @@ class Post_Excerpt extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Post Excerpt', 'bpf-widget' );
+		return esc_html__( 'Post Excerpt', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Post_Excerpt extends Tag {
 		$this->add_control(
 			'max_length',
 			[
-				'label' => esc_html__( 'Excerpt Length', 'bpf-widget' ),
+				'label' => esc_html__( 'Excerpt Length', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::NUMBER,
 			]
 		);

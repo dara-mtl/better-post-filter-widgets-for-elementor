@@ -2,7 +2,7 @@
 /**
  * Posts Found Widget.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
@@ -15,14 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * BPF_Posts_Found_Widget class
+ * BPFWE_Posts_Found_Widget class
  *
  * Provides the functionality for the Posts Found widget in Elementor.
  * This widget displays the number of posts found according to the query.
  *
  * @since 1.0.0
  */
-class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
+class BPFWE_Posts_Found_Widget extends \Elementor\Widget_Base {
 
 	/**
 	 * Get widget name.
@@ -49,7 +49,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Posts Found', 'bpf-widget' );
+		return esc_html__( 'Posts Found', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 	 */
 	public function get_style_depends() {
 		return [
-			'bpf-widget-style',
+			'bpfwe-widget-style',
 		];
 	}
 
@@ -124,7 +124,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'section_container_style',
 			[
-				'label' => esc_html__( 'Posts Found', 'bpf-widget' ),
+				'label' => esc_html__( 'Posts Found', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -132,7 +132,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_found_color',
 			array(
-				'label'     => esc_html__( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} .filter-post-count' => 'color: {{VALUE}};',
@@ -168,7 +168,7 @@ class BPF_Posts_Found_Widget extends \Elementor\Widget_Base {
 
 		$count_text = sprintf(
 			// translators: %s is the number of results.
-			esc_html__( '%s result(s) found', 'bpf-widget' ),
+			esc_html__( '%s result(s) found', 'better-post-filter-widgets-for-elementor' ),
 			'<span class="number">' . number_format_i18n( $post_count ) . '</span>'
 		);
 

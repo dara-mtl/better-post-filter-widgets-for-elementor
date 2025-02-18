@@ -2,26 +2,26 @@
 /**
  * Handles the registration of custom dynamic tags for Elementor.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Classes;
+namespace BPFWE_Dynamic_Tag\Classes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
 /**
- * BPF_Dynamic_Tag class
+ * BPFWE_Dynamic_Tag class
  *
  * Handles adding dynamic tags to Elementor.
  *
  * @since 1.0.0
  */
-class BPF_Dynamic_Tag {
+class BPFWE_Dynamic_Tag {
 	const TAG_DIR       = __DIR__ . '/../../tags/';
-	const TAG_NAMESPACE = 'BPF_Dynamic_Tag\\Tags\\';
+	const TAG_NAMESPACE = 'BPFWE_Dynamic_Tag\\Tags\\';
 
 	/**
 	 * List of dynamic tags.
@@ -69,10 +69,10 @@ class BPF_Dynamic_Tag {
 	 * @param \Elementor\DynamicTags_Manager $dynamic_tags Elementor's dynamic tags manager instance.
 	 */
 	public function register_tags( $dynamic_tags ) {
-		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'bpf-dynamic-tags', [ 'title' => esc_html__( 'Custom Dynamic Tags', 'bpf-widget' ) ] );
-		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'post', [ 'title' => esc_html__( 'Post', 'bpf-widget' ) ] );
-		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'author', [ 'title' => esc_html__( 'Author', 'bpf-widget' ) ] );
-		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'user', [ 'title' => esc_html__( 'User', 'bpf-widget' ) ] );
+		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'bpfwe-dynamic-tags', [ 'title' => esc_html__( 'Custom Dynamic Tags', 'better-post-filter-widgets-for-elementor' ) ] );
+		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'post', [ 'title' => esc_html__( 'Post', 'better-post-filter-widgets-for-elementor' ) ] );
+		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'author', [ 'title' => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ) ] );
+		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'user', [ 'title' => esc_html__( 'User', 'better-post-filter-widgets-for-elementor' ) ] );
 
 		if ( defined( 'ELEMENTOR_PRO_VERSION' ) ) {
 			// Register custom-field, repeater and content tags for Pro users.
@@ -119,4 +119,4 @@ class BPF_Dynamic_Tag {
 	}
 }
 
-new BPF_Dynamic_Tag();
+new BPFWE_Dynamic_Tag();

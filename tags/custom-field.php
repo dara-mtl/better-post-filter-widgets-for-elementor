@@ -2,15 +2,15 @@
 /**
  * Custom Field Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
-use BPF\Inc\Classes\BPF_Helper;
+use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * It retrieves custom field values from various sources such as post meta, taxonomy meta, user meta, author meta, or theme options.
  * It supports Advanced Custom Fields (ACF) for additional flexibility.
  *
- * @package BPF_Dynamic_Tag\Tags
+ * @package BPFWE_Dynamic_Tag\Tags
  */
 class Custom_Field extends Tag {
 
@@ -47,7 +47,7 @@ class Custom_Field extends Tag {
 	 * @return string The title of the dynamic tag.
 	 */
 	public function get_title() {
-		return esc_html__( 'Custom Field', 'bpf-widget' );
+		return esc_html__( 'Custom Field', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Custom_Field extends Tag {
 	 * @return string The group name.
 	 */
 	public function get_group() {
-		return 'bpf-dynamic-tags';
+		return 'bpfwe-dynamic-tags';
 	}
 
 	/**
@@ -114,15 +114,15 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'field_source',
 			[
-				'label'   => esc_html__( 'Field Source', 'bpf-widget' ),
+				'label'   => esc_html__( 'Field Source', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'post',
 				'options' => [
-					'post'   => esc_html__( 'Post', 'bpf-widget' ),
-					'tax'    => esc_html__( 'Taxonomy', 'bpf-widget' ),
-					'user'   => esc_html__( 'User', 'bpf-widget' ),
-					'author' => esc_html__( 'Author', 'bpf-widget' ),
-					'theme'  => esc_html__( 'Theme Option', 'bpf-widget' ),
+					'post'   => esc_html__( 'Post', 'better-post-filter-widgets-for-elementor' ),
+					'tax'    => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
+					'user'   => esc_html__( 'User', 'better-post-filter-widgets-for-elementor' ),
+					'author' => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ),
+					'theme'  => esc_html__( 'Theme Option', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -130,7 +130,7 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'option_key',
 			[
-				'label'     => esc_html__( 'Option Key', 'bpf-widget' ),
+				'label'     => esc_html__( 'Option Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => array(
 					'field_source' => 'theme',
@@ -141,9 +141,9 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'post_id',
 			[
-				'label'       => esc_html__( 'Post ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'Post ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => get_the_ID() ? esc_html( get_the_ID() ) : esc_html__( 'Current Post ID', 'bpf-widget' ),
+				'placeholder' => get_the_ID() ? esc_html( get_the_ID() ) : esc_html__( 'Current Post ID', 'better-post-filter-widgets-for-elementor' ),
 				'dynamic'     => [
 					'active' => true,
 				],
@@ -156,9 +156,9 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'term_id',
 			[
-				'label'       => esc_html__( 'Term ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => get_queried_object_id() ? esc_html( get_queried_object_id() ) : esc_html__( 'Current Term ID', 'bpf-widget' ),
+				'placeholder' => get_queried_object_id() ? esc_html( get_queried_object_id() ) : esc_html__( 'Current Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'dynamic'     => [
 					'active' => true,
 				],
@@ -171,9 +171,9 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'user_id',
 			[
-				'label'       => esc_html__( 'User ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'User ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => get_current_user_id() ? esc_html( get_current_user_id() ) : esc_html__( 'Current User ID', 'bpf-widget' ),
+				'placeholder' => get_current_user_id() ? esc_html( get_current_user_id() ) : esc_html__( 'Current User ID', 'better-post-filter-widgets-for-elementor' ),
 				'dynamic'     => [
 					'active' => true,
 				],
@@ -186,7 +186,7 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'custom_key',
 			[
-				'label' => esc_html__( 'Meta Key', 'bpf-widget' ),
+				'label' => esc_html__( 'Meta Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::TEXT,
 			]
 		);
@@ -194,10 +194,10 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'autop',
 			[
-				'label'        => esc_html__( 'Add Paragraphs', 'bpf-widget' ),
+				'label'        => esc_html__( 'Add Paragraphs', 'better-post-filter-widgets-for-elementor' ),
 				'type'         => Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'bpf-widget' ),
-				'label_off'    => esc_html__( 'No', 'bpf-widget' ),
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
 				'default'      => 'no',
 			]
@@ -230,7 +230,7 @@ class Custom_Field extends Tag {
 		$value = '';
 
 		// Check if ACF is active.
-		if ( BPF_Helper::is_acf_field( $key ) ) {
+		if ( BPFWE_Helper::is_acf_field( $key ) ) {
 			// ACF specific logic.
 			if ( 'post' === $source ) {
 				$value = $post_id ? get_field( $key, $post_id ) : get_field( $key );
@@ -293,8 +293,6 @@ class Custom_Field extends Tag {
 			}
 		}
 
-		$value = wp_kses_post( $value );
-
-		echo ( 'yes' === $need_autop ) ? wpautop( $value ) : $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $value is sanitized with wp_kses_post() before output.
+		echo ( 'yes' === $need_autop ) ? wp_kses_post( wpautop( $value ) ) : wp_kses_post( $value );
 	}
 }

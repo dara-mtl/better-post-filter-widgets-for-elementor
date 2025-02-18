@@ -2,11 +2,11 @@
 /**
  * Post URL Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Core\DynamicTags\Data_Tag;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
@@ -49,7 +49,7 @@ class Post_URL extends Data_Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Post URL', 'bpf-widget' );
+		return esc_html__( 'Post URL', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -92,6 +92,6 @@ class Post_URL extends Data_Tag {
 	 * @return string URL of the current post.
 	 */
 	public function get_value( array $options = [] ) {
-		return get_permalink();
+		return esc_url( get_permalink() );
 	}
 }

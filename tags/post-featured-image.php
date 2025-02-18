@@ -2,11 +2,11 @@
 /**
  * Featured Image Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Data_Tag;
@@ -78,7 +78,7 @@ class Post_Featured_Image extends Data_Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Featured Image', 'bpf-widget' );
+		return esc_html__( 'Featured Image', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Post_Featured_Image extends Data_Tag {
 		$this->add_control(
 			'fallback',
 			[
-				'label' => esc_html__( 'Fallback', 'bpf-widget' ),
+				'label' => esc_html__( 'Fallback', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::MEDIA,
 			]
 		);

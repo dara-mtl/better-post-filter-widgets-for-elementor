@@ -2,11 +2,11 @@
 /**
  * Page URL Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
@@ -50,7 +50,7 @@ class Pages_URL extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Pages URL', 'bpf-widget' );
+		return esc_html__( 'Pages URL', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Pages_URL extends Tag {
 	 * @return string Dynamic tag group.
 	 */
 	public function get_group() {
-		return 'bpf-dynamic-tags';
+		return 'bpfwe-dynamic-tags';
 	}
 
 	/**
@@ -97,7 +97,7 @@ class Pages_URL extends Tag {
 	public function get_pages_list() {
 
 		$items   = [
-			'' => esc_html__( 'Select...', 'bpf-widget' ),
+			'' => esc_html__( 'Select...', 'better-post-filter-widgets-for-elementor' ),
 		];
 		$pages   = get_posts(
 			array(
@@ -107,7 +107,7 @@ class Pages_URL extends Tag {
 		);
 		$home_id = get_option( 'page_on_front' );
 		foreach ( $pages as $page ) {
-			$page->post_title   = $home_id === $page->ID ? esc_html__( 'Home Page', 'bpf-widget' ) : $page->post_title;
+			$page->post_title   = $home_id === $page->ID ? esc_html__( 'Home Page', 'better-post-filter-widgets-for-elementor' ) : $page->post_title;
 			$items[ $page->ID ] = $page->post_title;
 		}
 
@@ -140,7 +140,7 @@ class Pages_URL extends Tag {
 		$this->add_control(
 			'key',
 			[
-				'label'   => esc_html__( 'Pages URL', 'bpf-widget' ),
+				'label'   => esc_html__( 'Pages URL', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::SELECT,
 				'options' => $this->get_pages_list(),
 				'default' => '',
@@ -169,21 +169,6 @@ class Pages_URL extends Tag {
 	}
 
 	/**
-	 * Get dynamic tag value.
-	 *
-	 * Return the value of the dynamic tag based on the settings.
-	 *
-	 * @since 1.0.0
-	 * @access public
-	 *
-	 * @param array $options Optional. Additional options.
-	 * @return string Dynamic tag value.
-	 */
-	public function get_value( array $options = [] ) {
-		return $this->get_page_url();
-	}
-
-	/**
 	 * Render the dynamic tag.
 	 *
 	 * Output the value of the dynamic tag.
@@ -192,6 +177,6 @@ class Pages_URL extends Tag {
 	 * @access public
 	 */
 	public function render() {
-		echo esc_url_raw( $this->get_page_url() );
+		echo esc_url( $this->get_page_url() );
 	}
 }

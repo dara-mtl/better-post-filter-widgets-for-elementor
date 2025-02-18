@@ -51,8 +51,7 @@
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
-                <element value="better-widgets"/>
-                <element value="library-textdomain"/>
+                <element value="better-post-filter-widgets-for-elementor"/>
             </property>
         </properties>
     </rule>
@@ -60,7 +59,7 @@
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array">
-                <element value="bpw_"/>
+                <element value="BPFEW_"/>
             </property>
         </properties>
     </rule>

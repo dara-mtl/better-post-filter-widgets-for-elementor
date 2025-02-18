@@ -9,7 +9,8 @@
 .elementor-control-product_rating_style,
 .elementor-control-buy_now_style,
 .elementor-control-post_pin_style,
-.elementor-control-edit_options_style {
+.elementor-control-edit_options_style,
+.elementor-control-html_style {
 	display: none;
 }
 
@@ -24,6 +25,7 @@
 .show-rating .elementor-control-product_rating_style,
 .show-buy .elementor-control-buy_now_style,
 .show-bookmark .elementor-control-post_pin_style,
-.show-edit .elementor-control-edit_options_style {
-	display: initial !important;
+.show-edit .elementor-control-edit_options_style,
+.show-html .elementor-control-html_style {
+	display: initial;
 }

@@ -2,7 +2,7 @@
 /**
  * Handles dynamic group functionality for Elementor widgets.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
@@ -14,17 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class BPF_Dynamic_Group
+ * Class BPFWE_Dynamic_Group
  *
  * Handles dynamic group functionality for Elementor widgets.
  * Includes methods for rendering content and adding custom controls.
  *
  * @since 1.0.0
  */
-class BPF_Dynamic_Group {
+class BPFWE_Dynamic_Group {
 
 	/**
-	 * Constructor for the BPF_Dynamic_Group class.
+	 * Constructor for the BPFWE_Dynamic_Group class.
 	 *
 	 * Initializes the dynamic group functionality and sets up necessary hooks.
 	 *
@@ -156,7 +156,7 @@ class BPF_Dynamic_Group {
 		$element->start_controls_section(
 			'dynamic_section',
 			[
-				'label' => esc_html__( 'Dynamic Group', 'bpf-widget' ),
+				'label' => esc_html__( 'Dynamic Group', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => Controls_Manager::TAB_ADVANCED,
 			]
 		);
@@ -167,16 +167,16 @@ class BPF_Dynamic_Group {
 		$repeater->start_controls_tab(
 			'content',
 			[
-				'label' => esc_html__( 'Content', 'bpf-widget' ),
+				'label' => esc_html__( 'Content', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
 		$repeater->add_control(
 			'dynamic_fields',
 			[
-				'label'       => esc_html__( 'Text/Dynamic Tag', 'bpf-widget' ),
+				'label'       => esc_html__( 'Text/Dynamic Tag', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => esc_html__( 'Enter text or attach a dynamic tag', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Enter text or attach a dynamic tag', 'better-post-filter-widgets-for-elementor' ),
 				'label_block' => true,
 				'dynamic'     => [
 					'active' => true,
@@ -189,22 +189,22 @@ class BPF_Dynamic_Group {
 		$repeater->start_controls_tab(
 			'advanced',
 			[
-				'label' => esc_html__( 'Advanced', 'bpf-widget' ),
+				'label' => esc_html__( 'Advanced', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
 		$repeater->add_control(
 			'dynamic_type',
 			[
-				'label'       => esc_html__( 'Dynamic Field Output', 'bpf-widget' ),
+				'label'       => esc_html__( 'Dynamic Field Output', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::SELECT,
 				'default'     => 'content',
 				'label_block' => true,
 				'options'     => [
-					'content'        => esc_html__( 'Content', 'bpf-widget' ),
-					'id'             => esc_html__( 'ID', 'bpf-widget' ),
-					'class'          => esc_html__( 'Class', 'bpf-widget' ),
-					'data-attribute' => esc_html__( 'Data Attribute', 'bpf-widget' ),
+					'content'        => esc_html__( 'Content', 'better-post-filter-widgets-for-elementor' ),
+					'id'             => esc_html__( 'ID', 'better-post-filter-widgets-for-elementor' ),
+					'class'          => esc_html__( 'Class', 'better-post-filter-widgets-for-elementor' ),
+					'data-attribute' => esc_html__( 'Data Attribute', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -215,7 +215,7 @@ class BPF_Dynamic_Group {
 				'type'      => \Elementor\Controls_Manager::RAW_HTML,
 				'raw'       => sprintf(
 					'<div class="elementor-control-field-description" style="margin:0">%s</div>',
-					esc_html__( 'Set custom attributes for the wrapper element. Each attribute in a separate line. Separate attribute key from the value using Key|Value.', 'bpf-widget' )
+					esc_html__( 'Set custom attributes for the wrapper element. Each attribute in a separate line. Separate attribute key from the value using Key|Value.', 'better-post-filter-widgets-for-elementor' )
 				),
 				'condition' => [
 					'dynamic_type' => 'data-attribute',
@@ -226,11 +226,11 @@ class BPF_Dynamic_Group {
 		$repeater->add_control(
 			'dynamic_target',
 			[
-				'label'       => esc_html__( 'HTML Target', 'bpf-widget' ),
+				'label'       => esc_html__( 'HTML Target', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
 				'label_block' => true,
 				'placeholder' => '#id, .class',
-				'description' => esc_html__( '(Optional) Specify a part of the widget’s HTML to replace.', 'bpf-widget' ),
+				'description' => esc_html__( '(Optional) Specify a part of the widget’s HTML to replace.', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
 					'dynamic_type' => 'content',
 				],
@@ -244,7 +244,7 @@ class BPF_Dynamic_Group {
 		$element->add_control(
 			'dynamic_list',
 			[
-				'label'         => esc_html__( 'Repeater List', 'bpf-widget' ),
+				'label'         => esc_html__( 'Repeater List', 'better-post-filter-widgets-for-elementor' ),
 				'type'          => Controls_Manager::REPEATER,
 				'fields'        => $repeater->get_controls(),
 				'prevent_empty' => true,
@@ -259,4 +259,4 @@ class BPF_Dynamic_Group {
 	}
 }
 
-new BPF_Dynamic_Group();
+new BPFWE_Dynamic_Group();

@@ -2,27 +2,27 @@
 /**
  * Handles the Helper Functions.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF\Inc\Classes;
+namespace BPFWE\Inc\Classes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;   // Exit if accessed directly.
 }
 
 /**
- * BPF_Helper class
+ * BPFWE_Helper class
  *
- * This class contains helper functions used throughout the BPF widget plugin.
+ * This class contains helper functions used throughout the BPFWE widget plugin.
  * These functions provide various utilities such as retrieving taxonomies, post types,
  * Elementor templates, user roles, and more. Each function is intended to be static,
  * allowing them to be accessed without needing to instantiate the class.
  *
  * @since 1.0.0
  */
-class BPF_Helper {
+class BPFWE_Helper {
 
 	/**
 	 * Retrieves a list of taxonomies and formats them for use in an options dropdown.
@@ -38,7 +38,7 @@ class BPF_Helper {
 		);
 
 		if ( empty( $taxonomies ) ) {
-			$options[''] = __( 'No taxonomies found', 'bpf-widget' );
+			$options[''] = __( 'No taxonomies found', 'better-post-filter-widgets-for-elementor' );
 			return $options;
 		}
 
@@ -57,7 +57,7 @@ class BPF_Helper {
 	 * @param string $operator Logical operator to combine the arguments.
 	 * @return array List of taxonomies.
 	 */
-	public static function cwm_get_taxonomies( $args = [], $output = 'names', $operator = 'and' ) {
+	public static function bpfwe_get_taxonomies( $args = [], $output = 'names', $operator = 'and' ) {
 		global $wp_taxonomies;
 
 		$field = ( 'names' === $output ) ? 'name' : false;
@@ -81,7 +81,7 @@ class BPF_Helper {
 	 *
 	 * @return array Options array of post types.
 	 */
-	public static function cwm_get_post_types() {
+	public static function bpfwe_get_post_types() {
 		$post_lists = [];
 
 		$post_type_args = array(
@@ -104,7 +104,7 @@ class BPF_Helper {
 	 *
 	 * @return array Options array of Contact Form 7 forms.
 	 */
-	public static function cwm_retrieve_cf7() {
+	public static function bpfwe_retrieve_cf7() {
 		if ( function_exists( 'wpcf7' ) ) {
 			$options = [];
 
@@ -115,14 +115,14 @@ class BPF_Helper {
 				)
 			);
 
-			$options[0] = esc_html__( 'Select a Form', 'bpf-widget' );
+			$options[0] = esc_html__( 'Select a Form', 'better-post-filter-widgets-for-elementor' );
 
 			if ( ! empty( $wpcf7_form_list ) && ! is_wp_error( $wpcf7_form_list ) ) {
 				foreach ( $wpcf7_form_list as $post ) {
 					$options[ $post->ID ] = $post->post_title;
 				}
 			} else {
-				$options[0] = esc_html__( 'Create a Form First', 'bpf-widget' );
+				$options[0] = esc_html__( 'Create a Form First', 'better-post-filter-widgets-for-elementor' );
 			}
 
 			return $options;
@@ -136,7 +136,7 @@ class BPF_Helper {
 	 * @param int    $posts_per_page Number of posts to retrieve.
 	 * @return array Options array of post titles.
 	 */
-	public static function cwm_get_post_list( $cpt = 'post', $posts_per_page = 20 ) {
+	public static function bpfwe_get_post_list( $cpt = 'post', $posts_per_page = 20 ) {
 		$options = [];
 
 		$list = get_posts(
@@ -178,7 +178,7 @@ class BPF_Helper {
 	 * @param string $icon Icon name.
 	 * @return string|false The rendered icon HTML or false if no icon.
 	 */
-	public static function cwm_get_icons( $icon = '' ) {
+	public static function bpfwe_get_icons( $icon = '' ) {
 		if ( ! empty( $icon ) ) {
 			ob_start();
 			\Elementor\Icons_Manager::render_icon( $icon, [ 'aria-hidden' => 'true' ] );
@@ -202,7 +202,7 @@ class BPF_Helper {
 			'order'       => 'ASC',
 		);
 		$elementor_templates = get_posts( $args );
-		$options             = [ '' => esc_html__( 'Select...', 'bpf-widget' ) ];
+		$options             = [ '' => esc_html__( 'Select...', 'better-post-filter-widgets-for-elementor' ) ];
 
 		if ( ! empty( $elementor_templates ) ) {
 			foreach ( $elementor_templates as $elementor_template ) {
@@ -221,16 +221,13 @@ class BPF_Helper {
 	 * @return array Options array of user roles.
 	 */
 	public static function get_all_user_roles() {
-		$roles = wp_roles()->get_names();
+		$roles   = wp_roles()->get_names();
+		$options = array();
 
 		if ( empty( $roles ) ) {
 			// Handle the case where roles are not available.
 			return [];
 		}
-
-		$options = [
-			'' => esc_html__( 'Select...', 'bpf-widget' ),
-		];
 
 		foreach ( $roles as $role_key => $role_name ) {
 			$options[ $role_key ] = $role_name;
@@ -253,7 +250,7 @@ class BPF_Helper {
 		}
 
 		$options = [
-			'' => esc_html__( 'Select...', 'bpf-widget' ),
+			'' => esc_html__( 'Select...', 'better-post-filter-widgets-for-elementor' ),
 		];
 
 		foreach ( $user_meta_data as $key => $value ) {
@@ -313,105 +310,114 @@ class BPF_Helper {
 	 * @return string Sanitized input.
 	 */
 	public static function sanitize_and_escape_svg_input( $input ) {
-		$allowed_html = [
-			'i'        => [ 'class' => [] ],
-			'b'        => [],
-			'strong'   => [],
-			'em'       => [],
-			'u'        => [],
-			'br'       => [],
-			'svg'      => [
-				'xmlns'               => [],
-				'width'               => [],
-				'height'              => [],
-				'viewBox'             => [],
-				'preserveAspectRatio' => [],
-				'fill'                => [],
-				'stroke'              => [],
-				'stroke-width'        => [],
-				'd'                   => [],
-				'x'                   => [],
-				'y'                   => [],
-				'cx'                  => [],
-				'cy'                  => [],
-				'r'                   => [],
-				'rx'                  => [],
-				'ry'                  => [],
-				'points'              => [],
-				'transform'           => [],
-				'dy'                  => [],
-				'dx'                  => [],
-			],
-			'path'     => [
-				'd'            => [],
-				'fill'         => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-				'transform'    => [],
-			],
-			'circle'   => [
-				'cx'           => [],
-				'cy'           => [],
-				'r'            => [],
-				'fill'         => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-			],
-			'rect'     => [
-				'x'            => [],
-				'y'            => [],
-				'width'        => [],
-				'height'       => [],
-				'rx'           => [],
-				'ry'           => [],
-				'fill'         => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-			],
-			'line'     => [
-				'x1'           => [],
-				'y1'           => [],
-				'x2'           => [],
-				'y2'           => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-			],
-			'polygon'  => [
-				'points'       => [],
-				'fill'         => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-			],
-			'polyline' => [
-				'points'       => [],
-				'fill'         => [],
-				'stroke'       => [],
-				'stroke-width' => [],
-			],
-			'text'     => [
-				'x'           => [],
-				'y'           => [],
-				'fill'        => [],
-				'font-size'   => [],
-				'font-family' => [],
-				'text-anchor' => [],
-			],
-			'tspan'    => [
-				'x'           => [],
-				'y'           => [],
-				'fill'        => [],
-				'font-size'   => [],
-				'font-family' => [],
-				'dy'          => [],
-				'dx'          => [],
-			],
-		];
+		// Get the default allowed HTML tags from wp_kses_post().
+		$allowed_html = wp_kses_allowed_html( 'post' );
+
+		// Define additional allowed HTML tags specifically for SVG elements.
+		$allowed_html = array_merge(
+			$allowed_html,
+			[
+				'i'        => [ 'class' => [] ],
+				'b'        => [],
+				'strong'   => [],
+				'em'       => [],
+				'u'        => [],
+				'br'       => [],
+				'svg'      => [
+					'xmlns'               => [],
+					'width'               => [],
+					'height'              => [],
+					'viewBox'             => [],
+					'preserveAspectRatio' => [],
+					'fill'                => [],
+					'stroke'              => [],
+					'stroke-width'        => [],
+					'd'                   => [],
+					'x'                   => [],
+					'y'                   => [],
+					'cx'                  => [],
+					'cy'                  => [],
+					'r'                   => [],
+					'rx'                  => [],
+					'ry'                  => [],
+					'points'              => [],
+					'transform'           => [],
+					'dy'                  => [],
+					'dx'                  => [],
+				],
+				'path'     => [
+					'd'            => [],
+					'fill'         => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+					'transform'    => [],
+				],
+				'circle'   => [
+					'cx'           => [],
+					'cy'           => [],
+					'r'            => [],
+					'fill'         => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+				],
+				'rect'     => [
+					'x'            => [],
+					'y'            => [],
+					'width'        => [],
+					'height'       => [],
+					'rx'           => [],
+					'ry'           => [],
+					'fill'         => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+				],
+				'line'     => [
+					'x1'           => [],
+					'y1'           => [],
+					'x2'           => [],
+					'y2'           => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+				],
+				'polygon'  => [
+					'points'       => [],
+					'fill'         => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+				],
+				'polyline' => [
+					'points'       => [],
+					'fill'         => [],
+					'stroke'       => [],
+					'stroke-width' => [],
+				],
+				'text'     => [
+					'x'           => [],
+					'y'           => [],
+					'fill'        => [],
+					'font-size'   => [],
+					'font-family' => [],
+					'text-anchor' => [],
+				],
+				'tspan'    => [
+					'x'           => [],
+					'y'           => [],
+					'fill'        => [],
+					'font-size'   => [],
+					'font-family' => [],
+					'dy'          => [],
+					'dx'          => [],
+				],
+			]
+		);
 
 		preg_match( '/<svg[^>]*viewBox=["\']([^"\']*)["\'][^>]*>/', $input, $matches );
 		$view_box = isset( $matches[1] ) ? $matches[1] : '';
 
+		// Sanitize the input using wp_kses with the combined allowed HTML.
 		$sanitized_input = wp_kses( $input, $allowed_html );
 
+		// If the viewBox is set, ensure it stays in the SVG tag.
 		if ( $view_box ) {
 			$sanitized_input = preg_replace( '/<svg([^>]*)>/', '<svg$1 viewBox="' . esc_attr( $view_box ) . '">', $sanitized_input );
 		}
@@ -419,18 +425,6 @@ class BPF_Helper {
 		$sanitized_input = preg_replace( '/(fill|stroke)=["\'](#[a-fA-F0-9]{3,6})["\']/', '$1="$2"', $sanitized_input );
 
 		return $sanitized_input;
-	}
-
-	/**
-	 * Sanitizes a CSS string by escaping CSS characters.
-	 *
-	 * @param string $css The CSS string.
-	 * @return string Sanitized CSS.
-	 */
-	public static function sanitize_css( $css ) {
-		$css = preg_replace( '/<.*?>/', '', $css );
-		$css = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $css );
-		return trim( $css );
 	}
 
 	/**
@@ -445,7 +439,7 @@ class BPF_Helper {
 			if ( $breakpoints_manager ) {
 				$breakpoints           = $breakpoints_manager->get_breakpoints();
 				$breakpoint_labels     = [];
-				$breakpoint_labels[''] = __( 'None', 'bpf-widget' );
+				$breakpoint_labels[''] = __( 'None', 'better-post-filter-widgets-for-elementor' );
 
 				foreach ( $breakpoints as $key => $breakpoint ) {
 					$label                       = $breakpoint->get_label();

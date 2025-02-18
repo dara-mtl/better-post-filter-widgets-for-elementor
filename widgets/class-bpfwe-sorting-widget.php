@@ -2,7 +2,7 @@
 /**
  * Sorting Widget.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class BPF_Sorting_Widget extends \Elementor\Widget_Base {
+class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 
 	/**
 	 * Get widget name.
@@ -49,7 +49,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Sorting Widget', 'bpf-widget' );
+		return esc_html__( 'Sorting Widget', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -89,7 +89,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 	 */
 	public function get_style_depends() {
 		return [
-			'bpf-widget-style',
+			'bpfwe-widget-style',
 		];
 	}
 
@@ -118,7 +118,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'content_section',
 			[
-				'label' => esc_html__( 'Content', 'bpf-widget' ),
+				'label' => esc_html__( 'Content', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -130,7 +130,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'sort_title',
 			[
-				'label'       => esc_html__( 'Title', 'bpf-widget' ),
+				'label'       => esc_html__( 'Title', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'dynamic'     => [
 					'active' => false,
@@ -143,22 +143,22 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'sort_by',
 			[
-				'label'   => esc_html__( 'Sort By', 'bpf-widget' ),
+				'label'   => esc_html__( 'Sort By', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'title',
 				'options' => [
-					''               => esc_html__( 'Default', 'bpf-widget' ),
-					'date'           => esc_html__( 'Date', 'bpf-widget' ),
-					'modified'       => esc_html__( 'Last Modified', 'bpf-widget' ),
-					'rand'           => esc_html__( 'Random', 'bpf-widget' ),
-					'comment_count'  => esc_html__( 'Comment Count', 'bpf-widget' ),
-					'title'          => esc_html__( 'Title', 'bpf-widget' ),
-					'ID'             => esc_html__( 'Post ID', 'bpf-widget' ),
-					'author'         => esc_html__( 'Author', 'bpf-widget' ),
-					'menu_order'     => esc_html__( 'Menu Order', 'bpf-widget' ),
-					'relevance'      => esc_html__( 'Relevance', 'bpf-widget' ),
-					'meta_value'     => esc_html__( 'Custom Field', 'bpf-widget' ),
-					'meta_value_num' => esc_html__( 'Custom Field (Numeric)', 'bpf-widget' ),
+					''               => esc_html__( 'Default', 'better-post-filter-widgets-for-elementor' ),
+					'date'           => esc_html__( 'Date', 'better-post-filter-widgets-for-elementor' ),
+					'modified'       => esc_html__( 'Last Modified', 'better-post-filter-widgets-for-elementor' ),
+					'rand'           => esc_html__( 'Random', 'better-post-filter-widgets-for-elementor' ),
+					'comment_count'  => esc_html__( 'Comment Count', 'better-post-filter-widgets-for-elementor' ),
+					'title'          => esc_html__( 'Title', 'better-post-filter-widgets-for-elementor' ),
+					'ID'             => esc_html__( 'Post ID', 'better-post-filter-widgets-for-elementor' ),
+					'author'         => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ),
+					'menu_order'     => esc_html__( 'Menu Order', 'better-post-filter-widgets-for-elementor' ),
+					'relevance'      => esc_html__( 'Relevance', 'better-post-filter-widgets-for-elementor' ),
+					'meta_value'     => esc_html__( 'Custom Field', 'better-post-filter-widgets-for-elementor' ),
+					'meta_value_num' => esc_html__( 'Custom Field (Numeric)', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -166,12 +166,12 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'sort_by_meta',
 			[
-				'label'       => esc_html__( 'Field Key', 'bpf-widget' ),
+				'label'       => esc_html__( 'Field Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'dynamic'     => [
 					'active' => false,
 				],
-				'placeholder' => esc_html__( 'Enter a meta key', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Enter a meta key', 'better-post-filter-widgets-for-elementor' ),
 				'label_block' => true,
 				'condition'   => [
 					'sort_by' => [ 'meta_value', 'meta_value_num' ],
@@ -182,12 +182,12 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'order',
 			[
-				'label'   => esc_html__( 'Order', 'bpf-widget' ),
+				'label'   => esc_html__( 'Order', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'ASC',
 				'options' => [
-					'ASC'  => esc_html__( 'ASC', 'bpf-widget' ),
-					'DESC' => esc_html__( 'DESC', 'bpf-widget' ),
+					'ASC'  => esc_html__( 'ASC', 'better-post-filter-widgets-for-elementor' ),
+					'DESC' => esc_html__( 'DESC', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -197,31 +197,31 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'order_by_list',
 			[
-				'label'         => esc_html__( 'Sorting Options', 'bpf-widget' ),
+				'label'         => esc_html__( 'Sorting Options', 'better-post-filter-widgets-for-elementor' ),
 				'type'          => \Elementor\Controls_Manager::REPEATER,
 				'fields'        => $repeater->get_controls(),
 				'default'       => [
 					[
-						'sort_title' => esc_html__( 'Sort by default', 'bpf-widget' ),
+						'sort_title' => esc_html__( 'Sort by default', 'better-post-filter-widgets-for-elementor' ),
 						'sort_by'    => '',
 					],
 					[
-						'sort_title' => esc_html__( 'Sort by title: alphabetical', 'bpf-widget' ),
+						'sort_title' => esc_html__( 'Sort by title: alphabetical', 'better-post-filter-widgets-for-elementor' ),
 						'sort_by'    => 'title',
 						'order'      => 'ASC',
 					],
 					[
-						'sort_title' => esc_html__( 'Sort by title: reverse', 'bpf-widget' ),
+						'sort_title' => esc_html__( 'Sort by title: reverse', 'better-post-filter-widgets-for-elementor' ),
 						'sort_by'    => 'title',
 						'order'      => 'DESC',
 					],
 					[
-						'sort_title' => esc_html__( 'By date: newest first', 'bpf-widget' ),
+						'sort_title' => esc_html__( 'By date: newest first', 'better-post-filter-widgets-for-elementor' ),
 						'sort_by'    => 'date',
 						'order'      => 'DESC',
 					],
 					[
-						'sort_title' => esc_html__( 'By date: oldest first', 'bpf-widget' ),
+						'sort_title' => esc_html__( 'By date: oldest first', 'better-post-filter-widgets-for-elementor' ),
 						'sort_by'    => 'date',
 						'order'      => 'ASC',
 					],
@@ -236,7 +236,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'section_select_style',
 			[
-				'label' => esc_html__( 'Dropdown', 'bpf-widget' ),
+				'label' => esc_html__( 'Dropdown', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -244,7 +244,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'select_width',
 			[
-				'label'      => esc_html__( 'Width', 'bpf-widget' ),
+				'label'      => esc_html__( 'Width', 'better-post-filter-widgets-for-elementor' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ '%', 'px', 'em', 'rem', 'custom' ],
 				'range'      => [
@@ -290,7 +290,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Border::get_type(),
 			[
 				'name'     => 'field_border',
-				'label'    => esc_html__( 'Border', 'bpf-widget' ),
+				'label'    => esc_html__( 'Border', 'better-post-filter-widgets-for-elementor' ),
 				'selector' => '{{WRAPPER}} .filter-sorting-wrapper select',
 			]
 		);
@@ -298,7 +298,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'field_border_radius',
 			[
-				'label'      => esc_html__( 'Border Radius', 'bpf-widget' ),
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px' ],
 				'default'    => [
@@ -318,7 +318,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'select_color',
 			[
-				'label'     => esc_html__( 'Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .filter-sorting-wrapper select' => 'color: {{VALUE}};',
@@ -329,7 +329,7 @@ class BPF_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'select_background_color',
 			[
-				'label'     => esc_html__( 'Background Color', 'bpf-widget' ),
+				'label'     => esc_html__( 'Background Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .filter-sorting-wrapper select' => 'background-color: {{VALUE}};',

@@ -2,11 +2,11 @@
 /**
  * Author Meta Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
@@ -50,7 +50,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Author Info', 'bpf-widget' );
+		return esc_html__( 'Author Info', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -112,17 +112,17 @@ class Author_Info_Meta extends Tag {
 		$this->add_control(
 			'key',
 			[
-				'label'   => esc_html__( 'Field', 'bpf-widget' ),
+				'label'   => esc_html__( 'Field', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'display_name',
 				'options' => [
-					'display_name' => esc_html__( 'Display Name', 'bpf-widget' ),
-					'ID'           => esc_html__( 'ID', 'bpf-widget' ),
-					'description'  => esc_html__( 'Bio', 'bpf-widget' ),
-					'email'        => esc_html__( 'Email', 'bpf-widget' ),
-					'url'          => esc_html__( 'Website', 'bpf-widget' ),
-					'profile_url'  => esc_html__( 'Profile URL', 'bpf-widget' ),
-					'meta'         => esc_html__( 'Author Meta', 'bpf-widget' ),
+					'display_name' => esc_html__( 'Display Name', 'better-post-filter-widgets-for-elementor' ),
+					'ID'           => esc_html__( 'ID', 'better-post-filter-widgets-for-elementor' ),
+					'description'  => esc_html__( 'Bio', 'better-post-filter-widgets-for-elementor' ),
+					'email'        => esc_html__( 'Email', 'better-post-filter-widgets-for-elementor' ),
+					'url'          => esc_html__( 'Website', 'better-post-filter-widgets-for-elementor' ),
+					'profile_url'  => esc_html__( 'Profile URL', 'better-post-filter-widgets-for-elementor' ),
+					'meta'         => esc_html__( 'Author Meta', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -130,7 +130,7 @@ class Author_Info_Meta extends Tag {
 		$this->add_control(
 			'meta_key',
 			[
-				'label'     => esc_html__( 'Meta Key', 'bpf-widget' ),
+				'label'     => esc_html__( 'Meta Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => [
 					'key' => 'meta',

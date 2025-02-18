@@ -2,11 +2,11 @@
 /**
  * Post Date Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 
@@ -38,7 +38,7 @@ class Post_Date extends \Elementor\Core\DynamicTags\Tag {
 	 * @return string The title of the dynamic tag.
 	 */
 	public function get_title() {
-		return __( 'Post Date', 'bpf-widget' );
+		return __( 'Post Date', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -67,7 +67,6 @@ class Post_Date extends \Elementor\Core\DynamicTags\Tag {
 	 * @return void
 	 */
 	public function render() {
-		$date = get_the_date();
-		echo wp_kses_post( $date );
+		echo wp_kses_post( get_the_date() );
 	}
 }

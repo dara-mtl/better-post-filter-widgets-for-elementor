@@ -2,15 +2,15 @@
 /**
  * Repeater Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
-use BPF\Inc\Classes\BPF_Helper;
+use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,7 +51,7 @@ class Repeater extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Repeater', 'bpf-widget' );
+		return esc_html__( 'Repeater', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Repeater extends Tag {
 	 * @return string Dynamic tag group.
 	 */
 	public function get_group() {
-		return 'bpf-dynamic-tags';
+		return 'bpfwe-dynamic-tags';
 	}
 
 	/**
@@ -114,15 +114,15 @@ class Repeater extends Tag {
 		$this->add_control(
 			'field_source',
 			[
-				'label'   => esc_html__( 'Field Source', 'bpf-widget' ),
+				'label'   => esc_html__( 'Field Source', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'post',
 				'options' => [
-					'post'   => esc_html__( 'Post', 'bpf-widget' ),
-					'tax'    => esc_html__( 'Taxonomy', 'bpf-widget' ),
-					'user'   => esc_html__( 'User', 'bpf-widget' ),
-					'author' => esc_html__( 'Author', 'bpf-widget' ),
-					'theme'  => esc_html__( 'Theme Options', 'bpf-widget' ),
+					'post'   => esc_html__( 'Post', 'better-post-filter-widgets-for-elementor' ),
+					'tax'    => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
+					'user'   => esc_html__( 'User', 'better-post-filter-widgets-for-elementor' ),
+					'author' => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ),
+					'theme'  => esc_html__( 'Theme Options', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -130,7 +130,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'option_key',
 			[
-				'label'     => esc_html__( 'Theme Option Key', 'bpf-widget' ),
+				'label'     => esc_html__( 'Theme Option Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => array(
 					'field_source' => 'theme',
@@ -141,9 +141,9 @@ class Repeater extends Tag {
 		$this->add_control(
 			'post_id',
 			[
-				'label'       => esc_html__( 'Post ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'Post ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => esc_html__( 'Current Post ID', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Current Post ID', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => array(
 					'field_source' => 'post',
 				),
@@ -153,9 +153,9 @@ class Repeater extends Tag {
 		$this->add_control(
 			'term_id',
 			[
-				'label'       => esc_html__( 'Term ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => esc_html__( 'Current Term ID', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Current Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => array(
 					'field_source' => 'tax',
 				),
@@ -165,9 +165,9 @@ class Repeater extends Tag {
 		$this->add_control(
 			'user_id',
 			[
-				'label'       => esc_html__( 'User ID', 'bpf-widget' ),
+				'label'       => esc_html__( 'User ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => esc_html__( 'Current User ID', 'bpf-widget' ),
+				'placeholder' => esc_html__( 'Current User ID', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => array(
 					'field_source' => 'user',
 				),
@@ -177,7 +177,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'custom_key',
 			[
-				'label' => esc_html__( 'Parent Key', 'bpf-widget' ),
+				'label' => esc_html__( 'Parent Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::TEXT,
 			]
 		);
@@ -185,7 +185,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'child_key_1',
 			[
-				'label'     => esc_html__( 'Child Key 1', 'bpf-widget' ),
+				'label'     => esc_html__( 'Child Key 1', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'separator' => 'before',
 				'condition' => array(
@@ -197,7 +197,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'child_key_2',
 			[
-				'label'     => esc_html__( 'Child Key 2', 'bpf-widget' ),
+				'label'     => esc_html__( 'Child Key 2', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => array(
 					'child_key_1!' => '',
@@ -209,7 +209,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'child_key_3',
 			[
-				'label'     => esc_html__( 'Child Key 3', 'bpf-widget' ),
+				'label'     => esc_html__( 'Child Key 3', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => array(
 					'child_key_2!' => '',
@@ -221,7 +221,7 @@ class Repeater extends Tag {
 		$this->add_control(
 			'child_key_4',
 			[
-				'label'     => esc_html__( 'Child Key 4', 'bpf-widget' ),
+				'label'     => esc_html__( 'Child Key 4', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
 				'condition' => array(
 					'child_key_3!' => '',
@@ -233,24 +233,24 @@ class Repeater extends Tag {
 		$this->add_control(
 			'child_html_tag',
 			[
-				'label'     => esc_html__( 'HTML Tag', 'bpf-widget' ),
+				'label'     => esc_html__( 'HTML Tag', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'none',
 				'options'   => [
-					'none'   => esc_html__( 'No Tag', 'bpf-widget' ),
-					'div'    => esc_html__( 'div', 'bpf-widget' ),
-					'span'   => esc_html__( 'span', 'bpf-widget' ),
-					'p'      => esc_html__( 'p', 'bpf-widget' ),
-					'h1'     => esc_html__( 'h1', 'bpf-widget' ),
-					'h2'     => esc_html__( 'h2', 'bpf-widget' ),
-					'h3'     => esc_html__( 'h3', 'bpf-widget' ),
-					'h4'     => esc_html__( 'h4', 'bpf-widget' ),
-					'h5'     => esc_html__( 'h5', 'bpf-widget' ),
-					'h6'     => esc_html__( 'h6', 'bpf-widget' ),
-					'ul'     => esc_html__( 'ul', 'bpf-widget' ),
-					'ol'     => esc_html__( 'ol', 'bpf-widget' ),
-					'table'  => esc_html__( 'table', 'bpf-widget' ),
-					'toggle' => esc_html__( 'toggle', 'bpf-widget' ),
+					'none'   => esc_html__( 'No Tag', 'better-post-filter-widgets-for-elementor' ),
+					'div'    => esc_html__( 'div', 'better-post-filter-widgets-for-elementor' ),
+					'span'   => esc_html__( 'span', 'better-post-filter-widgets-for-elementor' ),
+					'p'      => esc_html__( 'p', 'better-post-filter-widgets-for-elementor' ),
+					'h1'     => esc_html__( 'h1', 'better-post-filter-widgets-for-elementor' ),
+					'h2'     => esc_html__( 'h2', 'better-post-filter-widgets-for-elementor' ),
+					'h3'     => esc_html__( 'h3', 'better-post-filter-widgets-for-elementor' ),
+					'h4'     => esc_html__( 'h4', 'better-post-filter-widgets-for-elementor' ),
+					'h5'     => esc_html__( 'h5', 'better-post-filter-widgets-for-elementor' ),
+					'h6'     => esc_html__( 'h6', 'better-post-filter-widgets-for-elementor' ),
+					'ul'     => esc_html__( 'ul', 'better-post-filter-widgets-for-elementor' ),
+					'ol'     => esc_html__( 'ol', 'better-post-filter-widgets-for-elementor' ),
+					'table'  => esc_html__( 'table', 'better-post-filter-widgets-for-elementor' ),
+					'toggle' => esc_html__( 'toggle', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'separator' => 'before',
 			]
@@ -260,18 +260,18 @@ class Repeater extends Tag {
 		$this->add_control(
 			'toggle_title_tag',
 			[
-				'label'     => esc_html__( 'Title Tag', 'bpf-widget' ),
+				'label'     => esc_html__( 'Title Tag', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'h3',
 				'options'   => [
-					'h1'   => esc_html__( 'h1', 'bpf-widget' ),
-					'h2'   => esc_html__( 'h2', 'bpf-widget' ),
-					'h3'   => esc_html__( 'h3', 'bpf-widget' ),
-					'h4'   => esc_html__( 'h4', 'bpf-widget' ),
-					'h5'   => esc_html__( 'h5', 'bpf-widget' ),
-					'h6'   => esc_html__( 'h6', 'bpf-widget' ),
-					'span' => esc_html__( 'span', 'bpf-widget' ),
-					'div'  => esc_html__( 'div', 'bpf-widget' ),
+					'h1'   => esc_html__( 'h1', 'better-post-filter-widgets-for-elementor' ),
+					'h2'   => esc_html__( 'h2', 'better-post-filter-widgets-for-elementor' ),
+					'h3'   => esc_html__( 'h3', 'better-post-filter-widgets-for-elementor' ),
+					'h4'   => esc_html__( 'h4', 'better-post-filter-widgets-for-elementor' ),
+					'h5'   => esc_html__( 'h5', 'better-post-filter-widgets-for-elementor' ),
+					'h6'   => esc_html__( 'h6', 'better-post-filter-widgets-for-elementor' ),
+					'span' => esc_html__( 'span', 'better-post-filter-widgets-for-elementor' ),
+					'div'  => esc_html__( 'div', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'condition' => [
 					'child_html_tag' => 'toggle',
@@ -301,7 +301,7 @@ class Repeater extends Tag {
 		}
 
 		// Check if ACF is active.
-		$is_acf_active = BPF_Helper::is_acf_field( $key );
+		$is_acf_active = BPFWE_Helper::is_acf_field( $key );
 
 		// Get the meta data based on the field source.
 		switch ( $source ) {
@@ -385,9 +385,9 @@ class Repeater extends Tag {
 				// Print each toggle item with dynamic content.
 				echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
 				echo '<label for="' . esc_attr( $toggle_id ) . '">';
-				echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . $toggle_title . '</' . esc_attr( $toggle_title_tag ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 307.
+				echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . $toggle_title . '</' . esc_attr( $toggle_title_tag ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 377.
 				echo '</label>';
-				echo '<div class="toggle-content">' . $toggle_content . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 310.
+				echo '<div class="toggle-content">' . $toggle_content . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 380.
 			}
 		} elseif ( 'table' === $html_tag ) {
 			echo '<table class="repeater-table"><tr>';
@@ -414,7 +414,7 @@ class Repeater extends Tag {
 			echo '</table>';
 		} elseif ( 'ul' === $html_tag || 'ol' === $html_tag ) {
 			++$class_nb;
-			echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 222.
+			echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
 			foreach ( $entries as $entry ) {
 				echo '<li>';
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
@@ -434,7 +434,7 @@ class Repeater extends Tag {
 				}
 				echo '</li>';
 			}
-			echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 222.
+			echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
 		} else {
 			foreach ( $entries as $entry ) {
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
@@ -450,7 +450,7 @@ class Repeater extends Tag {
 							$value   = $before . $entry[ $child_value_key ] . $after;
 							$classes = 'repeater-field field-' . esc_attr( ++$class_nb );
 							if ( 'none' !== $html_tag ) {
-								echo "<{$html_tag} class='{$classes}'>" . esc_html( str_replace( '#', $class_nb, $value ) ) . "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 222.
+								echo "<{$html_tag} class='{$classes}'>" . esc_html( str_replace( '#', $class_nb, $value ) ) . "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
 							} else {
 								echo esc_html( str_replace( '#', $class_nb, $value ) ) . ' ';
 							}

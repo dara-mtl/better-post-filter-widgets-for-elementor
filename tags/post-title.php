@@ -2,11 +2,11 @@
 /**
  * Post Title Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 
@@ -48,7 +48,7 @@ class Post_Title extends \Elementor\Core\DynamicTags\Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return __( 'Post Title', 'bpf-widget' );
+		return __( 'Post Title', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -91,7 +91,7 @@ class Post_Title extends \Elementor\Core\DynamicTags\Tag {
 		$this->add_control(
 			'max_length',
 			[
-				'label' => esc_html__( 'Title Length', 'bpf-widget' ),
+				'label' => esc_html__( 'Title Length', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::NUMBER,
 			]
 		);

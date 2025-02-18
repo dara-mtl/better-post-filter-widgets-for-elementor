@@ -2,11 +2,11 @@
 /**
  * Post Content Dynamic Tag.
  *
- * @package BPF_Widgets
+ * @package BPFWE_Widgets
  * @since 1.0.0
  */
 
-namespace BPF_Dynamic_Tag\Tags;
+namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 
@@ -39,7 +39,7 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 	 * @return string The title of the dynamic tag.
 	 */
 	public function get_title() {
-		return __( 'Post Content', 'bpf-widget' );
+		return __( 'Post Content', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 		$this->add_control(
 			'max_length',
 			[
-				'label' => esc_html__( 'Content Length', 'bpf-widget' ),
+				'label' => esc_html__( 'Content Length', 'better-post-filter-widgets-for-elementor' ),
 				'type'  => Controls_Manager::NUMBER,
 			]
 		);
@@ -97,7 +97,7 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 		}
 
 		if ( strpos( $current_url, 'preview_nonce' ) !== false || is_admin() ) {
-			echo esc_html__( 'This is the post content. The full content will only display on the live page.', 'bpf-widget' );
+			echo esc_html__( 'This is the post content. The full content will only display on the live page.', 'better-post-filter-widgets-for-elementor' );
 		} elseif ( ! empty( $post_content ) ) {
 				echo wp_kses_post( $post_content );
 		} else {
