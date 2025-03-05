@@ -115,6 +115,14 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.1.1 - 2025-02-23 =
+
+* New: Added icon support for before/after in the post widget.
+* Tweak: Improved background image handling in post carousel, ensuring more reliable fetching on page load.
+* Tweak: Under taxonomy query, enabled automatic featured image retrieval for product categories.
+* Tweak: Under user query, replaced user gravatar with a custom user meta key.
+* Fix: Addressed an issue where filters failed to retrieve the document ID in certain cases.
+
 = 1.1.0 - 2025-02-14 =
 
 * New: Added the ability to query taxonomies using the post widget, with full support for pagination and slider conversion. Users can now query posts, users, taxonomies, and the main query.

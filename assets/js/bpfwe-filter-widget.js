@@ -147,22 +147,14 @@
 				}
 
 				if ( pageID === 0 || pageID === undefined ) {
-					let elementorProArchive = $( 'div[data-elementor-type^="archive"]' ).first();
-					if ( elementorProArchive.length ) {
-						pageID = elementorProArchive.data( 'elementor-id' );
+					if (!widgetID) {
+						return;
 					}
 
-					if ( pageID === 0 || pageID === undefined ) {
-						pageID = $( 'div[data-elementor-id]:not(header *)' ).first().data( 'elementor-id' );
-					}
+					var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
 
-					if ( pageID === 0 || pageID === undefined ) {
-						pageID = $( 'main div:first' ).data( 'elementor-id' );
-					}
-
-					if ( pageID === 0 || pageID === undefined ) {
-						let nonHeaderElement = $( 'div[data-elementor-id]:not([data-elementor-type="header"])' ).first();
-						pageID = nonHeaderElement.data( 'elementor-id' );
+					if ($outermost.length) {
+						pageID = $outermost.data('elementor-id');
 					}
 				}
 

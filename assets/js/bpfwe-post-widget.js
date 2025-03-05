@@ -726,46 +726,38 @@
 
 					// Update Background on Slide Change.
 					const widgetId = this.$element.data('id');
-					const bgContainers = document.querySelectorAll(`.bg-slide-${widgetId}`);
+					const $bgContainers = $(`.bg-slide-${widgetId}`);
+
+					let isBeforeActive = true;
 
 					const updateBackground = () => {
-						const activeSlide = document.querySelector(`.bpfwe-swiper-${widgetId} .swiper-slide-active`);
-						const postImageContainer = activeSlide?.querySelector('.post-image img');
-						if (postImageContainer && bgContainers.length > 0) {
-							const bgImage = window.getComputedStyle(postImageContainer).backgroundImage;
-							if (bgImage && bgImage !== "none") {
-								const imageUrl = bgImage.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
-								bgContainers.forEach(container => {
-									container.style.setProperty('--bg-image', `url(${imageUrl})`);
+						const $activeSlide = $(`.bpfwe-swiper-${widgetId} .swiper-slide-active`);
+						const $postImageContainer = $activeSlide.find('.post-image img');
+
+						if ($postImageContainer.length && $bgContainers.length) {
+							const imageUrl = $postImageContainer.attr('data-bpfwe-src');
+							if (imageUrl) {
+								$bgContainers.each(function () {
+									const $container = $(this);
+									if (isBeforeActive) {
+										$container.css('--bg-image-after', `url(${imageUrl})`);
+										$container.addClass('after-active').removeClass('before-active');
+									} else {
+										$container.css('--bg-image-before', `url(${imageUrl})`);
+										$container.addClass('before-active').removeClass('after-active');
+									}
 								});
+								isBeforeActive = !isBeforeActive;
 								return true;
 							}
 						}
 						return false;
 					};
 
-					const retryUpdateBackground = async (retries = 4, delay = 200) => {
-						for (let i = 0; i < retries; i++) {
-							const success = updateBackground();
-							if (success) {
-								return true;
-							}
-							await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
-						}
-						return false;
-					};
-
-					// Try to set the background on page load.
-					const trySetBackgroundOnLoad = async () => {
-						if (swiperInstance) {
-							const success = await retryUpdateBackground();
-						}
-					};
-
-					trySetBackgroundOnLoad();
+					updateBackground();
 					swiperInstance.on("slideChangeTransitionStart", updateBackground);
 
-					const slides = document.querySelectorAll( `.bpfwe-swiper-${widgetId} .swiper-slide` );
+					const $slides = $(`.bpfwe-swiper-${widgetId} .swiper-slide`);
 
 					// Handle Controls (next/prev and specific slide navigation).
 					const controls = $( "body" ).find( `[class*="${widgetId}-slide-"]` ) || [];

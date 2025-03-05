@@ -549,24 +549,51 @@ ul.post-taxonomy li,
 }
 
 [class*="bg-slide-"] {
+	position: relative;
 	overflow: hidden;
 }
 
-[class*="bg-slide-"]::before {
+[class*="bg-slide-"]::before,
+[class*="bg-slide-"]::after {
 	content: '';
 	position: absolute;
-	background-image: var(--bg-image);
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+	inset: 0;
 	background-position: center center;
 	background-size: cover;
 	background-repeat: no-repeat;
-	z-index: 0;
+	z-index: -1;
 	pointer-events: none;
-	transform: scale(1.05);
-	transition: background-image 0.5s ease-in-out;
+	backface-visibility: hidden;
+	transform: scale(1.05) translateZ(0);
+	transition: transform 0.4s linear, opacity 0.4s linear;
+	will-change: transform, opacity;
+	isolation: isolate;
+}
+
+[class*="bg-slide-"]::before {
+	background-image: var(--bg-image-before);
+	opacity: 1;
+}
+
+[class*="bg-slide-"]::after {
+	background-image: var(--bg-image-after);
+	opacity: 0;
+}
+
+[class*="bg-slide-"].before-active::before {
+	opacity: 1;
+}
+
+[class*="bg-slide-"].before-active::after {
+	opacity: 0;
+}
+
+[class*="bg-slide-"].after-active::before {
+	opacity: 0;
+}
+
+[class*="bg-slide-"].after-active::after {
+	opacity: 1;
 }
 
 .swiper-fade .swiper-slide {
