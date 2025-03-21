@@ -143,11 +143,12 @@ class BPFWE_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'filter_post_type',
 			[
-				'label'              => esc_html__( 'Post Type to Search', 'better-post-filter-widgets-for-elementor' ),
+				'label'              => esc_html__( 'Post Type to Filter', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SELECT,
-				'description'        => esc_html__( 'If both the search widget and filter widgets are present on the same page, the filter widget’s controls will take precedence.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'To combine filter, search, & sorting widgets, use the same target selector. When used together, the filter widget’s post type takes priority.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'post',
 				'options'            => BPFWE_Helper::bpfwe_get_post_types(),
+				'separator'          => 'after',
 				'frontend_available' => true,
 			]
 		);
@@ -642,6 +643,13 @@ class BPFWE_Search_Bar_Widget extends \Elementor\Widget_Base {
 		$button_text      = isset( $settings['search_button_text'] ) ? $settings['search_button_text'] : 'Search';
 		$action_url       = get_permalink();
 		$input_name       = 's';
+		$target_selector  = ! empty( $settings['target_selector'] ) ? $settings['target_selector'] : '';
+
+		$form_classes = [ 'search-post' ];
+
+		if ( $target_selector && ( ! $settings['redirect_submission'] || ( $settings['redirect_submission'] && ! $settings['redirect_url']['url'] ) ) ) {
+			$form_classes[] = 'no-redirect';
+		}
 
 		if ( ! empty( $settings['redirect_url']['url'] ) ) {
 			$action_url = esc_url( $settings['redirect_url']['url'] );
@@ -651,7 +659,7 @@ class BPFWE_Search_Bar_Widget extends \Elementor\Widget_Base {
 		// Render the form.
 		if ( $settings['display_submit'] ) {
 			echo '
-		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="search-post" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
+		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="' . esc_attr( implode( ' ', $form_classes ) ) . '" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
 			<div class="search-container">
 				<input type="text" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder_text ) . '">
 				<input type="hidden" name="post-type" value="' . esc_attr( $settings['filter_post_type'] ) . '">
@@ -660,7 +668,7 @@ class BPFWE_Search_Bar_Widget extends \Elementor\Widget_Base {
 		</form>';
 		} else {
 			echo '
-		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="search-post" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
+		<form id="search-bar-' . esc_attr( $this->get_id() ) . '" class="' . esc_attr( implode( ' ', $form_classes ) ) . '" action="' . esc_url( $action_url ) . '" method="get" autocomplete="on">
 			<div class="search-container">
 				<input type="text" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder_text ) . '">
 				<input type="hidden" name="post-type" value="' . esc_attr( $settings['filter_post_type'] ) . '">

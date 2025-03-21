@@ -9321,14 +9321,12 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				$query_args['parent'] = 0;
 			} elseif ( 'child' === $settings['filter_rule'] ) {
 				$query_args['parent']  = '';
-				$query_args['exclude'] = get_terms(
-					[
+				$query_args['exclude'] = get_terms([
 						'taxonomy'   => $settings['select_taxonomy'],
 						'parent'     => 0,
 						'fields'     => 'ids',
 						'hide_empty' => false,
-					]
-				);
+				]);
 			}
 
 			if ( ! empty( $settings['select_taxonomy'] ) ) {

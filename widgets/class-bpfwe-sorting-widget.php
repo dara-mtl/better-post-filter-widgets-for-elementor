@@ -10,6 +10,7 @@ use Elementor\Repeater;
 use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
 use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Group_Control_Typography;
+use BPFWE\Inc\Classes\BPFWE_Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // If this file is called directly, abort.
@@ -193,6 +194,32 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->end_controls_tabs();
+
+		$this->add_control(
+			'target_selector',
+			[
+				'label'              => esc_html__( 'Post Widget Target', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::TEXT,
+				'dynamic'            => [
+					'active' => true,
+				],
+				'placeholder'        => esc_html__( '#id, .class', 'better-post-filter-widgets-for-elementor' ),
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'filter_post_type',
+			[
+				'label'              => esc_html__( 'Post Type to Filter', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SELECT,
+				'description'        => esc_html__( 'To combine filter, search, & sorting widgets, use the same target selector. When used together, the filter widget’s post type takes priority.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'post',
+				'options'            => BPFWE_Helper::bpfwe_get_post_types(),
+				'separator'          => 'after',
+				'frontend_available' => true,
+			]
+		);
 
 		$this->add_control(
 			'order_by_list',

@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 Tested up to: 6.7
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -44,7 +44,7 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 - Includes a series of dynamic tags, allowing users to fully utilize template grids with the free version.
 
 ### Create Loop Grids for Free:
-Unlock the power of dynamic loops in Elementor, without needing the Pro version! With Better Post & Filter Widgets for Elementor, you can effortlessly showcase custom content in a loop format, enriching your designs at no extra cost. Experience the full potential of Elementor with BPF’s exclusive pot widget features.
+Unlock the power of dynamic loops in Elementor, without needing the Pro version! With Better Post & Filter Widgets for Elementor, you can effortlessly showcase custom content in a loop format and experience the full potential of Elementor at no extra cost.
 
 ### Supports AJAX
 Enhance your user experience! AJAX empowers both the filter and post widgets, eliminating the need to reload the page, ensuring a seamless and uninterrupted browsing experience.
@@ -52,7 +52,7 @@ Enhance your user experience! AJAX empowers both the filter and post widgets, el
 ### Crafted for Seamless Elementor Integration:
 - Blends seamlessly with Elementor's native interface, leveraging its resources for a consistent and unobtrusive user experience.
 - No disruptive branding — Enjoy a clean, streamlined interface without unnecessary distractions.
-- Minimalist approach, ensuring your focus remains on creating stunning content without unnecessary notifications or distractions.
+- Minimalist approach, ensuring your focus remains on creating content without unnecessary notifications or distractions.
 - Lightweight design, utilizing Elementor's resources to minimize external dependencies.
 
 ### Developer-Friendly:
@@ -91,6 +91,14 @@ Yes, it does out-of-the-box, but be aware of the following:
 2. If you want the filter to return results based on the selected meta or taxonomy instead of the post type, you can choose the "Any" option under the post type to filter.
 3. Dynamic filtering can be enabled to include the current archive context in the filter results.
 
+= Is the Filter Widget compatible with other widgets? =
+
+The filter widget is designed to work with most widgets that use a post query, such as post or product widgets. If a widget pulls data via a post query, the filter can potentially hook into it. However, pagination is fully supported only for widgets from Better Post & Filter Widgets for Elementor and Elementor Pro. Other widgets may lack pagination or loading animations, as these features rely on specific HTML and CSS.
+
+= Why does the search or sort widget sometimes return the wrong post type? =
+
+Check that the correct post type is set in your widget’s settings. Widgets follow this order of priority: filter -> search -> sort. The filter widget’s settings take precedence over the search widget, which takes precedence over the sorting widget. So if all three are on the same page, only the filter’s settings will apply.
+
 For more information, refer to [this guide](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/filter-widget/#post-type-to-filter).
 
 == Installation ==
@@ -115,12 +123,20 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.1.1 - 2025-02-23 =
+= 1.1.2 (Love Triangle Release) - 2025-03-19 =
 
-* New: Added icon support for before/after in the post widget.
-* Tweak: Improved background image handling in post carousel, ensuring more reliable fetching on page load.
-* Tweak: Under taxonomy query, enabled automatic featured image retrieval for product categories.
-* Tweak: Under user query, replaced user gravatar with a custom user meta key.
+* Tweak: Filter, Search and Sorting widgets can now be used as standalone or combined, using a shared target selector.
+* Tweak: Added a post widget target and post type controls to the sorting widget.
+* Fix: Fixed a bug preventing the sorting and search bar widgets from functioning as standalone components.
+* Fix: Fixed an issue where Elementor buttons would become unresponsive after filtering a loop.
+* Fix: Corrected intermittent Search widget redirects to the search results page when attached to a Post widget.
+
+= 1.1.1 - 2025-02-28 =
+
+* Tweak: Added icon support to the before/after section within the post widget content.
+* Tweak: Improved background image handling in the post carousel for more consistent fetching on page load.
+* Tweak: In the taxonomy query, added support for automatically retrieving featured images for product categories.
+* Tweak: In the user query, replaced the user Gravatar with a custom user meta key.
 * Fix: Addressed an issue where filters failed to retrieve the document ID in certain cases.
 
 = 1.1.0 - 2025-02-14 =

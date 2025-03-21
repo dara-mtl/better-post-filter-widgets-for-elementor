@@ -231,6 +231,18 @@ class Repeater extends Tag {
 		);
 
 		$this->add_control(
+			'child_key_5',
+			[
+				'label'     => esc_html__( 'Child Key 5', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::TEXT,
+				'condition' => array(
+					'child_key_4!' => '',
+					'custom_key!'  => '',
+				),
+			]
+		);
+
+		$this->add_control(
 			'child_html_tag',
 			[
 				'label'     => esc_html__( 'HTML Tag', 'better-post-filter-widgets-for-elementor' ),
@@ -251,16 +263,16 @@ class Repeater extends Tag {
 					'ol'     => esc_html__( 'ol', 'better-post-filter-widgets-for-elementor' ),
 					'table'  => esc_html__( 'table', 'better-post-filter-widgets-for-elementor' ),
 					'toggle' => esc_html__( 'toggle', 'better-post-filter-widgets-for-elementor' ),
+					'tabs'   => esc_html__( 'tabs', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'separator' => 'before',
 			]
 		);
 
-		// Add "Toggle Title Tag" field.
 		$this->add_control(
 			'toggle_title_tag',
 			[
-				'label'     => esc_html__( 'Title Tag', 'better-post-filter-widgets-for-elementor' ),
+				'label'     => esc_html__( 'Toggle Title Tag', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'h3',
 				'options'   => [
@@ -278,15 +290,32 @@ class Repeater extends Tag {
 				],
 			]
 		);
+
+		$this->add_control(
+			'tab_title_tag',
+			[
+				'label'     => esc_html__( 'Tab Title Tag', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'span',
+				'options'   => [
+					'h1'   => esc_html__( 'h1', 'better-post-filter-widgets-for-elementor' ),
+					'h2'   => esc_html__( 'h2', 'better-post-filter-widgets-for-elementor' ),
+					'h3'   => esc_html__( 'h3', 'better-post-filter-widgets-for-elementor' ),
+					'h4'   => esc_html__( 'h4', 'better-post-filter-widgets-for-elementor' ),
+					'h5'   => esc_html__( 'h5', 'better-post-filter-widgets-for-elementor' ),
+					'h6'   => esc_html__( 'h6', 'better-post-filter-widgets-for-elementor' ),
+					'span' => esc_html__( 'span', 'better-post-filter-widgets-for-elementor' ),
+					'div'  => esc_html__( 'div', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'child_html_tag' => 'tabs',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Render dynamic tag output.
-	 *
-	 * Generates the HTML output for the repeater.
-	 *
-	 * @since 1.0.0
-	 * @access public
 	 */
 	public function render() {
 		$key      = sanitize_key( $this->get_settings( 'custom_key' ) );
@@ -300,10 +329,8 @@ class Repeater extends Tag {
 			return;
 		}
 
-		// Check if ACF is active.
 		$is_acf_active = BPFWE_Helper::is_acf_field( $key );
 
-		// Get the meta data based on the field source.
 		switch ( $source ) {
 			case 'post':
 				if ( $is_acf_active ) {
@@ -337,7 +364,11 @@ class Repeater extends Tag {
 			case 'theme':
 				$option_key   = $this->get_settings( 'option_key' );
 				$theme_option = get_option( $option_key );
-				$entries      = $theme_option[ $key ] ?? null;
+				if ( isset( $theme_option[ $key ] ) ) {
+					$entries = $theme_option[ $key ];
+				} else {
+					$entries = null;
+				}
 				break;
 			default:
 				return;
@@ -347,96 +378,204 @@ class Repeater extends Tag {
 			return;
 		}
 
-		$max_child_keys = 4;
+		$max_child_keys = 5;
 		$class_nb       = 0;
 
 		if ( 'toggle' === $html_tag ) {
-			// Render each entry with dynamic tags and toggling.
-			foreach ( $entries as $entry ) {
-				$toggle_id      = 'toggle-' . uniqid();
-				$toggle_title   = '';
-				$toggle_content = '';
+			$toggle_title_tag = $this->get_settings( 'toggle_title_tag' );
+			if ( empty( $toggle_title_tag ) ) {
+				$toggle_title_tag = 'h3';
+			}
 
-				// Get the tag settings.
-				$toggle_title_tag = ( $this->get_settings( 'toggle_title_tag' ) ) ? $this->get_settings( 'toggle_title_tag' ) : 'div';
+			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+				$child_key     = "child_key_{$counter}";
+				$setting_value = $this->get_settings( $child_key );
 
-				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-					$child_key     = "child_key_{$counter}";
-					$setting_value = $this->get_settings( $child_key );
+				if ( ! empty( $setting_value ) ) {
+					$value_parts     = explode( '|', $setting_value );
+					$child_value_key = $value_parts[0];
+					$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Toggle ' . $counter;
+					$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
+					$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
+					$toggle_content  = '';
+					$has_content     = false;
 
-					if ( ! empty( $setting_value ) ) {
-						$value_parts     = explode( '|', $setting_value );
-						$child_value_key = $value_parts[0];
-						$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
-						$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
-
-						$child_value = $entry[ $child_value_key ] ?? '';
-
-						if ( 1 === $counter ) {
-							// Use the first child as the toggle title.
-							$toggle_title = esc_html( $before . str_replace( '#', $class_nb, esc_html( $child_value ) ) . $after );
-						} else {
-							// Additional children as toggle content.
-							$toggle_content .= wp_kses_post( $before . str_replace( '#', $class_nb, wpautop( wp_kses_post( $child_value ) ) ) . $after );
+					foreach ( $entries as $entry ) {
+						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$has_content     = true;
+							$value           = wp_kses_post( $before . $child_value . $after );
+							$toggle_content .= wpautop( str_replace( '#', $class_nb, $value ) );
 						}
 					}
-				}
 
-				// Print each toggle item with dynamic content.
-				echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
-				echo '<label for="' . esc_attr( $toggle_id ) . '">';
-				echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . $toggle_title . '</' . esc_attr( $toggle_title_tag ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 377.
-				echo '</label>';
-				echo '<div class="toggle-content">' . $toggle_content . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 380.
+					if ( $has_content ) {
+						$toggle_id = 'toggle-' . uniqid();
+						echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
+						echo '<label for="' . esc_attr( $toggle_id ) . '">';
+						echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . esc_html( $custom_title ) . '</' . esc_attr( $toggle_title_tag ) . '>';
+						echo '</label>';
+						echo '<div class="toggle-content">' . wp_kses_post( $toggle_content ) . '</div></div>';
+					}
+				}
 			}
+		} elseif ( 'tabs' === $html_tag ) {
+			echo '<div class="bpfwe-tabs-wrapper">';
+
+			$group_name    = 'bpfwe-tab-group-' . uniqid();
+			$first_tab     = true;
+			$tab_title_tag = $this->get_settings( 'tab_title_tag' );
+			if ( empty( $tab_title_tag ) ) {
+				$tab_title_tag = 'span';
+			}
+
+			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+				$child_key     = "child_key_{$counter}";
+				$setting_value = $this->get_settings( $child_key );
+
+				if ( ! empty( $setting_value ) ) {
+					$value_parts     = explode( '|', $setting_value );
+					$child_value_key = $value_parts[0];
+					$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Tab ' . $counter;
+					$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
+					$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
+					$tab_content     = '';
+					$has_content     = false;
+
+					foreach ( $entries as $entry ) {
+						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$has_content  = true;
+							$value        = wp_kses_post( $before . $child_value . $after );
+							$tab_content .= wpautop( str_replace( '#', $class_nb, $value ) );
+						}
+					}
+
+					if ( $has_content ) {
+						$tab_id = 'bpfwe-tab-' . uniqid();
+						echo '<div class="bpfwe-tab-item">';
+						echo '<input type="radio" class="bpfwe-tab-toggle" name="' . esc_attr( $group_name ) . '" id="' . esc_attr( $tab_id ) . '"' . ( $first_tab ? ' checked' : '' ) . '>';
+						echo '<label for="' . esc_attr( $tab_id ) . '"><' . esc_attr( $tab_title_tag ) . ' class="bpfwe-tab-label">' . esc_html( $custom_title ) . '</' . esc_attr( $tab_title_tag ) . '></label>';
+						echo '<div class="bpfwe-tab-content">' . wp_kses_post( $tab_content ) . '</div>';
+						echo '</div>';
+						$first_tab = false;
+					}
+				}
+			}
+
+			echo '</div>';
 		} elseif ( 'table' === $html_tag ) {
-			echo '<table class="repeater-table"><tr>';
-			foreach ( $entries as $entry ) {
-				echo '<tr>';
-				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-					$child_key     = "child_key_{$counter}";
-					$setting_value = $this->get_settings( $child_key );
+			echo '<table class="repeater-table">';
 
-					if ( ! empty( $setting_value ) ) {
-						$value_parts     = explode( '|', $setting_value );
-						$child_value_key = $value_parts[0];
-						$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
-						$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
+			// Determine which columns have content and headers.
+			$column_has_content = array_fill( 1, $max_child_keys, false );
+			$has_headers        = false;
+			$column_settings    = [];
 
-						if ( isset( $entry[ $child_value_key ] ) ) {
-							$value = $before . $entry[ $child_value_key ] . $after;
-							echo '<td class="table-cell cell-' . esc_attr( ++$class_nb ) . '">' . esc_html( str_replace( '#', $class_nb, $value ) ) . '</td>';
+			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+				$child_key     = "child_key_{$counter}";
+				$setting_value = $this->get_settings( $child_key );
+
+				if ( ! empty( $setting_value ) ) {
+					$value_parts                 = explode( '|', $setting_value );
+					$child_value_key             = $value_parts[0];
+					$column_settings[ $counter ] = $value_parts;
+
+					// Check if this column has a header.
+					if ( isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ) {
+						$has_headers = true;
+					}
+
+					// Check if this column has any content.
+					foreach ( $entries as $entry ) {
+						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$column_has_content[ $counter ] = true;
+							break;
 						}
 					}
 				}
-				echo '</tr>';
 			}
-			echo '</table>';
-		} elseif ( 'ul' === $html_tag || 'ol' === $html_tag ) {
-			++$class_nb;
-			echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
-			foreach ( $entries as $entry ) {
-				echo '<li>';
+
+			// Render headers if any are specified.
+			if ( $has_headers ) {
+				echo '<thead><tr>';
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-					$child_key     = "child_key_{$counter}";
-					$setting_value = $this->get_settings( $child_key );
-
-					if ( ! empty( $setting_value ) ) {
-						$value_parts     = explode( '|', $setting_value );
-						$child_value_key = $value_parts[0];
-						$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
-						$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
-
-						// Get the value with before and after texts.
-						$value = $before . $entry[ $child_value_key ] . $after;
-						echo esc_html( str_replace( '#', $class_nb, $value ) );
+					if ( ! empty( $column_settings[ $counter ] ) && $column_has_content[ $counter ] ) {
+						$value_parts = $column_settings[ $counter ];
+						$header      = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : '';
+						if ( ! empty( $header ) ) {
+							echo '<th class="table-header cell-' . esc_attr( ++$class_nb ) . '">' . esc_html( $header ) . '</th>';
+						} else {
+							echo '<th class="table-header cell-' . esc_attr( ++$class_nb ) . '"></th>';
+						}
 					}
 				}
-				echo '</li>';
+				echo '</tr></thead>';
 			}
-			echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
+
+			// Render table body.
+			echo '<tbody>';
+			foreach ( $entries as $entry ) {
+				$row_content = '';
+				$has_content = false;
+
+				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+					if ( ! empty( $column_settings[ $counter ] ) && $column_has_content[ $counter ] ) {
+						$value_parts     = $column_settings[ $counter ];
+						$child_value_key = $value_parts[0];
+						$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
+						$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
+						$child_value     = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$has_content = true;
+						}
+						$value        = wp_kses_post( $before . $child_value . $after );
+						$row_content .= '<td class="table-cell cell-' . esc_attr( ++$class_nb ) . '">' . str_replace( '#', $class_nb, $value ) . '</td>';
+					}
+				}
+
+				if ( $has_content ) {
+					echo '<tr>' . wp_kses_post( $row_content ) . '</tr>';
+				}
+			}
+			echo '</tbody></table>';
+		} elseif ( 'ul' === $html_tag || 'ol' === $html_tag ) {
+			echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+
+			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+				$child_key     = "child_key_{$counter}";
+				$setting_value = $this->get_settings( $child_key );
+
+				if ( ! empty( $setting_value ) ) {
+					$value_parts     = explode( '|', $setting_value );
+					$child_value_key = $value_parts[0];
+					$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
+					$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
+					$list_content    = '';
+					$has_content     = false;
+
+					foreach ( $entries as $entry ) {
+						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$has_content   = true;
+							$value         = wp_kses_post( $before . $child_value . $after );
+							$list_content .= str_replace( '#', $class_nb, $value ) . ' ';
+						}
+					}
+
+					if ( $has_content ) {
+						echo '<li>' . wp_kses_post( trim( $list_content ) ) . '</li>';
+					}
+				}
+			}
+
+			echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
 		} else {
 			foreach ( $entries as $entry ) {
+				$has_content = false;
+				$output      = '';
+
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
 					$child_key     = "child_key_{$counter}";
 					$setting_value = $this->get_settings( $child_key );
@@ -446,16 +585,22 @@ class Repeater extends Tag {
 						$child_value_key = $value_parts[0];
 						$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
 						$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
-						if ( isset( $entry[ $child_value_key ] ) ) {
-							$value   = $before . $entry[ $child_value_key ] . $after;
-							$classes = 'repeater-field field-' . esc_attr( ++$class_nb );
+						$child_value     = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+						if ( ! empty( $child_value ) ) {
+							$has_content = true;
+							$value       = wp_kses_post( $before . $child_value . $after );
+							$classes     = 'repeater-field field-' . esc_attr( ++$class_nb );
 							if ( 'none' !== $html_tag ) {
-								echo "<{$html_tag} class='{$classes}'>" . esc_html( str_replace( '#', $class_nb, $value ) ) . "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 297.
+								$output .= "<{$html_tag} class='{$classes}'>" . str_replace( '#', $class_nb, $value ) . "</{$html_tag}>";
 							} else {
-								echo esc_html( str_replace( '#', $class_nb, $value ) ) . ' ';
+								$output .= str_replace( '#', $class_nb, $value ) . ' ';
 							}
 						}
 					}
+				}
+
+				if ( $has_content ) {
+					echo wp_kses_post( $output );
 				}
 			}
 		}
