@@ -199,6 +199,7 @@ class BPFWE_Ajax {
 		$search_terms      = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
 		$dynamic_filtering = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
 		$post_type         = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$posts_per_page    = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
 		$paged             = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
 
 		$is_empty = true;
@@ -210,12 +211,18 @@ class BPFWE_Ajax {
 		$args = apply_filters(
 			'bpfwe_ajax_query_args',
 			array(
-				'order'     => $order,
-				'orderby'   => $order_by,
-				'post_type' => $post_type,
-				'paged'     => $paged,
+				'posts_per_page' => $posts_per_page,
+				'order'          => $order,
+				'orderby'        => $order_by,
+				'post_type'      => $post_type,
+				'paged'          => $paged,
 			)
 		);
+		
+		// To be re-added via an Elementor control.
+		//if ( ! defined( 'ELEMENTOR_PRO_VERSION' ) ) {
+		//	$args['fields'] = 'ids';
+		//}
 
 		if ( ! empty( $search_terms ) ) {
 			$args['s'] = $search_terms;
@@ -570,7 +577,7 @@ class BPFWE_Ajax {
 	public function pre_get_posts_filter( $query ) {
 		$filter_data = get_transient( 'bpfwe_filter_query' );
 
-		if ( $filter_data && ! $query->is_main_query() ) {
+		if ( $filter_data && ! $query->is_main_query() && ! ( is_admin() && ! wp_doing_ajax() ) ) {
 			foreach ( $filter_data as $key => $value ) {
 				$query->set( $key, $value );
 			}

@@ -463,7 +463,14 @@
 						Swiper.destroy( true, true );
 						Swiper = null;
 					} else {
-						wrapper.removeClass( 'bpfwe-swiper' );
+						wrapper.css({
+							//'transition': 'opacity 1s ease, transform 0.8s ease',
+							'display': 'grid',
+							'opacity': '1',
+							'-webkit-transform': 'translateY(0px)',
+							'-ms-transform': 'translateY(0px)',
+							'transform': 'translateY(0px)'
+						});
 					}
 
 					let breakpoint = settings.carousel_breakpoints ? parseInt( settings.carousel_breakpoints ) : 0;
@@ -647,12 +654,20 @@
 							Swiper = null;
 
 							wrapper.removeClass( `swiper swiper-container bpfwe-swiper-${widgetId}` ).addClass( 'elementor-grid' );
-							wrapper.find( '.post-wrapper' ).removeClass( 'swiper-slide' ).unwrap( '.swiper-wrapper' );
+							wrapper.find( '.post-wrapper' ).removeClass( 'swiper-slide swiper-slide-duplicate-prev swiper-slide-duplicate-next' ).unwrap( '.swiper-wrapper' );
 
 							wrapper.find( `.swiper-button-next.bpfwe-slider-arrow-${widgetId}, .swiper-button-prev.bpfwe-slider-arrow-${widgetId}, .swiper-pagination-${widgetId}` ).remove();
 							wrapper.find( '.post-wrapper' ).removeAttr( 'style' );
 
 							wrapper.addClass( 'elementor-grid' );
+							wrapper.css({
+								'transition': 'opacity 1s ease, transform 0.8s ease',
+								'display': 'grid',
+								'opacity': '1',
+								'-webkit-transform': 'translateY(0px)',
+								'-ms-transform': 'translateY(0px)',
+								'transform': 'translateY(0px)'
+							});
 						}
 					};
 

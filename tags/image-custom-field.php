@@ -1,6 +1,10 @@
 <?php
 /**
- * Custom Field Dynamic Tag.
+ * Image Custom Field Tag.
+ *
+ * This class defines a custom dynamic tag for Elementor that retrieves and displays image custom field values.
+ * It supports multiple sources including post meta, taxonomy meta, user meta, author meta, and theme options.
+ * It also includes compatibility with Advanced Custom Fields (ACF) and provides a fallback option for images.
  *
  * @package BPFWE_Widgets
  * @since 1.0.0
@@ -9,51 +13,49 @@
 namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
-use Elementor\Core\DynamicTags\Tag;
+use Elementor\Core\DynamicTags\Data_Tag;
 use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit; // Exit if accessed directly.
 }
 
 /**
- * Class Custom_Field
+ * Class Image_Custom_Field
  *
- * A custom dynamic tag to display custom field values in Elementor widgets.
- * It retrieves custom field values from various sources such as post meta, taxonomy meta, user meta, author meta, or theme options.
- * It supports Advanced Custom Fields (ACF) for additional flexibility.
+ * A custom dynamic tag to display image custom field values in Elementor widgets.
  *
  * @package BPFWE_Dynamic_Tag\Tags
  */
-class Custom_Field extends Tag {
+class Image_Custom_Field extends Data_Tag {
 
 	/**
 	 * Get the tag name.
 	 *
-	 * This method returns a unique identifier for the dynamic tag.
+	 * Returns a unique identifier for the dynamic tag.
 	 *
 	 * @return string The tag name.
 	 */
 	public function get_name() {
-		return 'post-custom-field-tag';
+		return 'image-custom-field';
 	}
 
 	/**
 	 * Get the title of the dynamic tag.
 	 *
-	 * This method returns the title of the tag as shown in the Elementor interface.
+	 * Returns the title of the tag as shown in the Elementor interface.
 	 *
 	 * @return string The title of the dynamic tag.
 	 */
 	public function get_title() {
-		return esc_html__( 'Custom Field', 'better-post-filter-widgets-for-elementor' );
+		return esc_html__( 'Image Custom Field', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
 	 * Get the group of the dynamic tag.
 	 *
-	 * This method determines the group in which the dynamic tag will appear in the Elementor interface.
+	 * Determines the group in which the dynamic tag will appear in the Elementor interface.
 	 *
 	 * @return string The group name.
 	 */
@@ -64,49 +66,21 @@ class Custom_Field extends Tag {
 	/**
 	 * Get the categories of the dynamic tag.
 	 *
-	 * This method returns an array of categories the tag belongs to, allowing it to be grouped
-	 * with other similar tags.
+	 * Returns an array of categories the tag belongs to, allowing it to be grouped with other similar tags.
 	 *
 	 * @return array The categories of the dynamic tag.
 	 */
 	public function get_categories() {
 		return [
-			TagsModule::NUMBER_CATEGORY,
+			TagsModule::IMAGE_CATEGORY,
 			TagsModule::TEXT_CATEGORY,
-			TagsModule::URL_CATEGORY,
-			TagsModule::POST_META_CATEGORY,
-			TagsModule::COLOR_CATEGORY,
 		];
-	}
-
-
-	/**
-	 * Get the setting key for the panel template.
-	 *
-	 * This method returns the setting key used for identifying the template setting for the dynamic tag.
-	 *
-	 * @return string The setting key for the panel template.
-	 */
-	public function get_panel_template_setting_key() {
-		return 'key';
-	}
-
-	/**
-	 * Check if settings are required for the dynamic tag.
-	 *
-	 * This method returns a boolean value indicating if the dynamic tag requires settings input.
-	 *
-	 * @return bool True if settings are required, false otherwise.
-	 */
-	public function is_settings_required() {
-		return true;
 	}
 
 	/**
 	 * Register controls for the dynamic tag.
 	 *
-	 * This method registers the control settings for the dynamic tag, including field source, option keys,
-	 * and custom keys, allowing users to select and configure the custom field sources.
+	 * Registers control settings for the dynamic tag, including field source, IDs, custom keys, and fallback options.
 	 *
 	 * @return void
 	 */
@@ -115,14 +89,14 @@ class Custom_Field extends Tag {
 			'field_source',
 			[
 				'label'   => esc_html__( 'Field Source', 'better-post-filter-widgets-for-elementor' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
+				'type'    => Controls_Manager::SELECT,
 				'default' => 'post',
 				'options' => [
 					'post'   => esc_html__( 'Post', 'better-post-filter-widgets-for-elementor' ),
 					'tax'    => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
 					'user'   => esc_html__( 'User', 'better-post-filter-widgets-for-elementor' ),
 					'author' => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ),
-					'theme'  => esc_html__( 'Theme Option', 'better-post-filter-widgets-for-elementor' ),
+					'theme'  => esc_html__( 'Theme Options', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -130,11 +104,11 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'option_key',
 			[
-				'label'     => esc_html__( 'Option Key', 'better-post-filter-widgets-for-elementor' ),
+				'label'     => esc_html__( 'Theme Option Key', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::TEXT,
-				'condition' => array(
+				'condition' => [
 					'field_source' => 'theme',
-				),
+				],
 			]
 		);
 
@@ -158,7 +132,7 @@ class Custom_Field extends Tag {
 			[
 				'label'       => esc_html__( 'Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => get_queried_object_id() ? esc_html( get_queried_object_id() ) : esc_html__( 'Current Term ID', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => ( is_tax() || is_category() || is_tag() ) ? esc_html( get_queried_object_id() ) : esc_html__( 'Current Term ID', 'better-post-filter-widgets-for-elementor' ),
 				'dynamic'     => [
 					'active' => true,
 				],
@@ -186,44 +160,45 @@ class Custom_Field extends Tag {
 		$this->add_control(
 			'custom_key',
 			[
-				'label' => esc_html__( 'Meta Key', 'better-post-filter-widgets-for-elementor' ),
-				'type'  => Controls_Manager::TEXT,
+				'label'   => esc_html__( 'Meta Key', 'better-post-filter-widgets-for-elementor' ),
+				'type'    => Controls_Manager::TEXT,
+				'default' => '',
 			]
 		);
 
 		$this->add_control(
-			'autop',
+			'fallback',
 			[
-				'label'        => esc_html__( 'Add Paragraphs', 'better-post-filter-widgets-for-elementor' ),
-				'type'         => Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
-				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
-				'return_value' => 'yes',
-				'default'      => 'no',
+				'label' => esc_html__( 'Fallback Image', 'better-post-filter-widgets-for-elementor' ),
+				'type'  => Controls_Manager::MEDIA,
 			]
 		);
 	}
 
 	/**
-	 * Render the dynamic tag output.
+	 * Get the value of the dynamic tag.
 	 *
-	 * This method retrieves the custom field value based on the selected source (post, taxonomy, user, author, or theme option).
-	 * It then outputs the value, optionally adding paragraph tags if the "autop" setting is enabled.
+	 * Retrieves the image custom field value based on the selected source and returns it as an array
+	 * containing the URL and ID. Supports ACF fields and falls back to default meta functions if ACF is not used.
 	 *
-	 * @return void
+	 * @param array $options Optional options for retrieving the value.
+	 * @return array The image data array with 'url' and 'id' keys.
 	 */
-	public function render() {
-		$key        = sanitize_key( $this->get_settings( 'key' ) );
-		$need_autop = $this->get_settings( 'autop' );
-		$source     = $this->get_settings( 'field_source' );
-		$post_id    = absint( $this->get_settings( 'post_id' ) );
-		$term_id    = absint( $this->get_settings( 'term_id' ) );
-		$user_id    = absint( $this->get_settings( 'user_id' ) );
+	public function get_value( array $options = [] ) {
+		$key      = sanitize_key( $this->get_settings( 'key' ) );
+		$source   = $this->get_settings( 'field_source' );
+		$post_id  = absint( $this->get_settings( 'post_id' ) );
+		$term_id  = absint( $this->get_settings( 'term_id' ) );
+		$user_id  = absint( $this->get_settings( 'user_id' ) );
+		$fallback = $this->get_settings( 'fallback' );
 
-		$key = empty( $key ) ? $this->get_settings( 'custom_key' ) : $key;
+		$key = empty( $key ) ? sanitize_key( $this->get_settings( 'custom_key' ) ) : $key;
 
 		if ( empty( $key ) ) {
-			return;
+			return [
+				'url' => esc_url( $fallback['url'] ?? '' ),
+				'id'  => absint( $fallback['id'] ?? '' ),
+			];
 		}
 
 		// Add global support for loops.
@@ -241,16 +216,15 @@ class Custom_Field extends Tag {
 			$user_id = get_current_user_id();
 		}
 
-		// Initialize $value.
+		// Initialize value.
 		$value = '';
 
-		// Check if ACF is active.
-		if ( BPFWE_Helper::is_acf_field( $key ) ) {
-			// ACF specific logic.
+		// Check if ACF is active and handle ACF-specific logic.
+		if ( class_exists( 'ACF' ) && BPFWE_Helper::is_acf_field( $key ) ) {
 			if ( 'post' === $source ) {
 				$value = $post_id ? get_field( $key, $post_id ) : get_field( $key );
 			} elseif ( 'tax' === $source ) {
-				$value = $term_id ? get_field( $key, 'term_' . $term_id ) : get_field( $key, 'term_' . get_queried_object()->term_id );
+				$value = $term_id ? get_field( $key, 'term_' . $term_id ) : get_field( $key, 'term_' . get_queried_object_id() );
 			} elseif ( 'user' === $source ) {
 				$value = $user_id ? get_field( $key, 'user_' . $user_id ) : get_field( $key, 'user_' . get_current_user_id() );
 			} elseif ( 'author' === $source ) {
@@ -262,52 +236,51 @@ class Custom_Field extends Tag {
 			}
 		}
 
-		// Fallback to default methods if ACF is not used.
+		// Fallback to default meta functions if ACF is not used or value is empty.
 		if ( empty( $value ) ) {
-			if ( 'post' === $source && ! $post_id ) {
+			if ( 'post' === $source && empty( $post_id ) ) {
 				$value = get_post_meta( get_the_ID(), $key, true );
-			}
-
-			if ( 'post' === $source && $post_id ) {
+			} elseif ( 'post' === $source && $post_id ) {
 				$value = get_post_meta( $post_id, $key, true );
-			}
-
-			if ( 'tax' === $source && ! $term_id ) {
-				$value = get_term_meta( get_queried_object()->term_id, $key, true );
-			}
-
-			if ( 'tax' === $source && $term_id ) {
+			} elseif ( 'tax' === $source && $term_id ) {
 				$value = get_term_meta( $term_id, $key, true );
-			}
-
-			if ( 'user' === $source && ! $user_id ) {
-				$value = get_user_meta( get_current_user_id(), $key, true );
-			}
-
-			if ( 'user' === $source && $user_id ) {
+			} elseif ( 'user' === $source && $user_id ) {
 				$value = get_user_meta( $user_id, $key, true );
-			}
-
-			if ( 'author' === $source ) {
+			} elseif ( 'author' === $source ) {
 				$author_id = get_the_author_meta( 'ID' );
 				if ( is_author() ) {
 					$author_id = get_queried_object_id();
 				}
 				$value = get_the_author_meta( $key, $author_id );
-			}
-
-			if ( 'theme' === $source ) {
-				$option_key   = $this->get_settings( 'option_key' );
+			} elseif ( 'theme' === $source ) {
+				$option_key   = sanitize_key( $this->get_settings( 'option_key' ) );
 				$theme_option = get_option( $option_key );
-
-				if ( isset( $theme_option[ $key ] ) ) {
-					$value = $theme_option[ $key ];
-				} else {
-					return;
-				}
+				$value        = isset( $theme_option[ $key ] ) ? $theme_option[ $key ] : '';
 			}
 		}
 
-		echo ( 'yes' === $need_autop ) ? wp_kses_post( wpautop( $value ) ) : wp_kses_post( $value );
+		// Handle the image value (could be URL or attachment ID).
+		if ( $value ) {
+			if ( is_numeric( $value ) ) {
+				// If the value is an attachment ID, get the image URL.
+				$image_url = wp_get_attachment_url( $value );
+				return [
+					'url' => esc_url( ! empty( $image_url ) ? $image_url : '' ),
+					'id'  => absint( $value ),
+				];
+			} else {
+				// Assume the value is a URL.
+				return [
+					'url' => esc_url( $value ),
+					'id'  => '',
+				];
+			}
+		}
+
+		// Return fallback if no value is found.
+		return [
+			'url' => esc_url( $fallback['url'] ?? '' ),
+			'id'  => absint( $fallback['id'] ?? '' ),
+		];
 	}
 }

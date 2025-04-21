@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.1.4
+Stable tag: 1.2.4
 Tested up to: 6.7
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -44,10 +44,7 @@ Exclusively designed for Elementor, this versatile filtering plugin lets you tak
 - Includes a series of dynamic tags, allowing users to fully utilize template grids with the free version.
 
 ### Create Loop Grids for Free:
-Unlock the power of dynamic loops in Elementor, without needing the Pro version! With Better Post & Filter Widgets for Elementor, you can effortlessly showcase custom content in a loop format and experience the full potential of Elementor at no extra cost.
-
-### Supports AJAX
-Enhance your user experience! AJAX empowers both the filter and post widgets, eliminating the need to reload the page, ensuring a seamless and uninterrupted browsing experience.
+Unlock the power of dynamic loops in Elementor, without needing the Pro version! Effortlessly showcase custom content in a loop format and experience the full potential of Elementor at no extra cost.
 
 ### Crafted for Seamless Elementor Integration:
 - Blends seamlessly with Elementor's native interface, leveraging its resources for a consistent and unobtrusive user experience.
@@ -95,12 +92,6 @@ Yes, it does out-of-the-box, but be aware of the following:
 
 The filter widget is designed to work with most widgets that use a post query, such as post or product widgets. If a widget pulls data via a post query, the filter can potentially hook into it. However, pagination is fully supported only for widgets from Better Post & Filter Widgets for Elementor and Elementor Pro. Other widgets may lack pagination or loading animations, as these features rely on specific HTML and CSS.
 
-= Why does the search or sort widget sometimes return the wrong post type? =
-
-Check that the correct post type is set in your widget’s settings. Widgets follow this order of priority: filter -> search -> sort. The filter widget’s settings take precedence over the search widget, which takes precedence over the sorting widget. So if all three are on the same page, only the filter’s settings will apply.
-
-For more information, refer to [this guide](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/filter-widget/#post-type-to-filter).
-
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/better-post-and-filter-widgets` directory, or install the plugin through the WordPress plugins screen directly.
@@ -122,6 +113,42 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 3. Backend view of the Elementor edit screen, showing the post widget options.
 
 == Changelog ==
+
+= 1.2.4 - 2025-04-19 =
+
+* Fix: Removed `'fields' => 'ids'` from the filter query causing an AJAX error in Elementor Pro widgets requiring the full post object.
+
+= 1.2.3 - 2025-04-18 =
+
+* Tweak: Group Separator swatch now defaults to an empty value instead of a pre-filled label, preventing accidental saving of unused separator titles.
+
+= 1.2.2 - 2025-04-17 =
+
+* Tweak: Post Featured Image dynamic tag can now be used on background.
+* Tweak: Minor CSS adjustments to improve template grid layout consistency.
+* Compatibility: Confirmed compatibility with WordPress 6.8.
+* Fix: Re-applied fix for Search widget redirecting to the search results page when attached to a Post widget.
+
+= 1.2.1 =
+
+* Fix: Added missing files
+
+= 1.2.0 - 2025-04-10 =
+
+* New: Users can now assign a swatch to any taxonomy terms, with support for color, image/icon, WooCommerce category image, group separator and button.
+* New: Added inline label support for filters, allowing users to toggle between vertical and horizontal layouts.
+* New: Introduced an option to toggle labels and checkbox/radio inputs.
+* New: Introduced new dynamic tags: taxonomy meta and image custom field, both designed to enhance template grid compatibility with user & taxonomy queries.
+* Tweak: Enabled additional dynamic tags (Tax Meta, User Meta, Image Custom Field) for Elementor Pro users, alongside existing tags (Custom Field, Repeater, Post Content), to support template grid creation with taxonomy and user queries.
+* Tweak: Added support for displaying taxonomy hierarchies in select dropdown (previously limited to radio and checkboxes).
+* Tweak: Hierarchical taxonomy is now fully recursive, displaying all depth levels.
+* Tweak: Added filter pagination support for Elementor Pro's Products widget widget.
+* Tweak: Extended dynamic tag support for taxonomy and user queries, enabling dynamic retrieval of user ID or taxonomy ID in the loop.
+* Fix: Addressed an issue where the sorting widget query would overwrite the one from the filter.
+
+= 1.1.3 - 2025-04-09 =
+
+* Fix: Corrected the sender email address to properly reflect the site/domain instead of the plugin slug.
 
 = 1.1.2 (Love Triangle Release) - 2025-03-19 =
 

@@ -50,7 +50,7 @@ class User_Meta extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'User Info', 'better-post-filter-widgets-for-elementor' );
+		return esc_html__( 'User Meta', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -169,7 +169,10 @@ class User_Meta extends Tag {
 			return;
 		}
 
-		if ( empty( $user_id ) ) {
+		global $bpfwe_user_id;
+		if ( empty( $user_id ) && ! empty( $bpfwe_user_id ) ) {
+			$user_id = absint( $bpfwe_user_id );
+		} elseif ( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
 		}
 

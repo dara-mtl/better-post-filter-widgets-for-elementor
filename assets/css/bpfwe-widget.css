@@ -385,6 +385,33 @@
 	transform: translateY(0px);
 }
 
+.bpfwe-swatch {
+	margin-right: 10px;
+	width: 30px;
+	height: 30px;
+	border-radius: 100%;
+	background: var( --e-global-color-accent );
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 1 / 1;
+	border: 2.5px solid transparent;
+}
+
+.hide-swatch-label .taxonomy-filter li label .label-text,
+.hide-swatch-input .taxonomy-filter li input {
+	display: none;
+}
+
+input[type="checkbox"]:checked + span .bpfwe-swatch,
+input[type="radio"]:checked + span .bpfwe-swatch {
+	opacity: 0.6;
+	border: 2.5px solid #97b0bd;
+}
+
 .post-container .swiper-container .swiper-slide {
 	text-align: inherit;
 }
@@ -436,6 +463,7 @@
 .row-span-expand .inner-content {
 	display: flex;
 	flex-grow: 1;
+	flex-direction: column;
 }
 
 .row-span-expand .inner-content>div:first-child,
@@ -752,16 +780,22 @@ ul.post-taxonomy li,
 	visibility: hidden;
 }
 
+.post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
+	position: relative;
+}
+
 .post-container.side.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
 	content: url('../../assets/images/BPFWE-Post-Skeleton.svg');
-	padding: 0 10px;
+	pointer-events: none;
 	max-height: 150px;
+	padding: 0 0 0 10px;
 }
 
 .post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
 	content: url('../../assets/images/BPFWE-Post-Skeleton.svg');
-	padding-top: 10px;
+	pointer-events: none;
 	max-height: 150px;
+	padding: 10px 0 0 0;
 }
 
 .post-container.load .inner-content .no-post,
@@ -914,9 +948,20 @@ form.search-post input:focus-visible {
 	margin-bottom: 0.45rem;
 }
 
+.bpfwe-group-separator {
+	font-weight: bold;
+	padding: 4px 0 2px 0;
+	margin-bottom: 0.45rem;
+	border-bottom: 1px solid;
+}
+
 .taxonomy-filter {
 	list-style: none;
 	padding-left: 0;
+}
+
+.taxonomy-filter ul {
+	padding-left: 16px;
 }
 
 .taxonomy-filter label,
@@ -955,12 +1000,14 @@ ul.taxonomy-filter.show-toggle .label-more,
 	padding: 0 10px;
 }
 
-.parent-term:not(:has(+ .low-terms-group)) .low-group-trigger {
+.parent-term:not(:has(+ .low-terms-group)) .low-group-trigger,
+.child-term:not(:has(.low-terms-group)) .low-group-trigger {
 	display: none;
 }
 
 .taxonomy-filter li {
 	margin-bottom: 5px;
+	padding-left: 0 !important;
 }
 
 .bpfwe-numeric-wrapper {
@@ -1020,6 +1067,12 @@ ul.taxonomy-filter.show-toggle .label-more,
 
 .list-style input[type="checkbox"]:checked + span {
 	background-color: var(--e-global-color-accent);
+}
+
+.form-tax label,
+.form-tax label span {
+	display: inline-flex;
+	align-items: center;
 }
 
 .form-tax .select2-selection__arrow {

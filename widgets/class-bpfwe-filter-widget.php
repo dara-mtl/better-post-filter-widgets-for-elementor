@@ -277,18 +277,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
-			'insert_before_field',
-			[
-				'label'     => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
-				'type'      => \Elementor\Controls_Manager::TEXT,
-				'condition' => [
-					'select_filter'        => 'Numeric',
-					'filter_style_numeric' => 'range',
-				],
-			]
-		);
-
-		$repeater->add_control(
 			'filter_style_numeric',
 			[
 				'label'     => esc_html__( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
@@ -303,6 +291,18 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'separator' => 'before',
 				'condition' => [
 					'select_filter' => 'Numeric',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'insert_before_field',
+			[
+				'label'     => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
 				],
 			]
 		);
@@ -324,6 +324,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'separator' => 'before',
 				'condition' => [
 					'select_filter' => 'Custom Field',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'option_text_cf',
+			[
+				'label'       => esc_html__( 'Placeholder', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'select_filter'   => 'Custom Field',
+					'filter_style_cf' => [ 'dropdown','select2' ],
 				],
 			]
 		);
@@ -376,6 +390,140 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'separator' => 'before',
 				'condition' => [
 					'select_filter!' => [ 'Numeric','Custom Field' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'layout_direction',
+			[
+				'label'                => esc_html__( 'Label Direction', 'better-post-filter-widgets-for-elementor' ),
+				'type'                 => \Elementor\Controls_Manager::CHOOSE,
+				'options'              => [
+					'block'        => [
+						'title' => esc_html__( 'Vertical', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-justify-start-h',
+					],
+					'inline-block' => [
+						'title' => esc_html__( 'Horizontal', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-justify-end-v',
+					],
+				],
+				'default'              => 'block',
+				'separator'            => 'before',
+				'selectors'            => [
+					'{{WRAPPER}} {{CURRENT_ITEM}} .taxonomy-filter, {{WRAPPER}} {{CURRENT_ITEM}} .taxonomy-filter li' => '{{VALUE}}',
+				],
+				'selectors_dictionary' => [
+					'block'        => 'display: block;',
+					'inline-block' => 'display: inline-flex; align-items: flex-end;',
+				],
+				'conditions'           => [
+					'relation' => 'and',
+					'terms'    => [
+						[
+							'relation' => 'and',
+							'terms'    => [
+								[
+									'name'     => 'select_filter',
+									'operator' => '!==',
+									'value'    => 'Numeric',
+								],
+								[
+									'name'     => 'filter_style',
+									'operator' => 'in',
+									'value'    => [ 'checkboxes', 'radio' ],
+								],
+							],
+						],
+						[
+							'relation' => 'and',
+							'terms'    => [
+								[
+									'name'     => 'select_filter',
+									'operator' => '!==',
+									'value'    => 'Numeric',
+								],
+								[
+									'name'     => 'filter_style_cf',
+									'operator' => 'in',
+									'value'    => [ 'checkboxes', 'radio' ],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'hide_input_swatch',
+			[
+				'label'        => esc_html__( 'Hide Input', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'default'      => '',
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'hide-swatch-input',
+				'condition'    => [
+					'filter_style' => [ 'checkboxes','radio' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'display_swatch',
+			[
+				'label'        => esc_html__( 'Display Swatch', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'default'      => '',
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'condition'    => [
+					'select_filter' => 'Taxonomy',
+					'filter_style'  => [ 'checkboxes','radio' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'swatch_notice',
+			[
+				'type'         => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'          => esc_html__( 'Add swatches under Taxonomy > Terms to display them', 'better-post-filter-widgets-for-elementor' ),
+				'content_classes' => 'elementor-descriptor',
+				'condition'    => [
+					'display_swatch' => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'hide_label_swatch',
+			[
+				'label'        => esc_html__( 'Hide Label', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'default'      => '',
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'hide-swatch-label',
+				'condition'    => [
+					'display_swatch' => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'option_text',
+			[
+				'label'       => esc_html__( 'Placeholder', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'select_filter' => 'Taxonomy',
+					'filter_style'  => [ 'dropdown','select2' ],
 				],
 			]
 		);
@@ -513,7 +661,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
 				'condition'    => [
-					'filter_style!'  => [ 'list','dropdown','select2' ],
+					'filter_style!'  => [ 'list' ],
 					'select_filter!' => [ 'Numeric','Custom Field' ],
 				],
 			]
@@ -856,6 +1004,235 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'{{WRAPPER}} .form-tax label' => 'color: {{VALUE}};',
 				),
 			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_swatch',
+			array(
+				'label' => esc_html__( 'Swatch', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'swatch_typography',
+				'global'   => array(
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				),
+				'selector' => '{{WRAPPER}} .bpfwe-swatch',
+			)
+		);
+
+		$this->add_control(
+			'swatch_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .bpfwe-swatch' => 'color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_control(
+			'swatch_background',
+			array(
+				'label'     => esc_html__( 'Swatch Background', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .bpfwe-swatch' => 'background: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'swatch_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'separator'  => 'before',
+				'selectors'  => array(
+					'{{WRAPPER}} .bpfwe-swatch' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'swatch_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .bpfwe-swatch' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->start_controls_tabs(
+			'swatch_style_tabs'
+		);
+
+		$this->start_controls_tab(
+			'swatch_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'swatch_opacity_normal',
+			[
+				'label'     => esc_html__( 'Opacity', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SLIDER,
+				'range'     => [
+					'px' => [
+						'max'  => 1,
+						'min'  => 0.1,
+						'step' => 0.01,
+					],
+				],
+				'default'   => [
+					'unit' => 'px',
+					'size' => 1,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-swatch' =>
+						'opacity: {{SIZE}}',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'swatch_border',
+				'selector' => '{{WRAPPER}} .bpfwe-swatch',
+			)
+		);
+
+		$this->add_responsive_control(
+			'swatch_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .bpfwe-swatch' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'swatch_style_focus_tab',
+			[
+				'label' => esc_html__( 'Focus', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'swatch_opacity_focus',
+			[
+				'label'     => esc_html__( 'Hover Opacity', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SLIDER,
+				'range'     => [
+					'px' => [
+						'max'  => 1,
+						'min'  => 0.1,
+						'step' => 0.01,
+					],
+				],
+				'default'   => [
+					'unit' => 'px',
+					'size' => 0.7,
+				],
+				'selectors' => [
+					'{{WRAPPER}}  input[type="checkbox"]:checked + span .bpfwe-swatch, {{WRAPPER}} input[type="radio"]:checked + span .bpfwe-swatch' =>
+						'opacity: {{SIZE}}',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'swatch_focus_border',
+				'selector' => '{{WRAPPER}} input[type="checkbox"]:checked + span .bpfwe-swatch, {{WRAPPER}} input[type="radio"]:checked + span .bpfwe-swatch',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->add_control(
+			'group_separator_styling_title',
+			[
+				'label'     => esc_html__( 'Group Separator', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'group_separator_typography',
+				'global'   => [
+					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+				],
+				'selector' => '{{WRAPPER}} .bpfwe-group-separator',
+			]
+		);
+
+		$this->add_control(
+			'group_separator_color',
+			[
+				'label'     => esc_html__( 'Text Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-group-separator' => 'color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'group_separator_border',
+				'selector' => '{{WRAPPER}} .bpfwe-group-separator',
+			]
+		);
+
+		$this->add_responsive_control(
+			'group_separator_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-group-separator' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'group_separator_margin',
+			[
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-group-separator' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
 		);
 
 		$this->end_controls_section();
@@ -1822,6 +2199,16 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			}
 
 			foreach ( $settings['filter_list'] as $item ) {
+				if ( 'Taxonomy' === $item['select_filter'] && ! taxonomy_exists( $item['filter_by'] ) ) {
+					return;
+				}
+				if ( 'Custom Field' === $item['select_filter'] && empty( $item['meta_key'] ) ) {
+					return;
+				}
+				if ( 'Numeric' === $item['select_filter'] && empty( $item['meta_key'] ) ) {
+					return;
+				}
+
 				++$index;
 
 				if ( 'Taxonomy' === $item['select_filter'] ) {
@@ -1852,63 +2239,210 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-taxonomy-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-taxonomy-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 
-						foreach ( $hiterms as $key => $hiterms ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterms->count ) . ')' : '';
+						foreach ( $hiterms as $key => $hiterm ) {
+							$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
+							$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $hiterm->term_id, 'bpfwe_swatches_type', true ) : '';
+							$group_text     = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_group_text', true );
+							$swatch_html    = '';
+							$separator_html = '';
+
+							if ( $group_text && 'yes' === $item['display_swatch'] ) {
+								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+							}
+
+							switch ( $swatches_type ) {
+								case 'color':
+									$swatches_color = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_color', true );
+									if ( $swatches_color ) {
+										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Color Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									}
+									break;
+
+								case 'image':
+									$swatches_image = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_image', true );
+									if ( $swatches_image ) {
+										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									}
+									break;
+
+								case 'product-cat-image':
+									if ( class_exists( 'WooCommerce' ) ) {
+										$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
+										$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+										if ( $swatches_image ) {
+											$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										}
+									}
+									break;
+
+								case 'button':
+									$swatches_button_text = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_button_text', true );
+									if ( $swatches_button_text ) {
+										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $hiterm->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+									}
+									break;
+
+								default:
+									$swatch_html = '';
+									break;
+							}
 
 							echo '
 							<li class="parent-term">
-							<label for="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '">
-							<input type="checkbox" id="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterms->taxonomy ) . '" value="' . esc_attr( $hiterms->term_id ) . '" />
-							<span>' . esc_html( $hiterms->name ) . esc_html( $show_counter ) . '</span>
-							<span class="low-group-trigger">+</span>
-							</label>
+								' . wp_kses_post( $separator_html ) . '
+								<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
+								<input type="checkbox" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
+								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
+								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
+								</label>
 							</li>
 							';
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterms->term_id;
+								$terms_stack            = array();
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
-								// Bypass transient for users with editing capabilities.
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
-
-									$args = array(
+									$args     = array(
 										'taxonomy'   => $item['filter_by'],
 										'orderby'    => $item['sort_terms'],
-										'parent'     => $hiterms->term_id,
+										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
 										'update_meta_cache' => false,
 									);
-
 									$lowterms = get_terms( $args );
-									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 ); // Set expiration to once a day.
+									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 );
 								}
 
-								if ( $lowterms ) :
-									$low_terms_group  = '';
-									$low_terms_group .= $item['toggle_child'] ? '<span class="low-terms-group">' : '';
-									foreach ( $lowterms as $key => $lowterms ) :
-										$show_counter     = 'yes' === $item['show_counter'] ? ' (' . intval( $lowterms->count ) . ')' : '';
-										$low_terms_group .= '
-												<li class="child-term ' . esc_attr( $toggleable_class ) . '">
-												<label for="' . esc_attr( $lowterms->slug ) . '-' . esc_attr( $widget_id ) . '">
-												<input type="checkbox" id="' . esc_attr( $lowterms->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $lowterms->taxonomy ) . '" value="' . esc_attr( $lowterms->term_id ) . '" />
-												<span>' . esc_html( $lowterms->name ) . esc_html( $show_counter ) . '</span>
-												</label>
-												</li>
-											';
-										if ( ! $item['toggle_child'] ) {
-											++$term_index;
+								if ( $lowterms ) {
+									foreach ( $lowterms as $lowterm ) {
+										$terms_stack[] = array(
+											'term'  => $lowterm,
+											'depth' => 1,
+										);
+									}
+
+									$output   = 'yes' === $item['toggle_child'] ? '<span class="low-terms-group"><ul class="child-terms">' : '<ul class="child-terms">';
+									$open_uls = 1;
+
+									while ( ! empty( $terms_stack ) ) {
+										$current = array_pop( $terms_stack );
+										$term    = $current['term'];
+										$depth   = $current['depth'];
+
+										$next_depth = ! empty( $terms_stack ) ? $terms_stack[ count( $terms_stack ) - 1 ]['depth'] : 0;
+
+										while ( $open_uls > $depth ) {
+											$output .= '</ul>' . ( 'yes' === $item['toggle_child'] ? '</span>' : '' ) . '</li>';
+											--$open_uls;
 										}
-										endforeach;
-									$low_terms_group .= $item['toggle_child'] ? '</span>' : '';
+
+										$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $term->count ) . ')' : '';
+										$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
+										$group_text     = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
+										$swatch_html    = '';
+										$separator_html = '';
+
+										if ( $group_text && 'yes' === $item['display_swatch'] ) {
+											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+										}
+
+										switch ( $swatches_type ) {
+											case 'color':
+												$swatches_color = get_term_meta( $term->term_id, 'bpfwe_swatches_color', true );
+												if ( $swatches_color ) {
+													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Color Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												}
+												break;
+
+											case 'image':
+												$swatches_image = get_term_meta( $term->term_id, 'bpfwe_swatches_image', true );
+												if ( $swatches_image ) {
+													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												}
+												break;
+
+											case 'product-cat-image':
+												if ( class_exists( 'WooCommerce' ) ) {
+													$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
+													$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+													if ( $swatches_image ) {
+														$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													}
+												}
+												break;
+
+											case 'button':
+												$swatches_button_text = get_term_meta( $term->term_id, 'bpfwe_swatches_button_text', true );
+												if ( $swatches_button_text ) {
+													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $term->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+												}
+												break;
+
+											default:
+												$swatch_html = '';
+												break;
+										}
+
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
+										$child_terms         = get_transient( $child_transient_key );
+
+										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
+											$args        = array(
+												'taxonomy' => $item['filter_by'],
+												'orderby'  => $item['sort_terms'],
+												'parent'   => $term->term_id,
+												'hide_empty' => $display_empty,
+												'fields'   => 'all',
+												'update_meta_cache' => false,
+											);
+											$child_terms = get_terms( $args );
+											set_transient( $child_transient_key, $child_terms, DAY_IN_SECONDS / 1 );
+										}
+
+										$output .= '
+											<li class="child-term depth-' . $depth . '">
+												' . wp_kses_post( $separator_html ) . '
+												<label for="' . esc_attr( $term->slug ) . '-' . esc_attr( $widget_id ) . '">
+													<input type="checkbox" 
+														id="' . esc_attr( $term->slug ) . '-' . esc_attr( $widget_id ) . '" 
+														class="bpfwe-filter-item" 
+														name="' . esc_attr( $item['filter_by'] ) . '" 
+														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
+														value="' . esc_attr( $term->term_id ) . '" />
+													<span>' . $swatch_html . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
+												</label>';
+
+										if ( ! empty( $child_terms ) ) {
+											$output .= 'yes' === $item['toggle_child'] ? '<span class="low-terms-group"><ul class="child-terms depth-' . $depth . '">' : '<ul class="child-terms depth-' . $depth . '">';
+											++$open_uls;
+											foreach ( array_reverse( $child_terms ) as $child_term ) {
+												$terms_stack[] = array(
+													'term' => $child_term,
+													'depth' => $depth + 1,
+												);
+											}
+										} else {
+											$output .= '</li>';
+										}
+									}
+
+									while ( $open_uls > 1 ) {
+										$output .= '</ul>' . ( 'yes' === $item['toggle_child'] ? '</span>' : '' ) . '</li>';
+										--$open_uls;
+									}
+
+									$output .= 'yes' === $item['toggle_child'] ? '</ul></span>' : '</ul>';
+
 									echo wp_kses(
-										$low_terms_group,
+										$output,
 										array(
 											'ul'    => array( 'class' => array() ),
 											'li'    => array( 'class' => array() ),
@@ -1921,10 +2455,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'data-taxonomy' => array(),
 												'value' => array(),
 											),
-											'span'  => array( 'class' => array() ),
+											'span'  => array(
+												'class' => array(),
+												'style' => array(),
+												'role'  => array(),
+												'label' => array(),
+												'title' => array(),
+											),
+											'div'   => array(
+												'class' => array(),
+												'style' => array(),
+												'role'  => array(),
+												'label' => array(),
+												'title' => array(),
+											),
 										)
 									);
-								endif;
+								}
 							}
 
 							++$term_index;
@@ -1942,63 +2489,210 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-taxonomy-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-taxonomy-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 
-						foreach ( $hiterms as $key => $hiterms ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterms->count ) . ')' : '';
+						foreach ( $hiterms as $key => $hiterm ) {
+							$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
+							$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $hiterm->term_id, 'bpfwe_swatches_type', true ) : '';
+							$group_text     = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_group_text', true );
+							$swatch_html    = '';
+							$separator_html = '';
+
+							if ( $group_text && 'yes' === $item['display_swatch'] ) {
+								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+							}
+
+							switch ( $swatches_type ) {
+								case 'color':
+									$swatches_color = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_color', true );
+									if ( $swatches_color ) {
+										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Color Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									}
+									break;
+
+								case 'image':
+									$swatches_image = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_image', true );
+									if ( $swatches_image ) {
+										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									}
+									break;
+
+								case 'product-cat-image':
+									if ( class_exists( 'WooCommerce' ) ) {
+										$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
+										$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+										if ( $swatches_image ) {
+											$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										}
+									}
+									break;
+
+								case 'button':
+									$swatches_button_text = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_button_text', true );
+									if ( $swatches_button_text ) {
+										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $hiterm->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+									}
+									break;
+
+								default:
+									$swatch_html = '';
+									break;
+							}
 
 							echo '
 							<li class="parent-term">
-							<label for="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '">
-							<input type="radio" id="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterms->taxonomy ) . '" value="' . esc_attr( $hiterms->term_id ) . '" />
-							<span>' . esc_html( $hiterms->name ) . esc_html( $show_counter ) . '</span>
-							<span class="low-group-trigger">+</span>
-							</label>
+								' . wp_kses_post( $separator_html ) . '
+								<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
+								<input type="radio" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
+								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
+								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
+								</label>
 							</li>
 							';
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterms->term_id;
+								$terms_stack            = array();
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
-								// Bypass transient for users with editing capabilities.
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
-
-									$args = array(
+									$args     = array(
 										'taxonomy'   => $item['filter_by'],
 										'orderby'    => $item['sort_terms'],
-										'parent'     => $hiterms->term_id,
+										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
 										'update_meta_cache' => false,
 									);
-
 									$lowterms = get_terms( $args );
-									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 ); // Set expiration to once a day.
+									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 );
 								}
 
-								if ( $lowterms ) :
-									$low_terms_group  = '';
-									$low_terms_group .= $item['toggle_child'] ? '<span class="low-terms-group">' : '';
-									foreach ( $lowterms as $key => $lowterms ) :
-										$show_counter     = 'yes' === $item['show_counter'] ? ' (' . intval( $lowterms->count ) . ')' : '';
-										$low_terms_group .= '
-												<li class="child-term ' . esc_attr( $toggleable_class ) . '">
-												<label for="' . esc_attr( $lowterms->slug ) . '-' . esc_attr( $widget_id ) . '">
-												<input type="radio" id="' . esc_attr( $lowterms->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $lowterms->taxonomy ) . '" value="' . esc_attr( $lowterms->term_id ) . '" />
-												<span>' . esc_html( $lowterms->name ) . esc_html( $show_counter ) . '</span>
-												</label>
-												</li>
-											';
-										if ( ! $item['toggle_child'] ) {
-											++$term_index;
+								if ( $lowterms ) {
+									foreach ( $lowterms as $lowterm ) {
+										$terms_stack[] = array(
+											'term'  => $lowterm,
+											'depth' => 1,
+										);
+									}
+
+									$output   = 'yes' === $item['toggle_child'] ? '<span class="low-terms-group"><ul class="child-terms">' : '<ul class="child-terms">';
+									$open_uls = 1;
+
+									while ( ! empty( $terms_stack ) ) {
+										$current = array_pop( $terms_stack );
+										$term    = $current['term'];
+										$depth   = $current['depth'];
+
+										$next_depth = ! empty( $terms_stack ) ? $terms_stack[ count( $terms_stack ) - 1 ]['depth'] : 0;
+
+										while ( $open_uls > $depth ) {
+											$output .= '</ul>' . ( 'yes' === $item['toggle_child'] ? '</span>' : '' ) . '</li>';
+											--$open_uls;
 										}
-										endforeach;
-									$low_terms_group .= $item['toggle_child'] ? '</span>' : '';
+
+										$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $term->count ) . ')' : '';
+										$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
+										$group_text     = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
+										$swatch_html    = '';
+										$separator_html = '';
+
+										if ( $group_text && 'yes' === $item['display_swatch'] ) {
+											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+										}
+
+										switch ( $swatches_type ) {
+											case 'color':
+												$swatches_color = get_term_meta( $term->term_id, 'bpfwe_swatches_color', true );
+												if ( $swatches_color ) {
+													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Color Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												}
+												break;
+
+											case 'image':
+												$swatches_image = get_term_meta( $term->term_id, 'bpfwe_swatches_image', true );
+												if ( $swatches_image ) {
+													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												}
+												break;
+
+											case 'product-cat-image':
+												if ( class_exists( 'WooCommerce' ) ) {
+													$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
+													$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+													if ( $swatches_image ) {
+														$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													}
+												}
+												break;
+
+											case 'button':
+												$swatches_button_text = get_term_meta( $term->term_id, 'bpfwe_swatches_button_text', true );
+												if ( $swatches_button_text ) {
+													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $term->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+												}
+												break;
+
+											default:
+												$swatch_html = '';
+												break;
+										}
+
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
+										$child_terms         = get_transient( $child_transient_key );
+
+										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
+											$args        = array(
+												'taxonomy' => $item['filter_by'],
+												'orderby'  => $item['sort_terms'],
+												'parent'   => $term->term_id,
+												'hide_empty' => $display_empty,
+												'fields'   => 'all',
+												'update_meta_cache' => false,
+											);
+											$child_terms = get_terms( $args );
+											set_transient( $child_transient_key, $child_terms, DAY_IN_SECONDS / 1 );
+										}
+
+										$output .= '
+											<li class="child-term depth-' . $depth . '">
+												' . wp_kses_post( $separator_html ) . '
+												<label for="' . esc_attr( $term->slug ) . '-' . esc_attr( $widget_id ) . '">
+													<input type="radio" 
+														id="' . esc_attr( $term->slug ) . '-' . esc_attr( $widget_id ) . '" 
+														class="bpfwe-filter-item" 
+														name="' . esc_attr( $item['filter_by'] ) . '" 
+														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
+														value="' . esc_attr( $term->term_id ) . '" />
+													<span>' . $swatch_html . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
+												</label>';
+
+										if ( ! empty( $child_terms ) ) {
+											$output .= 'yes' === $item['toggle_child'] ? '<span class="low-terms-group"><ul class="child-terms depth-' . $depth . '">' : '<ul class="child-terms depth-' . $depth . '">';
+											++$open_uls;
+											foreach ( array_reverse( $child_terms ) as $child_term ) {
+												$terms_stack[] = array(
+													'term' => $child_term,
+													'depth' => $depth + 1,
+												);
+											}
+										} else {
+											$output .= '</li>';
+										}
+									}
+
+									while ( $open_uls > 1 ) {
+										$output .= '</ul>' . ( 'yes' === $item['toggle_child'] ? '</span>' : '' ) . '</li>';
+										--$open_uls;
+									}
+
+									$output .= 'yes' === $item['toggle_child'] ? '</ul></span>' : '</ul>';
+
 									echo wp_kses(
-										$low_terms_group,
+										$output,
 										array(
 											'ul'    => array( 'class' => array() ),
 											'li'    => array( 'class' => array() ),
@@ -2011,10 +2705,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'data-taxonomy' => array(),
 												'value' => array(),
 											),
-											'span'  => array( 'class' => array() ),
+											'span'  => array(
+												'class' => array(),
+												'style' => array(),
+												'role'  => array(),
+												'label' => array(),
+												'title' => array(),
+											),
+											'div'   => array(
+												'class' => array(),
+												'style' => array(),
+												'role'  => array(),
+												'label' => array(),
+												'title' => array(),
+											),
 										)
 									);
-								endif;
+								}
 							}
 
 							++$term_index;
@@ -2034,13 +2741,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<div class="bpfwe-taxonomy-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter">
 						';
-						foreach ( $hiterms as $key => $hiterms ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterms->count ) . ')' : '';
+						foreach ( $hiterms as $key => $hiterm ) {
+							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
 							echo '
 							<li class="list-style">
-							<label for="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '">
-							<input type="checkbox" id="' . esc_attr( $hiterms->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterms->taxonomy ) . '" value="' . esc_attr( $hiterms->term_id ) . '" />
-							<span>' . esc_html( $hiterms->name ) . esc_html( $show_counter ) . '</span>
+							<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
+							<input type="checkbox" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
+							<span>' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span>
 							</label>
 							</li>
 							';
@@ -2057,10 +2764,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						$multi_select2    = $item['multi_select2'];
 
 						$select2_class = '';
-						$default_val   = '<option value="">' . esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ) . '</option>';
+						$option_text   = ! empty( $item['option_text'] ) ? $item['option_text'] : esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' );
+						$default_val   = '<option value="">' . esc_html( $option_text ) . '</option>';
 
 						if ( 'select2' === $item['filter_style'] || 'select2' === $item['filter_style_cf'] ) {
 							$select2_class = 'bpfwe-select2';
+
 							if ( 'yes' === $multi_select2_cf || 'yes' === $multi_select2 ) {
 								$select2_class = 'bpfwe-multi-select2';
 								$default_val   = '';
@@ -2072,10 +2781,52 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<div class="filter-title">' . esc_attr( $item['filter_title'] ) . '</div>
 						<div class="bpfwe-taxonomy-wrapper ' . esc_attr( $select2_class ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<select id="' . esc_attr( $item['filter_by'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
-						foreach ( $hiterms as $key => $hiterms ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterms->count ) . ')' : '';
-							echo '<option data-category="' . esc_attr( $hiterms->term_id ) . '" data-taxonomy="' . esc_attr( $hiterms->taxonomy ) . '" value="' . esc_attr( $hiterms->term_id ) . '">' . esc_html( $hiterms->name ) . esc_html( $show_counter ) . '</option>';
+
+						if ( 'yes' === $item['show_hierarchy'] ) {
+							$terms_stack = array();
+							foreach ( $hiterms as $hiterm ) {
+								$terms_stack[] = array(
+									'term'  => $hiterm,
+									'depth' => 0,
+								);
+							}
+
+							while ( ! empty( $terms_stack ) ) {
+								$current = array_pop( $terms_stack );
+								$term    = $current['term'];
+								$depth   = $current['depth'];
+
+								$prefix       = str_repeat( '— ', $depth );
+								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (' . intval( $term->count ) . ')' : '';
+
+								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . esc_html( $prefix . $term->name ) . esc_html( $show_counter ) . '</option>';
+
+								$args        = array(
+									'taxonomy'          => $item['filter_by'],
+									'orderby'           => $item['sort_terms'],
+									'parent'            => $term->term_id,
+									'hide_empty'        => $display_empty,
+									'fields'            => 'all',
+									'update_meta_cache' => false,
+								);
+								$child_terms = get_terms( $args );
+
+								if ( ! empty( $child_terms ) ) {
+									foreach ( array_reverse( $child_terms ) as $child_term ) {
+										$terms_stack[] = array(
+											'term'  => $child_term,
+											'depth' => $depth + 1,
+										);
+									}
+								}
+							}
+						} else {
+							foreach ( $hiterms as $hiterm ) {
+								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (' . intval( $hiterm->count ) . ')' : '';
+								echo '<option data-category="' . esc_attr( $hiterm->term_id ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</option>';
+							}
 						}
+
 						echo '
 						</select>
 						</div>
@@ -2171,7 +2922,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -2202,7 +2953,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -2232,7 +2983,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -2258,7 +3009,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						$multi_select2    = $item['multi_select2'];
 
 						$select2_class = '';
-						$default_val   = '<option value="">' . esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' ) . '</option>';
+						$option_text   = ! empty( $item['option_text_cf'] ) ? $item['option_text_cf'] : esc_html__( 'Choose an option', 'better-post-filter-widgets-for-elementor' );
+						$default_val   = '<option value="">' . esc_html( $option_text ) . '</option>';
 
 						if ( 'select2' === $item['filter_style'] || 'select2' === $item['filter_style_cf'] ) {
 							$select2_class = 'bpfwe-select2';
@@ -2382,7 +3134,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -2405,7 +3157,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'radio' === $item['filter_style_numeric'] ) {
 						echo '<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -2429,7 +3181,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {

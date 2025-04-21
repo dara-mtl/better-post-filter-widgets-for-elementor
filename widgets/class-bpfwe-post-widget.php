@@ -9058,6 +9058,34 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			$user_query = new WP_User_Query( $query_args );
 
 			if ( ! empty( $user_query->get_results() ) ) {
+
+				if ( $settings['skin_template'] ) {
+					$extra_templates_by_position = [];
+					$template_css_urls           = [];
+
+					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
+						foreach ( $settings['extra_skin_list'] as $item ) {
+							$extra_templates_by_position[ $item['grid_position'] ] = $item;
+						}
+					}
+
+					$combined_css = '';
+
+					// Collect CSS contents for the main template.
+					if ( ! empty( $settings['skin_template'] ) && is_numeric( $settings['skin_template'] ) ) {
+						$main_template_id = intval( $settings['skin_template'] );
+						$this->enqueue_skin_css( $main_template_id );
+					}
+
+					// Collect CSS contents for the extra templates.
+					foreach ( $extra_templates_by_position as $extra_template ) {
+						if ( isset( $extra_template['extra_template_id'] ) && is_numeric( $extra_template['extra_template_id'] ) ) {
+							$extra_template_id = intval( $extra_template['extra_template_id'] );
+							$this->enqueue_skin_css( $extra_template_id );
+						}
+					}
+				}
+
 				echo '
 				<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div>
 				<div class="post-container ' . esc_attr( $pagination . ' ' . $skin . ' ' . $pinned_post ) . '" data-nb-column="' . esc_attr( $settings['post_slider_slides_per_view'] ) . '">
@@ -9088,126 +9116,176 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 					}
 
-					echo '<div class="post-wrapper">';
+					if ( $settings['skin_template'] ) {
 
-					if ( 'yes' === $settings['show_featured_image'] ) {
-						$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
+						// Check if the current position should have an extra template.
+						$use_extra_template = false;
+						$extra_template_id  = '';
+						$column_span        = 1;
+						$row_span           = 1;
+						$column_span_style  = '';
+						$row_span_style     = '';
 
-						// Get the user image meta key.
-						$user_img_field_key = $settings['user_img_field_key'];
-						$custom_user_image  = ! empty( $user_img_field_key ) ? esc_url( get_user_meta( $bpfwe_user_id, $user_img_field_key, true ) ) : '';
+						foreach ( $extra_templates_by_position as $position => $extra_template ) {
+							// Check if the template should apply once or be repeated.
+							$apply_once = isset( $extra_template['apply_once'] ) && 'yes' === $extra_template['apply_once'];
 
-						// Determine the final image URL.
-						$profile_picture_url = $custom_user_image ? $custom_user_image : '';
-
-						// Prepare escaped URLs.
-						$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
-						$default_image_url     = esc_url( $settings['post_default_image']['url'] );
-
-						// Determine final image URL, falling back to placeholder if necessary.
-						$final_image_url = $profile_picture_url ? $profile_picture_url : $default_image_url;
-						$image_alt       = ! empty( $profile_picture_url ) ? 'User Profile Picture' : 'Profile Picture Placeholder';
-
-						// Lazy load image.
-						if ( 'yes' === $settings['img_equal_height'] ) {
-							if ( $lazy_load ) {
-								$image = '<img class="swiper-lazy" data-background="' . $final_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/><div class="swiper-lazy-preloader"></div>';
-							} else {
-								$image = '<img style="background-image: url(' . $final_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
+							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
+								$use_extra_template = true;
+								$extra_template_id  = $extra_template['extra_template_id'];
+								$column_span        = $extra_template['column_span'];
+								$row_span           = $extra_template['row_span'];
+								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
+								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
+								break;
 							}
-						} elseif ( $lazy_load ) {
+						}
+
+						$style           = trim( "$column_span_style $row_span_style" );
+						$style_attribute = $style ? 'style="' . $style . '"' : '';
+						$extra_class     = $style_attribute ? 'row-span-expand' : '';
+
+						if ( $use_extra_template ) {
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . wp_kses_post( $style_attribute ) . '><div class="inner-content">';
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						} else {
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						}
+					} elseif ( $settings['skin_custom_html'] ) {
+						$html_content = $settings['skin_custom_html'];
+						$html_content = str_replace( '#TITLE#', esc_html( get_the_author_meta( 'display_name', $user->ID ) ), $html_content );
+						$html_content = str_replace( '#PERMALINK#', esc_url( get_author_posts_url( $user->ID ) ), $html_content );
+						$html_content = str_replace( '#CONTENT#', get_the_author_meta( 'description', $user->ID ), $html_content );
+						$html_content = str_replace( '#EXCERPT#', wp_trim_words( get_the_author_meta( 'description', $user->ID ), 20 ), $html_content );
+
+						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+						echo wp_kses_post( $html_content );
+						echo '</div></' . esc_attr( $post_html_tag ) . '>';
+					} else {
+						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper">';
+
+						if ( 'yes' === $settings['show_featured_image'] ) {
+							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
+
+							// Get the user image meta key.
+							$user_img_field_key = $settings['user_img_field_key'];
+							$custom_user_image  = ! empty( $user_img_field_key ) ? esc_url( get_user_meta( $bpfwe_user_id, $user_img_field_key, true ) ) : '';
+
+							// Determine the final image URL.
+							$profile_picture_url = $custom_user_image ? $custom_user_image : '';
+
+							// Prepare escaped URLs.
+							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
+							$default_image_url     = esc_url( $settings['post_default_image']['url'] );
+
+							// Determine final image URL, falling back to placeholder if necessary.
+							$final_image_url = $profile_picture_url ? $profile_picture_url : $default_image_url;
+							$image_alt       = ! empty( $profile_picture_url ) ? 'User Profile Picture' : 'Profile Picture Placeholder';
+
+							// Lazy load image.
+							if ( 'yes' === $settings['img_equal_height'] ) {
+								if ( $lazy_load ) {
+									$image = '<img class="swiper-lazy" data-background="' . $final_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/><div class="swiper-lazy-preloader"></div>';
+								} else {
+									$image = '<img style="background-image: url(' . $final_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
+								}
+							} elseif ( $lazy_load ) {
 								$image = '<img class="swiper-lazy" data-src="' . $final_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/><div class="swiper-lazy-preloader"></div>';
-						} else {
-							$image = '<img src="' . $final_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
-						}
-
-						// Output HTML with escaped values.
-						if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
-							echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
-						} else {
-							echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
-						}
-					}
-
-					echo '<div class="inner-content">';
-					foreach ( $settings['user_list'] as $index => $item ) :
-
-						// WordPress Username.
-						if ( 'Username' === $item['post_content'] ) {
-							if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->user_login ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
 							} else {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->user_login ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+								$image = '<img src="' . $final_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
 							}
-						}
 
-						// Display Name.
-						if ( 'Display Name' === $item['post_content'] ) {
-							if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->display_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+							// Output HTML with escaped values.
+							if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
+								echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
 							} else {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->display_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+								echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
 							}
 						}
 
-						// Display Full Name.
-						if ( 'Full Name' === $item['post_content'] ) {
-							if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
-							} else {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+						echo '<div class="inner-content">';
+						foreach ( $settings['user_list'] as $index => $item ) :
+
+							// WordPress Username.
+							if ( 'Username' === $item['post_content'] ) {
+								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->user_login ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+								} else {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->user_login ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+								}
 							}
-						}
 
-						// Display User Meta.
-						if ( 'User Meta' === $item['post_content'] ) {
-							$user_field_key   = sanitize_key( $item['user_field_key'] );
-							$custom_field_val = BPFWE_Helper::is_acf_field( $user_field_key ) ? get_field( $user_field_key, 'user_' . $bpfwe_user_id ) : get_user_meta( $bpfwe_user_id, $user_field_key, true );
-
-							if ( $custom_field_val && ! empty( $item['user_field_key'] ) ) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $custom_field_val ) . '</div>';
+							// Display Name.
+							if ( 'Display Name' === $item['post_content'] ) {
+								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->display_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+								} else {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->display_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+								}
 							}
-						}
 
-						// Display Email.
-						if ( 'User Email' === $item['post_content'] ) {
-							echo '<div class="user-email elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_url( $user->user_email ) . '</div>';
-						}
+							// Display Full Name.
+							if ( 'Full Name' === $item['post_content'] ) {
+								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+								} else {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+								}
+							}
 
-						// Display User Role.
-						if ( 'User Role' === $item['post_content'] ) {
-							echo '<div class="user-role elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' .
+							// Display User Meta.
+							if ( 'User Meta' === $item['post_content'] ) {
+								$user_field_key   = sanitize_key( $item['user_field_key'] );
+								$custom_field_val = BPFWE_Helper::is_acf_field( $user_field_key ) ? get_field( $user_field_key, 'user_' . $bpfwe_user_id ) : get_user_meta( $bpfwe_user_id, $user_field_key, true );
+
+								if ( $custom_field_val && ! empty( $item['user_field_key'] ) ) {
+									echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $custom_field_val ) . '</div>';
+								}
+							}
+
+							// Display Email.
+							if ( 'User Email' === $item['post_content'] ) {
+								echo '<div class="user-email elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_url( $user->user_email ) . '</div>';
+							}
+
+							// Display User Role.
+							if ( 'User Role' === $item['post_content'] ) {
+								echo '<div class="user-role elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' .
 								esc_html( implode( ', ', array_map( 'ucwords', $user->roles ) ) ) .
 								'</div>';
-						}
-
-						// Display User ID.
-						if ( 'User ID' === $item['post_content'] ) {
-							echo '<div class="user-id elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . absint( $bpfwe_user_id ) . '</div>';
-						}
-
-						// Display Visit Profile.
-						if ( 'Visit Profile' === $item['post_content'] ) {
-							if ( ! empty( $permalink ) ) {
-								echo '<a class="visit-profile elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $item['visit_profile_text'] ) . '</a>';
-							} else {
-								echo '<span class="visit-profile elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['visit_profile_text'] ) . '</span>';
 							}
-						}
 
-						// Display HTML with Shortcode Support.
-						if ( 'HTML' === $item['post_content'] ) {
-							$content = $before . $item['user_html'] . $after;
-							$content = do_shortcode( $content );
+							// Display User ID.
+							if ( 'User ID' === $item['post_content'] ) {
+								echo '<div class="user-id elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . absint( $bpfwe_user_id ) . '</div>';
+							}
 
-							echo '<div class="post-html elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $content ) . '</div>';
-						}
+							// Display Visit Profile.
+							if ( 'Visit Profile' === $item['post_content'] ) {
+								if ( ! empty( $permalink ) ) {
+									echo '<a class="visit-profile elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $item['visit_profile_text'] ) . '</a>';
+								} else {
+									echo '<span class="visit-profile elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['visit_profile_text'] ) . '</span>';
+								}
+							}
+
+							// Display HTML with Shortcode Support.
+							if ( 'HTML' === $item['post_content'] ) {
+								$content = $before . $item['user_html'] . $after;
+								$content = do_shortcode( $content );
+
+								echo '<div class="post-html elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $content ) . '</div>';
+							}
 
 						endforeach;
-					echo '
+						echo '
 					</div>
-					</div>
+					</' . esc_attr( $post_html_tag ) . '>
 					';
+					}
 				}
 				echo '
 				</div>
@@ -9321,12 +9399,14 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				$query_args['parent'] = 0;
 			} elseif ( 'child' === $settings['filter_rule'] ) {
 				$query_args['parent']  = '';
-				$query_args['exclude'] = get_terms([
+				$query_args['exclude'] = get_terms(
+					[
 						'taxonomy'   => $settings['select_taxonomy'],
 						'parent'     => 0,
 						'fields'     => 'ids',
 						'hide_empty' => false,
-				]);
+					]
+				);
 			}
 
 			if ( ! empty( $settings['select_taxonomy'] ) ) {
@@ -9357,6 +9437,34 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			$terms          = $taxonomy_query->get_terms();
 
 			if ( ! empty( $terms ) ) {
+
+				if ( $settings['skin_template'] ) {
+					$extra_templates_by_position = [];
+					$template_css_urls           = [];
+
+					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
+						foreach ( $settings['extra_skin_list'] as $item ) {
+							$extra_templates_by_position[ $item['grid_position'] ] = $item;
+						}
+					}
+
+					$combined_css = '';
+
+					// Collect CSS contents for the main template.
+					if ( ! empty( $settings['skin_template'] ) && is_numeric( $settings['skin_template'] ) ) {
+						$main_template_id = intval( $settings['skin_template'] );
+						$this->enqueue_skin_css( $main_template_id );
+					}
+
+					// Collect CSS contents for the extra templates.
+					foreach ( $extra_templates_by_position as $extra_template ) {
+						if ( isset( $extra_template['extra_template_id'] ) && is_numeric( $extra_template['extra_template_id'] ) ) {
+							$extra_template_id = intval( $extra_template['extra_template_id'] );
+							$this->enqueue_skin_css( $extra_template_id );
+						}
+					}
+				}
+
 				echo '
 				<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div>
 				<div class="post-container ' . esc_attr( $pagination . ' ' . $skin . ' ' . $pinned_post ) . '" data-nb-column="' . esc_attr( $settings['post_slider_slides_per_view'] ) . '">
@@ -9389,136 +9497,186 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 					}
 
-					echo '<div class="post-wrapper">';
+					if ( $settings['skin_template'] ) {
 
-					if ( 'yes' === $settings['show_featured_image'] && 'taxonomy' === $settings['query_type'] ) {
-						$image_size = ! empty( $settings['featured_img_size'] ) ? esc_attr( $settings['featured_img_size'] ) : 'full';
+						// Check if the current position should have an extra template.
+						$use_extra_template = false;
+						$extra_template_id  = '';
+						$column_span        = 1;
+						$row_span           = 1;
+						$column_span_style  = '';
+						$row_span_style     = '';
 
-						// Get the taxonomy image meta key.
-						$term_img_field_key = $settings['term_img_field_key'];
-						$term_image_url     = '';
+						foreach ( $extra_templates_by_position as $position => $extra_template ) {
+							// Check if the template should apply once or be repeated.
+							$apply_once = isset( $extra_template['apply_once'] ) && 'yes' === $extra_template['apply_once'];
 
-						if ( class_exists( 'WooCommerce' ) && 'product_cat' === $settings['select_taxonomy'] ) {
-							$thumbnail_id = get_term_meta( $bpfwe_term_id, 'thumbnail_id', true );
-							if ( $thumbnail_id ) {
-								$term_image_url = esc_url( wp_get_attachment_url( $thumbnail_id ) );
+							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
+								$use_extra_template = true;
+								$extra_template_id  = $extra_template['extra_template_id'];
+								$column_span        = $extra_template['column_span'];
+								$row_span           = $extra_template['row_span'];
+								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
+								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
+								break;
 							}
-						} else {
-							$term_image_url = ! empty( $term_img_field_key ) ? esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) ) : '';
 						}
 
-						// Prepare escaped URLs.
-						$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
-						$default_image_url     = esc_url( $settings['post_default_image']['url'] );
-						$image_alt             = ! empty( $term_image_url ) ? esc_attr( 'Taxonomy Image' ) : esc_attr( 'Default Taxonomy Image' );
+						$style           = trim( "$column_span_style $row_span_style" );
+						$style_attribute = $style ? 'style="' . $style . '"' : '';
+						$extra_class     = $style_attribute ? 'row-span-expand' : '';
 
-						// Lazy load image.
-						if ( 'yes' === $settings['img_equal_height'] ) {
-							if ( $lazy_load ) {
-								$image = '<img class="swiper-lazy" data-background="' . $term_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+						if ( $use_extra_template ) {
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . wp_kses_post( $style_attribute ) . '><div class="inner-content">';
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						} else {
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						}
+					} elseif ( $settings['skin_custom_html'] ) {
+						$html_content = $settings['skin_custom_html'];
+						$html_content = str_replace( '#TITLE#', esc_html( $term->name ), $html_content );
+						$html_content = str_replace( '#PERMALINK#', esc_url( get_term_link( $term->term_id ) ), $html_content );
+						$html_content = str_replace( '#CONTENT#', term_description( $term->term_id ), $html_content );
+						$html_content = str_replace( '#EXCERPT#', wp_trim_words( wp_strip_all_tags( term_description( $term->term_id ) ), 20 ), $html_content );
+
+						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+						echo wp_kses_post( $html_content );
+						echo '</div></' . esc_attr( $post_html_tag ) . '>';
+					} else {
+						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper">';
+
+						if ( 'yes' === $settings['show_featured_image'] && 'taxonomy' === $settings['query_type'] ) {
+							$image_size = ! empty( $settings['featured_img_size'] ) ? esc_attr( $settings['featured_img_size'] ) : 'full';
+
+							// Get the taxonomy image meta key.
+							$term_img_field_key = $settings['term_img_field_key'];
+							$term_image_url     = '';
+
+							if ( class_exists( 'WooCommerce' ) && 'product_cat' === $settings['select_taxonomy'] ) {
+								$thumbnail_id = get_term_meta( $bpfwe_term_id, 'thumbnail_id', true );
+								if ( $thumbnail_id ) {
+									$term_image_url = esc_url( wp_get_attachment_url( $thumbnail_id ) );
+								}
 							} else {
-								$image = '<img style="background-image: url(' . $term_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
+								$term_image_url = ! empty( $term_img_field_key ) ? esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) ) : '';
 							}
-							if ( ! $term_image_url ) {
+
+							// Prepare escaped URLs.
+							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
+							$default_image_url     = esc_url( $settings['post_default_image']['url'] );
+							$image_alt             = ! empty( $term_image_url ) ? esc_attr( 'Taxonomy Image' ) : esc_attr( 'Default Taxonomy Image' );
+
+							// Lazy load image.
+							if ( 'yes' === $settings['img_equal_height'] ) {
 								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-background="' . $default_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+									$image = '<img class="swiper-lazy" data-background="' . $term_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
 								} else {
-									$image = '<img style="background-image: url(' . $default_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
+									$image = '<img style="background-image: url(' . $term_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
+								}
+								if ( ! $term_image_url ) {
+									if ( $lazy_load ) {
+										$image = '<img class="swiper-lazy" data-background="' . $default_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+									} else {
+										$image = '<img style="background-image: url(' . $default_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
+									}
+								}
+							} else {
+								if ( $lazy_load ) {
+									$image = '<img class="swiper-lazy" data-src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+								} else {
+									$image = '<img src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
+								}
+								if ( ! $term_image_url ) {
+									if ( $lazy_load ) {
+										$image = '<img class="swiper-lazy" data-src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+									} else {
+										$image = '<img src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
+									}
 								}
 							}
-						} else {
-							if ( $lazy_load ) {
-								$image = '<img class="swiper-lazy" data-src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+
+							// Output HTML with escaped values.
+							if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
+								echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
 							} else {
-								$image = '<img src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
+								echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
 							}
-							if ( ! $term_image_url ) {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
+						}
+
+						echo '<div class="inner-content">';
+						foreach ( $settings['taxonomy_list'] as $index => $item ) :
+
+							// Term Label.
+							if ( 'Term Label' === $item['post_content'] ) {
+								if ( $item['term_url'] && ! empty( $permalink ) ) {
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $term_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
 								} else {
-									$image = '<img src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
+									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $term_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
 								}
 							}
-						}
 
-						// Output HTML with escaped values.
-						if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
-							echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
-						} else {
-							echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
-						}
-					}
-
-					echo '<div class="inner-content">';
-					foreach ( $settings['taxonomy_list'] as $index => $item ) :
-
-						// Term Label.
-						if ( 'Term Label' === $item['post_content'] ) {
-							if ( $item['term_url'] && ! empty( $permalink ) ) {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $term_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
-							} else {
-								echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $term_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
-							}
-						}
-
-						// Term Description.
-						if ( 'Term Description' === $item['post_content'] ) {
-							$term_description = term_description( $term->term_id );
-							if ( $term_description ) {
-								echo '<div class="term-description elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $term_description ) . '</div>';
-							}
-						}
-
-						// Term Count.
-						if ( 'Term Count' === $item['post_content'] ) {
-							$display_count = absint( $term->count );
-
-							if ( $term->count <= 1 ) {
-								$display_count = absint( $term->count ) . ' ' . $item['count_singular'];
-							} else {
-								$display_count = absint( $term->count ) . ' ' . $item['count_plurial'];
+							// Term Description.
+							if ( 'Term Description' === $item['post_content'] ) {
+								$term_description = term_description( $term->term_id );
+								if ( $term_description ) {
+									echo '<div class="term-description elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $term_description ) . '</div>';
+								}
 							}
 
-							echo '<div class="term-count elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $display_count ) . '</div>';
-						}
+							// Term Count.
+							if ( 'Term Count' === $item['post_content'] ) {
+								$display_count = absint( $term->count );
 
-						// Display Term Meta.
-						if ( 'Term Meta' === $item['post_content'] ) {
-							$term_field_key   = sanitize_key( $item['term_field_key'] );
-							$custom_field_val = BPFWE_Helper::is_acf_field( $term_field_key ) ? get_field( $term_field_key, $term ) : get_term_meta( $term->term_id, $term_field_key, true );
+								if ( $term->count <= 1 ) {
+									$display_count = absint( $term->count ) . ' ' . $item['count_singular'];
+								} else {
+									$display_count = absint( $term->count ) . ' ' . $item['count_plurial'];
+								}
 
-							if ( $custom_field_val && ! empty( $item['term_field_key'] ) ) {
-								echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $custom_field_val ) . '</div>';
+								echo '<div class="term-count elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $display_count ) . '</div>';
 							}
-						}
 
-						// Term ID.
-						if ( 'Term ID' === $item['post_content'] ) {
-							echo '<div class="term-id elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . absint( $term->term_id ) . '</div>';
-						}
+							// Display Term Meta.
+							if ( 'Term Meta' === $item['post_content'] ) {
+								$term_field_key   = sanitize_key( $item['term_field_key'] );
+								$custom_field_val = BPFWE_Helper::is_acf_field( $term_field_key ) ? get_field( $term_field_key, $term ) : get_term_meta( $term->term_id, $term_field_key, true );
 
-						// Term URL.
-						if ( 'Term URL' === $item['post_content'] ) {
-							if ( ! empty( $permalink ) ) {
-								echo '<a class="term-url elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $item['term_read_more_text'] ) . '</a>';
-							} else {
-								echo '<span class="term-url elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['term_read_more_text'] ) . '</span>';
+								if ( $custom_field_val && ! empty( $item['term_field_key'] ) ) {
+									echo '<div class="post-custom-field elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $custom_field_val ) . '</div>';
+								}
 							}
-						}
 
-						// Display HTML with Shortcode Support.
-						if ( 'HTML' === $item['post_content'] ) {
-							$content = $before . $item['term_html'] . $after;
-							$content = do_shortcode( $content );
+							// Term ID.
+							if ( 'Term ID' === $item['post_content'] ) {
+								echo '<div class="term-id elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . absint( $term->term_id ) . '</div>';
+							}
 
-							echo '<div class="post-html elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $content ) . '</div>';
-						}
+							// Term URL.
+							if ( 'Term URL' === $item['post_content'] ) {
+								if ( ! empty( $permalink ) ) {
+									echo '<a class="term-url elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $item['term_read_more_text'] ) . '</a>';
+								} else {
+									echo '<span class="term-url elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['term_read_more_text'] ) . '</span>';
+								}
+							}
+
+							// Display HTML with Shortcode Support.
+							if ( 'HTML' === $item['post_content'] ) {
+								$content = $before . $item['term_html'] . $after;
+								$content = do_shortcode( $content );
+
+								echo '<div class="post-html elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . wp_kses_post( $content ) . '</div>';
+							}
 
 						endforeach;
-					echo '
+						echo '
 					</div>
-					</div>
+					</' . esc_attr( $post_html_tag ) . '>
 					';
+					}
 				}
 				echo '
 				</div>

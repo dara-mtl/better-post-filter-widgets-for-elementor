@@ -30,6 +30,7 @@ class BPFWE_Dynamic_Tag {
 	 */
 	private $tags_list = array(
 		'custom-field'        => 'Custom_Field',
+		'image-custom-field'  => 'Image_Custom_Field',
 		'repeater'            => 'Repeater',
 		'post-content'        => 'Post_Content',
 		'shortcode'           => 'Shortcode',
@@ -42,6 +43,7 @@ class BPFWE_Dynamic_Tag {
 		'post-terms'          => 'Post_Terms',
 		'author-meta'         => 'Author_Info_Meta',
 		'user-meta'           => 'User_Meta',
+		'tax-meta'            => 'Taxonomy_Meta',
 	);
 
 	/**
@@ -73,10 +75,11 @@ class BPFWE_Dynamic_Tag {
 		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'post', [ 'title' => esc_html__( 'Post', 'better-post-filter-widgets-for-elementor' ) ] );
 		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'author', [ 'title' => esc_html__( 'Author', 'better-post-filter-widgets-for-elementor' ) ] );
 		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'user', [ 'title' => esc_html__( 'User', 'better-post-filter-widgets-for-elementor' ) ] );
+		\Elementor\Plugin::$instance->dynamic_tags->register_group( 'taxonomy', [ 'title' => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ) ] );
 
 		if ( defined( 'ELEMENTOR_PRO_VERSION' ) ) {
 			// Register custom-field, repeater and content tags for Pro users.
-			$extra_tags = [ 'custom-field', 'repeater', 'post-content' ];
+			$extra_tags = [ 'tax-meta', 'user-meta', 'image-custom-field', 'custom-field', 'repeater', 'post-content' ];
 
 			foreach ( $extra_tags as $tag ) {
 				$class_name      = $this->tags_list[ $tag ];

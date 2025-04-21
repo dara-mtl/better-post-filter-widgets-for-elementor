@@ -1,6 +1,6 @@
 <?php
 /**
- * Author Meta Dynamic Tag.
+ * Taxonomy Meta Dynamic Tag.
  *
  * @package BPFWE_Widgets
  * @since 1.0.0
@@ -17,13 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Author_Info_Meta.
+ * Class Taxonomy_Meta.
  *
- * Dynamic tag for displaying the author meta.
+ * Dynamic tag for displaying taxonomy/term meta.
  *
  * @since 1.0.0
  */
-class Author_Info_Meta extends Tag {
+class Taxonomy_Meta extends Tag {
 
 	/**
 	 * Get tag name.
@@ -36,7 +36,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Tag name.
 	 */
 	public function get_name() {
-		return 'author-info-meta';
+		return 'taxonomy-meta';
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Tag title.
 	 */
 	public function get_title() {
-		return esc_html__( 'Author Meta', 'better-post-filter-widgets-for-elementor' );
+		return esc_html__( 'Taxonomy Meta', 'better-post-filter-widgets-for-elementor' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Author_Info_Meta extends Tag {
 	 * @return string Dynamic tag group.
 	 */
 	public function get_group() {
-		return 'author';
+		return 'taxonomy';
 	}
 
 	/**
@@ -83,7 +83,6 @@ class Author_Info_Meta extends Tag {
 			TagsModule::TEXT_CATEGORY,
 			TagsModule::URL_CATEGORY,
 			TagsModule::POST_META_CATEGORY,
-			TagsModule::COLOR_CATEGORY,
 		];
 	}
 
@@ -92,7 +91,10 @@ class Author_Info_Meta extends Tag {
 	 *
 	 * This method returns the setting key used by Elementor's panel to identify the
 	 * dynamic tag control. In this case, it returns 'key', which corresponds to the
-	 * field control that selects the type of author information (ID, bio, etc.) to display.
+	 * field control that selects the type of taxonomy information to display.
+	 *
+	 * @since 1.0.0
+	 * @access public
 	 *
 	 * @return string The setting key for the dynamic tag control.
 	 */
@@ -114,15 +116,15 @@ class Author_Info_Meta extends Tag {
 			[
 				'label'   => esc_html__( 'Field', 'better-post-filter-widgets-for-elementor' ),
 				'type'    => Controls_Manager::SELECT,
-				'default' => 'display_name',
+				'default' => 'name',
 				'options' => [
-					'display_name' => esc_html__( 'Display Name', 'better-post-filter-widgets-for-elementor' ),
-					'ID'           => esc_html__( 'ID', 'better-post-filter-widgets-for-elementor' ),
-					'description'  => esc_html__( 'Bio', 'better-post-filter-widgets-for-elementor' ),
-					'email'        => esc_html__( 'Email', 'better-post-filter-widgets-for-elementor' ),
-					'url'          => esc_html__( 'Website', 'better-post-filter-widgets-for-elementor' ),
-					'profile_url'  => esc_html__( 'Profile URL', 'better-post-filter-widgets-for-elementor' ),
-					'meta'         => esc_html__( 'Author Meta', 'better-post-filter-widgets-for-elementor' ),
+					'name'        => esc_html__( 'Name', 'better-post-filter-widgets-for-elementor' ),
+					'term_id'     => esc_html__( 'Term ID', 'better-post-filter-widgets-for-elementor' ),
+					'description' => esc_html__( 'Description', 'better-post-filter-widgets-for-elementor' ),
+					'slug'        => esc_html__( 'Slug', 'better-post-filter-widgets-for-elementor' ),
+					'count'       => esc_html__( 'Post Count', 'better-post-filter-widgets-for-elementor' ),
+					'term_link'   => esc_html__( 'Term URL', 'better-post-filter-widgets-for-elementor' ),
+					'meta'        => esc_html__( 'Term Meta', 'better-post-filter-widgets-for-elementor' ),
 				],
 			]
 		);
@@ -137,12 +139,24 @@ class Author_Info_Meta extends Tag {
 				],
 			]
 		);
+
+		$this->add_control(
+			'term_id',
+			[
+				'label'       => esc_html__( 'Term ID', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => Controls_Manager::TEXT,
+				'placeholder' => ( is_tax() || is_category() || is_tag() ) ? esc_html( get_queried_object_id() ) : esc_html__( 'Current Term ID', 'better-post-filter-widgets-for-elementor' ),
+				'dynamic'     => [
+					'active' => true,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Render dynamic tag output.
 	 *
-	 * Generates the HTML output for the author meta, with optional trimming based on length control.
+	 * Generates the HTML output for the taxonomy meta.
 	 *
 	 * @since 1.0.0
 	 * @access public
@@ -150,19 +164,36 @@ class Author_Info_Meta extends Tag {
 	public function render() {
 		$key      = $this->get_settings( 'key' );
 		$meta_key = $this->get_settings( 'meta_key' );
+		$term_id  = $this->get_settings( 'term_id' );
 
 		if ( empty( $key ) && empty( $meta_key ) ) {
 			return;
 		}
 
-		if ( 'profile_url' === $key ) {
-			$value = get_author_posts_url( get_the_author_meta( 'ID' ) );
+		global $bpfwe_term_id;
+		if ( empty( $term_id ) && ! empty( $bpfwe_term_id ) ) {
+			$term_id = absint( $bpfwe_term_id );
+		} elseif ( empty( $term_id ) && ( is_tax() || is_category() || is_tag() ) ) {
+			$term_id = get_queried_object_id();
+		}
+
+		if ( ! $term_id ) {
+			return;
+		}
+
+		$term = get_term( $term_id );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return;
+		}
+
+		if ( 'term_link' === $key ) {
+			$value = get_term_link( $term_id );
 		} elseif ( 'meta' === $key && ! empty( $meta_key ) ) {
-			$value = get_the_author_meta( $meta_key );
-		} elseif ( 'ID' === $key ) {
-			$value = is_author() ? get_queried_object_id() : get_the_author_meta( 'ID' );
+			$value = get_term_meta( $term_id, $meta_key, true );
+		} elseif ( 'term_id' === $key ) {
+			$value = $term_id;
 		} else {
-			$value = get_the_author_meta( $key );
+			$value = $term->$key;
 		}
 
 		echo wp_kses_post( $value );

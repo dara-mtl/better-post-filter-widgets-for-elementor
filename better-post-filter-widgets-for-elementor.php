@@ -7,11 +7,11 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.1.5
+ * Version: 1.2.4
  * Requires PHP: 7.4
  * Requires at least: 5.9
- * Tested up to: 6.7
- * Elementor tested up to: 3.28.0
+ * Tested up to: 6.8
+ * Elementor tested up to: 3.28.3
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -34,7 +34,7 @@ require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.1.5';
+	const VERSION                   = '1.2.4';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -109,7 +109,9 @@ final class BPFWE_Elementor {
 		add_action( 'elementor/frontend/after_enqueue_scripts', [ $this, 'widget_scripts' ] );
 		add_action( 'elementor/editor/before_enqueue_styles', [ $this, 'backend_widget_styles' ] );
 		add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'backend_widget_scripts' ] );
+		add_action( 'admin_enqueue_scripts', array( $this, 'bpfwe_swatches_scripts' ) );
 
+		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-taxonomy-swatches.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-helper.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-dynamic-tag.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-ajax.php';
@@ -189,6 +191,19 @@ final class BPFWE_Elementor {
 	 */
 	public function backend_widget_scripts() {
 		wp_enqueue_script( 'post-editor-script', plugins_url( 'assets/js/backend/post-widget-editor.js', __FILE__ ), [], self::VERSION, true );
+	}
+
+	/**
+	 * Enqueue backend scripts for the taxonomy swatches.
+	 */
+	public function bpfwe_swatches_scripts() {
+		$screen = get_current_screen();
+		if ( $screen && ( strpos( $screen->id, 'edit-pa_' ) === 0 || in_array( $screen->base, [ 'term', 'edit-tags', 'product_page_product_attributes' ], true ) ) ) {
+			wp_enqueue_style( 'wp-color-picker' );
+			wp_enqueue_script( 'wp-color-picker' );
+			wp_enqueue_media();
+			wp_enqueue_script( 'taxonomy-editor-scripts', plugins_url( 'assets/js/backend/taxonomy-editor.js', __FILE__ ), [ 'jquery', 'wp-color-picker' ], self::VERSION, true );
+		}
 	}
 
 	/**
