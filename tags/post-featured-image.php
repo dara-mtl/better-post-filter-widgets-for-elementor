@@ -131,7 +131,7 @@ class Post_Featured_Image extends Data_Tag {
 	/**
 	 * Initialize the filter to set background image.
 	 *
-	 * Hooks into 'elementor/frontend/before_render' to modify background image settings 
+	 * Hooks into 'elementor/frontend/before_render' to modify background image settings
 	 * dynamically before rendering Elementor elements on the frontend.
 	 *
 	 * @param array $data Optional element data array.

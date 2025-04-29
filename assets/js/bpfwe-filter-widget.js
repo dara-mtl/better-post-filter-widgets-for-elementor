@@ -3,6 +3,7 @@
 	$( window ).on( 'elementor/frontend/init', function () {
 		var originalStates = {};
 		var postsPerPageCache = {};
+		const performanceSettingsCache = {};
 
 		let dynamic_handler = '';
 		if ( $( '.elementor-widget-filter-widget' ).length ) {
@@ -60,6 +61,42 @@
 						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'div' ).length;
 					}
 					postsPerPageCache[ widgetID ] = postsPerPage > 0 ? postsPerPage : 50;
+				}
+
+				// Handle performance settings.
+				if ( $widget.hasClass( 'elementor-widget-filter-widget' ) ) {
+					if ( !performanceSettingsCache[ widgetID ] ) {
+						performanceSettingsCache[ widgetID ] = [];
+					}
+
+					const performanceSettings = {
+						widgetId: widgetId,
+						optimize_query: settings?.optimize_query === 'yes',
+						no_found_rows: settings?.no_found_rows === 'yes',
+						suppress_filters: settings?.suppress_filters === 'yes',
+						posts_per_page: parseInt( settings?.posts_per_page ) || -1
+					};
+
+					performanceSettingsCache[ widgetID ].push( performanceSettings );
+
+					const mergedSettings = performanceSettingsCache[ widgetID ].reduce( ( merged, current ) => {
+						return {
+							optimize_query: merged.optimize_query || current.optimize_query,
+							no_found_rows: merged.no_found_rows || current.no_found_rows,
+							suppress_filters: merged.suppress_filters || current.suppress_filters,
+							posts_per_page: Math.min( merged.posts_per_page === -1 ? Infinity : merged.posts_per_page, current.posts_per_page === -1 ? Infinity : current.posts_per_page )
+						};
+					}, {
+						optimize_query: false,
+						no_found_rows: false,
+						suppress_filters: false,
+						posts_per_page: -1
+					});
+
+					mergedSettings.posts_per_page = mergedSettings.posts_per_page === Infinity ? -1 : mergedSettings.posts_per_page;
+
+					$target.data( 'performance-settings', mergedSettings );
+					$target.attr( 'data-performance-settings', JSON.stringify( mergedSettings ) );
 				}
 			}
 		} );
@@ -258,7 +295,6 @@
 					var $widget = $( this ).closest( '.elementor-widget-search-bar-widget' );
 					var widgetInteractionID = $widget.data( 'id' );
 					if ( !widgetInteractionID ) return;
-
 					resetURL();
 					get_form_values( widgetInteractionID );
 					if ($( this ).hasClass( 'no-redirect' )) {
@@ -545,6 +581,7 @@
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
 							nonce: ajax_var.nonce,
+							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID))
 						},
 						success: function ( data ) {
 							var response = JSON.parse( data );
@@ -775,6 +812,26 @@
 						}
 						filterWidgetObservers[ widgetID ].observe( scrollAnchor.get( 0 ) );
 					}
+				}
+
+				// Fetch the performance settings based on the widget.
+				function getPerformanceSettings(widgetId) {
+					const $target = $(`.elementor-element[data-id="${widgetId}"]`);
+					let performanceSettings = $target.data('performance-settings');
+
+					if (!performanceSettings) {
+						performanceSettings = {
+							optimize_query: false,
+							no_found_rows: false,
+							suppress_filters: false,
+							cache_results: true,
+							posts_per_page: -1
+						};
+					}
+
+					performanceSettings.posts_per_page = parseInt(performanceSettings.posts_per_page) || -1;
+
+					return performanceSettings;
 				}
 
 				// Handle reset button click to clear filters, sorting, and search for the target widget.

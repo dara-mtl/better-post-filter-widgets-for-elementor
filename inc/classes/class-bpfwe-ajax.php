@@ -191,6 +191,7 @@ class BPFWE_Ajax {
 		$custom_field_output      = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$custom_field_like_output = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$numeric_output           = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$performance_settings     = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$group_logic       = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
 		$meta_key          = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
@@ -202,6 +203,16 @@ class BPFWE_Ajax {
 		$posts_per_page    = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
 		$paged             = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
 
+		$performance_settings = [
+			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
+			'no_found_rows'    => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
+			'suppress_filters' => isset( $performance_settings['suppress_filters'] ) ? filter_var( $performance_settings['suppress_filters'], FILTER_VALIDATE_BOOLEAN ) : null,
+			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? ( -1 === (int) $performance_settings['posts_per_page'] ? null : absint( $performance_settings['posts_per_page'] ) ) : null,
+		];
+
+		// Prioritize performance_settings.posts_per_page if not -1.
+		$final_posts_per_page = null !== $performance_settings['posts_per_page'] && -1 !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
+
 		$is_empty = true;
 
 		set_query_var( 'paged', $paged );
@@ -211,18 +222,28 @@ class BPFWE_Ajax {
 		$args = apply_filters(
 			'bpfwe_ajax_query_args',
 			array(
-				'posts_per_page' => $posts_per_page,
-				'order'          => $order,
-				'orderby'        => $order_by,
-				'post_type'      => $post_type,
-				'paged'          => $paged,
+				'order'     => $order,
+				'orderby'   => $order_by,
+				'post_type' => $post_type,
+				'paged'     => $paged,
 			)
 		);
-		
-		// To be re-added via an Elementor control.
-		//if ( ! defined( 'ELEMENTOR_PRO_VERSION' ) ) {
-		//	$args['fields'] = 'ids';
-		//}
+
+		if ( true === $performance_settings['optimize_query'] ) {
+			$args['fields'] = 'ids';
+		}
+
+		if ( true === $performance_settings['no_found_rows'] ) {
+			$args['no_found_rows'] = true;
+		}
+
+		if ( true === $performance_settings['suppress_filters'] ) {
+			$args['suppress_filters'] = true;
+		}
+
+		if ( -1 !== $final_posts_per_page ) {
+			$args['posts_per_page'] = $final_posts_per_page;
+		}
 
 		if ( ! empty( $search_terms ) ) {
 			$args['s'] = $search_terms;

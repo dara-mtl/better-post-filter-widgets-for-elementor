@@ -122,8 +122,8 @@ class BPFWE_Taxonomy_Swatches {
 			<?php
 		endif;
 
-		$tax_obj            = get_taxonomy( $taxonomy );
-		$group_text         = $term_id ? get_term_meta( $term_id, 'bpfwe_swatches_group_text', true ) : '';
+		$tax_obj    = get_taxonomy( $taxonomy );
+		$group_text = $term_id ? get_term_meta( $term_id, 'bpfwe_swatches_group_text', true ) : '';
 
 		if ( $is_edit ) :
 			?>

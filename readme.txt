@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.2.4
+Stable tag: 1.3.0
 Tested up to: 6.7
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -113,6 +113,21 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 3. Backend view of the Elementor edit screen, showing the post widget options.
 
 == Changelog ==
+
+= 1.3.0 =
+
+* New: Introduced a new Performance settings tab, allowing fine-tuning of filter queries for better speed and control:
+  * Load Only Post ID: Fetch only post IDs instead of full post data. Great for ID-based widgets.
+  * Skip Pagination Count: Disable total post counting when pagination isn't needed.
+  * Bypass Query Modifications: Ignore external query filters for potentially faster results.
+  * Posts Per Page: Set a fixed number of posts per page directly from the query settings.
+  * Added a control to decide of the filter terms Cache duration (previously fixed at 1 day).
+* New: Added a Max Page control to the Post widget.
+* New: In the Repeater Dynamic Tag, added an option to output the repeater fields directly as a tab.
+* Tweak: Made repeater output more consistent:
+  * Empty values no longer generate blank rows or table cells.
+  * Improved fallback handling for partially filled repeaters.
+* Fix: Pagination for the taxonomy query.
 
 = 1.2.4 - 2025-04-19 =
 

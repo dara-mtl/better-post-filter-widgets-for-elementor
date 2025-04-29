@@ -3049,6 +3049,22 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'max_pages',
+			[
+				'type'               => \Elementor\Controls_Manager::NUMBER,
+				'label'              => esc_html__( 'Max. Pages', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => -1,
+				'min'                => -1,
+				'step'               => 1,
+				'condition'          => [
+					'pagination'      => [ 'numbers', 'numbers_and_prev_next', 'load_more', 'infinite' ],
+					'classic_layout!' => 'carousel',
+				],
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
 			'pagination_carousel',
 			[
 				'type'               => \Elementor\Controls_Manager::SELECT,
@@ -8295,7 +8311,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		if ( 'main' === $settings['query_type'] ) {
 			$current_page = max( 1, get_query_var( 'paged' ) );
-		} elseif ( 'custom' === $settings['query_type'] || 'user' === $settings['query_type'] ) {
+		} elseif ( 'custom' === $settings['query_type'] || 'user' === $settings['query_type'] || 'taxonomy' === $settings['query_type'] ) {
 			if ( is_home() || is_archive() || is_post_type_archive() ) {
 				$base         = add_query_arg( 'page_num', '%#%' );
 				$current_page = max( 1, get_query_var( 'page_num' ) );
@@ -8941,6 +8957,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				if ( 'numbers' === $pagination || 'numbers_and_prev_next' === $pagination ) {
 					$bpfwe_pagination = '';
 					$total_pages      = absint( $bpfwe_query->max_num_pages );
+
+					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+						$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+					}
+
 					if ( $total_pages > 1 ) {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
 
@@ -8966,6 +8987,10 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				if ( 'load_more' === $pagination || 'infinite' === $pagination ) {
 					$bpfwe_pagination = '';
 					$total_pages      = absint( $bpfwe_query->max_num_pages );
+
+					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+						$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+					}
 
 					if ( $total_pages > 1 ) {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
@@ -9298,6 +9323,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
 
 						$current_page = absint( max( 1, min( $current_page, ceil( $total_users / $settings['posts_per_page'] ) ) ) );
+						$total_pages  = ceil( $total_users / $settings['posts_per_page'] );
+
+						if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+							$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+						}
 
 						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( ceil( $total_users / $settings['posts_per_page'] ) ) . '" aria-label="Pagination">';
 
@@ -9305,7 +9335,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$pagination_args   = [
 							'base'      => esc_url( $base ),
 							'current'   => $current_page,
-							'total'     => ceil( $total_users / $settings['posts_per_page'] ),
+							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
 							'next_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( 'next »', 'better-post-filter-widgets-for-elementor' ) : false,
 						];
@@ -9322,6 +9352,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
 
 						$current_page = absint( max( 1, min( $current_page, ceil( $total_users / $settings['posts_per_page'] ) ) ) );
+						$total_pages  = ceil( $total_users / $settings['posts_per_page'] );
+
+						if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+							$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+						}
 
 						$nav_start = '<nav class="pagination bpfwe-hidden" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( ceil( $total_users / $settings['posts_per_page'] ) ) . '" aria-label="Pagination">';
 
@@ -9329,7 +9364,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$pagination_args   = [
 							'base'      => esc_url( $base ),
 							'current'   => $current_page,
-							'total'     => ceil( $total_users / $settings['posts_per_page'] ),
+							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
 							'next_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( 'next »', 'better-post-filter-widgets-for-elementor' ) : false,
 						];
@@ -9687,6 +9722,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 					$total_terms = wp_count_terms( $settings['select_taxonomy'] );
 
+					$total_pages = ceil( $total_terms / $settings['posts_per_page'] );
+					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+						$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+					}
+
 					if ( $total_terms > 1 ) {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
 
@@ -9698,8 +9738,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$pagination_args = [
 							'base'      => esc_url( $base ),
-							'current'   => $paged,
-							'total'     => ceil( $total_terms / $settings['posts_per_page'] ),
+							'current'   => $current_page,
+							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
 							'next_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( 'next »', 'better-post-filter-widgets-for-elementor' ) : false,
 						];
@@ -9715,6 +9755,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 					$total_terms = wp_count_terms( $settings['select_taxonomy'] );
 
+					$total_pages = ceil( $total_terms / $settings['posts_per_page'] );
+					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
+						$total_pages = min( $total_pages, absint( $settings['max_pages'] ) );
+					}
+
 					if ( $total_terms > 1 ) {
 						list($base, $current_page) = $this->get_pagination_base_current( $settings );
 
@@ -9726,8 +9771,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$pagination_args = [
 							'base'      => esc_url( $base ),
-							'current'   => $paged,
-							'total'     => ceil( $total_terms / $settings['posts_per_page'] ),
+							'current'   => $current_page,
+							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
 							'next_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( 'next »', 'better-post-filter-widgets-for-elementor' ) : false,
 						];

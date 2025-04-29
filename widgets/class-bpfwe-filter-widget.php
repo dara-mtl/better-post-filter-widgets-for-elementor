@@ -490,10 +490,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'swatch_notice',
 			[
-				'type'         => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'          => esc_html__( 'Add swatches under Taxonomy > Terms to display them', 'better-post-filter-widgets-for-elementor' ),
+				'type'            => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'             => esc_html__( 'Add swatches under Taxonomy > Terms to display them', 'better-post-filter-widgets-for-elementor' ),
 				'content_classes' => 'elementor-descriptor',
-				'condition'    => [
+				'condition'       => [
 					'display_swatch' => 'yes',
 				],
 			]
@@ -768,6 +768,78 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'return_value'       => 'yes',
 				'default'            => '',
 				'frontend_available' => true,
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'performance_section',
+			[
+				'label' => esc_html__( 'Performance Settings', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->add_control(
+			'optimize_query',
+			[
+				'label'              => __( 'Load Only Post ID', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => __( 'Loads only post IDs. Best for ID-based widgets but may break those needing full post details. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'no',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'no_found_rows',
+			[
+				'label'              => __( 'Skip Pagination Count', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => __( 'Skips counting total posts. Use only if pagination isn’t needed. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'no',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'suppress_filters',
+			[
+				'label'              => __( 'Bypass Query Modifications', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => __( 'Ignores query tweaks. May break 3rd party features. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'no',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'posts_per_page',
+			[
+				'label'              => __( 'Posts Per Page', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::NUMBER,
+				'description'        => __( 'Limits the number of posts per page. Use -1 to use post widget’s default value, if accesible by the query. Default: -1. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => -1,
+				'min'                => -1,
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'transient_duration',
+			[
+				'label'       => __( 'Cache filter’s terms (s)', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::NUMBER,
+				'description' => __( 'Caches filter terms for faster loading. Set to 0 to disable (not recommended). Default: 86400 (1 day). Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'default'     => 86400,
+				'min'         => 0,
 			]
 		);
 
@@ -2155,12 +2227,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 	 * @access protected
 	 */
 	protected function render() {
-		$settings         = $this->get_settings_for_display();
-		$widget_id        = $this->get_id();
-		$show_counter     = '';
-		$toggleable_class = '';
-		$min_value        = '';
-		$max_value        = '';
+		$settings           = $this->get_settings_for_display();
+		$widget_id          = $this->get_id();
+		$transient_duration = ( ! empty( $settings['transient_duration'] ) ) ? absint( $settings['transient_duration'] ) : 86400;
+		$show_counter       = '';
+		$toggleable_class   = '';
+		$min_value          = '';
+		$max_value          = '';
 
 		if ( $settings['filter_list'] ) {
 			$index = 0;
@@ -2231,7 +2304,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								'update_meta_cache' => false,
 							]
 						);
-						set_transient( $transient_key, $hiterms, DAY_IN_SECONDS / 1 ); // Set expiration to once a day.
+
+						if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+							set_transient( $transient_key, $hiterms, $transient_duration );
+						}
 					}
 
 					if ( 'checkboxes' === $item['filter_style'] || 'checkboxes' === $item['filter_style_cf'] ) {
@@ -2317,7 +2393,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 									$lowterms = get_terms( $args );
-									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 );
+
+									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
+									}
 								}
 
 								if ( $lowterms ) {
@@ -2403,7 +2482,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'update_meta_cache' => false,
 											);
 											$child_terms = get_terms( $args );
-											set_transient( $child_transient_key, $child_terms, DAY_IN_SECONDS / 1 );
+
+											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+												set_transient( $child_transient_key, $child_terms, $transient_duration );
+											}
 										}
 
 										$output .= '
@@ -2567,7 +2649,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 									$lowterms = get_terms( $args );
-									set_transient( $lowterms_transient_key, $lowterms, DAY_IN_SECONDS / 1 );
+
+									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
+									}
 								}
 
 								if ( $lowterms ) {
@@ -2653,7 +2738,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'update_meta_cache' => false,
 											);
 											$child_terms = get_terms( $args );
-											set_transient( $child_transient_key, $child_terms, DAY_IN_SECONDS / 1 );
+
+											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+												set_transient( $child_transient_key, $child_terms, $transient_duration );
+											}
 										}
 
 										$output .= '
@@ -2911,7 +2999,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$terms_data = array_keys( $terms_data );
 								wp_reset_postdata();
-								set_transient( $meta_terms_transient_key, $terms_data, DAY_IN_SECONDS / 1 ); // Set expiration to once a day.
+
+								if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+									set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
+								}
+
 								$terms = $terms_data;
 							}
 						}
@@ -3092,7 +3184,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							$all_posts_transient = $all_posts_query->posts;
 
-							set_transient( $numeric_transient_key, $all_posts_transient, DAY_IN_SECONDS / 1 ); // Set expiration to once a day.
+							if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+								set_transient( $numeric_transient_key, $all_posts_transient, $transient_duration );
+							}
 						}
 
 						$terms = array(); // Initialize $terms array.

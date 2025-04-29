@@ -1,4 +1,4 @@
-# Copyright (C) 2024 BFP Widget
+# Copyright (C) 2024 BFPWE Widget
 msgid ""
 msgstr ""
 "Project-Id-Version: better-post-filter-widgets-for-elementor 1.1.0\n"
@@ -12,29 +12,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: better-post-filter-widgets-for-elementor.php:224
+#: better-post-filter-widgets-for-elementor.php:238
 #, php-format
 msgid "\"%1$s\" requires \"%2$s\" to be installed and activated."
 msgstr ""
 
-#: better-post-filter-widgets-for-elementor.php:225
-#: better-post-filter-widgets-for-elementor.php:245
-#: better-post-filter-widgets-for-elementor.php:266
+#: better-post-filter-widgets-for-elementor.php:239
+#: better-post-filter-widgets-for-elementor.php:259
+#: better-post-filter-widgets-for-elementor.php:280
 msgid "Better Post and Filter Widgets for Elementor"
 msgstr ""
 
-#: better-post-filter-widgets-for-elementor.php:226
-#: better-post-filter-widgets-for-elementor.php:246
+#: better-post-filter-widgets-for-elementor.php:240
+#: better-post-filter-widgets-for-elementor.php:260
 msgid "Elementor"
 msgstr ""
 
-#: better-post-filter-widgets-for-elementor.php:244
-#: better-post-filter-widgets-for-elementor.php:265
+#: better-post-filter-widgets-for-elementor.php:258
+#: better-post-filter-widgets-for-elementor.php:279
 #, php-format
 msgid "\"%1$s\" requires \"%2$s\" version %3$s or greater."
 msgstr ""
 
-#: better-post-filter-widgets-for-elementor.php:267
+#: better-post-filter-widgets-for-elementor.php:281
 msgid "PHP"
 msgstr ""
 
@@ -53,7 +53,7 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:461
 #: widgets/class-bpfwe-post-widget.php:478
 #: widgets/class-bpfwe-search-bar-widget.php:125
-#: widgets/class-bpfwe-sorting-widget.php:121
+#: widgets/class-bpfwe-sorting-widget.php:122
 msgid "Content"
 msgstr ""
 
@@ -66,7 +66,7 @@ msgid "Enter text or attach a dynamic tag"
 msgstr ""
 
 #: inc/classes/class-bpfwe-dynamic-group.php:192
-#: widgets/class-bpfwe-filter-widget.php:433
+#: widgets/class-bpfwe-filter-widget.php:581
 #: widgets/class-bpfwe-post-widget.php:1655
 msgid "Advanced"
 msgstr ""
@@ -106,24 +106,35 @@ msgstr ""
 msgid "Repeater List"
 msgstr ""
 
-#: inc/classes/class-bpfwe-dynamic-tag.php:72
+#: inc/classes/class-bpfwe-dynamic-tag.php:74
 msgid "Custom Dynamic Tags"
 msgstr ""
 
-#: inc/classes/class-bpfwe-dynamic-tag.php:73 tags/custom-field.php:121
-#: tags/repeater.php:121 widgets/class-bpfwe-post-widget.php:534
+#: inc/classes/class-bpfwe-dynamic-tag.php:75 tags/custom-field.php:121
+#: tags/image-custom-field.php:95 tags/repeater.php:121
+#: widgets/class-bpfwe-post-widget.php:534
 msgid "Post"
 msgstr ""
 
-#: inc/classes/class-bpfwe-dynamic-tag.php:74 tags/custom-field.php:124
-#: tags/repeater.php:124 widgets/class-bpfwe-post-widget.php:2074
-#: widgets/class-bpfwe-sorting-widget.php:157
+#: inc/classes/class-bpfwe-dynamic-tag.php:76 tags/custom-field.php:124
+#: tags/image-custom-field.php:98 tags/repeater.php:124
+#: widgets/class-bpfwe-post-widget.php:2074
+#: widgets/class-bpfwe-sorting-widget.php:158
 msgid "Author"
 msgstr ""
 
-#: inc/classes/class-bpfwe-dynamic-tag.php:75 tags/custom-field.php:123
-#: tags/repeater.php:123
+#: inc/classes/class-bpfwe-dynamic-tag.php:77 tags/custom-field.php:123
+#: tags/image-custom-field.php:97 tags/repeater.php:123
 msgid "User"
+msgstr ""
+
+#: inc/classes/class-bpfwe-dynamic-tag.php:78 tags/custom-field.php:122
+#: tags/image-custom-field.php:96 tags/post-terms.php:114
+#: tags/repeater.php:122 widgets/class-bpfwe-filter-widget.php:243
+#: widgets/class-bpfwe-post-widget.php:464
+#: widgets/class-bpfwe-post-widget.php:481
+#: widgets/class-bpfwe-post-widget.php:4516
+msgid "Taxonomy"
 msgstr ""
 
 #: inc/classes/class-bpfwe-helper.php:41
@@ -144,17 +155,135 @@ msgid "Select..."
 msgstr ""
 
 #: inc/classes/class-bpfwe-helper.php:442
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:99
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:113
 #: widgets/class-bpfwe-post-widget.php:1556
 #: widgets/class-bpfwe-post-widget.php:3038
-#: widgets/class-bpfwe-post-widget.php:3058
+#: widgets/class-bpfwe-post-widget.php:3074
 msgid "None"
 msgstr ""
 
-#: tags/author-meta.php:53
-msgid "Author Info"
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:96
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:111
+msgid "Swatches Type"
 msgstr ""
 
-#: tags/author-meta.php:115 tags/user-meta.php:115
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:100
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:114
+#: widgets/class-bpfwe-filter-widget.php:1023
+#: widgets/class-bpfwe-filter-widget.php:1070
+#: widgets/class-bpfwe-filter-widget.php:1334
+#: widgets/class-bpfwe-filter-widget.php:1506
+#: widgets/class-bpfwe-filter-widget.php:1560
+#: widgets/class-bpfwe-filter-widget.php:1619
+#: widgets/class-bpfwe-filter-widget.php:1690
+#: widgets/class-bpfwe-post-widget.php:1358
+#: widgets/class-bpfwe-post-widget.php:1759
+#: widgets/class-bpfwe-post-widget.php:4051
+#: widgets/class-bpfwe-post-widget.php:4109
+#: widgets/class-bpfwe-post-widget.php:4227
+#: widgets/class-bpfwe-post-widget.php:4285
+#: widgets/class-bpfwe-post-widget.php:4400
+#: widgets/class-bpfwe-post-widget.php:4458
+#: widgets/class-bpfwe-post-widget.php:4572
+#: widgets/class-bpfwe-post-widget.php:4631
+#: widgets/class-bpfwe-post-widget.php:4740
+#: widgets/class-bpfwe-post-widget.php:4799
+#: widgets/class-bpfwe-post-widget.php:4913
+#: widgets/class-bpfwe-post-widget.php:5014
+#: widgets/class-bpfwe-post-widget.php:5128
+#: widgets/class-bpfwe-post-widget.php:5186
+#: widgets/class-bpfwe-post-widget.php:5300
+#: widgets/class-bpfwe-post-widget.php:5359
+#: widgets/class-bpfwe-post-widget.php:5473
+#: widgets/class-bpfwe-post-widget.php:5532
+#: widgets/class-bpfwe-post-widget.php:5646
+#: widgets/class-bpfwe-post-widget.php:5705
+#: widgets/class-bpfwe-post-widget.php:5819
+#: widgets/class-bpfwe-post-widget.php:5877
+#: widgets/class-bpfwe-post-widget.php:5989
+#: widgets/class-bpfwe-post-widget.php:6048
+#: widgets/class-bpfwe-post-widget.php:6180
+#: widgets/class-bpfwe-post-widget.php:6248
+#: widgets/class-bpfwe-post-widget.php:6371
+#: widgets/class-bpfwe-post-widget.php:6428
+#: widgets/class-bpfwe-post-widget.php:6540
+#: widgets/class-bpfwe-post-widget.php:6597
+#: widgets/class-bpfwe-post-widget.php:6728
+#: widgets/class-bpfwe-post-widget.php:6796
+#: widgets/class-bpfwe-post-widget.php:6878
+#: widgets/class-bpfwe-post-widget.php:6995
+#: widgets/class-bpfwe-post-widget.php:7068
+#: widgets/class-bpfwe-post-widget.php:7151
+#: widgets/class-bpfwe-post-widget.php:7207
+#: widgets/class-bpfwe-post-widget.php:7399
+#: widgets/class-bpfwe-post-widget.php:7457
+#: widgets/class-bpfwe-post-widget.php:8007
+#: widgets/class-bpfwe-post-widget.php:8107
+#: widgets/class-bpfwe-post-widget.php:8172
+#: widgets/class-bpfwe-posts-found-widget.php:135
+#: widgets/class-bpfwe-search-bar-widget.php:248
+#: widgets/class-bpfwe-search-bar-widget.php:476
+#: widgets/class-bpfwe-search-bar-widget.php:557
+#: widgets/class-bpfwe-sorting-widget.php:348
+msgid "Color"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:101
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:115
+msgid "Image"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:102
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:116
+msgid "Button"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:104
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:118
+msgid "WC Category Image"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:131
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:139
+msgid "Group Separator Text (Optional)"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:133
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:140
+msgid "Leave blank to skip the separator"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:134
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:141
+msgid "Enter text to use this term as a group separator in the filter widget."
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:162
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:171
+msgid "Swatch Color"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:181
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:191
+msgid "Swatch Image"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:184
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:193
+msgid "Upload/Add image"
+msgstr ""
+
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:202
+#: inc/classes/class-bpfwe-taxonomy-swatches.php:211
+msgid "Swatch Button Text"
+msgstr ""
+
+#: tags/author-meta.php:53 tags/author-meta.php:125
+msgid "Author Meta"
+msgstr ""
+
+#: tags/author-meta.php:115 tags/tax-meta.php:117 tags/user-meta.php:115
 msgid "Field"
 msgstr ""
 
@@ -179,30 +308,21 @@ msgstr ""
 msgid "Profile URL"
 msgstr ""
 
-#: tags/author-meta.php:125
-msgid "Author Meta"
-msgstr ""
-
-#: tags/author-meta.php:133 tags/custom-field.php:189 tags/user-meta.php:134
+#: tags/author-meta.php:133 tags/custom-field.php:189
+#: tags/image-custom-field.php:163 tags/tax-meta.php:135
+#: tags/user-meta.php:134
 msgid "Meta Key"
 msgstr ""
 
 #: tags/custom-field.php:50 widgets/class-bpfwe-filter-widget.php:244
 #: widgets/class-bpfwe-post-widget.php:2077
-#: widgets/class-bpfwe-sorting-widget.php:160
+#: widgets/class-bpfwe-sorting-widget.php:161
 msgid "Custom Field"
 msgstr ""
 
-#: tags/custom-field.php:117 tags/repeater.php:117
+#: tags/custom-field.php:117 tags/image-custom-field.php:91
+#: tags/repeater.php:117
 msgid "Field Source"
-msgstr ""
-
-#: tags/custom-field.php:122 tags/post-terms.php:114 tags/repeater.php:122
-#: widgets/class-bpfwe-filter-widget.php:243
-#: widgets/class-bpfwe-post-widget.php:464
-#: widgets/class-bpfwe-post-widget.php:481
-#: widgets/class-bpfwe-post-widget.php:4500
-msgid "Taxonomy"
 msgstr ""
 
 #: tags/custom-field.php:125
@@ -213,32 +333,37 @@ msgstr ""
 msgid "Option Key"
 msgstr ""
 
-#: tags/custom-field.php:144 tags/repeater.php:144
-#: widgets/class-bpfwe-post-widget.php:2073
-#: widgets/class-bpfwe-sorting-widget.php:156
+#: tags/custom-field.php:144 tags/image-custom-field.php:118
+#: tags/repeater.php:144 widgets/class-bpfwe-post-widget.php:2073
+#: widgets/class-bpfwe-sorting-widget.php:157
 msgid "Post ID"
 msgstr ""
 
-#: tags/custom-field.php:146 tags/repeater.php:146
+#: tags/custom-field.php:146 tags/image-custom-field.php:120
+#: tags/repeater.php:146
 msgid "Current Post ID"
 msgstr ""
 
-#: tags/custom-field.php:159 tags/repeater.php:156
-#: widgets/class-bpfwe-filter-widget.php:449
+#: tags/custom-field.php:159 tags/image-custom-field.php:133
+#: tags/repeater.php:156 tags/tax-meta.php:122 tags/tax-meta.php:146
+#: widgets/class-bpfwe-filter-widget.php:597
 #: widgets/class-bpfwe-post-widget.php:521
 msgid "Term ID"
 msgstr ""
 
-#: tags/custom-field.php:161 tags/repeater.php:158
+#: tags/custom-field.php:161 tags/image-custom-field.php:135
+#: tags/repeater.php:158 tags/tax-meta.php:148
 msgid "Current Term ID"
 msgstr ""
 
-#: tags/custom-field.php:174 tags/repeater.php:168 tags/user-meta.php:145
+#: tags/custom-field.php:174 tags/image-custom-field.php:148
+#: tags/repeater.php:168 tags/user-meta.php:145
 #: widgets/class-bpfwe-post-widget.php:503
 msgid "User ID"
 msgstr ""
 
-#: tags/custom-field.php:176 tags/repeater.php:170 tags/user-meta.php:147
+#: tags/custom-field.php:176 tags/image-custom-field.php:150
+#: tags/repeater.php:170 tags/user-meta.php:147
 msgid "Current User ID"
 msgstr ""
 
@@ -247,18 +372,21 @@ msgid "Add Paragraphs"
 msgstr ""
 
 #: tags/custom-field.php:199 tags/post-terms.php:147 tags/post-terms.php:158
-#: widgets/class-bpfwe-filter-widget.php:337
-#: widgets/class-bpfwe-filter-widget.php:389
+#: widgets/class-bpfwe-filter-widget.php:351
+#: widgets/class-bpfwe-filter-widget.php:465
 #: widgets/class-bpfwe-filter-widget.php:480
-#: widgets/class-bpfwe-filter-widget.php:496
-#: widgets/class-bpfwe-filter-widget.php:512
-#: widgets/class-bpfwe-filter-widget.php:528
-#: widgets/class-bpfwe-filter-widget.php:544
-#: widgets/class-bpfwe-filter-widget.php:560
-#: widgets/class-bpfwe-filter-widget.php:618
-#: widgets/class-bpfwe-filter-widget.php:642
-#: widgets/class-bpfwe-filter-widget.php:667
-#: widgets/class-bpfwe-filter-widget.php:691
+#: widgets/class-bpfwe-filter-widget.php:508
+#: widgets/class-bpfwe-filter-widget.php:537
+#: widgets/class-bpfwe-filter-widget.php:628
+#: widgets/class-bpfwe-filter-widget.php:644
+#: widgets/class-bpfwe-filter-widget.php:660
+#: widgets/class-bpfwe-filter-widget.php:676
+#: widgets/class-bpfwe-filter-widget.php:692
+#: widgets/class-bpfwe-filter-widget.php:708
+#: widgets/class-bpfwe-filter-widget.php:766
+#: widgets/class-bpfwe-filter-widget.php:862
+#: widgets/class-bpfwe-filter-widget.php:887
+#: widgets/class-bpfwe-filter-widget.php:911
 #: widgets/class-bpfwe-post-widget.php:208
 #: widgets/class-bpfwe-post-widget.php:329
 #: widgets/class-bpfwe-post-widget.php:380
@@ -299,31 +427,34 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:2901
 #: widgets/class-bpfwe-post-widget.php:2914
 #: widgets/class-bpfwe-post-widget.php:2927
-#: widgets/class-bpfwe-post-widget.php:3074
-#: widgets/class-bpfwe-post-widget.php:3091
-#: widgets/class-bpfwe-post-widget.php:3119
-#: widgets/class-bpfwe-post-widget.php:3172
-#: widgets/class-bpfwe-post-widget.php:3203
-#: widgets/class-bpfwe-post-widget.php:3767
-#: widgets/class-bpfwe-post-widget.php:3926
-#: widgets/class-bpfwe-search-bar-widget.php:173
-#: widgets/class-bpfwe-search-bar-widget.php:201
+#: widgets/class-bpfwe-post-widget.php:3090
+#: widgets/class-bpfwe-post-widget.php:3107
+#: widgets/class-bpfwe-post-widget.php:3135
+#: widgets/class-bpfwe-post-widget.php:3188
+#: widgets/class-bpfwe-post-widget.php:3219
+#: widgets/class-bpfwe-post-widget.php:3783
+#: widgets/class-bpfwe-post-widget.php:3942
+#: widgets/class-bpfwe-search-bar-widget.php:174
+#: widgets/class-bpfwe-search-bar-widget.php:202
 msgid "Yes"
 msgstr ""
 
 #: tags/custom-field.php:200 tags/post-terms.php:148 tags/post-terms.php:159
-#: widgets/class-bpfwe-filter-widget.php:338
-#: widgets/class-bpfwe-filter-widget.php:390
+#: widgets/class-bpfwe-filter-widget.php:352
+#: widgets/class-bpfwe-filter-widget.php:466
 #: widgets/class-bpfwe-filter-widget.php:481
-#: widgets/class-bpfwe-filter-widget.php:497
-#: widgets/class-bpfwe-filter-widget.php:513
-#: widgets/class-bpfwe-filter-widget.php:529
-#: widgets/class-bpfwe-filter-widget.php:545
-#: widgets/class-bpfwe-filter-widget.php:561
-#: widgets/class-bpfwe-filter-widget.php:619
-#: widgets/class-bpfwe-filter-widget.php:643
-#: widgets/class-bpfwe-filter-widget.php:668
-#: widgets/class-bpfwe-filter-widget.php:692
+#: widgets/class-bpfwe-filter-widget.php:509
+#: widgets/class-bpfwe-filter-widget.php:538
+#: widgets/class-bpfwe-filter-widget.php:629
+#: widgets/class-bpfwe-filter-widget.php:645
+#: widgets/class-bpfwe-filter-widget.php:661
+#: widgets/class-bpfwe-filter-widget.php:677
+#: widgets/class-bpfwe-filter-widget.php:693
+#: widgets/class-bpfwe-filter-widget.php:709
+#: widgets/class-bpfwe-filter-widget.php:767
+#: widgets/class-bpfwe-filter-widget.php:863
+#: widgets/class-bpfwe-filter-widget.php:888
+#: widgets/class-bpfwe-filter-widget.php:912
 #: widgets/class-bpfwe-post-widget.php:209
 #: widgets/class-bpfwe-post-widget.php:330
 #: widgets/class-bpfwe-post-widget.php:381
@@ -364,16 +495,32 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:2902
 #: widgets/class-bpfwe-post-widget.php:2915
 #: widgets/class-bpfwe-post-widget.php:2928
-#: widgets/class-bpfwe-post-widget.php:3075
-#: widgets/class-bpfwe-post-widget.php:3092
-#: widgets/class-bpfwe-post-widget.php:3120
-#: widgets/class-bpfwe-post-widget.php:3173
-#: widgets/class-bpfwe-post-widget.php:3204
-#: widgets/class-bpfwe-post-widget.php:3768
-#: widgets/class-bpfwe-post-widget.php:3927
-#: widgets/class-bpfwe-search-bar-widget.php:174
-#: widgets/class-bpfwe-search-bar-widget.php:202
+#: widgets/class-bpfwe-post-widget.php:3091
+#: widgets/class-bpfwe-post-widget.php:3108
+#: widgets/class-bpfwe-post-widget.php:3136
+#: widgets/class-bpfwe-post-widget.php:3189
+#: widgets/class-bpfwe-post-widget.php:3220
+#: widgets/class-bpfwe-post-widget.php:3784
+#: widgets/class-bpfwe-post-widget.php:3943
+#: widgets/class-bpfwe-search-bar-widget.php:175
+#: widgets/class-bpfwe-search-bar-widget.php:203
 msgid "No"
+msgstr ""
+
+#: tags/image-custom-field.php:52
+msgid "Image Custom Field"
+msgstr ""
+
+#: tags/image-custom-field.php:99 tags/repeater.php:125
+msgid "Theme Options"
+msgstr ""
+
+#: tags/image-custom-field.php:107 tags/repeater.php:133
+msgid "Theme Option Key"
+msgstr ""
+
+#: tags/image-custom-field.php:172 widgets/class-bpfwe-post-widget.php:3770
+msgid "Fallback Image"
 msgstr ""
 
 #: tags/pages-url.php:53 tags/pages-url.php:143
@@ -387,7 +534,7 @@ msgstr ""
 #: tags/post-content.php:42 widgets/class-bpfwe-post-widget.php:561
 #: widgets/class-bpfwe-post-widget.php:1796
 #: widgets/class-bpfwe-post-widget.php:1880
-#: widgets/class-bpfwe-post-widget.php:3507
+#: widgets/class-bpfwe-post-widget.php:3523
 msgid "Post Content"
 msgstr ""
 
@@ -413,11 +560,11 @@ msgstr ""
 msgid "Excerpt Length"
 msgstr ""
 
-#: tags/post-featured-image.php:81 widgets/class-bpfwe-post-widget.php:3738
+#: tags/post-featured-image.php:81 widgets/class-bpfwe-post-widget.php:3754
 msgid "Featured Image"
 msgstr ""
 
-#: tags/post-featured-image.php:123
+#: tags/post-featured-image.php:125
 msgid "Fallback"
 msgstr ""
 
@@ -457,14 +604,6 @@ msgstr ""
 msgid "Repeater"
 msgstr ""
 
-#: tags/repeater.php:125
-msgid "Theme Options"
-msgstr ""
-
-#: tags/repeater.php:133
-msgid "Theme Option Key"
-msgstr ""
-
 #: tags/repeater.php:180
 msgid "Parent Key"
 msgstr ""
@@ -486,76 +625,88 @@ msgid "Child Key 4"
 msgstr ""
 
 #: tags/repeater.php:236
+msgid "Child Key 5"
+msgstr ""
+
+#: tags/repeater.php:248
 msgid "HTML Tag"
 msgstr ""
 
-#: tags/repeater.php:240
+#: tags/repeater.php:252
 msgid "No Tag"
 msgstr ""
 
-#: tags/repeater.php:241 tags/repeater.php:274
+#: tags/repeater.php:253 tags/repeater.php:286 tags/repeater.php:308
 #: widgets/class-bpfwe-post-widget.php:253
 #: widgets/class-bpfwe-post-widget.php:273
 msgid "div"
 msgstr ""
 
-#: tags/repeater.php:242 tags/repeater.php:273
+#: tags/repeater.php:254 tags/repeater.php:285 tags/repeater.php:307
 #: widgets/class-bpfwe-post-widget.php:274
 msgid "span"
 msgstr ""
 
-#: tags/repeater.php:243 widgets/class-bpfwe-post-widget.php:275
+#: tags/repeater.php:255 widgets/class-bpfwe-post-widget.php:275
 msgid "p"
 msgstr ""
 
-#: tags/repeater.php:244 tags/repeater.php:267
+#: tags/repeater.php:256 tags/repeater.php:279 tags/repeater.php:301
 #: widgets/class-bpfwe-post-widget.php:267
 msgid "h1"
 msgstr ""
 
-#: tags/repeater.php:245 tags/repeater.php:268
+#: tags/repeater.php:257 tags/repeater.php:280 tags/repeater.php:302
 #: widgets/class-bpfwe-post-widget.php:268
 msgid "h2"
 msgstr ""
 
-#: tags/repeater.php:246 tags/repeater.php:269
+#: tags/repeater.php:258 tags/repeater.php:281 tags/repeater.php:303
 #: widgets/class-bpfwe-post-widget.php:269
 msgid "h3"
 msgstr ""
 
-#: tags/repeater.php:247 tags/repeater.php:270
+#: tags/repeater.php:259 tags/repeater.php:282 tags/repeater.php:304
 #: widgets/class-bpfwe-post-widget.php:270
 msgid "h4"
 msgstr ""
 
-#: tags/repeater.php:248 tags/repeater.php:271
+#: tags/repeater.php:260 tags/repeater.php:283 tags/repeater.php:305
 #: widgets/class-bpfwe-post-widget.php:271
 msgid "h5"
 msgstr ""
 
-#: tags/repeater.php:249 tags/repeater.php:272
+#: tags/repeater.php:261 tags/repeater.php:284 tags/repeater.php:306
 #: widgets/class-bpfwe-post-widget.php:272
 msgid "h6"
 msgstr ""
 
-#: tags/repeater.php:250
+#: tags/repeater.php:262
 msgid "ul"
 msgstr ""
 
-#: tags/repeater.php:251
+#: tags/repeater.php:263
 msgid "ol"
 msgstr ""
 
-#: tags/repeater.php:252
+#: tags/repeater.php:264
 msgid "table"
 msgstr ""
 
-#: tags/repeater.php:253
+#: tags/repeater.php:265
 msgid "toggle"
 msgstr ""
 
-#: tags/repeater.php:263
-msgid "Title Tag"
+#: tags/repeater.php:266
+msgid "tabs"
+msgstr ""
+
+#: tags/repeater.php:275
+msgid "Toggle Title Tag"
+msgstr ""
+
+#: tags/repeater.php:297
+msgid "Tab Title Tag"
 msgstr ""
 
 #: tags/shortcode.php:47 tags/shortcode.php:92
@@ -566,16 +717,41 @@ msgstr ""
 msgid "[your-shortcode]"
 msgstr ""
 
-#: tags/user-meta.php:53
-msgid "User Info"
+#: tags/tax-meta.php:53
+msgid "Taxonomy Meta"
+msgstr ""
+
+#: tags/tax-meta.php:121 widgets/class-bpfwe-filter-widget.php:592
+msgid "Name"
+msgstr ""
+
+#: tags/tax-meta.php:123
+msgid "Description"
+msgstr ""
+
+#: tags/tax-meta.php:124 widgets/class-bpfwe-filter-widget.php:593
+msgid "Slug"
+msgstr ""
+
+#: tags/tax-meta.php:125
+msgid "Post Count"
+msgstr ""
+
+#: tags/tax-meta.php:126 widgets/class-bpfwe-post-widget.php:522
+#: widgets/class-bpfwe-post-widget.php:5933
+msgid "Term URL"
+msgstr ""
+
+#: tags/tax-meta.php:127
+msgid "Term Meta"
+msgstr ""
+
+#: tags/user-meta.php:53 tags/user-meta.php:126
+msgid "User Meta"
 msgstr ""
 
 #: tags/user-meta.php:124
 msgid "Nicename"
-msgstr ""
-
-#: tags/user-meta.php:126
-msgid "User Meta"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:55
@@ -588,15 +764,19 @@ msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:164
 #: widgets/class-bpfwe-search-bar-widget.php:133
+#: widgets/class-bpfwe-sorting-widget.php:201
 msgid "Post Widget Target"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:169
 #: widgets/class-bpfwe-search-bar-widget.php:138
+#: widgets/class-bpfwe-sorting-widget.php:206
 msgid "#id, .class"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:177
+#: widgets/class-bpfwe-search-bar-widget.php:146
+#: widgets/class-bpfwe-sorting-widget.php:214
 msgid "Post Type to Filter"
 msgstr ""
 
@@ -606,7 +786,7 @@ msgid "Columns"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:225
-#: widgets/class-bpfwe-filter-widget.php:772
+#: widgets/class-bpfwe-filter-widget.php:992
 msgid "Group Label"
 msgstr ""
 
@@ -621,7 +801,7 @@ msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:245
 #: widgets/class-bpfwe-post-widget.php:2078
-#: widgets/class-bpfwe-sorting-widget.php:161
+#: widgets/class-bpfwe-sorting-widget.php:162
 msgid "Custom Field (Numeric)"
 msgstr ""
 
@@ -635,7 +815,7 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:909
 #: widgets/class-bpfwe-post-widget.php:925
 #: widgets/class-bpfwe-post-widget.php:2089
-#: widgets/class-bpfwe-sorting-widget.php:169
+#: widgets/class-bpfwe-sorting-widget.php:170
 msgid "Field Key"
 msgstr ""
 
@@ -643,57 +823,57 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:1836
 #: widgets/class-bpfwe-post-widget.php:1853
 #: widgets/class-bpfwe-post-widget.php:2094
-#: widgets/class-bpfwe-sorting-widget.php:174
+#: widgets/class-bpfwe-sorting-widget.php:175
 msgid "Enter a meta key"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:282
+msgid "Filter Type"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:286
+msgid "Range"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:287
+#: widgets/class-bpfwe-filter-widget.php:317
+#: widgets/class-bpfwe-filter-widget.php:384
+msgid "Checkboxes"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:288
+#: widgets/class-bpfwe-filter-widget.php:318
+#: widgets/class-bpfwe-filter-widget.php:385
+msgid "Radio Buttons"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:289
+#: widgets/class-bpfwe-filter-widget.php:319
+#: widgets/class-bpfwe-filter-widget.php:386
+#: widgets/class-bpfwe-filter-widget.php:1451
+msgid "Label List"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:301
 #: widgets/class-bpfwe-post-widget.php:1673
 msgid "Before"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:294
-msgid "Filter Type"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:298
-msgid "Range"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:299
-#: widgets/class-bpfwe-filter-widget.php:317
-#: widgets/class-bpfwe-filter-widget.php:370
-msgid "Checkboxes"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:300
-#: widgets/class-bpfwe-filter-widget.php:318
-#: widgets/class-bpfwe-filter-widget.php:371
-msgid "Radio Buttons"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:301
-#: widgets/class-bpfwe-filter-widget.php:319
-#: widgets/class-bpfwe-filter-widget.php:372
-#: widgets/class-bpfwe-filter-widget.php:1002
-msgid "Label List"
-msgstr ""
-
 #: widgets/class-bpfwe-filter-widget.php:313
-#: widgets/class-bpfwe-filter-widget.php:366
+#: widgets/class-bpfwe-filter-widget.php:380
 msgid "Field Type"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:320
-#: widgets/class-bpfwe-filter-widget.php:373
-#: widgets/class-bpfwe-filter-widget.php:1307
-#: widgets/class-bpfwe-sorting-widget.php:239
+#: widgets/class-bpfwe-filter-widget.php:387
+#: widgets/class-bpfwe-filter-widget.php:1756
+#: widgets/class-bpfwe-sorting-widget.php:266
 msgid "Dropdown"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:321
-#: widgets/class-bpfwe-filter-widget.php:374
-#: widgets/class-bpfwe-filter-widget.php:1192
+#: widgets/class-bpfwe-filter-widget.php:388
+#: widgets/class-bpfwe-filter-widget.php:1641
 msgid "Select2"
 msgstr ""
 
@@ -702,357 +882,668 @@ msgid "Input Field"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:334
-#: widgets/class-bpfwe-filter-widget.php:386
-msgid "Enable Multiple Select"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:418
-#: widgets/class-bpfwe-search-bar-widget.php:158
+#: widgets/class-bpfwe-filter-widget.php:520
+#: widgets/class-bpfwe-filter-widget.php:566
+#: widgets/class-bpfwe-search-bar-widget.php:159
 msgid "Placeholder"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:420
-#: widgets/class-bpfwe-filter-widget.php:421
-#: widgets/class-bpfwe-search-bar-widget.php:163
-#: widgets/class-bpfwe-search-bar-widget.php:164
-msgid "Search by keywords..."
+#: widgets/class-bpfwe-filter-widget.php:336
+#: widgets/class-bpfwe-filter-widget.php:337
+#: widgets/class-bpfwe-filter-widget.php:522
+#: widgets/class-bpfwe-filter-widget.php:523
+#: widgets/class-bpfwe-filter-widget.php:2855
+#: widgets/class-bpfwe-filter-widget.php:3104
+#: widgets/class-bpfwe-post-widget.php:8918
+msgid "Choose an option"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:440
-#: widgets/class-bpfwe-sorting-widget.php:146
-msgid "Sort By"
+#: widgets/class-bpfwe-filter-widget.php:348
+#: widgets/class-bpfwe-filter-widget.php:534
+msgid "Enable Multiple Select"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:444
-msgid "Name"
+#: widgets/class-bpfwe-filter-widget.php:400
+msgid "Label Direction"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:445
-msgid "Slug"
+#: widgets/class-bpfwe-filter-widget.php:404
+msgid "Vertical"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:446
-msgid "Count"
+#: widgets/class-bpfwe-filter-widget.php:408
+msgid "Horizontal"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:447
-msgid "Term Group"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:448
-msgid "Term Order"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:460
-msgid "Group Logic"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:464
-#: widgets/class-bpfwe-filter-widget.php:607
-msgid "OR"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:465
-#: widgets/class-bpfwe-filter-widget.php:606
-msgid "AND"
+#: widgets/class-bpfwe-filter-widget.php:462
+msgid "Hide Input"
 msgstr ""
 
 #: widgets/class-bpfwe-filter-widget.php:477
+msgid "Display Swatch"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:494
+msgid "Add swatches under Taxonomy > Terms to display them"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:505
+msgid "Hide Label"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:568
+#: widgets/class-bpfwe-filter-widget.php:569
+#: widgets/class-bpfwe-search-bar-widget.php:164
+#: widgets/class-bpfwe-search-bar-widget.php:165
+msgid "Search by keywords..."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:588
+#: widgets/class-bpfwe-sorting-widget.php:147
+msgid "Sort By"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:594
+msgid "Count"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:595
+msgid "Term Group"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:596
+msgid "Term Order"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:608
+msgid "Group Logic"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:612
+#: widgets/class-bpfwe-filter-widget.php:755
+msgid "OR"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:613
+#: widgets/class-bpfwe-filter-widget.php:754
+msgid "AND"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:625
 msgid "Display Empty Terms"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:493
+#: widgets/class-bpfwe-filter-widget.php:641
 msgid "Show Post Count"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:509
+#: widgets/class-bpfwe-filter-widget.php:657
 msgid "Show Hierarchy"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:525
+#: widgets/class-bpfwe-filter-widget.php:673
 msgid "Toggle Child Terms"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:541
-#: widgets/class-bpfwe-filter-widget.php:557
+#: widgets/class-bpfwe-filter-widget.php:689
+#: widgets/class-bpfwe-filter-widget.php:705
 msgid "More/Less"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:577
+#: widgets/class-bpfwe-filter-widget.php:725
 msgid "Filter List"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:582
+#: widgets/class-bpfwe-filter-widget.php:730
 msgid "category"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:593
+#: widgets/class-bpfwe-filter-widget.php:741
 msgid "Parent Options"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:602
+#: widgets/class-bpfwe-filter-widget.php:750
 msgid "Parent Logic"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:616
+#: widgets/class-bpfwe-filter-widget.php:764
 msgid "Dynamic Archive Filtering"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:631
-#: widgets/class-bpfwe-post-widget.php:3162
+#: widgets/class-bpfwe-filter-widget.php:779
+msgid "Performance Settings"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:787
+msgid "Load Only Post ID"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:789
+#: widgets/class-bpfwe-filter-widget.php:802
+#: widgets/class-bpfwe-filter-widget.php:815
+msgid "On"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:790
+#: widgets/class-bpfwe-filter-widget.php:803
+#: widgets/class-bpfwe-filter-widget.php:816
+msgid "Off"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:791
+msgid ""
+"Loads only post IDs. Best for ID-based widgets but may break those needing "
+"full post details. Default: Off. Impact on Speed: High."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:800
+msgid "Skip Pagination Count"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:804
+msgid ""
+"Skips counting total posts. Use only if pagination isn’t needed. Default: "
+"Off. Impact on Speed: Medium."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:813
+msgid "Bypass Query Modifications"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:817
+msgid ""
+"Ignores query tweaks. May break 3rd party features. Default: Off. Impact on "
+"Speed: Medium."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:826
+#: widgets/class-bpfwe-post-widget.php:149
+msgid "Posts Per Page"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:828
+msgid ""
+"Limits the number of posts per page. Use -1 to use post widget’s default "
+"value, if accesible by the query. Default: -1. Impact on Speed: High."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:838
+msgid "Cache filter’s terms (s)"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:840
+msgid ""
+"Caches filter terms for faster loading. Set to 0 to disable (not "
+"recommended). Default: 86400 (1 day). Impact on Speed: High."
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:851
+#: widgets/class-bpfwe-post-widget.php:3178
 msgid "Additional Options"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:639
+#: widgets/class-bpfwe-filter-widget.php:859
 msgid "Display Reset Button"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:652
+#: widgets/class-bpfwe-filter-widget.php:872
 msgid "Reset Button Text"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:654
-#: widgets/class-bpfwe-filter-widget.php:2455
+#: widgets/class-bpfwe-filter-widget.php:874
+#: widgets/class-bpfwe-filter-widget.php:3301
 msgid "Reset"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:664
-#: widgets/class-bpfwe-search-bar-widget.php:171
+#: widgets/class-bpfwe-filter-widget.php:884
+#: widgets/class-bpfwe-search-bar-widget.php:172
 msgid "Display Submit Button"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:677
+#: widgets/class-bpfwe-filter-widget.php:897
 msgid "Submit Button Text"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:679
-#: widgets/class-bpfwe-filter-widget.php:2454
+#: widgets/class-bpfwe-filter-widget.php:899
+#: widgets/class-bpfwe-filter-widget.php:3300
 msgid "Submit"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:689
-#: widgets/class-bpfwe-post-widget.php:3089
+#: widgets/class-bpfwe-filter-widget.php:909
+#: widgets/class-bpfwe-post-widget.php:3105
 msgid "Scroll to top"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:704
+#: widgets/class-bpfwe-filter-widget.php:924
 #: widgets/class-bpfwe-post-widget.php:2451
-#: widgets/class-bpfwe-post-widget.php:8147
+#: widgets/class-bpfwe-post-widget.php:8163
 msgid "Nothing Found Message"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:707
+#: widgets/class-bpfwe-filter-widget.php:927
 #: widgets/class-bpfwe-post-widget.php:2453
 msgid "It seems we can’t find what you’re looking for."
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:718
+#: widgets/class-bpfwe-filter-widget.php:938
 msgid "Filter Container"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:727
-#: widgets/class-bpfwe-post-widget.php:3252
+#: widgets/class-bpfwe-filter-widget.php:947
+#: widgets/class-bpfwe-post-widget.php:3268
 msgid "Column Gap"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:749
-#: widgets/class-bpfwe-post-widget.php:3274
+#: widgets/class-bpfwe-filter-widget.php:969
+#: widgets/class-bpfwe-post-widget.php:3290
 msgid "Row Gap"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:780
-#: widgets/class-bpfwe-filter-widget.php:827
-#: widgets/class-bpfwe-filter-widget.php:1398
-#: widgets/class-bpfwe-filter-widget.php:1604
-#: widgets/class-bpfwe-post-widget.php:7019
-#: widgets/class-bpfwe-post-widget.php:7093
+#: widgets/class-bpfwe-filter-widget.php:1000
+#: widgets/class-bpfwe-filter-widget.php:1047
+#: widgets/class-bpfwe-filter-widget.php:1847
+#: widgets/class-bpfwe-filter-widget.php:2053
+#: widgets/class-bpfwe-post-widget.php:7035
+#: widgets/class-bpfwe-post-widget.php:7109
 msgid "Spacing"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:803
-#: widgets/class-bpfwe-filter-widget.php:850
-#: widgets/class-bpfwe-filter-widget.php:885
-#: widgets/class-bpfwe-filter-widget.php:1057
-#: widgets/class-bpfwe-filter-widget.php:1111
-#: widgets/class-bpfwe-filter-widget.php:1170
-#: widgets/class-bpfwe-filter-widget.php:1241
-#: widgets/class-bpfwe-post-widget.php:1358
-#: widgets/class-bpfwe-post-widget.php:1759
-#: widgets/class-bpfwe-post-widget.php:4035
-#: widgets/class-bpfwe-post-widget.php:4093
-#: widgets/class-bpfwe-post-widget.php:4211
-#: widgets/class-bpfwe-post-widget.php:4269
-#: widgets/class-bpfwe-post-widget.php:4384
-#: widgets/class-bpfwe-post-widget.php:4442
-#: widgets/class-bpfwe-post-widget.php:4556
-#: widgets/class-bpfwe-post-widget.php:4615
-#: widgets/class-bpfwe-post-widget.php:4724
-#: widgets/class-bpfwe-post-widget.php:4783
-#: widgets/class-bpfwe-post-widget.php:4897
-#: widgets/class-bpfwe-post-widget.php:4998
-#: widgets/class-bpfwe-post-widget.php:5112
-#: widgets/class-bpfwe-post-widget.php:5170
-#: widgets/class-bpfwe-post-widget.php:5284
-#: widgets/class-bpfwe-post-widget.php:5343
-#: widgets/class-bpfwe-post-widget.php:5457
-#: widgets/class-bpfwe-post-widget.php:5516
-#: widgets/class-bpfwe-post-widget.php:5630
-#: widgets/class-bpfwe-post-widget.php:5689
-#: widgets/class-bpfwe-post-widget.php:5803
-#: widgets/class-bpfwe-post-widget.php:5861
-#: widgets/class-bpfwe-post-widget.php:5973
-#: widgets/class-bpfwe-post-widget.php:6032
-#: widgets/class-bpfwe-post-widget.php:6164
-#: widgets/class-bpfwe-post-widget.php:6232
-#: widgets/class-bpfwe-post-widget.php:6355
-#: widgets/class-bpfwe-post-widget.php:6412
-#: widgets/class-bpfwe-post-widget.php:6524
-#: widgets/class-bpfwe-post-widget.php:6581
-#: widgets/class-bpfwe-post-widget.php:6712
-#: widgets/class-bpfwe-post-widget.php:6780
-#: widgets/class-bpfwe-post-widget.php:6862
-#: widgets/class-bpfwe-post-widget.php:6979
-#: widgets/class-bpfwe-post-widget.php:7052
-#: widgets/class-bpfwe-post-widget.php:7135
-#: widgets/class-bpfwe-post-widget.php:7191
-#: widgets/class-bpfwe-post-widget.php:7383
-#: widgets/class-bpfwe-post-widget.php:7441
-#: widgets/class-bpfwe-post-widget.php:7991
-#: widgets/class-bpfwe-post-widget.php:8091
-#: widgets/class-bpfwe-post-widget.php:8156
-#: widgets/class-bpfwe-posts-found-widget.php:135
-#: widgets/class-bpfwe-search-bar-widget.php:247
-#: widgets/class-bpfwe-search-bar-widget.php:475
-#: widgets/class-bpfwe-search-bar-widget.php:556
-#: widgets/class-bpfwe-sorting-widget.php:321
-msgid "Color"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:819
+#: widgets/class-bpfwe-filter-widget.php:1039
 msgid "Input Label"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:866
-msgid "Input"
+#: widgets/class-bpfwe-filter-widget.php:1086
+msgid "Swatch"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:899
-#: widgets/class-bpfwe-search-bar-widget.php:258
-msgid "Placeholder Color"
+#: widgets/class-bpfwe-filter-widget.php:1105
+#: widgets/class-bpfwe-filter-widget.php:1270
+#: widgets/class-bpfwe-filter-widget.php:1907
+#: widgets/class-bpfwe-filter-widget.php:1965
+#: widgets/class-bpfwe-filter-widget.php:2113
+#: widgets/class-bpfwe-filter-widget.php:2171
+#: widgets/class-bpfwe-post-widget.php:7833
+#: widgets/class-bpfwe-post-widget.php:7878
+msgid "Text Color"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:912
-#: widgets/class-bpfwe-filter-widget.php:1071
-#: widgets/class-bpfwe-filter-widget.php:1125
-msgid "Field Background"
+#: widgets/class-bpfwe-filter-widget.php:1116
+msgid "Swatch Background"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:923
-#: widgets/class-bpfwe-filter-widget.php:1021
-#: widgets/class-bpfwe-filter-widget.php:1263
-#: widgets/class-bpfwe-filter-widget.php:1437
-#: widgets/class-bpfwe-filter-widget.php:1643
+#: widgets/class-bpfwe-filter-widget.php:1127
+#: widgets/class-bpfwe-filter-widget.php:1289
+#: widgets/class-bpfwe-filter-widget.php:1372
+#: widgets/class-bpfwe-filter-widget.php:1470
+#: widgets/class-bpfwe-filter-widget.php:1712
+#: widgets/class-bpfwe-filter-widget.php:1886
+#: widgets/class-bpfwe-filter-widget.php:2092
 #: widgets/class-bpfwe-post-widget.php:1590
 #: widgets/class-bpfwe-post-widget.php:1780
-#: widgets/class-bpfwe-post-widget.php:3382
-#: widgets/class-bpfwe-post-widget.php:3452
-#: widgets/class-bpfwe-post-widget.php:3612
-#: widgets/class-bpfwe-post-widget.php:3682
-#: widgets/class-bpfwe-post-widget.php:4057
-#: widgets/class-bpfwe-post-widget.php:4118
-#: widgets/class-bpfwe-post-widget.php:4233
-#: widgets/class-bpfwe-post-widget.php:4294
-#: widgets/class-bpfwe-post-widget.php:4406
-#: widgets/class-bpfwe-post-widget.php:4467
-#: widgets/class-bpfwe-post-widget.php:4579
-#: widgets/class-bpfwe-post-widget.php:4638
-#: widgets/class-bpfwe-post-widget.php:4747
-#: widgets/class-bpfwe-post-widget.php:4808
-#: widgets/class-bpfwe-post-widget.php:4919
-#: widgets/class-bpfwe-post-widget.php:5023
-#: widgets/class-bpfwe-post-widget.php:5134
-#: widgets/class-bpfwe-post-widget.php:5195
-#: widgets/class-bpfwe-post-widget.php:5307
-#: widgets/class-bpfwe-post-widget.php:5368
-#: widgets/class-bpfwe-post-widget.php:5480
-#: widgets/class-bpfwe-post-widget.php:5541
-#: widgets/class-bpfwe-post-widget.php:5653
-#: widgets/class-bpfwe-post-widget.php:5714
-#: widgets/class-bpfwe-post-widget.php:5825
-#: widgets/class-bpfwe-post-widget.php:5884
-#: widgets/class-bpfwe-post-widget.php:5996
-#: widgets/class-bpfwe-post-widget.php:6057
-#: widgets/class-bpfwe-post-widget.php:6196
-#: widgets/class-bpfwe-post-widget.php:6266
-#: widgets/class-bpfwe-post-widget.php:6376
-#: widgets/class-bpfwe-post-widget.php:6435
-#: widgets/class-bpfwe-post-widget.php:6545
-#: widgets/class-bpfwe-post-widget.php:6604
-#: widgets/class-bpfwe-post-widget.php:6744
-#: widgets/class-bpfwe-post-widget.php:6815
-#: widgets/class-bpfwe-post-widget.php:7329
-#: widgets/class-bpfwe-post-widget.php:7708
-#: widgets/class-bpfwe-post-widget.php:8012
-#: widgets/class-bpfwe-post-widget.php:8114
-#: widgets/class-bpfwe-post-widget.php:8205
+#: widgets/class-bpfwe-post-widget.php:3398
+#: widgets/class-bpfwe-post-widget.php:3468
+#: widgets/class-bpfwe-post-widget.php:3628
+#: widgets/class-bpfwe-post-widget.php:3698
+#: widgets/class-bpfwe-post-widget.php:4073
+#: widgets/class-bpfwe-post-widget.php:4134
+#: widgets/class-bpfwe-post-widget.php:4249
+#: widgets/class-bpfwe-post-widget.php:4310
+#: widgets/class-bpfwe-post-widget.php:4422
+#: widgets/class-bpfwe-post-widget.php:4483
+#: widgets/class-bpfwe-post-widget.php:4595
+#: widgets/class-bpfwe-post-widget.php:4654
+#: widgets/class-bpfwe-post-widget.php:4763
+#: widgets/class-bpfwe-post-widget.php:4824
+#: widgets/class-bpfwe-post-widget.php:4935
+#: widgets/class-bpfwe-post-widget.php:5039
+#: widgets/class-bpfwe-post-widget.php:5150
+#: widgets/class-bpfwe-post-widget.php:5211
+#: widgets/class-bpfwe-post-widget.php:5323
+#: widgets/class-bpfwe-post-widget.php:5384
+#: widgets/class-bpfwe-post-widget.php:5496
+#: widgets/class-bpfwe-post-widget.php:5557
+#: widgets/class-bpfwe-post-widget.php:5669
+#: widgets/class-bpfwe-post-widget.php:5730
+#: widgets/class-bpfwe-post-widget.php:5841
+#: widgets/class-bpfwe-post-widget.php:5900
+#: widgets/class-bpfwe-post-widget.php:6012
+#: widgets/class-bpfwe-post-widget.php:6073
+#: widgets/class-bpfwe-post-widget.php:6212
+#: widgets/class-bpfwe-post-widget.php:6282
+#: widgets/class-bpfwe-post-widget.php:6392
+#: widgets/class-bpfwe-post-widget.php:6451
+#: widgets/class-bpfwe-post-widget.php:6561
+#: widgets/class-bpfwe-post-widget.php:6620
+#: widgets/class-bpfwe-post-widget.php:6760
+#: widgets/class-bpfwe-post-widget.php:6831
+#: widgets/class-bpfwe-post-widget.php:7345
+#: widgets/class-bpfwe-post-widget.php:7724
+#: widgets/class-bpfwe-post-widget.php:8028
+#: widgets/class-bpfwe-post-widget.php:8130
+#: widgets/class-bpfwe-post-widget.php:8221
 msgid "Padding"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:936
-#: widgets/class-bpfwe-filter-widget.php:1034
-#: widgets/class-bpfwe-filter-widget.php:1275
+#: widgets/class-bpfwe-filter-widget.php:1140
+#: widgets/class-bpfwe-filter-widget.php:1301
+#: widgets/class-bpfwe-filter-widget.php:1385
+#: widgets/class-bpfwe-filter-widget.php:1483
+#: widgets/class-bpfwe-filter-widget.php:1724
 #: widgets/class-bpfwe-post-widget.php:1611
-#: widgets/class-bpfwe-post-widget.php:3395
-#: widgets/class-bpfwe-post-widget.php:3465
-#: widgets/class-bpfwe-post-widget.php:3625
-#: widgets/class-bpfwe-post-widget.php:3695
-#: widgets/class-bpfwe-post-widget.php:4070
-#: widgets/class-bpfwe-post-widget.php:4131
-#: widgets/class-bpfwe-post-widget.php:4246
-#: widgets/class-bpfwe-post-widget.php:4307
-#: widgets/class-bpfwe-post-widget.php:4419
-#: widgets/class-bpfwe-post-widget.php:4480
-#: widgets/class-bpfwe-post-widget.php:4592
-#: widgets/class-bpfwe-post-widget.php:4651
-#: widgets/class-bpfwe-post-widget.php:4760
-#: widgets/class-bpfwe-post-widget.php:4821
-#: widgets/class-bpfwe-post-widget.php:4932
-#: widgets/class-bpfwe-post-widget.php:5036
-#: widgets/class-bpfwe-post-widget.php:5147
-#: widgets/class-bpfwe-post-widget.php:5208
-#: widgets/class-bpfwe-post-widget.php:5320
-#: widgets/class-bpfwe-post-widget.php:5381
-#: widgets/class-bpfwe-post-widget.php:5493
-#: widgets/class-bpfwe-post-widget.php:5554
-#: widgets/class-bpfwe-post-widget.php:5666
-#: widgets/class-bpfwe-post-widget.php:5727
-#: widgets/class-bpfwe-post-widget.php:5838
-#: widgets/class-bpfwe-post-widget.php:5897
-#: widgets/class-bpfwe-post-widget.php:6009
-#: widgets/class-bpfwe-post-widget.php:6070
-#: widgets/class-bpfwe-post-widget.php:6209
-#: widgets/class-bpfwe-post-widget.php:6279
-#: widgets/class-bpfwe-post-widget.php:6389
-#: widgets/class-bpfwe-post-widget.php:6448
-#: widgets/class-bpfwe-post-widget.php:6558
-#: widgets/class-bpfwe-post-widget.php:6617
-#: widgets/class-bpfwe-post-widget.php:6757
-#: widgets/class-bpfwe-post-widget.php:6828
-#: widgets/class-bpfwe-post-widget.php:8025
-#: widgets/class-bpfwe-post-widget.php:8127
+#: widgets/class-bpfwe-post-widget.php:3411
+#: widgets/class-bpfwe-post-widget.php:3481
+#: widgets/class-bpfwe-post-widget.php:3641
+#: widgets/class-bpfwe-post-widget.php:3711
+#: widgets/class-bpfwe-post-widget.php:4086
+#: widgets/class-bpfwe-post-widget.php:4147
+#: widgets/class-bpfwe-post-widget.php:4262
+#: widgets/class-bpfwe-post-widget.php:4323
+#: widgets/class-bpfwe-post-widget.php:4435
+#: widgets/class-bpfwe-post-widget.php:4496
+#: widgets/class-bpfwe-post-widget.php:4608
+#: widgets/class-bpfwe-post-widget.php:4667
+#: widgets/class-bpfwe-post-widget.php:4776
+#: widgets/class-bpfwe-post-widget.php:4837
+#: widgets/class-bpfwe-post-widget.php:4948
+#: widgets/class-bpfwe-post-widget.php:5052
+#: widgets/class-bpfwe-post-widget.php:5163
+#: widgets/class-bpfwe-post-widget.php:5224
+#: widgets/class-bpfwe-post-widget.php:5336
+#: widgets/class-bpfwe-post-widget.php:5397
+#: widgets/class-bpfwe-post-widget.php:5509
+#: widgets/class-bpfwe-post-widget.php:5570
+#: widgets/class-bpfwe-post-widget.php:5682
+#: widgets/class-bpfwe-post-widget.php:5743
+#: widgets/class-bpfwe-post-widget.php:5854
+#: widgets/class-bpfwe-post-widget.php:5913
+#: widgets/class-bpfwe-post-widget.php:6025
+#: widgets/class-bpfwe-post-widget.php:6086
+#: widgets/class-bpfwe-post-widget.php:6225
+#: widgets/class-bpfwe-post-widget.php:6295
+#: widgets/class-bpfwe-post-widget.php:6405
+#: widgets/class-bpfwe-post-widget.php:6464
+#: widgets/class-bpfwe-post-widget.php:6574
+#: widgets/class-bpfwe-post-widget.php:6633
+#: widgets/class-bpfwe-post-widget.php:6773
+#: widgets/class-bpfwe-post-widget.php:6844
+#: widgets/class-bpfwe-post-widget.php:8041
+#: widgets/class-bpfwe-post-widget.php:8143
 msgid "Margin"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:952
-#: widgets/class-bpfwe-filter-widget.php:1050
-#: widgets/class-bpfwe-filter-widget.php:1451
-#: widgets/class-bpfwe-filter-widget.php:1657
+#: widgets/class-bpfwe-filter-widget.php:1156
+#: widgets/class-bpfwe-filter-widget.php:1401
+#: widgets/class-bpfwe-filter-widget.php:1499
+#: widgets/class-bpfwe-filter-widget.php:1900
+#: widgets/class-bpfwe-filter-widget.php:2106
 #: widgets/class-bpfwe-post-widget.php:1336
-#: widgets/class-bpfwe-post-widget.php:3364
-#: widgets/class-bpfwe-post-widget.php:3594
+#: widgets/class-bpfwe-post-widget.php:3380
+#: widgets/class-bpfwe-post-widget.php:3610
+#: widgets/class-bpfwe-post-widget.php:4043
+#: widgets/class-bpfwe-post-widget.php:4219
+#: widgets/class-bpfwe-post-widget.php:4392
+#: widgets/class-bpfwe-post-widget.php:4564
+#: widgets/class-bpfwe-post-widget.php:4732
+#: widgets/class-bpfwe-post-widget.php:4905
+#: widgets/class-bpfwe-post-widget.php:5120
+#: widgets/class-bpfwe-post-widget.php:5292
+#: widgets/class-bpfwe-post-widget.php:5465
+#: widgets/class-bpfwe-post-widget.php:5638
+#: widgets/class-bpfwe-post-widget.php:5811
+#: widgets/class-bpfwe-post-widget.php:5981
+#: widgets/class-bpfwe-post-widget.php:6172
+#: widgets/class-bpfwe-post-widget.php:6363
+#: widgets/class-bpfwe-post-widget.php:6532
+#: widgets/class-bpfwe-post-widget.php:6720
+#: widgets/class-bpfwe-post-widget.php:7143
+#: widgets/class-bpfwe-post-widget.php:7379
+#: widgets/class-bpfwe-post-widget.php:7574
+#: widgets/class-bpfwe-post-widget.php:7999
+#: widgets/class-bpfwe-search-bar-widget.php:292
+#: widgets/class-bpfwe-search-bar-widget.php:466
+msgid "Normal"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1163
+msgid "Opacity"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1194
+#: widgets/class-bpfwe-filter-widget.php:1416
+#: widgets/class-bpfwe-filter-widget.php:1539
+#: widgets/class-bpfwe-filter-widget.php:1744
+#: widgets/class-bpfwe-filter-widget.php:1784
+#: widgets/class-bpfwe-filter-widget.php:1940
+#: widgets/class-bpfwe-filter-widget.php:2146
+#: widgets/class-bpfwe-post-widget.php:1454
+#: widgets/class-bpfwe-post-widget.php:3434
+#: widgets/class-bpfwe-post-widget.php:3504
+#: widgets/class-bpfwe-post-widget.php:3664
+#: widgets/class-bpfwe-post-widget.php:3734
+#: widgets/class-bpfwe-post-widget.php:3918
+#: widgets/class-bpfwe-post-widget.php:7184
+#: widgets/class-bpfwe-post-widget.php:7422
+#: widgets/class-bpfwe-post-widget.php:7482
+#: widgets/class-bpfwe-post-widget.php:7736
+#: widgets/class-bpfwe-search-bar-widget.php:330
+#: widgets/class-bpfwe-search-bar-widget.php:397
+#: widgets/class-bpfwe-search-bar-widget.php:516
+#: widgets/class-bpfwe-search-bar-widget.php:597
+#: widgets/class-bpfwe-sorting-widget.php:328
+msgid "Border Radius"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1208
+#: widgets/class-bpfwe-filter-widget.php:1430
+#: widgets/class-bpfwe-search-bar-widget.php:358
+msgid "Focus"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1215
+#: widgets/class-bpfwe-post-widget.php:3966
+msgid "Hover Opacity"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1250
+msgid "Group Separator"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1315
+msgid "Input"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1348
+#: widgets/class-bpfwe-search-bar-widget.php:259
+msgid "Placeholder Color"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1361
+#: widgets/class-bpfwe-filter-widget.php:1520
+#: widgets/class-bpfwe-filter-widget.php:1574
+msgid "Field Background"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1553
+#: widgets/class-bpfwe-filter-widget.php:1958
+#: widgets/class-bpfwe-filter-widget.php:2164
+#: widgets/class-bpfwe-post-widget.php:1770
+#: widgets/class-bpfwe-post-widget.php:3449
+#: widgets/class-bpfwe-post-widget.php:3679
+#: widgets/class-bpfwe-post-widget.php:4101
+#: widgets/class-bpfwe-post-widget.php:4277
+#: widgets/class-bpfwe-post-widget.php:4450
+#: widgets/class-bpfwe-post-widget.php:4623
+#: widgets/class-bpfwe-post-widget.php:4791
+#: widgets/class-bpfwe-post-widget.php:5006
+#: widgets/class-bpfwe-post-widget.php:5178
+#: widgets/class-bpfwe-post-widget.php:5351
+#: widgets/class-bpfwe-post-widget.php:5524
+#: widgets/class-bpfwe-post-widget.php:5697
+#: widgets/class-bpfwe-post-widget.php:5869
+#: widgets/class-bpfwe-post-widget.php:6040
+#: widgets/class-bpfwe-post-widget.php:6240
+#: widgets/class-bpfwe-post-widget.php:6420
+#: widgets/class-bpfwe-post-widget.php:6589
+#: widgets/class-bpfwe-post-widget.php:6788
+#: widgets/class-bpfwe-post-widget.php:7199
+#: widgets/class-bpfwe-post-widget.php:7437
+#: widgets/class-bpfwe-post-widget.php:7615
+#: widgets/class-bpfwe-post-widget.php:8099
+#: widgets/class-bpfwe-search-bar-widget.php:547
+msgid "Hover"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1599
+msgid "Checkbox/Radio"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1607
+#: widgets/class-bpfwe-post-widget.php:1302
+#: widgets/class-bpfwe-post-widget.php:1552
+#: widgets/class-bpfwe-post-widget.php:1743
+#: widgets/class-bpfwe-post-widget.php:6664
+#: widgets/class-bpfwe-post-widget.php:6903
+#: widgets/class-bpfwe-post-widget.php:7324
+msgid "Size"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1630
+msgid "Checkbox/Radio Border"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1649
+#: widgets/class-bpfwe-filter-widget.php:1863
+#: widgets/class-bpfwe-filter-widget.php:2069
+#: widgets/class-bpfwe-post-widget.php:3815
+#: widgets/class-bpfwe-search-bar-widget.php:299
+#: widgets/class-bpfwe-search-bar-widget.php:365
+#: widgets/class-bpfwe-search-bar-widget.php:439
+#: widgets/class-bpfwe-sorting-widget.php:274
+msgid "Width"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1665
+#: widgets/class-bpfwe-post-widget.php:3532
+#: widgets/class-bpfwe-post-widget.php:3793
+#: widgets/class-bpfwe-post-widget.php:7093
+msgid "Height"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1682
+msgid "Selection"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1701
+#: widgets/class-bpfwe-filter-widget.php:1918
+#: widgets/class-bpfwe-filter-widget.php:1976
+#: widgets/class-bpfwe-filter-widget.php:2124
+#: widgets/class-bpfwe-filter-widget.php:2182
+#: widgets/class-bpfwe-search-bar-widget.php:270
+#: widgets/class-bpfwe-search-bar-widget.php:490
+#: widgets/class-bpfwe-search-bar-widget.php:571
+#: widgets/class-bpfwe-sorting-widget.php:359
+msgid "Background Color"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1773
+msgid "Focus Border Color"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1798
+msgid "Reset Button"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1821
+#: widgets/class-bpfwe-filter-widget.php:2027
+#: widgets/class-bpfwe-post-widget.php:4016
+#: widgets/class-bpfwe-post-widget.php:4188
+#: widgets/class-bpfwe-post-widget.php:4361
+#: widgets/class-bpfwe-post-widget.php:4537
+#: widgets/class-bpfwe-post-widget.php:4705
+#: widgets/class-bpfwe-post-widget.php:4878
+#: widgets/class-bpfwe-post-widget.php:5093
+#: widgets/class-bpfwe-post-widget.php:5265
+#: widgets/class-bpfwe-post-widget.php:5438
+#: widgets/class-bpfwe-post-widget.php:5611
+#: widgets/class-bpfwe-post-widget.php:5784
+#: widgets/class-bpfwe-post-widget.php:5954
+#: widgets/class-bpfwe-post-widget.php:6129
+#: widgets/class-bpfwe-post-widget.php:6336
+#: widgets/class-bpfwe-post-widget.php:6505
+#: widgets/class-bpfwe-post-widget.php:6693
+#: widgets/class-bpfwe-post-widget.php:6955
+#: widgets/class-bpfwe-post-widget.php:7273
+#: widgets/class-bpfwe-post-widget.php:7547
+#: widgets/class-bpfwe-post-widget.php:7972
+#: widgets/class-bpfwe-post-widget.php:8184
+msgid "Alignment"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1824
+#: widgets/class-bpfwe-filter-widget.php:2030
+#: widgets/class-bpfwe-post-widget.php:1479
+#: widgets/class-bpfwe-post-widget.php:3315
+#: widgets/class-bpfwe-post-widget.php:3845
+#: widgets/class-bpfwe-post-widget.php:4019
+#: widgets/class-bpfwe-post-widget.php:4191
+#: widgets/class-bpfwe-post-widget.php:4364
+#: widgets/class-bpfwe-post-widget.php:4540
+#: widgets/class-bpfwe-post-widget.php:4708
+#: widgets/class-bpfwe-post-widget.php:4881
+#: widgets/class-bpfwe-post-widget.php:5096
+#: widgets/class-bpfwe-post-widget.php:5268
+#: widgets/class-bpfwe-post-widget.php:5441
+#: widgets/class-bpfwe-post-widget.php:5614
+#: widgets/class-bpfwe-post-widget.php:5787
+#: widgets/class-bpfwe-post-widget.php:5957
+#: widgets/class-bpfwe-post-widget.php:6132
+#: widgets/class-bpfwe-post-widget.php:6339
+#: widgets/class-bpfwe-post-widget.php:6508
+#: widgets/class-bpfwe-post-widget.php:6696
+#: widgets/class-bpfwe-post-widget.php:6958
+#: widgets/class-bpfwe-post-widget.php:7276
+#: widgets/class-bpfwe-post-widget.php:7550
+#: widgets/class-bpfwe-post-widget.php:7975
+#: widgets/class-bpfwe-post-widget.php:8187
+msgid "Left"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1828
+#: widgets/class-bpfwe-filter-widget.php:2034
+#: widgets/class-bpfwe-post-widget.php:1483
+#: widgets/class-bpfwe-post-widget.php:3319
+#: widgets/class-bpfwe-post-widget.php:4023
+#: widgets/class-bpfwe-post-widget.php:4195
+#: widgets/class-bpfwe-post-widget.php:4368
+#: widgets/class-bpfwe-post-widget.php:4544
+#: widgets/class-bpfwe-post-widget.php:4712
+#: widgets/class-bpfwe-post-widget.php:4885
+#: widgets/class-bpfwe-post-widget.php:5100
+#: widgets/class-bpfwe-post-widget.php:5272
+#: widgets/class-bpfwe-post-widget.php:5445
+#: widgets/class-bpfwe-post-widget.php:5618
+#: widgets/class-bpfwe-post-widget.php:5791
+#: widgets/class-bpfwe-post-widget.php:5961
+#: widgets/class-bpfwe-post-widget.php:6136
+#: widgets/class-bpfwe-post-widget.php:6343
+#: widgets/class-bpfwe-post-widget.php:6512
+#: widgets/class-bpfwe-post-widget.php:6700
+#: widgets/class-bpfwe-post-widget.php:6962
+#: widgets/class-bpfwe-post-widget.php:7280
+#: widgets/class-bpfwe-post-widget.php:7554
+#: widgets/class-bpfwe-post-widget.php:7979
+#: widgets/class-bpfwe-post-widget.php:8191
+msgid "Center"
+msgstr ""
+
+#: widgets/class-bpfwe-filter-widget.php:1832
+#: widgets/class-bpfwe-filter-widget.php:2038
+#: widgets/class-bpfwe-post-widget.php:1487
+#: widgets/class-bpfwe-post-widget.php:3323
+#: widgets/class-bpfwe-post-widget.php:3849
 #: widgets/class-bpfwe-post-widget.php:4027
-#: widgets/class-bpfwe-post-widget.php:4203
-#: widgets/class-bpfwe-post-widget.php:4376
+#: widgets/class-bpfwe-post-widget.php:4199
+#: widgets/class-bpfwe-post-widget.php:4372
 #: widgets/class-bpfwe-post-widget.php:4548
 #: widgets/class-bpfwe-post-widget.php:4716
 #: widgets/class-bpfwe-post-widget.php:4889
@@ -1062,289 +1553,42 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:5622
 #: widgets/class-bpfwe-post-widget.php:5795
 #: widgets/class-bpfwe-post-widget.php:5965
-#: widgets/class-bpfwe-post-widget.php:6156
+#: widgets/class-bpfwe-post-widget.php:6140
 #: widgets/class-bpfwe-post-widget.php:6347
 #: widgets/class-bpfwe-post-widget.php:6516
 #: widgets/class-bpfwe-post-widget.php:6704
-#: widgets/class-bpfwe-post-widget.php:7127
-#: widgets/class-bpfwe-post-widget.php:7363
+#: widgets/class-bpfwe-post-widget.php:6966
+#: widgets/class-bpfwe-post-widget.php:7284
 #: widgets/class-bpfwe-post-widget.php:7558
 #: widgets/class-bpfwe-post-widget.php:7983
-#: widgets/class-bpfwe-search-bar-widget.php:291
-#: widgets/class-bpfwe-search-bar-widget.php:465
-msgid "Normal"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:967
-#: widgets/class-bpfwe-filter-widget.php:1090
-#: widgets/class-bpfwe-filter-widget.php:1295
-#: widgets/class-bpfwe-filter-widget.php:1335
-#: widgets/class-bpfwe-filter-widget.php:1491
-#: widgets/class-bpfwe-filter-widget.php:1697
-#: widgets/class-bpfwe-post-widget.php:1454
-#: widgets/class-bpfwe-post-widget.php:3418
-#: widgets/class-bpfwe-post-widget.php:3488
-#: widgets/class-bpfwe-post-widget.php:3648
-#: widgets/class-bpfwe-post-widget.php:3718
-#: widgets/class-bpfwe-post-widget.php:3902
-#: widgets/class-bpfwe-post-widget.php:7168
-#: widgets/class-bpfwe-post-widget.php:7406
-#: widgets/class-bpfwe-post-widget.php:7466
-#: widgets/class-bpfwe-post-widget.php:7720
-#: widgets/class-bpfwe-search-bar-widget.php:329
-#: widgets/class-bpfwe-search-bar-widget.php:396
-#: widgets/class-bpfwe-search-bar-widget.php:515
-#: widgets/class-bpfwe-search-bar-widget.php:596
-#: widgets/class-bpfwe-sorting-widget.php:301
-msgid "Border Radius"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:981
-#: widgets/class-bpfwe-search-bar-widget.php:357
-msgid "Focus"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1104
-#: widgets/class-bpfwe-filter-widget.php:1509
-#: widgets/class-bpfwe-filter-widget.php:1715
-#: widgets/class-bpfwe-post-widget.php:1770
-#: widgets/class-bpfwe-post-widget.php:3433
-#: widgets/class-bpfwe-post-widget.php:3663
-#: widgets/class-bpfwe-post-widget.php:4085
-#: widgets/class-bpfwe-post-widget.php:4261
-#: widgets/class-bpfwe-post-widget.php:4434
-#: widgets/class-bpfwe-post-widget.php:4607
-#: widgets/class-bpfwe-post-widget.php:4775
-#: widgets/class-bpfwe-post-widget.php:4990
-#: widgets/class-bpfwe-post-widget.php:5162
-#: widgets/class-bpfwe-post-widget.php:5335
-#: widgets/class-bpfwe-post-widget.php:5508
-#: widgets/class-bpfwe-post-widget.php:5681
-#: widgets/class-bpfwe-post-widget.php:5853
-#: widgets/class-bpfwe-post-widget.php:6024
-#: widgets/class-bpfwe-post-widget.php:6224
-#: widgets/class-bpfwe-post-widget.php:6404
-#: widgets/class-bpfwe-post-widget.php:6573
-#: widgets/class-bpfwe-post-widget.php:6772
-#: widgets/class-bpfwe-post-widget.php:7183
-#: widgets/class-bpfwe-post-widget.php:7421
-#: widgets/class-bpfwe-post-widget.php:7599
-#: widgets/class-bpfwe-post-widget.php:8083
-#: widgets/class-bpfwe-search-bar-widget.php:546
-msgid "Hover"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1150
-msgid "Checkbox/Radio"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1158
-#: widgets/class-bpfwe-post-widget.php:1302
-#: widgets/class-bpfwe-post-widget.php:1552
-#: widgets/class-bpfwe-post-widget.php:1743
-#: widgets/class-bpfwe-post-widget.php:6648
-#: widgets/class-bpfwe-post-widget.php:6887
-#: widgets/class-bpfwe-post-widget.php:7308
-msgid "Size"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1181
-msgid "Checkbox/Radio Border"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1200
-#: widgets/class-bpfwe-filter-widget.php:1414
-#: widgets/class-bpfwe-filter-widget.php:1620
-#: widgets/class-bpfwe-post-widget.php:3799
-#: widgets/class-bpfwe-search-bar-widget.php:298
-#: widgets/class-bpfwe-search-bar-widget.php:364
-#: widgets/class-bpfwe-search-bar-widget.php:438
-#: widgets/class-bpfwe-sorting-widget.php:247
-msgid "Width"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1216
-#: widgets/class-bpfwe-post-widget.php:3516
-#: widgets/class-bpfwe-post-widget.php:3777
-#: widgets/class-bpfwe-post-widget.php:7077
-msgid "Height"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1233
-msgid "Selection"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1252
-#: widgets/class-bpfwe-filter-widget.php:1469
-#: widgets/class-bpfwe-filter-widget.php:1527
-#: widgets/class-bpfwe-filter-widget.php:1675
-#: widgets/class-bpfwe-filter-widget.php:1733
-#: widgets/class-bpfwe-search-bar-widget.php:269
-#: widgets/class-bpfwe-search-bar-widget.php:489
-#: widgets/class-bpfwe-search-bar-widget.php:570
-#: widgets/class-bpfwe-sorting-widget.php:332
-msgid "Background Color"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1324
-msgid "Focus Border Color"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1349
-msgid "Reset Button"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1372
-#: widgets/class-bpfwe-filter-widget.php:1578
-#: widgets/class-bpfwe-post-widget.php:4000
-#: widgets/class-bpfwe-post-widget.php:4172
-#: widgets/class-bpfwe-post-widget.php:4345
-#: widgets/class-bpfwe-post-widget.php:4521
-#: widgets/class-bpfwe-post-widget.php:4689
-#: widgets/class-bpfwe-post-widget.php:4862
-#: widgets/class-bpfwe-post-widget.php:5077
-#: widgets/class-bpfwe-post-widget.php:5249
-#: widgets/class-bpfwe-post-widget.php:5422
-#: widgets/class-bpfwe-post-widget.php:5595
-#: widgets/class-bpfwe-post-widget.php:5768
-#: widgets/class-bpfwe-post-widget.php:5938
-#: widgets/class-bpfwe-post-widget.php:6113
-#: widgets/class-bpfwe-post-widget.php:6320
-#: widgets/class-bpfwe-post-widget.php:6489
-#: widgets/class-bpfwe-post-widget.php:6677
-#: widgets/class-bpfwe-post-widget.php:6939
-#: widgets/class-bpfwe-post-widget.php:7257
-#: widgets/class-bpfwe-post-widget.php:7531
-#: widgets/class-bpfwe-post-widget.php:7956
-#: widgets/class-bpfwe-post-widget.php:8168
-msgid "Alignment"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1375
-#: widgets/class-bpfwe-filter-widget.php:1581
-#: widgets/class-bpfwe-post-widget.php:1479
-#: widgets/class-bpfwe-post-widget.php:3299
-#: widgets/class-bpfwe-post-widget.php:3829
-#: widgets/class-bpfwe-post-widget.php:4003
-#: widgets/class-bpfwe-post-widget.php:4175
-#: widgets/class-bpfwe-post-widget.php:4348
-#: widgets/class-bpfwe-post-widget.php:4524
-#: widgets/class-bpfwe-post-widget.php:4692
-#: widgets/class-bpfwe-post-widget.php:4865
-#: widgets/class-bpfwe-post-widget.php:5080
-#: widgets/class-bpfwe-post-widget.php:5252
-#: widgets/class-bpfwe-post-widget.php:5425
-#: widgets/class-bpfwe-post-widget.php:5598
-#: widgets/class-bpfwe-post-widget.php:5771
-#: widgets/class-bpfwe-post-widget.php:5941
-#: widgets/class-bpfwe-post-widget.php:6116
-#: widgets/class-bpfwe-post-widget.php:6323
-#: widgets/class-bpfwe-post-widget.php:6492
-#: widgets/class-bpfwe-post-widget.php:6680
-#: widgets/class-bpfwe-post-widget.php:6942
-#: widgets/class-bpfwe-post-widget.php:7260
-#: widgets/class-bpfwe-post-widget.php:7534
-#: widgets/class-bpfwe-post-widget.php:7959
-#: widgets/class-bpfwe-post-widget.php:8171
-msgid "Left"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1379
-#: widgets/class-bpfwe-filter-widget.php:1585
-#: widgets/class-bpfwe-post-widget.php:1483
-#: widgets/class-bpfwe-post-widget.php:3303
-#: widgets/class-bpfwe-post-widget.php:4007
-#: widgets/class-bpfwe-post-widget.php:4179
-#: widgets/class-bpfwe-post-widget.php:4352
-#: widgets/class-bpfwe-post-widget.php:4528
-#: widgets/class-bpfwe-post-widget.php:4696
-#: widgets/class-bpfwe-post-widget.php:4869
-#: widgets/class-bpfwe-post-widget.php:5084
-#: widgets/class-bpfwe-post-widget.php:5256
-#: widgets/class-bpfwe-post-widget.php:5429
-#: widgets/class-bpfwe-post-widget.php:5602
-#: widgets/class-bpfwe-post-widget.php:5775
-#: widgets/class-bpfwe-post-widget.php:5945
-#: widgets/class-bpfwe-post-widget.php:6120
-#: widgets/class-bpfwe-post-widget.php:6327
-#: widgets/class-bpfwe-post-widget.php:6496
-#: widgets/class-bpfwe-post-widget.php:6684
-#: widgets/class-bpfwe-post-widget.php:6946
-#: widgets/class-bpfwe-post-widget.php:7264
-#: widgets/class-bpfwe-post-widget.php:7538
-#: widgets/class-bpfwe-post-widget.php:7963
-#: widgets/class-bpfwe-post-widget.php:8175
-msgid "Center"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1383
-#: widgets/class-bpfwe-filter-widget.php:1589
-#: widgets/class-bpfwe-post-widget.php:1487
-#: widgets/class-bpfwe-post-widget.php:3307
-#: widgets/class-bpfwe-post-widget.php:3833
-#: widgets/class-bpfwe-post-widget.php:4011
-#: widgets/class-bpfwe-post-widget.php:4183
-#: widgets/class-bpfwe-post-widget.php:4356
-#: widgets/class-bpfwe-post-widget.php:4532
-#: widgets/class-bpfwe-post-widget.php:4700
-#: widgets/class-bpfwe-post-widget.php:4873
-#: widgets/class-bpfwe-post-widget.php:5088
-#: widgets/class-bpfwe-post-widget.php:5260
-#: widgets/class-bpfwe-post-widget.php:5433
-#: widgets/class-bpfwe-post-widget.php:5606
-#: widgets/class-bpfwe-post-widget.php:5779
-#: widgets/class-bpfwe-post-widget.php:5949
-#: widgets/class-bpfwe-post-widget.php:6124
-#: widgets/class-bpfwe-post-widget.php:6331
-#: widgets/class-bpfwe-post-widget.php:6500
-#: widgets/class-bpfwe-post-widget.php:6688
-#: widgets/class-bpfwe-post-widget.php:6950
-#: widgets/class-bpfwe-post-widget.php:7268
-#: widgets/class-bpfwe-post-widget.php:7542
-#: widgets/class-bpfwe-post-widget.php:7967
-#: widgets/class-bpfwe-post-widget.php:8179
+#: widgets/class-bpfwe-post-widget.php:8195
 msgid "Right"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:1458
-#: widgets/class-bpfwe-filter-widget.php:1516
-#: widgets/class-bpfwe-filter-widget.php:1664
-#: widgets/class-bpfwe-filter-widget.php:1722
-#: widgets/class-bpfwe-post-widget.php:7817
-#: widgets/class-bpfwe-post-widget.php:7862
-msgid "Text Color"
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:1538
-#: widgets/class-bpfwe-filter-widget.php:1744
-#: widgets/class-bpfwe-post-widget.php:7216
-#: widgets/class-bpfwe-post-widget.php:7635
-#: widgets/class-bpfwe-post-widget.php:7688
+#: widgets/class-bpfwe-filter-widget.php:1987
+#: widgets/class-bpfwe-filter-widget.php:2193
+#: widgets/class-bpfwe-post-widget.php:7232
+#: widgets/class-bpfwe-post-widget.php:7651
+#: widgets/class-bpfwe-post-widget.php:7704
 msgid "Border Color"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:1555
+#: widgets/class-bpfwe-filter-widget.php:2004
 msgid "Submit Button"
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:1932
-#: widgets/class-bpfwe-filter-widget.php:2022
-#: widgets/class-bpfwe-filter-widget.php:2192
-#: widgets/class-bpfwe-filter-widget.php:2223
+#: widgets/class-bpfwe-filter-widget.php:2561
+#: widgets/class-bpfwe-filter-widget.php:2817
+#: widgets/class-bpfwe-filter-widget.php:3035
+#: widgets/class-bpfwe-filter-widget.php:3066
 msgid "More..."
 msgstr ""
 
-#: widgets/class-bpfwe-filter-widget.php:1932
-#: widgets/class-bpfwe-filter-widget.php:2022
-#: widgets/class-bpfwe-filter-widget.php:2192
-#: widgets/class-bpfwe-filter-widget.php:2223
+#: widgets/class-bpfwe-filter-widget.php:2561
+#: widgets/class-bpfwe-filter-widget.php:2817
+#: widgets/class-bpfwe-filter-widget.php:3035
+#: widgets/class-bpfwe-filter-widget.php:3066
 msgid "Less..."
-msgstr ""
-
-#: widgets/class-bpfwe-filter-widget.php:2060
-#: widgets/class-bpfwe-filter-widget.php:2261
-#: widgets/class-bpfwe-post-widget.php:8902
-msgid "Choose an option"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:49
@@ -1353,12 +1597,8 @@ msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:140
 #: widgets/class-bpfwe-post-widget.php:162
-#: widgets/class-bpfwe-post-widget.php:3243
+#: widgets/class-bpfwe-post-widget.php:3259
 msgid "Layout"
-msgstr ""
-
-#: widgets/class-bpfwe-post-widget.php:149
-msgid "Posts Per Page"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:165
@@ -1522,9 +1762,9 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:460
 #: widgets/class-bpfwe-post-widget.php:477
 #: widgets/class-bpfwe-post-widget.php:2072
-#: widgets/class-bpfwe-post-widget.php:3979
-#: widgets/class-bpfwe-sorting-widget.php:133
-#: widgets/class-bpfwe-sorting-widget.php:155
+#: widgets/class-bpfwe-post-widget.php:3995
+#: widgets/class-bpfwe-sorting-widget.php:134
+#: widgets/class-bpfwe-sorting-widget.php:156
 msgid "Title"
 msgstr ""
 
@@ -1537,7 +1777,7 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:480
 #: widgets/class-bpfwe-post-widget.php:500
 #: widgets/class-bpfwe-post-widget.php:520
-#: widgets/class-bpfwe-post-widget.php:4671
+#: widgets/class-bpfwe-post-widget.php:4687
 msgid "Custom Field/ACF"
 msgstr ""
 
@@ -1545,54 +1785,54 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:482
 #: widgets/class-bpfwe-post-widget.php:505
 #: widgets/class-bpfwe-post-widget.php:523
-#: widgets/class-bpfwe-post-widget.php:4327
+#: widgets/class-bpfwe-post-widget.php:4343
 msgid "HTML/Shortcode"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:466
 #: widgets/class-bpfwe-post-widget.php:483
-#: widgets/class-bpfwe-post-widget.php:4841
+#: widgets/class-bpfwe-post-widget.php:4857
 msgid "Post Meta"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:467
 #: widgets/class-bpfwe-post-widget.php:484
 #: widgets/class-bpfwe-post-widget.php:1012
-#: widgets/class-bpfwe-post-widget.php:5056
+#: widgets/class-bpfwe-post-widget.php:5072
 msgid "Read More"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:468
 #: widgets/class-bpfwe-post-widget.php:485
-#: widgets/class-bpfwe-post-widget.php:7787
+#: widgets/class-bpfwe-post-widget.php:7803
 msgid "Bookmark"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:469
 #: widgets/class-bpfwe-post-widget.php:486
-#: widgets/class-bpfwe-post-widget.php:7935
+#: widgets/class-bpfwe-post-widget.php:7951
 msgid "Edit Options"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:470
-#: widgets/class-bpfwe-post-widget.php:6092
+#: widgets/class-bpfwe-post-widget.php:6108
 msgid "Product Price"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:471
-#: widgets/class-bpfwe-post-widget.php:6637
+#: widgets/class-bpfwe-post-widget.php:6653
 msgid "Product Rating"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:472
 #: widgets/class-bpfwe-post-widget.php:1027
 #: widgets/class-bpfwe-post-widget.php:1028
-#: widgets/class-bpfwe-post-widget.php:6299
+#: widgets/class-bpfwe-post-widget.php:6315
 msgid "Buy Now"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:473
-#: widgets/class-bpfwe-post-widget.php:6468
+#: widgets/class-bpfwe-post-widget.php:6484
 msgid "Product Badge"
 msgstr ""
 
@@ -1618,7 +1858,7 @@ msgid "User Role"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:504
-#: widgets/class-bpfwe-post-widget.php:5401
+#: widgets/class-bpfwe-post-widget.php:5417
 msgid "Visit Profile"
 msgstr ""
 
@@ -1627,7 +1867,7 @@ msgid "Term Details"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:517
-#: widgets/class-bpfwe-post-widget.php:5574
+#: widgets/class-bpfwe-post-widget.php:5590
 msgid "Term Label"
 msgstr ""
 
@@ -1636,13 +1876,8 @@ msgid "Term Description"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:519
-#: widgets/class-bpfwe-post-widget.php:5747
+#: widgets/class-bpfwe-post-widget.php:5763
 msgid "Term Count"
-msgstr ""
-
-#: widgets/class-bpfwe-post-widget.php:522
-#: widgets/class-bpfwe-post-widget.php:5917
-msgid "Term URL"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:531
@@ -1951,7 +2186,7 @@ msgid "900 (Black)"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1335
-#: widgets/class-bpfwe-sorting-widget.php:150
+#: widgets/class-bpfwe-sorting-widget.php:151
 msgid "Default"
 msgstr ""
 
@@ -1964,51 +2199,51 @@ msgid "Hover Color"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1397
-#: widgets/class-bpfwe-post-widget.php:3372
-#: widgets/class-bpfwe-post-widget.php:3441
-#: widgets/class-bpfwe-post-widget.php:3602
-#: widgets/class-bpfwe-post-widget.php:3671
-#: widgets/class-bpfwe-post-widget.php:4047
-#: widgets/class-bpfwe-post-widget.php:4107
-#: widgets/class-bpfwe-post-widget.php:4223
-#: widgets/class-bpfwe-post-widget.php:4283
-#: widgets/class-bpfwe-post-widget.php:4396
-#: widgets/class-bpfwe-post-widget.php:4456
-#: widgets/class-bpfwe-post-widget.php:4568
-#: widgets/class-bpfwe-post-widget.php:4627
-#: widgets/class-bpfwe-post-widget.php:4736
-#: widgets/class-bpfwe-post-widget.php:4797
-#: widgets/class-bpfwe-post-widget.php:4909
-#: widgets/class-bpfwe-post-widget.php:5012
-#: widgets/class-bpfwe-post-widget.php:5124
-#: widgets/class-bpfwe-post-widget.php:5184
-#: widgets/class-bpfwe-post-widget.php:5296
-#: widgets/class-bpfwe-post-widget.php:5357
-#: widgets/class-bpfwe-post-widget.php:5469
-#: widgets/class-bpfwe-post-widget.php:5530
-#: widgets/class-bpfwe-post-widget.php:5642
-#: widgets/class-bpfwe-post-widget.php:5703
-#: widgets/class-bpfwe-post-widget.php:5814
-#: widgets/class-bpfwe-post-widget.php:5873
-#: widgets/class-bpfwe-post-widget.php:5985
-#: widgets/class-bpfwe-post-widget.php:6046
-#: widgets/class-bpfwe-post-widget.php:6186
-#: widgets/class-bpfwe-post-widget.php:6255
-#: widgets/class-bpfwe-post-widget.php:6366
-#: widgets/class-bpfwe-post-widget.php:6424
-#: widgets/class-bpfwe-post-widget.php:6535
-#: widgets/class-bpfwe-post-widget.php:6593
-#: widgets/class-bpfwe-post-widget.php:6734
-#: widgets/class-bpfwe-post-widget.php:6804
-#: widgets/class-bpfwe-post-widget.php:7147
-#: widgets/class-bpfwe-post-widget.php:7203
-#: widgets/class-bpfwe-post-widget.php:7370
-#: widgets/class-bpfwe-post-widget.php:7428
-#: widgets/class-bpfwe-post-widget.php:7577
-#: widgets/class-bpfwe-post-widget.php:7620
-#: widgets/class-bpfwe-post-widget.php:7673
-#: widgets/class-bpfwe-post-widget.php:8002
-#: widgets/class-bpfwe-post-widget.php:8103
+#: widgets/class-bpfwe-post-widget.php:3388
+#: widgets/class-bpfwe-post-widget.php:3457
+#: widgets/class-bpfwe-post-widget.php:3618
+#: widgets/class-bpfwe-post-widget.php:3687
+#: widgets/class-bpfwe-post-widget.php:4063
+#: widgets/class-bpfwe-post-widget.php:4123
+#: widgets/class-bpfwe-post-widget.php:4239
+#: widgets/class-bpfwe-post-widget.php:4299
+#: widgets/class-bpfwe-post-widget.php:4412
+#: widgets/class-bpfwe-post-widget.php:4472
+#: widgets/class-bpfwe-post-widget.php:4584
+#: widgets/class-bpfwe-post-widget.php:4643
+#: widgets/class-bpfwe-post-widget.php:4752
+#: widgets/class-bpfwe-post-widget.php:4813
+#: widgets/class-bpfwe-post-widget.php:4925
+#: widgets/class-bpfwe-post-widget.php:5028
+#: widgets/class-bpfwe-post-widget.php:5140
+#: widgets/class-bpfwe-post-widget.php:5200
+#: widgets/class-bpfwe-post-widget.php:5312
+#: widgets/class-bpfwe-post-widget.php:5373
+#: widgets/class-bpfwe-post-widget.php:5485
+#: widgets/class-bpfwe-post-widget.php:5546
+#: widgets/class-bpfwe-post-widget.php:5658
+#: widgets/class-bpfwe-post-widget.php:5719
+#: widgets/class-bpfwe-post-widget.php:5830
+#: widgets/class-bpfwe-post-widget.php:5889
+#: widgets/class-bpfwe-post-widget.php:6001
+#: widgets/class-bpfwe-post-widget.php:6062
+#: widgets/class-bpfwe-post-widget.php:6202
+#: widgets/class-bpfwe-post-widget.php:6271
+#: widgets/class-bpfwe-post-widget.php:6382
+#: widgets/class-bpfwe-post-widget.php:6440
+#: widgets/class-bpfwe-post-widget.php:6551
+#: widgets/class-bpfwe-post-widget.php:6609
+#: widgets/class-bpfwe-post-widget.php:6750
+#: widgets/class-bpfwe-post-widget.php:6820
+#: widgets/class-bpfwe-post-widget.php:7163
+#: widgets/class-bpfwe-post-widget.php:7219
+#: widgets/class-bpfwe-post-widget.php:7386
+#: widgets/class-bpfwe-post-widget.php:7444
+#: widgets/class-bpfwe-post-widget.php:7593
+#: widgets/class-bpfwe-post-widget.php:7636
+#: widgets/class-bpfwe-post-widget.php:7689
+#: widgets/class-bpfwe-post-widget.php:8018
+#: widgets/class-bpfwe-post-widget.php:8119
 msgid "Background"
 msgstr ""
 
@@ -2017,17 +2252,17 @@ msgid "Hover Background"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1437
-#: widgets/class-bpfwe-post-widget.php:3409
-#: widgets/class-bpfwe-post-widget.php:3479
-#: widgets/class-bpfwe-post-widget.php:3639
-#: widgets/class-bpfwe-post-widget.php:3709
-#: widgets/class-bpfwe-post-widget.php:7397
-#: widgets/class-bpfwe-post-widget.php:7455
-#: widgets/class-bpfwe-search-bar-widget.php:321
-#: widgets/class-bpfwe-search-bar-widget.php:388
-#: widgets/class-bpfwe-search-bar-widget.php:504
-#: widgets/class-bpfwe-search-bar-widget.php:585
-#: widgets/class-bpfwe-sorting-widget.php:293
+#: widgets/class-bpfwe-post-widget.php:3425
+#: widgets/class-bpfwe-post-widget.php:3495
+#: widgets/class-bpfwe-post-widget.php:3655
+#: widgets/class-bpfwe-post-widget.php:3725
+#: widgets/class-bpfwe-post-widget.php:7413
+#: widgets/class-bpfwe-post-widget.php:7471
+#: widgets/class-bpfwe-search-bar-widget.php:322
+#: widgets/class-bpfwe-search-bar-widget.php:389
+#: widgets/class-bpfwe-search-bar-widget.php:505
+#: widgets/class-bpfwe-search-bar-widget.php:586
+#: widgets/class-bpfwe-sorting-widget.php:320
 msgid "Border"
 msgstr ""
 
@@ -2040,19 +2275,19 @@ msgid "Vertical Position"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1518
-#: widgets/class-bpfwe-post-widget.php:3333
-#: widgets/class-bpfwe-post-widget.php:3858
+#: widgets/class-bpfwe-post-widget.php:3349
+#: widgets/class-bpfwe-post-widget.php:3874
 msgid "Top"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1522
-#: widgets/class-bpfwe-post-widget.php:3337
+#: widgets/class-bpfwe-post-widget.php:3353
 msgid "Middle"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1526
-#: widgets/class-bpfwe-post-widget.php:3341
-#: widgets/class-bpfwe-post-widget.php:3862
+#: widgets/class-bpfwe-post-widget.php:3357
+#: widgets/class-bpfwe-post-widget.php:3878
 msgid "Bottom"
 msgstr ""
 
@@ -2077,24 +2312,24 @@ msgid "Use # to display the row number."
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1696
-#: widgets/class-bpfwe-post-widget.php:4958
-#: widgets/class-bpfwe-post-widget.php:7901
-#: widgets/class-bpfwe-post-widget.php:8051
+#: widgets/class-bpfwe-post-widget.php:4974
+#: widgets/class-bpfwe-post-widget.php:7917
+#: widgets/class-bpfwe-post-widget.php:8067
 msgid "Icon Size"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1715
-#: widgets/class-bpfwe-post-widget.php:4947
-#: widgets/class-bpfwe-post-widget.php:7829
-#: widgets/class-bpfwe-post-widget.php:7874
-#: widgets/class-bpfwe-post-widget.php:8040
+#: widgets/class-bpfwe-post-widget.php:4963
+#: widgets/class-bpfwe-post-widget.php:7845
+#: widgets/class-bpfwe-post-widget.php:7890
+#: widgets/class-bpfwe-post-widget.php:8056
 msgid "Icon Color"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:1726
-#: widgets/class-bpfwe-post-widget.php:4971
-#: widgets/class-bpfwe-post-widget.php:7915
-#: widgets/class-bpfwe-post-widget.php:8064
+#: widgets/class-bpfwe-post-widget.php:4987
+#: widgets/class-bpfwe-post-widget.php:7931
+#: widgets/class-bpfwe-post-widget.php:8080
 msgid "Icon Spacing"
 msgstr ""
 
@@ -2191,37 +2426,37 @@ msgid "Order By"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2068
-#: widgets/class-bpfwe-sorting-widget.php:151
+#: widgets/class-bpfwe-sorting-widget.php:152
 msgid "Date"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2069
-#: widgets/class-bpfwe-sorting-widget.php:152
+#: widgets/class-bpfwe-sorting-widget.php:153
 msgid "Last Modified"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2070
-#: widgets/class-bpfwe-sorting-widget.php:153
+#: widgets/class-bpfwe-sorting-widget.php:154
 msgid "Random"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2071
-#: widgets/class-bpfwe-sorting-widget.php:154
+#: widgets/class-bpfwe-sorting-widget.php:155
 msgid "Comment Count"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2075
-#: widgets/class-bpfwe-sorting-widget.php:158
+#: widgets/class-bpfwe-sorting-widget.php:159
 msgid "Menu Order"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2076
-#: widgets/class-bpfwe-sorting-widget.php:159
+#: widgets/class-bpfwe-sorting-widget.php:160
 msgid "Relevance"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:2106
-#: widgets/class-bpfwe-sorting-widget.php:185
+#: widgets/class-bpfwe-sorting-widget.php:186
 msgid "Order"
 msgstr ""
 
@@ -2374,8 +2609,8 @@ msgstr ""
 #: widgets/class-bpfwe-post-widget.php:2627
 #: widgets/class-bpfwe-post-widget.php:3026
 #: widgets/class-bpfwe-post-widget.php:3035
-#: widgets/class-bpfwe-post-widget.php:3055
-#: widgets/class-bpfwe-post-widget.php:7486
+#: widgets/class-bpfwe-post-widget.php:3071
+#: widgets/class-bpfwe-post-widget.php:7502
 msgid "Pagination"
 msgstr ""
 
@@ -2508,17 +2743,17 @@ msgid "Sync Class"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:3039
-#: widgets/class-bpfwe-post-widget.php:3059
+#: widgets/class-bpfwe-post-widget.php:3075
 msgid "Numbers"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:3040
-#: widgets/class-bpfwe-post-widget.php:3060
+#: widgets/class-bpfwe-post-widget.php:3076
 msgid "Numbers + Previous/Next"
 msgstr ""
 
 #: widgets/class-bpfwe-post-widget.php:3041
-#: widgets/class-bpfwe-post-widget.php:7113
+#: widgets/class-bpfwe-post-widget.php:7129
 msgid "Load More Button"
 msgstr ""
 
@@ -2526,250 +2761,246 @@ msgstr ""
 msgid "Infinite"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3072
+#: widgets/class-bpfwe-post-widget.php:3055
+msgid "Max. Pages"
+msgstr ""
+
+#: widgets/class-bpfwe-post-widget.php:3088
 msgid "Display on Carousel"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3117
+#: widgets/class-bpfwe-post-widget.php:3133
 msgid "Hide Spinner"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3132
+#: widgets/class-bpfwe-post-widget.php:3148
 msgid "Scroll Threshold"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3170
+#: widgets/class-bpfwe-post-widget.php:3186
 msgid "Open Links in New Tab"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3186
+#: widgets/class-bpfwe-post-widget.php:3202
 msgid "External URL"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3188
+#: widgets/class-bpfwe-post-widget.php:3204
 msgid "Paste URL or use a custom field"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3193
+#: widgets/class-bpfwe-post-widget.php:3209
 msgid ""
 "Use this option to replace all existing post URLs with a URL of your choice."
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3201
+#: widgets/class-bpfwe-post-widget.php:3217
 msgid "Use Post URL as Fallback"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3217
+#: widgets/class-bpfwe-post-widget.php:3233
 msgid "Include Posts by ID"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3219
-#: widgets/class-bpfwe-post-widget.php:3230
+#: widgets/class-bpfwe-post-widget.php:3235
+#: widgets/class-bpfwe-post-widget.php:3246
 msgid "Comma Separated List"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3228
+#: widgets/class-bpfwe-post-widget.php:3244
 msgid "Exclude Posts by ID"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3295
+#: widgets/class-bpfwe-post-widget.php:3311
 msgid "Content Horizontal Position"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3329
+#: widgets/class-bpfwe-post-widget.php:3345
 msgid "Content Vertical Position"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3535
+#: widgets/class-bpfwe-post-widget.php:3551
 msgid "Min. Height"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3553
+#: widgets/class-bpfwe-post-widget.php:3569
 msgid "Max. Height"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3570
+#: widgets/class-bpfwe-post-widget.php:3586
 msgid "Transition Duration"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3754
-msgid "Fallback Image"
-msgstr ""
-
-#: widgets/class-bpfwe-post-widget.php:3765
+#: widgets/class-bpfwe-post-widget.php:3781
 msgid "Image Equal Height"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3825
-#: widgets/class-bpfwe-post-widget.php:3854
+#: widgets/class-bpfwe-post-widget.php:3841
+#: widgets/class-bpfwe-post-widget.php:3870
 msgid "Image Position"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3884
+#: widgets/class-bpfwe-post-widget.php:3900
 msgid "Aspect Ratio"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3924
+#: widgets/class-bpfwe-post-widget.php:3940
 msgid "Image Overlay"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:3950
-msgid "Hover Opacity"
-msgstr ""
-
-#: widgets/class-bpfwe-post-widget.php:4151
+#: widgets/class-bpfwe-post-widget.php:4167
 msgid "Content/Excerpt"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:4187
-#: widgets/class-bpfwe-post-widget.php:4360
+#: widgets/class-bpfwe-post-widget.php:4203
+#: widgets/class-bpfwe-post-widget.php:4376
 msgid "Justify"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:5228
+#: widgets/class-bpfwe-post-widget.php:5244
 msgid "Username/Display Name"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6138
+#: widgets/class-bpfwe-post-widget.php:6154
 msgid "Original Price Size"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6175
-#: widgets/class-bpfwe-post-widget.php:6244
+#: widgets/class-bpfwe-post-widget.php:6191
+#: widgets/class-bpfwe-post-widget.php:6260
 msgid "Original Price Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6723
-#: widgets/class-bpfwe-post-widget.php:6792
+#: widgets/class-bpfwe-post-widget.php:6739
+#: widgets/class-bpfwe-post-widget.php:6808
 msgid "Empty Star Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6849
+#: widgets/class-bpfwe-post-widget.php:6865
 msgid "Bullets Style"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6875
-#: widgets/class-bpfwe-post-widget.php:6991
-#: widgets/class-bpfwe-post-widget.php:7065
+#: widgets/class-bpfwe-post-widget.php:6891
+#: widgets/class-bpfwe-post-widget.php:7007
+#: widgets/class-bpfwe-post-widget.php:7081
 msgid "Active Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6904
+#: widgets/class-bpfwe-post-widget.php:6920
 msgid "Bullets Spacing"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6921
+#: widgets/class-bpfwe-post-widget.php:6937
 msgid "Bullets Gap"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:6966
+#: widgets/class-bpfwe-post-widget.php:6982
 msgid "Fraction Style"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7002
-#: widgets/class-bpfwe-post-widget.php:8193
+#: widgets/class-bpfwe-post-widget.php:7018
+#: widgets/class-bpfwe-post-widget.php:8209
 msgid "Font Size"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7039
+#: widgets/class-bpfwe-post-widget.php:7055
 msgid "Progressbar Style"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7160
-#: widgets/class-bpfwe-post-widget.php:7588
+#: widgets/class-bpfwe-post-widget.php:7176
+#: widgets/class-bpfwe-post-widget.php:7604
 msgid "Border Type"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7235
+#: widgets/class-bpfwe-post-widget.php:7251
 msgid "Button Gap"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7272
+#: widgets/class-bpfwe-post-widget.php:7288
 msgid "Justified"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7296
+#: widgets/class-bpfwe-post-widget.php:7312
 msgid "Arrows Style"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7342
+#: widgets/class-bpfwe-post-widget.php:7358
 msgid "Arrows Position"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7509
+#: widgets/class-bpfwe-post-widget.php:7525
 msgid "Pagination Gap"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7566
-#: widgets/class-bpfwe-post-widget.php:7607
-#: widgets/class-bpfwe-post-widget.php:7660
+#: widgets/class-bpfwe-post-widget.php:7582
+#: widgets/class-bpfwe-post-widget.php:7623
+#: widgets/class-bpfwe-post-widget.php:7676
 msgid "Pagination Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7652
+#: widgets/class-bpfwe-post-widget.php:7668
 msgid "Active"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7733
+#: widgets/class-bpfwe-post-widget.php:7749
 msgid "Space Between Numbers"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7749
+#: widgets/class-bpfwe-post-widget.php:7765
 msgid "Spinner"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7773
+#: widgets/class-bpfwe-post-widget.php:7789
 msgid "Circle Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7809
+#: widgets/class-bpfwe-post-widget.php:7825
 msgid "Bookmarked"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7841
-#: widgets/class-bpfwe-post-widget.php:7886
+#: widgets/class-bpfwe-post-widget.php:7857
+#: widgets/class-bpfwe-post-widget.php:7902
 msgid "Stroke Color"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:7854
+#: widgets/class-bpfwe-post-widget.php:7870
 msgid "Unbookmarked"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:8774
+#: widgets/class-bpfwe-post-widget.php:8790
 msgid "comment"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:8774
+#: widgets/class-bpfwe-post-widget.php:8790
 msgid "comments"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:8957
-#: widgets/class-bpfwe-post-widget.php:8983
-#: widgets/class-bpfwe-post-widget.php:9231
-#: widgets/class-bpfwe-post-widget.php:9255
-#: widgets/class-bpfwe-post-widget.php:9545
-#: widgets/class-bpfwe-post-widget.php:9573
+#: widgets/class-bpfwe-post-widget.php:8978
+#: widgets/class-bpfwe-post-widget.php:9008
+#: widgets/class-bpfwe-post-widget.php:9339
+#: widgets/class-bpfwe-post-widget.php:9368
+#: widgets/class-bpfwe-post-widget.php:9743
+#: widgets/class-bpfwe-post-widget.php:9776
 msgid "« prev"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:8958
-#: widgets/class-bpfwe-post-widget.php:8984
-#: widgets/class-bpfwe-post-widget.php:9232
-#: widgets/class-bpfwe-post-widget.php:9256
-#: widgets/class-bpfwe-post-widget.php:9546
-#: widgets/class-bpfwe-post-widget.php:9574
+#: widgets/class-bpfwe-post-widget.php:8979
+#: widgets/class-bpfwe-post-widget.php:9009
+#: widgets/class-bpfwe-post-widget.php:9340
+#: widgets/class-bpfwe-post-widget.php:9369
+#: widgets/class-bpfwe-post-widget.php:9744
+#: widgets/class-bpfwe-post-widget.php:9777
 msgid "next »"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:9009
-#: widgets/class-bpfwe-post-widget.php:9281
-#: widgets/class-bpfwe-post-widget.php:9600
+#: widgets/class-bpfwe-post-widget.php:9034
+#: widgets/class-bpfwe-post-widget.php:9394
+#: widgets/class-bpfwe-post-widget.php:9803
 msgid "Load More"
 msgstr ""
 
-#: widgets/class-bpfwe-post-widget.php:9009
-#: widgets/class-bpfwe-post-widget.php:9281
-#: widgets/class-bpfwe-post-widget.php:9600
+#: widgets/class-bpfwe-post-widget.php:9034
+#: widgets/class-bpfwe-post-widget.php:9394
+#: widgets/class-bpfwe-post-widget.php:9803
 msgid "Loading..."
 msgstr ""
 
@@ -2787,77 +3018,74 @@ msgstr ""
 msgid "Search Bar Widget"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:146
-msgid "Post Type to Search"
-msgstr ""
-
 #: widgets/class-bpfwe-search-bar-widget.php:148
+#: widgets/class-bpfwe-sorting-widget.php:216
 msgid ""
-"If both the search widget and filter widgets are present on the same page, "
-"the filter widget’s controls will take precedence."
+"To combine filter, search, & sorting widgets, use the same target selector. "
+"When used together, the filter widget’s post type takes priority."
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:183
+#: widgets/class-bpfwe-search-bar-widget.php:184
 msgid "Button Text"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:188
 #: widgets/class-bpfwe-search-bar-widget.php:189
+#: widgets/class-bpfwe-search-bar-widget.php:190
 msgid "Search"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:199
+#: widgets/class-bpfwe-search-bar-widget.php:200
 msgid "Redirect After Submission"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:211
+#: widgets/class-bpfwe-search-bar-widget.php:212
 msgid "Redirect URL"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:229
+#: widgets/class-bpfwe-search-bar-widget.php:230
 msgid "Search Bar"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:280
+#: widgets/class-bpfwe-search-bar-widget.php:281
 msgid "Input Style"
 msgstr ""
 
-#: widgets/class-bpfwe-search-bar-widget.php:426
+#: widgets/class-bpfwe-search-bar-widget.php:427
 msgid "Button Style"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:52
+#: widgets/class-bpfwe-sorting-widget.php:53
 msgid "Sorting Widget"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:189
+#: widgets/class-bpfwe-sorting-widget.php:190
 msgid "ASC"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:190
+#: widgets/class-bpfwe-sorting-widget.php:191
 msgid "DESC"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:200
+#: widgets/class-bpfwe-sorting-widget.php:227
 msgid "Sorting Options"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:205
+#: widgets/class-bpfwe-sorting-widget.php:232
 msgid "Sort by default"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:209
+#: widgets/class-bpfwe-sorting-widget.php:236
 msgid "Sort by title: alphabetical"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:214
+#: widgets/class-bpfwe-sorting-widget.php:241
 msgid "Sort by title: reverse"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:219
+#: widgets/class-bpfwe-sorting-widget.php:246
 msgid "By date: newest first"
 msgstr ""
 
-#: widgets/class-bpfwe-sorting-widget.php:224
+#: widgets/class-bpfwe-sorting-widget.php:251
 msgid "By date: oldest first"
 msgstr ""
