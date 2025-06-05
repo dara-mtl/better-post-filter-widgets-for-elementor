@@ -904,6 +904,76 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'display_selected_terms',
+			[
+				'label'        => esc_html__( 'Display Selected Terms', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'separator'    => 'before',
+				'default'      => '',
+			]
+		);
+
+		$this->add_control(
+			'selected_terms_description',
+			[
+				'label'           => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
+				'type'            => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'             => esc_html__( 'To display the currently selected terms, add the "bpfwe-selected-terms" class to any widgets.', 'better-post-filter-widgets-for-elementor' ),
+				'content_classes' => 'elementor-control-field-description',
+				'condition'       => [
+					'display_selected_terms' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'selected_terms_class',
+			[
+				'label'       => __( 'Display Terms Class', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'render_type' => 'ui',
+				'description' => '<script>
+					jQuery(document).ready(function($) {
+						var $input = $(".elementor-control-selected_terms_class input");
+						var widgetID = "bpfwe-selected-terms";
+						$input.val(widgetID).attr("readonly", true);
+
+						$input.on("click", function() {
+							this.select();
+							document.execCommand("copy");
+							var notice = elementor.notifications.showToast({
+								message: "Copied to clipboard!",
+								type: "success"
+							});
+							setTimeout(function() {
+								notice.close();
+							}, 1000);
+						});
+					});
+				</script>',
+				'condition'   => [
+					'display_selected_terms' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'display_selected_before',
+			[
+				'label'              => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::TEXT,
+				'placeholder'        => esc_html__( 'Selected:', 'better-post-filter-widgets-for-elementor' ),
+				'condition'          => [
+					'display_selected_terms' => 'yes',
+				],
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
 			'scroll_to_top',
 			[
 				'label'              => esc_html__( 'Scroll to top', 'better-post-filter-widgets-for-elementor' ),
@@ -1053,6 +1123,18 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_responsive_control(
+			'filter_label_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', 'em', '%', 'rem' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .form-tax label' => 'padding: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
 		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			array(
@@ -1060,8 +1142,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'global'   => array(
 					'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
 				),
-				'selector' => '{{WRAPPER}} .form-tax label',
+				'selector' => '{{WRAPPER}} .form-tax .label-text',
 			)
+		);
+
+		$this->start_controls_tabs(
+			'filter_label_style_tabs'
+		);
+
+		$this->start_controls_tab(
+			'filter_label_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
 		);
 
 		$this->add_control(
@@ -1073,10 +1166,114 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'default' => Global_Colors::COLOR_PRIMARY,
 				),
 				'selectors' => array(
-					'{{WRAPPER}} .form-tax label' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .form-tax .label-text' => 'color: {{VALUE}};',
 				),
 			)
 		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_label_border',
+				'selector' => '{{WRAPPER}} .form-tax .label-text',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .form-tax .label-text' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'filter_label_style_hover_tab',
+			[
+				'label' => esc_html__( 'Hover', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'filter_label_color_hover',
+			array(
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .form-tax label:hover .label-text' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_label_border_hover',
+				'selector' => '{{WRAPPER}} .form-tax label:hover .label-text',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_border_radius_hover',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .form-tax label:hover .label-text' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'filter_label_style_selected_tab',
+			[
+				'label' => esc_html__( 'Selected', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'filter_label_color_selected',
+			array(
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .form-tax input:checked + span .label-text' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_label_border_selected',
+				'selector' => '{{WRAPPER}} .form-tax input:checked + span .label-text',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_label_border_radius_selected',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .form-tax input:checked + span .label-text' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
 
 		$this->end_controls_section();
 

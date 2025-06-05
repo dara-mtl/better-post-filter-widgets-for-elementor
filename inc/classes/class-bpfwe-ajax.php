@@ -210,7 +210,6 @@ class BPFWE_Ajax {
 			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? ( -1 === (int) $performance_settings['posts_per_page'] ? null : absint( $performance_settings['posts_per_page'] ) ) : null,
 		];
 
-		// Prioritize performance_settings.posts_per_page if not -1.
 		$final_posts_per_page = null !== $performance_settings['posts_per_page'] && -1 !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
 
 		$is_empty = true;
@@ -616,7 +615,7 @@ class BPFWE_Ajax {
 		add_action( 'init', [ $this, 'delete_filter_transient' ] );
 		add_action( 'admin_init', [ $this, 'delete_filter_transient' ] );
 
-		add_action( 'pre_get_posts', [ $this, 'pre_get_posts_filter' ] );
+		add_action( 'init', [ $this, 'register_pre_get_posts_filter' ], 20 );
 
 		add_action( 'wp_ajax_change_post_status', [ $this, 'change_post_status' ] );
 		add_action( 'wp_ajax_nopriv_change_post_status', [ $this, 'change_post_status' ] );
@@ -629,6 +628,10 @@ class BPFWE_Ajax {
 
 		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
 		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
+	}
+
+	public function register_pre_get_posts_filter() {
+		add_action( 'pre_get_posts', [ $this, 'pre_get_posts_filter' ] );
 	}
 }
 new BPFWE_Ajax();

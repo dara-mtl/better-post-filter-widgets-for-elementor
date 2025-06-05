@@ -308,6 +308,12 @@ class Custom_Field extends Tag {
 			}
 		}
 
-		echo ( 'yes' === $need_autop ) ? wp_kses_post( wpautop( $value ) ) : wp_kses_post( $value );
+		if ( is_array( $value ) ) {
+			echo esc_html( implode( ', ', $value ) );
+		} elseif ( 'yes' === $need_autop ) {
+				echo wp_kses_post( wpautop( $value ) );
+		} else {
+			echo wp_kses_post( $value );
+		}
 	}
 }

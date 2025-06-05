@@ -2,8 +2,8 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.3.0
-Tested up to: 6.7
+Stable tag: 1.3.3
+Tested up to: 6.8
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -114,83 +114,27 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.3.0 =
+= 1.3.3 – 2025-05-24 =
 
-* New: Introduced a new Performance settings tab, allowing fine-tuning of filter queries for better speed and control:
-  * Load Only Post ID: Fetch only post IDs instead of full post data. Great for ID-based widgets.
-  * Skip Pagination Count: Disable total post counting when pagination isn't needed.
-  * Bypass Query Modifications: Ignore external query filters for potentially faster results.
-  * Posts Per Page: Set a fixed number of posts per page directly from the query settings.
-  * Added a control to decide of the filter terms Cache duration (previously fixed at 1 day).
-* New: Added a Max Page control to the Post widget.
-* New: In the Repeater Dynamic Tag, added an option to output the repeater fields directly as a tab.
-* Tweak: Made repeater output more consistent:
-  * Empty values no longer generate blank rows or table cells.
-  * Improved fallback handling for partially filled repeaters.
-* Fix: Pagination for the taxonomy query.
+* New: Added styling controls for checkbox and radio button labels in the Filter widget, allowing greater design flexibility.
+* New: Introduced `.bpfwe-selected-terms` class to display currently selected filter terms inside any widget.
+* Fix: Resolved a crash when using the Custom Field dynamic tag with array-type fields in combination with the wpautop() function.
+* Fix: Prevented duplicated filter forms from interfering with each other's queries.
+* Compatibility: Confirmed compatibility with Elementor version 3.29.0
 
-= 1.2.4 - 2025-04-19 =
+= 1.3.2 – 2025-05-10 =
 
-* Fix: Removed `'fields' => 'ids'` from the filter query causing an AJAX error in Elementor Pro widgets requiring the full post object.
+* Fix: Resolved issue where filters failed after the first AJAX request for custom post types registered via ACF.
+* Fix: Corrected index mismatch between synchronized sliders in the Post widget.
+* Fix: Prevented duplicated filter forms from interfering with each other's queries.
+* Fix: Addressed inconsistent pagination when excluding terms from taxonomy queries.
 
-= 1.2.3 - 2025-04-18 =
+= 1.3.1 – 2025-05-05 =
 
-* Tweak: Group Separator swatch now defaults to an empty value instead of a pre-filled label, preventing accidental saving of unused separator titles.
+* New: Added Vertical Post Slider option to the Post widget. Users can now toggle between horizontal and vertical layouts.
+* New: Deselectable Radio Buttons: clicking the same radio option twice will now deselect it.
+* Tweak: Improved the filter's reset behavior.
 
-= 1.2.2 - 2025-04-17 =
+For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
-* Tweak: Post Featured Image dynamic tag can now be used on background.
-* Tweak: Minor CSS adjustments to improve template grid layout consistency.
-* Compatibility: Confirmed compatibility with WordPress 6.8.
-* Fix: Re-applied fix for Search widget redirecting to the search results page when attached to a Post widget.
-
-= 1.2.1 =
-
-* Fix: Added missing files
-
-= 1.2.0 - 2025-04-10 =
-
-* New: Users can now assign a swatch to any taxonomy terms, with support for color, image/icon, WooCommerce category image, group separator and button.
-* New: Added inline label support for filters, allowing users to toggle between vertical and horizontal layouts.
-* New: Introduced an option to toggle labels and checkbox/radio inputs.
-* New: Introduced new dynamic tags: taxonomy meta and image custom field, both designed to enhance template grid compatibility with user & taxonomy queries.
-* Tweak: Enabled additional dynamic tags (Tax Meta, User Meta, Image Custom Field) for Elementor Pro users, alongside existing tags (Custom Field, Repeater, Post Content), to support template grid creation with taxonomy and user queries.
-* Tweak: Added support for displaying taxonomy hierarchies in select dropdown (previously limited to radio and checkboxes).
-* Tweak: Hierarchical taxonomy is now fully recursive, displaying all depth levels.
-* Tweak: Added filter pagination support for Elementor Pro's Products widget widget.
-* Tweak: Extended dynamic tag support for taxonomy and user queries, enabling dynamic retrieval of user ID or taxonomy ID in the loop.
-* Fix: Addressed an issue where the sorting widget query would overwrite the one from the filter.
-
-= 1.1.3 - 2025-04-09 =
-
-* Fix: Corrected the sender email address to properly reflect the site/domain instead of the plugin slug.
-
-= 1.1.2 (Love Triangle Release) - 2025-03-19 =
-
-* Tweak: Filter, Search and Sorting widgets can now be used as standalone or combined, using a shared target selector.
-* Tweak: Added a post widget target and post type controls to the sorting widget.
-* Fix: Fixed a bug preventing the sorting and search bar widgets from functioning as standalone components.
-* Fix: Fixed an issue where Elementor buttons would become unresponsive after filtering a loop.
-* Fix: Corrected intermittent Search widget redirects to the search results page when attached to a Post widget.
-
-= 1.1.1 - 2025-02-28 =
-
-* Tweak: Added icon support to the before/after section within the post widget content.
-* Tweak: Improved background image handling in the post carousel for more consistent fetching on page load.
-* Tweak: In the taxonomy query, added support for automatically retrieving featured images for product categories.
-* Tweak: In the user query, replaced the user Gravatar with a custom user meta key.
-* Fix: Addressed an issue where filters failed to retrieve the document ID in certain cases.
-
-= 1.1.0 - 2025-02-14 =
-
-* New: Added the ability to query taxonomies using the post widget, with full support for pagination and slider conversion. Users can now query posts, users, taxonomies, and the main query.
-* New: Extended post carousel functionality:
-  * Users can set post images as backgrounds on any containers.
-  * Introduced marquee mode.
-  * Added custom pagination via classes, allowing carousel control through any element on the page.
-  * Enabled synchronization of two or more post carousels using the `.sync-sliders` class.
-* Fix: Resolved Select2 dropdown conflict when multiple filters are present.
-
-= 1.0.0 =
-
-* Initial stable release.
+== Upgrade Notice ==

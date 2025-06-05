@@ -168,6 +168,24 @@
 					$trigger.attr( 'aria-expanded', isExpanded );
 				} );
 
+				// Handle radio button click to allow deselection.
+				$(document).off('mousedown', 'input[type="radio"]').on('mousedown', 'input[type="radio"]', function (e) {
+					let $radio = $(this);
+					if ($radio.is(':checked')) {
+						$radio.data('wasChecked', true);
+					} else {
+						$radio.data('wasChecked', false);
+					}
+				});
+
+				$(document).off('click', 'input[type="radio"]').on('click', 'input[type="radio"]', function (e) {
+					let $radio = $(this);
+					if ($radio.data('wasChecked')) {
+						$radio.prop('checked', false).trigger('change');
+					}
+					$radio.removeData('wasChecked');
+				});
+
 				$( document ).off( 'keydown', 'form.form-tax input' ).on( 'keydown', 'form.form-tax input', function ( e ) {
 					if ( e.which === 13 ) e.preventDefault();
 				} );
@@ -190,7 +208,7 @@
 				let groupLogic = filterSetting?.group_logic ?? '',
 					dynamicFiltering = filterSetting?.dynamic_filtering ?? '',
 					scrollToTop = filterSetting?.scroll_to_top ?? '',
-					//post_type = filterSetting?.filter_post_type ?? '',
+					display_selected_before = filterSetting?.display_selected_before ?? '',
 					nothing_found_message = filterSetting?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
 					currentPage = 1,
 					paginationType = '';
@@ -403,6 +421,9 @@
 					}
 
 					let hasValues = false;
+					
+					// Nuke the totally useless script breaking Elementor Pro dulicated content in sticky column
+					$('.elementor-sticky__spacer').empty();
 
 					filtersList.forEach( function ( filterWidgetId ) {
 						// Lowest priority: Sorting widget.
@@ -474,66 +495,104 @@
 						custom_field_like = [],
 						numeric_field = [];
 
-					filtersList.forEach( function ( filterWidgetId ) {
-						var $filterWidget = $( '.elementor-widget-filter-widget[data-id="' + filterWidgetId + '"]' );
-						if ( $filterWidget.length ) {
-							$filterWidget.find( '.bpfwe-taxonomy-wrapper input:checked, .bpfwe-custom-field-wrapper input:checked' ).each( function () {
-								var self = $( this );
-								var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : custom_field;
-								targetArray.push( {
-									'taxonomy': self.data( 'taxonomy' ),
-									'terms': self.val(),
-									'logic': self.closest( 'div' ).data( 'logic' )
-								} );
+					// Add selected terms to widgets with bpfwe-selected-terms class
+					if ($('.bpfwe-selected-terms').length) {
+						let selectedLabels = [];
+						let $filterWidget = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]');
+						
+						// Handle checkboxes and radio buttons
+						$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked').each(function () {
+							let labelText = $(this).closest('label').find('.label-text').text().trim();
+							if (labelText) {
+								selectedLabels.push(labelText);
+							}
+						});
+
+						// Handle select dropdowns
+						$filterWidget.find('select option:selected').each(function () {
+							let text = $(this).text().trim();
+							if (text && $(this).val()) {
+								selectedLabels.push(text);
+							}
+						});
+
+						// Update all elements with bpfwe-selected-terms class
+						let termsText = selectedLabels.length > 0 ? display_selected_before + selectedLabels.join(', ') : '';
+						console.log(display_selected_before);
+						$('.bpfwe-selected-terms').each(function () {
+							let $widget = $(this);
+							let $container = $widget.find('.elementor-widget-container').first();
+
+							let $target = $container.length ? $container.children().first() : $widget.children().first();
+
+							if ($target.length) {
+								$target.text(termsText);
+							}
+						});
+
+					}
+
+					if (widgetInteractionID) {
+						const $activeWidget = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]');
+
+						if ($activeWidget.length) {
+							$activeWidget.find('.bpfwe-taxonomy-wrapper input:checked, .bpfwe-custom-field-wrapper input:checked').each(function () {
+								let self = $(this);
+								let targetArray = self.closest('.bpfwe-taxonomy-wrapper').length ? category : custom_field;
+								targetArray.push({
+									taxonomy: self.data('taxonomy'),
+									terms: self.val(),
+									logic: self.closest('div').data('logic')
+								});
 								hasValues = true;
-							} );
+							});
 
-							$filterWidget.find( '.bpfwe-custom-field-wrapper input.input-text' ).each( function () {
-								var self = $( this );
-								if ( self.val() ) {
-									custom_field_like.push( {
-										'taxonomy': self.data( 'taxonomy' ),
-										'terms': self.val(),
-										'logic': self.closest( 'div' ).data( 'logic' )
-									} );
+							$activeWidget.find('.bpfwe-custom-field-wrapper input.input-text').each(function () {
+								let self = $(this);
+								if (self.val()) {
+									custom_field_like.push({
+										taxonomy: self.data('taxonomy'),
+										terms: self.val(),
+										logic: self.closest('div').data('logic')
+									});
 									hasValues = true;
 								}
-							} );
+							});
 
-							$filterWidget.find( '.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected' ).each( function () {
-								var self = $( this );
-								if ( self.val() ) {
-									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : custom_field;
-									targetArray.push( {
-										'taxonomy': self.data( 'taxonomy' ),
-										'terms': self.val(),
-										'logic': self.closest( 'div' ).data( 'logic' )
-									} );
+							$activeWidget.find('.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected').each(function () {
+								let self = $(this);
+								if (self.val()) {
+									let targetArray = self.closest('.bpfwe-taxonomy-wrapper').length ? category : custom_field;
+									targetArray.push({
+										taxonomy: self.data('taxonomy'),
+										terms: self.val(),
+										logic: self.closest('div').data('logic')
+									});
 									hasValues = true;
 								}
-							} );
+							});
 
-							$filterWidget.find( '.bpfwe-numeric-wrapper input' ).each( function () {
-								var self = $( this );
-								var initial_val = self.data( 'base-value' );
-								if ( self.val() === '' || self.val() != initial_val ) {
-									if ( self.val() === '' ) self.val( initial_val );
-									var _class = self.attr( "class" ).split( ' ' )[ 0 ];
-									$filterWidget.find( '.bpfwe-numeric-wrapper input' ).each( function () {
-										var _this = $( this );
-										if ( _this.hasClass( _class ) ) {
-											numeric_field.push( {
-												'taxonomy': _this.data( 'taxonomy' ),
-												'terms': _this.val(),
-												'logic': _this.closest( 'div' ).data( 'logic' )
-											} );
+							$activeWidget.find('.bpfwe-numeric-wrapper input').each(function () {
+								let self = $(this);
+								let initial_val = self.data('base-value');
+								if (self.val() === '' || self.val() != initial_val) {
+									if (self.val() === '') self.val(initial_val);
+									let _class = self.attr("class").split(' ')[0];
+									$activeWidget.find('.bpfwe-numeric-wrapper input').each(function () {
+										let _this = $(this);
+										if (_this.hasClass(_class)) {
+											numeric_field.push({
+												taxonomy: _this.data('taxonomy'),
+												terms: _this.val(),
+												logic: _this.closest('div').data('logic')
+											});
 											hasValues = true;
 										}
-									} );
+									});
 								}
-							} );
+							});
 						}
-					} );
+					}
 
 					function reduceFields ( fields ) {
 						return fields.reduce( function ( o, cur ) {
@@ -596,6 +655,7 @@
 								.replace( /\?$/, '' ),
 								currentFormState = filterWidget.find( 'form' ).serialize();
 
+							let originalState = originalStates[ localWidgetID ];
 							if ( data === '0' || !hasValues ) {
 								//localTargetSelector.off();
 								localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
@@ -723,6 +783,7 @@
 						},
 						error: function ( xhr, status, error ) {
 							console.log( 'AJAX error:', error );
+							let originalState = originalStates[ localWidgetID ];
 							localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
 							var currentSettings = localTargetSelector.data( 'settings' );
 							if ( currentSettings?.pagination_type === 'cwm_infinite' ) {

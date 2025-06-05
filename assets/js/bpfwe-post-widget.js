@@ -570,10 +570,12 @@
 						}
 
 						const layoutSettings = {
+							slideVisibleClass: 'swiper-slide-visible',
+							watchSlidesProgress: true,
 							allowTouchMove: settings.post_slider_allow_touch_move === 'yes',
 							autoHeight: settings.post_slider_auto_h === 'yes',
 							effect: settings.post_slider_transition_effect,
-							direction: 'horizontal',
+							direction: settings.post_slider_layout,
 							loop: settings.post_slider_loop === 'yes',
 							centerInsufficientSlides: false,
 							parallax: settings.post_slider_parallax === 'yes',
@@ -599,6 +601,55 @@
 							mousewheel: settings.post_slider_allow_mousewheel === 'yes',
 							watchOverflow: true,
 						};
+
+						if (settings.post_slider_layout === 'vertical') {
+							const $swiperContainer = $(`.bpfwe-swiper-${widgetId}`);
+							const slidesPerView = parseFloat(settings.post_slider_slides_per_view) || 1;
+							const gap = parseFloat(settings.post_slider_gap) || 0;
+
+							const setWrapperHeight = () => {
+								requestAnimationFrame(() => {
+									const $slides = $swiperContainer.find('.post-wrapper');
+									let maxSlideHeight = 0;
+
+									const originalHeights = [];
+									$slides.each(function (i) {
+										originalHeights[i] = $(this).css('height');
+										$(this).css('height', 'auto');
+									});
+
+									$slides.each(function () {
+										const slideHeight = $(this).innerHeight();
+										if (slideHeight > maxSlideHeight) {
+											maxSlideHeight = slideHeight;
+										}
+									});
+
+									$slides.each(function (i) {
+										$(this).css('height', originalHeights[i]);
+									});
+
+									const totalGaps = slidesPerView * gap;
+									const resizeSlidesPerView = $(document).find('.swiper-slide-visible').length;
+
+									let wrapperHeight = '';
+
+									if (resizeSlidesPerView > 0) {
+										wrapperHeight = maxSlideHeight * resizeSlidesPerView + totalGaps;
+									} else {
+										wrapperHeight = maxSlideHeight * slidesPerView + totalGaps;
+									}
+
+									$swiperContainer.css({
+										'height': `${wrapperHeight}px`
+									});
+								});
+							};
+
+							const debouncedVerticalHeight = this.debounce(setWrapperHeight, 100);
+							$(window).on('resize.verticalSwiper-' + widgetId, this.debounce( setWrapperHeight, 100 ));
+							debouncedVerticalHeight();
+						}
 
 						// Marquee Infinite Scroll Settings.
 						if ( settings.enable_marquee === 'yes' ) {
@@ -668,6 +719,8 @@
 								'-ms-transform': 'translateY(0px)',
 								'transform': 'translateY(0px)'
 							});
+							
+							$( window ).off( 'resize.verticalSwiper-' + widgetId );
 						}
 					};
 
@@ -700,11 +753,11 @@
 						const sliders = Array.from( sliderElements ).map( element => element.swiper );
 						let isSyncing = false;
 
-						const syncSliders = ( sourceSlider ) => {
+						const syncSliders = ( sourceSlider, targetIndex = null ) => {
 							if ( isSyncing ) return;
 							isSyncing = true;
 
-							const newIndex = sourceSlider.realIndex;
+							const newIndex = targetIndex !== null ? targetIndex : sourceSlider.realIndex;
 
 							sliders.forEach( ( slider ) => {
 								if ( slider !== sourceSlider ) {
@@ -714,7 +767,6 @@
 									if ( slider.params.loop ) {
 										slider.loopFix();
 
-										// Handle edge cases to prevent unexpected rewinding.
 										if ( newIndex === 0 && currentIndex === totalSlides - 1 ) {
 											slider.slideToLoop( totalSlides, sourceSlider.params.speed, false );
 										} else if ( newIndex === totalSlides - 1 && currentIndex === 0 ) {
@@ -728,15 +780,26 @@
 								}
 							} );
 
-							// Trigger the background update after syncing sliders.
 							updateBackground();
-
 							isSyncing = false;
 						};
 
 						sliders.forEach( ( slider ) => {
+							const activeIndex = slider.realIndex;
 							slider.on( 'slideChange', () => syncSliders( slider ) );
-						} );
+
+							slider.slides.forEach( ( slide ) => {
+								const index = parseInt(slide.dataset.swiperSlideIndex, 10);
+								if (index === activeIndex) {
+									slide.classList.add('active');
+								}
+								slide.addEventListener( 'click', () => {
+									const realIndex = parseInt( slide.dataset.swiperSlideIndex, 10 );
+									slider.slides.forEach(s => s.classList.remove('active'));
+									slide.classList.add('active');
+								});
+							});
+						});
 					}
 
 					// Update Background on Slide Change.

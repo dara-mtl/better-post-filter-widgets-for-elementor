@@ -2524,6 +2524,20 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$this->add_control(
+			'post_slider_layout',
+			[
+				'type'               => \Elementor\Controls_Manager::SELECT,
+				'label'              => esc_html__( 'Slide Layout', 'better-post-filter-widgets-for-elementor' ),
+				'options'            => [
+					'horizontal' => esc_html__( 'Horizontal', 'better-post-filter-widgets-for-elementor' ),
+					'vertical'   => esc_html__( 'Vertical', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'default'            => 'horizontal',
+				'frontend_available' => true,
+			]
+		);
+
 		$this->add_responsive_control(
 			'post_slider_gap',
 			[
@@ -9718,9 +9732,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				';
 				if ( 'numbers' === $pagination || 'numbers_and_prev_next' === $pagination ) {
 					$bpfwe_pagination = '';
-					$parent_condition = ( 'top_level' === $settings['filter_rule'] ) ? 0 : '';
 
-					$total_terms = wp_count_terms( $settings['select_taxonomy'] );
+					$count_args           = $query_args;
+					$count_args['number'] = 0;
+					$count_args['offset'] = 0;
+
+					$count_query = new WP_Term_Query( $count_args );
+					$total_terms = is_array( $count_query->get_terms() ) ? count( $count_query->get_terms() ) : 0;
 
 					$total_pages = ceil( $total_terms / $settings['posts_per_page'] );
 					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
@@ -9751,9 +9769,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 				if ( 'load_more' === $pagination || 'infinite' === $pagination ) {
 					$bpfwe_pagination = '';
-					$parent_condition = ( 'top_level' === $settings['filter_rule'] ) ? 0 : '';
 
-					$total_terms = wp_count_terms( $settings['select_taxonomy'] );
+					$count_args           = $query_args;
+					$count_args['number'] = 0;
+					$count_args['offset'] = 0;
+
+					$count_query = new WP_Term_Query( $count_args );
+					$total_terms = is_array( $count_query->get_terms() ) ? count( $count_query->get_terms() ) : 0;
 
 					$total_pages = ceil( $total_terms / $settings['posts_per_page'] );
 					if ( isset( $settings['max_pages'] ) && intval( $settings['max_pages'] ) > 0 ) {
