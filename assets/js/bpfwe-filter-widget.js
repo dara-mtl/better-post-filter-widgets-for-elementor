@@ -613,6 +613,8 @@
 						custom_field_output = reduceFields( custom_field ),
 						custom_field_like_output = reduceFields( custom_field_like ),
 						numeric_output = reduceFields( numeric_field );
+					
+					const dateValues = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]').find('.bpfwe-filter-item[data-taxonomy="post_date"]').map(function() { return this.value; }).get().join(',');
 
 					$.ajax( {
 						type: 'POST',
@@ -640,6 +642,7 @@
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
 							nonce: ajax_var.nonce,
+							date_query: dateValues,
 							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID))
 						},
 						success: function ( data ) {

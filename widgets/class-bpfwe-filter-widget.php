@@ -774,6 +774,156 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 
 		$this->start_controls_section(
+			'default_filter_section',
+			[
+				'label' => __( 'Default Filters', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$pre_filter_repeater = new \Elementor\Repeater();
+
+		$pre_filter_repeater->add_control(
+			'filter_type',
+			[
+				'label'       => __( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::SELECT,
+				'options'     => [
+					'term'         => __( 'Taxonomy Term', 'better-post-filter-widgets-for-elementor' ),
+					'meta'         => __( 'Custom Field', 'better-post-filter-widgets-for-elementor' ),
+					'meta_numeric' => __( 'Custom Field (Numeric)', 'better-post-filter-widgets-for-elementor' ),
+					'date'         => __( 'Date', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'default'     => 'term',
+				'label_block' => true,
+			]
+		);
+
+		$pre_filter_repeater->add_control(
+			'taxonomy',
+			[
+				'label'       => __( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::SELECT,
+				'options'     => BPFWE_Helper::get_taxonomies_options(),
+				'default'     => array_key_first( BPFWE_Helper::get_taxonomies_options() ),
+				'label_block' => true,
+				'condition'   => [ 'filter_type' => 'term' ],
+			]
+		);
+
+		$taxonomies = get_taxonomies( [], 'objects' );
+		$all_terms  = [];
+
+		foreach ( $taxonomies as $index => $tax ) {
+			$terms_transient_key = 'bpfwe_terms_' . $index;
+			$terms               = get_transient( $terms_transient_key );
+
+			if ( false === $terms ) {
+				$terms = get_terms(
+					[
+						'taxonomy'   => $index,
+						'hide_empty' => false,
+					]
+				);
+
+				set_transient( $terms_transient_key, $terms, HOUR_IN_SECONDS );
+			}
+
+			$all_terms[ $index ] = $terms;
+
+			$term_options = [];
+
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+				foreach ( $terms as $term ) {
+					$term_options[ absint( $term->term_id ) ][0] = esc_html( $term->name );
+				}
+			}
+
+			$pre_filter_repeater->add_control(
+				'terms_' . $index,
+				[
+					'label'       => sprintf(
+						// translators: %s is the taxonomy label.
+						__( '%s', 'better-post-filter-widgets-for-elementor' ),
+						$tax->label
+					),
+					'type'        => \Elementor\Controls_Manager::SELECT2,
+					'multiple'    => true,
+					'label_block' => true,
+					'options'     => $term_options,
+					'condition'   => [
+						'filter_type' => 'term',
+						'taxonomy'    => $index,
+					],
+				]
+			);
+		}
+
+		$pre_filter_repeater->add_control(
+			'meta_key',
+			[
+				'label'       => esc_html__( 'Meta Key', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'label_block' => true,
+				'condition'   => [ 'filter_type' => [ 'meta', 'meta_numeric' ] ],
+			]
+		);
+
+		$pre_filter_repeater->add_control(
+			'meta_value',
+			[
+				'label'       => esc_html__( 'Meta Value', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'label_block' => true,
+				'condition'   => [ 'filter_type' => 'meta' ],
+			]
+		);
+
+		$pre_filter_repeater->add_control(
+			'meta_value_min',
+			[
+				'label'     => esc_html__( 'Minimum Value', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'condition' => [ 'filter_type' => 'meta_numeric' ],
+			]
+		);
+
+		$pre_filter_repeater->add_control(
+			'meta_value_max',
+			[
+				'label'     => esc_html__( 'Maximum Value', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'condition' => [ 'filter_type' => 'meta_numeric' ],
+			]
+		);
+
+		$pre_filter_repeater->add_control(
+			'max_days_old',
+			[
+				'label'     => esc_html__( 'Post Age Limit (days)', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 1,
+				'min'       => 1,
+				'step'      => 1,
+				'condition' => [ 'filter_type' => 'date' ],
+			]
+		);
+
+		$this->add_control(
+			'default_filters',
+			[
+				'label'         => esc_html__( 'Default Filter Rules', 'better-post-filter-widgets-for-elementor' ),
+				'type'          => \Elementor\Controls_Manager::REPEATER,
+				'fields'        => $pre_filter_repeater->get_controls(),
+				'title_field'   => '{{{ filter_type === "term" ? "Term: " + taxonomy : filter_type === "meta" ? "Meta: " + meta_key : filter_type === "meta_numeric" ? "Meta Numeric: " + meta_key : "Post Age Limit: " + max_days_old + " Days" }}}',
+				'prevent_empty' => false,
+				'default'       => [],
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
 			'performance_section',
 			[
 				'label' => esc_html__( 'Performance Settings', 'better-post-filter-widgets-for-elementor' ),
@@ -2440,6 +2590,91 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			<input type="hidden" name="bpf_filter_nonce" value="' . esc_attr( wp_create_nonce( 'nonce' ) ) . '">
 			';
 
+			$default_filters = $this->get_settings_for_display( 'default_filters' );
+
+			if ( ! empty( $default_filters ) ) {
+				echo '<div class="bpfwe-default-filters" style="display:none !important;">';
+
+				foreach ( $default_filters as $index => $filter ) {
+					$filter_type = isset( $filter['filter_type'] ) ? sanitize_key( $filter['filter_type'] ) : '';
+					$logic       = 'AND';
+
+					switch ( $filter_type ) {
+						case 'term':
+							if ( ! empty( $filter['taxonomy'] ) && ! empty( $filter[ 'terms_' . $filter['taxonomy'] ] ) ) {
+								$taxonomy = sanitize_key( $filter['taxonomy'] );
+								$terms    = (array) $filter[ 'terms_' . $taxonomy ];
+								echo '<div class="bpfwe-taxonomy-wrapper" data-logic="' . esc_attr( $logic ) . '">';
+								foreach ( $terms as $term_id ) {
+									printf(
+										'<input type="checkbox" class="bpfwe-filter-item" name="%1$s" data-taxonomy="%1$s" value="%2$d" checked>',
+										esc_attr( $taxonomy ),
+										absint( $term_id )
+									);
+								}
+								echo '</div>';
+							}
+							break;
+
+						case 'meta':
+							$meta_key   = sanitize_key( $filter['meta_key'] ?? '' );
+							$meta_value = $filter['meta_value'] ?? '';
+							if ( '' !== $meta_value && $meta_key ) {
+								echo '<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $logic ) . '">';
+								printf(
+									'<input type="text" class="input-text bpfwe-filter-item" name="%1$s" data-taxonomy="%1$s" value="%2$s">',
+									esc_attr( $meta_key ),
+									esc_attr( $meta_value )
+								);
+								echo '</div>';
+							}
+							break;
+
+						case 'meta_numeric':
+							$meta_key = sanitize_key( $filter['meta_key'] ?? '' );
+							$min      = isset( $filter['meta_value_min'] ) ? $filter['meta_value_min'] : '';
+							$max      = isset( $filter['meta_value_max'] ) ? $filter['meta_value_max'] : '';
+
+							if ( $meta_key && ( '' !== $min || '' !== $max ) ) {
+								echo '<div class="bpfwe-numeric-wrapper" data-logic="' . esc_attr( $logic ) . '">';
+
+								if ( '' !== $min ) {
+									printf(
+										'<input type="number" class="input-min bpfwe-filter-item" name="min_%1$s" data-taxonomy="%1$s" value="%2$s">',
+										esc_attr( $meta_key ),
+										esc_attr( $min )
+									);
+								}
+
+								if ( '' !== $max ) {
+									printf(
+										'<input type="number" class="input-max bpfwe-filter-item" name="max_%1$s" data-taxonomy="%1$s" value="%2$s">',
+										esc_attr( $meta_key ),
+										esc_attr( $max )
+									);
+								}
+
+								echo '</div>';
+							}
+							break;
+
+						case 'date':
+							if ( isset( $filter['max_days_old'] ) && is_numeric( $filter['max_days_old'] ) ) {
+								$days = (int) $filter['max_days_old'];
+								echo '<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $logic ) . '">';
+								printf(
+									'<input type="hidden" class="bpfwe-filter-item" name="bpfwe_date_limit" data-taxonomy="post_date" value="%d">',
+									absint( $days )
+								);
+								echo '</div>';
+							}
+							break;
+					}
+				}
+
+				echo '</div>';
+			}
+
 			if ( is_archive() ) {
 				$queried_object = get_queried_object();
 				$archive_type   = '';
@@ -3211,7 +3446,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -3242,7 +3477,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -3414,8 +3649,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 							<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
 							<div class="bpfwe-numeric-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_price" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_price" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
 							</div>
 						</div>
 						';
@@ -3425,7 +3660,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -3448,7 +3683,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'radio' === $item['filter_style_numeric'] ) {
 						echo '<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {

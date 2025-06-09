@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.3.3
+Stable tag: 1.4.0
 Tested up to: 6.8
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,12 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.4.0 – 2025-06-09 =
+
+* New: Introduced **Default Filters** feature: backend users can now predefine fixed filter selections under Content > Default Filters. This enables pre-filtered content views without user interaction.
+* Fix: Resolved a layout issue in the Post widget when using the **Template Grid** layout with **User** or **Taxonomy** queries.
+* Fix: Corrected the performance sanitization rules, which were previously using a default logic, leading to inconsistent filter behavior in some cases.
+
 = 1.3.3 – 2025-05-24 =
 
 * New: Added styling controls for checkbox and radio button labels in the Filter widget, allowing greater design flexibility.
@@ -138,3 +144,7 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+
+This update introduces Default Filters, enabling backend users to set predefined filter selections. It also fixes Template Grid layout issues and enhances sanitization of performance-related rules.

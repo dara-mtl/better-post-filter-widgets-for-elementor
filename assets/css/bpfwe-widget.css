@@ -401,7 +401,11 @@
 	border: 2.5px solid transparent;
 }
 
+.hide-swatch-label .bpfwe-numeric-wrapper label .label-text,
+.hide-swatch-label .bpfwe-custom-field-wrapper label .label-text,
 .hide-swatch-label .taxonomy-filter li label .label-text,
+.hide-swatch-input .bpfwe-numeric-wrapper input,
+.hide-swatch-input .bpfwe-custom-field-wrapper input,
 .hide-swatch-input .taxonomy-filter li input {
 	display: none;
 }
@@ -794,7 +798,7 @@ ul.post-taxonomy li,
 .post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
 	content: url('../../assets/images/BPFWE-Post-Skeleton.svg');
 	pointer-events: none;
-	max-height: 150px;
+    max-height: 150px;
 	padding: 10px 0 0 0;
 }
 

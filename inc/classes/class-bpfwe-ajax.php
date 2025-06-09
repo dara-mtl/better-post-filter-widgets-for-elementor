@@ -186,7 +186,15 @@ class BPFWE_Ajax {
 			'logic'    => 'sanitize_text_field',
 		];
 
+		$performance_sanitization_rules = [
+			'optimize_query'   => 'sanitize_text_field',
+			'no_found_rows'    => 'sanitize_text_field',
+			'suppress_filters' => 'sanitize_text_field',
+			'posts_per_page'   => 'intval',
+		];
+
 		// Sanitize all arrays with bpfwe_sanitize_nested_data(), refer to function on line 133.
+		$days_array               = ! empty( $_POST['date_query'] ) ? array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_POST['date_query'] ) ) ) ) : [];
 		$taxonomy_output          = ! empty( $_POST['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['taxonomy_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$custom_field_output      = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$custom_field_like_output = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -207,10 +215,10 @@ class BPFWE_Ajax {
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
 			'no_found_rows'    => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
 			'suppress_filters' => isset( $performance_settings['suppress_filters'] ) ? filter_var( $performance_settings['suppress_filters'], FILTER_VALIDATE_BOOLEAN ) : null,
-			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? ( -1 === (int) $performance_settings['posts_per_page'] ? null : absint( $performance_settings['posts_per_page'] ) ) : null,
+			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? (int) $performance_settings['posts_per_page'] : null,
 		];
 
-		$final_posts_per_page = null !== $performance_settings['posts_per_page'] && -1 !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
+		$final_posts_per_page = null !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
 
 		$is_empty = true;
 
@@ -396,12 +404,24 @@ class BPFWE_Ajax {
 			// Add NUMERIC value field to query.
 			if ( ! empty( $numeric_output ) && is_array( $numeric_output ) ) {
 				foreach ( $numeric_output as $key => $value ) {
-					$query = [
-						'key'     => sanitize_key( $value['taxonomy'] ),
-						'value'   => ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : sanitize_text_field( $value['terms'] ),
-						'type'    => 'numeric',
-						'compare' => 'BETWEEN',
-					];
+					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
+					$term_count = count( $terms );
+
+					if ( 1 === $term_count ) {
+						$query = [
+							'key'     => sanitize_key( $value['taxonomy'] ),
+							'value'   => sanitize_text_field( $terms[0] ),
+							'type'    => 'numeric',
+							'compare' => '>',
+						];
+					} else {
+						$query = [
+							'key'     => sanitize_key( $value['taxonomy'] ),
+							'value'   => array_map( 'sanitize_text_field', $terms ),
+							'type'    => 'numeric',
+							'compare' => 'BETWEEN',
+						];
+					}
 
 					$row_logic = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
 
@@ -453,6 +473,19 @@ class BPFWE_Ajax {
 			}
 
 			$is_empty = false;
+		}
+
+		// Add date_query.
+		if ( ! empty( $days_array ) ) {
+			$min_days = min( array_map( 'intval', $days_array ) );
+			if ( $min_days > 0 ) {
+				$args['date_query'] = [
+					[
+						'after'     => gmdate( 'Y-m-d', strtotime( "-{$min_days} days" ) ),
+						'inclusive' => true,
+					],
+				];
+			}
 		}
 
 		if ( $dynamic_filtering ) {
@@ -630,6 +663,11 @@ class BPFWE_Ajax {
 		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
 	}
 
+	/**
+	 * Registers the 'pre_get_posts' filter hook.
+	 *
+	 * @since 1.3.2
+	 */
 	public function register_pre_get_posts_filter() {
 		add_action( 'pre_get_posts', [ $this, 'pre_get_posts_filter' ] );
 	}

@@ -8380,6 +8380,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$class_swiper = 'elementor-grid';
 		$image        = '';
 		$pagination   = '';
+		$counter      = 0;
 
 		if ( isset( $settings['classic_layout'] ) && 'carousel' === $settings['classic_layout'] ) {
 			$pagination = isset( $settings['pagination_carousel'] ) ? $settings['pagination_carousel'] : 'none';
@@ -8573,9 +8574,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		if ( 'main' === $settings['query_type'] || 'custom' === $settings['query_type'] ) {
 			if ( $bpfwe_query->have_posts() ) {
-
-				$counter = 0;
-
 				if ( $settings['skin_template'] ) {
 					$extra_templates_by_position = [];
 					$template_css_urls           = [];
@@ -9134,6 +9132,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				// Loop through the users.
 				foreach ( $user_query->get_results() as $user ) {
 					global $bpfwe_user_id;
+					++$counter;
 					$bpfwe_user_id                               = absint( $user->ID );
 					$permalink                                   = get_author_posts_url( $bpfwe_user_id );
 					$new_tab                                     = '';
@@ -9523,6 +9522,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				// Loop through the terms.
 				foreach ( $terms as $term ) {
 					global $bpfwe_term_id;
+					++$counter;
 					$bpfwe_term_id                               = absint( $term->term_id );
 					$permalink                                   = get_term_link( $bpfwe_term_id );
 					$term_name                                   = $term->name;
