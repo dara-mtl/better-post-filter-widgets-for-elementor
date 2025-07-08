@@ -324,7 +324,7 @@ class BPFWE_Search_Bar_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'search_bar_input_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),

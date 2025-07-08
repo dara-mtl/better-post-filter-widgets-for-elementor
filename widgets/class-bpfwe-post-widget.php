@@ -332,7 +332,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
-		$template_repeater->add_control(
+		$template_repeater->add_responsive_control(
 			'column_span',
 			[
 				'type'      => \Elementor\Controls_Manager::SELECT,
@@ -349,16 +349,19 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'7' => esc_html__( '7', 'better-post-filter-widgets-for-elementor' ),
 					'8' => esc_html__( '8', 'better-post-filter-widgets-for-elementor' ),
 				],
+				'selectors' => [
+					'{{WRAPPER}} {{CURRENT_ITEM}}.row-span-expand' => 'grid-column: span {{VALUE}};',
+				],
 			]
 		);
 
-		$template_repeater->add_control(
+		$template_repeater->add_responsive_control(
 			'row_span',
 			[
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'label'   => esc_html__( 'Row Span', 'better-post-filter-widgets-for-elementor' ),
-				'default' => '1',
-				'options' => [
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'label'     => esc_html__( 'Row Span', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '1',
+				'options'   => [
 					'1' => esc_html__( '1', 'better-post-filter-widgets-for-elementor' ),
 					'2' => esc_html__( '2', 'better-post-filter-widgets-for-elementor' ),
 					'3' => esc_html__( '3', 'better-post-filter-widgets-for-elementor' ),
@@ -367,6 +370,9 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'6' => esc_html__( '6', 'better-post-filter-widgets-for-elementor' ),
 					'7' => esc_html__( '7', 'better-post-filter-widgets-for-elementor' ),
 					'8' => esc_html__( '8', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'selectors' => [
+					'{{WRAPPER}} {{CURRENT_ITEM}}.row-span-expand' => 'grid-row: span {{VALUE}};',
 				],
 			]
 		);
@@ -818,7 +824,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'default'     => esc_html__( 'Best Seller', 'better-post-filter-widgets-for-elementor' ),
 				'placeholder' => esc_html__( 'Best Seller', 'better-post-filter-widgets-for-elementor' ),
-				'separator'   => 'after',
 				'condition'   => [
 					'post_content'        => 'Product Badge',
 					'display_best_seller' => 'yes',
@@ -8577,6 +8582,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				if ( $settings['skin_template'] ) {
 					$extra_templates_by_position = [];
 					$template_css_urls           = [];
+					$extra_template              = [];
 
 					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
 						foreach ( $settings['extra_skin_list'] as $item ) {
@@ -8636,10 +8642,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						// Check if the current position should have an extra template.
 						$use_extra_template = false;
 						$extra_template_id  = '';
-						$column_span        = 1;
-						$row_span           = 1;
-						$column_span_style  = '';
-						$row_span_style     = '';
 
 						foreach ( $extra_templates_by_position as $position => $extra_template ) {
 							// Check if the template should apply once or be repeated.
@@ -8648,24 +8650,16 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
 								$use_extra_template = true;
 								$extra_template_id  = $extra_template['extra_template_id'];
-								$column_span        = $extra_template['column_span'];
-								$row_span           = $extra_template['row_span'];
-								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
-								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
 								break;
 							}
 						}
 
-						$style           = trim( "$column_span_style $row_span_style" );
-						$style_attribute = $style ? 'style="' . $style . '"' : '';
-						$extra_class     = $style_attribute ? 'row-span-expand' : '';
-
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . wp_kses_post( $style_attribute ) . '><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -8979,7 +8973,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, $total_pages ) ) );
 
-						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" data-post-type="' . esc_attr( get_post_type() ) . '" data-query="' . esc_attr( $settings['query_type'] ) . '" aria-label="Pagination">';
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
@@ -9009,7 +9003,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, $total_pages ) ) );
 
-						$nav_start = '<nav class="pagination bpfwe-hidden" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination bpfwe-hidden" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" data-post-type="' . esc_attr( get_post_type() ) . '" data-query="' . esc_attr( $settings['query_type'] ) . '" aria-label="Pagination">';
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
@@ -9068,6 +9062,35 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				</div>
 				';
 			}
+
+			if ( is_archive() ) {
+				$queried_object = get_queried_object();
+				$archive_type   = '';
+
+				if ( $queried_object instanceof WP_User ) {
+					$archive_type = 'author';
+				} elseif ( $queried_object instanceof WP_Date_Query ) {
+					$archive_type = 'date';
+				} elseif ( $queried_object instanceof WP_Term ) {
+					$archive_type = 'taxonomy';
+				} elseif ( $queried_object instanceof WP_Post_Type ) {
+					$archive_type = 'post_type';
+				}
+
+				echo '<input type="hidden" name="archive_type" value="' . esc_attr( $archive_type ) . '">';
+
+				if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
+					echo '
+					<input type="hidden" name="archive_id" value="' . esc_attr( $queried_object->term_id ) . '">
+					<input type="hidden" name="archive_taxonomy" value="' . esc_attr( $queried_object->taxonomy ) . '">
+					';
+				} elseif ( 'post_type' === $archive_type && $queried_object instanceof WP_Post_Type ) {
+					echo '<input type="hidden" name="archive_post_type" value="' . esc_attr( $queried_object->name ) . '">';
+				} elseif ( $queried_object instanceof WP_User ) {
+					echo '<input type="hidden" name="archive_id" value="' . esc_attr( $queried_object->ID ) . '">';
+				}
+			}
+
 			wp_reset_postdata();
 		}
 
@@ -9099,6 +9122,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				if ( $settings['skin_template'] ) {
 					$extra_templates_by_position = [];
 					$template_css_urls           = [];
+					$extra_template              = [];
 
 					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
 						foreach ( $settings['extra_skin_list'] as $item ) {
@@ -9159,10 +9183,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						// Check if the current position should have an extra template.
 						$use_extra_template = false;
 						$extra_template_id  = '';
-						$column_span        = 1;
-						$row_span           = 1;
-						$column_span_style  = '';
-						$row_span_style     = '';
 
 						foreach ( $extra_templates_by_position as $position => $extra_template ) {
 							// Check if the template should apply once or be repeated.
@@ -9171,24 +9191,16 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
 								$use_extra_template = true;
 								$extra_template_id  = $extra_template['extra_template_id'];
-								$column_span        = $extra_template['column_span'];
-								$row_span           = $extra_template['row_span'];
-								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
-								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
 								break;
 							}
 						}
 
-						$style           = trim( "$column_span_style $row_span_style" );
-						$style_attribute = $style ? 'style="' . $style . '"' : '';
-						$extra_class     = $style_attribute ? 'row-span-expand' : '';
-
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . wp_kses_post( $style_attribute ) . '><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -9489,6 +9501,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				if ( $settings['skin_template'] ) {
 					$extra_templates_by_position = [];
 					$template_css_urls           = [];
+					$extra_template              = [];
 
 					if ( isset( $settings['extra_skin_list'] ) && is_array( $settings['extra_skin_list'] ) ) {
 						foreach ( $settings['extra_skin_list'] as $item ) {
@@ -9563,24 +9576,16 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							if ( ( $apply_once && $counter === $position ) || ( ! $apply_once && 0 === $counter % $position ) ) {
 								$use_extra_template = true;
 								$extra_template_id  = $extra_template['extra_template_id'];
-								$column_span        = $extra_template['column_span'];
-								$row_span           = $extra_template['row_span'];
-								$column_span_style  = $column_span > 1 ? 'grid-column: span ' . $column_span . ';' : '';
-								$row_span_style     = $row_span > 1 ? 'grid-row: span ' . $row_span . ';' : '';
 								break;
 							}
 						}
 
-						$style           = trim( "$column_span_style $row_span_style" );
-						$style_attribute = $style ? 'style="' . $style . '"' : '';
-						$extra_class     = $style_attribute ? 'row-span-expand' : '';
-
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper ' . esc_attr( $extra_class ) . '" ' . wp_kses_post( $style_attribute ) . '><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}

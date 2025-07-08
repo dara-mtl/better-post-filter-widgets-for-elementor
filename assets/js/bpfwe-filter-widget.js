@@ -4,6 +4,7 @@
 		var originalStates = {};
 		var postsPerPageCache = {};
 		const performanceSettingsCache = {};
+		const filterSettingsCache = {};
 
 		let dynamic_handler = '';
 		if ( $( '.elementor-widget-filter-widget' ).length ) {
@@ -63,8 +64,29 @@
 					postsPerPageCache[ widgetID ] = postsPerPage > 0 ? postsPerPage : 50;
 				}
 
-				// Handle performance settings.
+				// Handle filter widget's settings.
 				if ( $widget.hasClass( 'elementor-widget-filter-widget' ) ) {
+
+					// General settings.
+					if ( !filterSettingsCache[ widgetID ] ) {
+						filterSettingsCache[ widgetID ] = [];
+					}
+
+					const filterSettings = {
+						widgetId: widgetId,
+						groupLogic: settings?.group_logic ?? '',
+						dynamicFiltering: settings?.dynamic_filtering ?? '',
+						scrollToTop: settings?.scroll_to_top ?? '',
+						displaySelectedBefore: settings?.display_selected_before ?? '',
+						nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.'
+					};
+
+					filterSettingsCache[widgetID] = filterSettings;
+
+					$target.data('filter-settings', filterSettings);
+					$target.attr('data-filter-settings', JSON.stringify(filterSettings));
+
+					// Performance settings.
 					if ( !performanceSettingsCache[ widgetID ] ) {
 						performanceSettingsCache[ widgetID ] = [];
 					}
@@ -101,6 +123,24 @@
 			}
 		} );
 
+		// Handle Filter toggle.
+		$(document).on('click', '.filter-title.collapsible', function () {
+			var $title = $(this);
+			var $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper');
+
+			if (!$content.is(':visible')) {
+				$content.css('display', 'flex').hide();
+			}
+
+			$title.toggleClass('collapsed');
+
+			$content.stop(true, true).slideToggle(300, function () {
+				if ($content.is(':visible')) {
+					$content.css('display', 'flex');
+				}
+			});
+		});
+
 		const FilterWidgetHandler = elementorModules.frontend.handlers.Base.extend( {
 			bindEvents () {
 				this.getAjaxFilter();
@@ -124,6 +164,38 @@
 						"transition": "opacity 0.3s ease-in-out"
 					} );
 				} );
+
+				// When "Select All" span is clicked (scoped inside the widget)
+				filterWidget.find('.bpfwe-select-all').on('click', function () {
+					const $selectAll = $(this);
+					const taxonomy = $selectAll.data('taxonomy');
+					const isChecked = !$selectAll.hasClass('checked');
+
+					$selectAll.toggleClass('checked', isChecked);
+
+					// Limit scope to current filterWidget only.
+					const $relatedCheckboxes = filterWidget
+						.find('input.bpfwe-filter-item')
+						.filter('[data-taxonomy="' + taxonomy + '"]');
+
+					$relatedCheckboxes.prop('checked', isChecked).trigger('change');
+				});
+
+				filterWidget.find('input.bpfwe-filter-item').on('change', function () {
+					const $changed = $(this);
+					const taxonomy = $changed.data('taxonomy');
+
+					const $groupCheckboxes = filterWidget
+						.find('input.bpfwe-filter-item')
+						.filter('[data-taxonomy="' + taxonomy + '"]');
+
+					const $selectAll = filterWidget
+						.find('.bpfwe-select-all[data-taxonomy="' + taxonomy + '"]');
+
+					const allChecked = $groupCheckboxes.length === $groupCheckboxes.filter(':checked').length;
+
+					$selectAll.toggleClass('checked', allChecked);
+				});
 
 				// Initialize multi-select dropdowns with Select2 and plus symbol logic.
 				filterWidget.find( '.bpfwe-multi-select2 select' ).each( function ( index ) {
@@ -205,17 +277,11 @@
 				}
 				if ( !targetPostWidget || targetPostWidget === '.' ) return;
 
-				let groupLogic = filterSetting?.group_logic ?? '',
-					dynamicFiltering = filterSetting?.dynamic_filtering ?? '',
-					scrollToTop = filterSetting?.scroll_to_top ?? '',
-					display_selected_before = filterSetting?.display_selected_before ?? '',
-					nothing_found_message = filterSetting?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
-					currentPage = 1,
+				let currentPage = 1,
 					paginationType = '';
 
 				let targetSelector = $( targetPostWidget ),
 					widgetID = targetSelector.data( 'id' ),
-					//originalFormState = filterWidget.find( 'form' ).serialize(),
 					loader = targetSelector.find( '.loader' ),
 					pagination = targetSelector.find( '.pagination' );
 
@@ -399,10 +465,10 @@
 						order_by = '',
 						order_by_meta = '',
 						searchQuery = '',
-						post_type = '';
+						post_type = '',
+						dateQuery = '';
 
 					// Disconnect observer to halt infinite scroll pagination during updates.
-					//const paginationCheck = localTargetSelector.data( 'settings' )?.pagination_type || localTargetSelector.data( 'settings' )?.pagination || '';
 					let paginationType = localTargetSelector.data( 'settings' )?.pagination || localTargetSelector.data( 'settings' )?.pagination_type || '';
 
 					if ( ( paginationType === 'cwm_infinite' || paginationType === 'infinite' ) && filterWidgetObservers[ localWidgetID ] ) {
@@ -419,6 +485,12 @@
 						localTargetSelector.removeClass( 'filter-active' );
 						localTargetSelector.data( 'current-page', 1 );
 					}
+
+					// Get the current settings
+					const filterSettings = filterSettingsCache[ localWidgetID ];
+					let nothingFoundMessage = filterSettings?.nothingFoundMessage;
+					let scrollToTop = filterSettings?.scrollToTop;
+					let displaySelectedBefore = filterSettings?.displaySelectedBefore;
 
 					let hasValues = false;
 					
@@ -449,6 +521,11 @@
 						}
 					} );
 
+					var category = [],
+						custom_field = [],
+						custom_field_like = [],
+						numeric_field = [];
+
 					filtersList.forEach( function ( filterWidgetId ) {
 						var $searchWidget = $( '.elementor-widget-search-bar-widget[data-id="' + filterWidgetId + '"]' );
 						if ( $searchWidget.length ) {
@@ -473,6 +550,67 @@
 								}
 							} );
 						}
+
+						var $filterWidget = $( '.elementor-widget-filter-widget[data-id="' + filterWidgetId + '"]' );
+						if ( $filterWidget.length ) {
+							$filterWidget.find( '.bpfwe-taxonomy-wrapper input:checked, .bpfwe-custom-field-wrapper input:checked' ).each( function () {
+								var self = $( this );
+								var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : custom_field;
+								targetArray.push( {
+									taxonomy: self.data( 'taxonomy' ),
+									terms: self.val(),
+									logic: self.closest( 'div' ).data( 'logic' )
+								} );
+								hasValues = true;
+							} );
+
+							$filterWidget.find( '.bpfwe-custom-field-wrapper input.input-text' ).each( function () {
+								var self = $( this );
+								if ( self.val() ) {
+									custom_field_like.push( {
+										taxonomy: self.data( 'taxonomy' ),
+										terms: self.val(),
+										logic: self.closest( 'div' ).data( 'logic' )
+									} );
+									hasValues = true;
+								}
+							} );
+
+							$filterWidget.find( '.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected' ).each( function () {
+								var self = $( this );
+								if ( self.val() ) {
+									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : custom_field;
+									targetArray.push( {
+										taxonomy: self.data( 'taxonomy' ),
+										terms: self.val(),
+										logic: self.closest( 'div' ).data( 'logic' )
+									} );
+									hasValues = true;
+								}
+							} );
+
+							$filterWidget.find( '.bpfwe-numeric-wrapper input' ).each( function () {
+								var self = $( this );
+								var initial_val = self.data( 'base-value' );
+								if ( self.val() === '' || self.val() != initial_val ) {
+									if ( self.val() === '' ) self.val( initial_val );
+									var _class = self.attr( "class" ).split( ' ' )[ 0 ];
+									$filterWidget.find( '.bpfwe-numeric-wrapper input' ).each( function () {
+										var _this = $( this );
+										if ( _this.hasClass( _class ) ) {
+											numeric_field.push( {
+												taxonomy: _this.data( 'taxonomy' ),
+												terms: _this.val(),
+												logic: _this.closest( 'div' ).data( 'logic' )
+											} );
+											hasValues = true;
+										}
+									} );
+								}
+							} );
+							
+							dateQuery = $filterWidget.find('.bpfwe-filter-item[data-taxonomy="post_date"]').map(function() { return this.value; }).get().join(',');
+						}
 					} );
 
 					var urlParams = new URLSearchParams( window.location.search );
@@ -490,19 +628,14 @@
 						localTargetSelector.find( '.loader' ).fadeIn();
 					}
 
-					var category = [],
-						custom_field = [],
-						custom_field_like = [],
-						numeric_field = [];
-
-					// Add selected terms to widgets with bpfwe-selected-terms class
-					if ($('.bpfwe-selected-terms').length) {
+					// Add selected terms to widgets with bpfwe-selected-terms class.
+					if ($('.bpfwe-selected-terms, .bpfwe-selected-count').length) {
 						let selectedLabels = [];
 						let $filterWidget = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]');
 						
 						// Handle checkboxes and radio buttons
 						$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked').each(function () {
-							let labelText = $(this).closest('label').find('.label-text').text().trim();
+							let labelText = $(this).closest('label').find('span').first().text().trim();
 							if (labelText) {
 								selectedLabels.push(labelText);
 							}
@@ -516,13 +649,11 @@
 							}
 						});
 
-						// Update all elements with bpfwe-selected-terms class
-						let termsText = selectedLabels.length > 0 ? display_selected_before + selectedLabels.join(', ') : '';
-						console.log(display_selected_before);
+						// Update bpfwe-selected-terms with the list
+						let termsText = selectedLabels.length > 0 ? displaySelectedBefore + selectedLabels.join(', ') : '';
 						$('.bpfwe-selected-terms').each(function () {
 							let $widget = $(this);
 							let $container = $widget.find('.elementor-widget-container').first();
-
 							let $target = $container.length ? $container.children().first() : $widget.children().first();
 
 							if ($target.length) {
@@ -530,68 +661,17 @@
 							}
 						});
 
-					}
+						// Reuse displaySelectedBefore for the count as well.
+						let termsCountText = selectedLabels.length > 0 ? selectedLabels.length + ' ' + displaySelectedBefore : '';
+						$('.bpfwe-selected-count').each(function () {
+							let $widget = $(this);
+							let $container = $widget.find('.elementor-widget-container').first();
+							let $target = $container.length ? $container.children().first() : $widget.children().first();
 
-					if (widgetInteractionID) {
-						const $activeWidget = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]');
-
-						if ($activeWidget.length) {
-							$activeWidget.find('.bpfwe-taxonomy-wrapper input:checked, .bpfwe-custom-field-wrapper input:checked').each(function () {
-								let self = $(this);
-								let targetArray = self.closest('.bpfwe-taxonomy-wrapper').length ? category : custom_field;
-								targetArray.push({
-									taxonomy: self.data('taxonomy'),
-									terms: self.val(),
-									logic: self.closest('div').data('logic')
-								});
-								hasValues = true;
-							});
-
-							$activeWidget.find('.bpfwe-custom-field-wrapper input.input-text').each(function () {
-								let self = $(this);
-								if (self.val()) {
-									custom_field_like.push({
-										taxonomy: self.data('taxonomy'),
-										terms: self.val(),
-										logic: self.closest('div').data('logic')
-									});
-									hasValues = true;
-								}
-							});
-
-							$activeWidget.find('.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected').each(function () {
-								let self = $(this);
-								if (self.val()) {
-									let targetArray = self.closest('.bpfwe-taxonomy-wrapper').length ? category : custom_field;
-									targetArray.push({
-										taxonomy: self.data('taxonomy'),
-										terms: self.val(),
-										logic: self.closest('div').data('logic')
-									});
-									hasValues = true;
-								}
-							});
-
-							$activeWidget.find('.bpfwe-numeric-wrapper input').each(function () {
-								let self = $(this);
-								let initial_val = self.data('base-value');
-								if (self.val() === '' || self.val() != initial_val) {
-									if (self.val() === '') self.val(initial_val);
-									let _class = self.attr("class").split(' ')[0];
-									$activeWidget.find('.bpfwe-numeric-wrapper input').each(function () {
-										let _this = $(this);
-										if (_this.hasClass(_class)) {
-											numeric_field.push({
-												taxonomy: _this.data('taxonomy'),
-												terms: _this.val(),
-												logic: _this.closest('div').data('logic')
-											});
-											hasValues = true;
-										}
-									});
-								}
-							});
-						}
+							if ($target.length) {
+								$target.text(termsCountText);
+							}
+						});
 					}
 
 					function reduceFields ( fields ) {
@@ -613,8 +693,6 @@
 						custom_field_output = reduceFields( custom_field ),
 						custom_field_like_output = reduceFields( custom_field_like ),
 						numeric_output = reduceFields( numeric_field );
-					
-					const dateValues = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]').find('.bpfwe-filter-item[data-taxonomy="post_date"]').map(function() { return this.value; }).get().join(',');
 
 					$.ajax( {
 						type: 'POST',
@@ -624,10 +702,11 @@
 							action: 'post_filter_results',
 							widget_id: localWidgetID,
 							page_id: pageID,
-							group_logic: groupLogic,
+							group_logic: filterSettings?.groupLogic || '',
 							search_query: searchQuery,
+							date_query: dateQuery,
 							taxonomy_output: taxonomy_output,
-							dynamic_filtering: dynamicFiltering,
+							dynamic_filtering: filterSettings?.dynamicFiltering,
 							custom_field_output: custom_field_output,
 							custom_field_like_output: custom_field_like_output,
 							numeric_output: numeric_output,
@@ -642,13 +721,11 @@
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
 							nonce: ajax_var.nonce,
-							date_query: dateValues,
 							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID))
 						},
 						success: function ( data ) {
 							var response = JSON.parse( data );
 							var content = response.html,
-								//base = currentUrl,
 								base = currentUrl
 								.replace( /\/page\/\d+\/?($|\?)/, '/$1' )
 								.replace( /[?&]e-page-[a-z0-9]+=\d+/i, '' )
@@ -660,7 +737,6 @@
 
 							let originalState = originalStates[ localWidgetID ];
 							if ( data === '0' || !hasValues ) {
-								//localTargetSelector.off();
 								localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
 								var currentSettings = localTargetSelector.data( 'settings' );
 								if ( currentSettings?.pagination_type === 'cwm_infinite' ) {
@@ -691,9 +767,9 @@
 								localTargetSelector.find( '.loader' ).fadeOut();
 
 								if ( !$( content ).text().trim() ) {
-									nothing_found_message = nothing_found_message.replace( /</g, '<' ).replace( />/g, '>' );
-									if ( nothing_found_message.trim() ) {
-										localTargetSelector.html( '<div class="no-post">' + nothing_found_message + '</div>' );
+									nothingFoundMessage = nothingFoundMessage.replace( /</g, '<' ).replace( />/g, '>' );
+									if ( nothingFoundMessage.trim() ) {
+										localTargetSelector.html( '<div class="no-post">' + nothingFoundMessage + '</div>' );
 									}
 								} else {
 									var pagination = localTargetSelector.find( 'nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );

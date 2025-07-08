@@ -312,18 +312,67 @@ class Repeater extends Tag {
 				],
 			]
 		);
+
+		$this->add_control(
+			'list_output_mode',
+			[
+				'label'     => esc_html__( 'Output Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'grouped', // Legacy default to preserve existing behavior.
+				'options'   => [
+					'grouped' => esc_html__( 'Grouped', 'better-post-filter-widgets-for-elementor' ),
+					'flat'    => esc_html__( 'Flat', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'child_html_tag' => [ 'ul','ol' ],
+				],
+			]
+		);
+
+		$this->add_control(
+			'tabs_output_mode',
+			[
+				'label'     => esc_html__( 'Output Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'per_field', // Legacy default to preserve existing behavior.
+				'options'   => [
+					'per_field' => esc_html__( 'Grouped', 'better-post-filter-widgets-for-elementor' ),
+					'per_entry' => esc_html__( 'Flat', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'child_html_tag' => 'tabs',
+				],
+			]
+		);
+
+		$this->add_control(
+			'toggle_output_mode',
+			[
+				'label'     => esc_html__( 'Output Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'per_field', // Legacy default to preserve existing behavior.
+				'options'   => [
+					'per_field' => esc_html__( 'Grouped', 'better-post-filter-widgets-for-elementor' ),
+					'per_entry' => esc_html__( 'Flat', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'child_html_tag' => 'toggle',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Render dynamic tag output.
 	 */
 	public function render() {
-		$key      = sanitize_key( $this->get_settings( 'custom_key' ) );
-		$source   = $this->get_settings( 'field_source' );
-		$post_id  = absint( $this->get_settings( 'post_id' ) );
-		$term_id  = absint( $this->get_settings( 'term_id' ) );
-		$user_id  = absint( $this->get_settings( 'user_id' ) );
-		$html_tag = esc_attr( $this->get_settings( 'child_html_tag' ) );
+		$settings = $this->get_settings_for_display();
+		$key      = sanitize_key( $settings['custom_key'] );
+		$source   = $settings['field_source'];
+		$post_id  = absint( $settings['post_id'] );
+		$term_id  = absint( $settings['term_id'] );
+		$user_id  = absint( $settings['user_id'] );
+		$html_tag = esc_attr( $settings['child_html_tag'] );
 
 		if ( empty( $key ) ) {
 			return;
@@ -362,7 +411,7 @@ class Repeater extends Tag {
 				}
 				break;
 			case 'theme':
-				$option_key   = $this->get_settings( 'option_key' );
+				$option_key   = $settings['option_key'];
 				$theme_option = get_option( $option_key );
 				if ( isset( $theme_option[ $key ] ) ) {
 					$entries = $theme_option[ $key ];
@@ -382,88 +431,174 @@ class Repeater extends Tag {
 		$class_nb       = 0;
 
 		if ( 'toggle' === $html_tag ) {
-			$toggle_title_tag = $this->get_settings( 'toggle_title_tag' );
-			if ( empty( $toggle_title_tag ) ) {
-				$toggle_title_tag = 'h3';
-			}
+			if ( 'per_field' === $settings['toggle_output_mode'] ) {
+				$toggle_title_tag = $settings['toggle_title_tag'];
+				if ( empty( $toggle_title_tag ) ) {
+					$toggle_title_tag = 'h3';
+				}
 
-			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-				$child_key     = "child_key_{$counter}";
-				$setting_value = $this->get_settings( $child_key );
+				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+					$child_key     = "child_key_{$counter}";
+					$setting_value = $settings[ $child_key ];
 
-				if ( ! empty( $setting_value ) ) {
-					$value_parts     = explode( '|', $setting_value );
-					$child_value_key = $value_parts[0];
-					$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Toggle ' . $counter;
-					$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
-					$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
-					$toggle_content  = '';
-					$has_content     = false;
+					if ( ! empty( $setting_value ) ) {
+						$value_parts     = explode( '|', $setting_value );
+						$child_value_key = $value_parts[0];
+						$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Toggle ' . $counter;
+						$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
+						$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
+						$toggle_content  = '';
+						$has_content     = false;
 
-					foreach ( $entries as $entry ) {
-						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
-						if ( ! empty( $child_value ) ) {
-							$has_content     = true;
-							$value           = wp_kses_post( $before . $child_value . $after );
-							$toggle_content .= wpautop( str_replace( '#', $class_nb, $value ) );
+						foreach ( $entries as $entry ) {
+							$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+							if ( ! empty( $child_value ) ) {
+								$has_content     = true;
+								$value           = wp_kses_post( $before . $child_value . $after );
+								$toggle_content .= wpautop( str_replace( '#', $class_nb, $value ) );
+							}
+						}
+
+						if ( $has_content ) {
+							$toggle_id = 'toggle-' . uniqid();
+							echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
+							echo '<label for="' . esc_attr( $toggle_id ) . '">';
+							echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . esc_html( $custom_title ) . '</' . esc_attr( $toggle_title_tag ) . '>';
+							echo '</label>';
+							echo '<div class="toggle-content">' . wp_kses_post( $toggle_content ) . '</div></div>';
 						}
 					}
+				}
+			} else {
+				$toggle_title_tag = $settings['toggle_title_tag'];
+				if ( empty( $toggle_title_tag ) ) {
+					$toggle_title_tag = 'h3';
+				}
 
-					if ( $has_content ) {
+				$entries_count = count( $entries );
+				for ( $i = 0; $i < $entries_count; $i++ ) {
+					$entry = $entries[ $i ];
+
+					// Get title field (assuming child_key_1).
+					$setting_title = $settings['child_key_1'];
+					$title_parts   = explode( '|', $setting_title );
+					$title_key     = $title_parts[0];
+					$before_title  = isset( $title_parts[2] ) ? $title_parts[2] : '';
+					$after_title   = isset( $title_parts[3] ) ? $title_parts[3] : '';
+					$title_value   = isset( $entry[ $title_key ] ) ? $entry[ $title_key ] : '';
+
+					// Get content field (assuming child_key_2).
+					$setting_content = $settings['child_key_2'];
+					$content_parts   = explode( '|', $setting_content );
+					$content_key     = $content_parts[0];
+					$before_content  = isset( $content_parts[2] ) ? $content_parts[2] : '';
+					$after_content   = isset( $content_parts[3] ) ? $content_parts[3] : '';
+					$content_value   = isset( $entry[ $content_key ] ) ? $entry[ $content_key ] : '';
+
+					if ( ! empty( $title_value ) && ! empty( $content_value ) ) {
 						$toggle_id = 'toggle-' . uniqid();
-						echo '<div class="toggle-wrapper"><input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
+
+						echo '<div class="toggle-wrapper">';
+						echo '<input type="checkbox" class="repeater-toggle" id="' . esc_attr( $toggle_id ) . '" />';
 						echo '<label for="' . esc_attr( $toggle_id ) . '">';
-						echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . esc_html( $custom_title ) . '</' . esc_attr( $toggle_title_tag ) . '>';
+						echo '<' . esc_attr( $toggle_title_tag ) . ' class="toggle-title">' . esc_html( $before_title . $title_value . $after_title ) . '</' . esc_attr( $toggle_title_tag ) . '>';
 						echo '</label>';
-						echo '<div class="toggle-content">' . wp_kses_post( $toggle_content ) . '</div></div>';
+						echo '<div class="toggle-content">' . wp_kses_post( wpautop( $before_content . $content_value . $after_content ) ) . '</div>';
+						echo '</div>';
 					}
 				}
 			}
 		} elseif ( 'tabs' === $html_tag ) {
-			echo '<div class="bpfwe-tabs-wrapper">';
+			if ( 'per_field' === $settings['tabs_output_mode'] ) {
+				echo '<div class="bpfwe-tabs-wrapper">';
 
-			$group_name    = 'bpfwe-tab-group-' . uniqid();
-			$first_tab     = true;
-			$tab_title_tag = $this->get_settings( 'tab_title_tag' );
-			if ( empty( $tab_title_tag ) ) {
-				$tab_title_tag = 'span';
-			}
+				$group_name    = 'bpfwe-tab-group-' . uniqid();
+				$first_tab     = true;
+				$tab_title_tag = $settings['tab_title_tag'];
+				if ( empty( $tab_title_tag ) ) {
+					$tab_title_tag = 'span';
+				}
 
-			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-				$child_key     = "child_key_{$counter}";
-				$setting_value = $this->get_settings( $child_key );
+				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+					$child_key     = "child_key_{$counter}";
+					$setting_value = $settings[ $child_key ];
 
-				if ( ! empty( $setting_value ) ) {
-					$value_parts     = explode( '|', $setting_value );
-					$child_value_key = $value_parts[0];
-					$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Tab ' . $counter;
-					$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
-					$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
-					$tab_content     = '';
-					$has_content     = false;
+					if ( ! empty( $setting_value ) ) {
+						$value_parts     = explode( '|', $setting_value );
+						$child_value_key = $value_parts[0];
+						$custom_title    = isset( $value_parts[1] ) && ! empty( $value_parts[1] ) ? $value_parts[1] : 'Tab ' . $counter;
+						$before          = isset( $value_parts[2] ) ? $value_parts[2] : '';
+						$after           = isset( $value_parts[3] ) ? $value_parts[3] : '';
+						$tab_content     = '';
+						$has_content     = false;
 
-					foreach ( $entries as $entry ) {
-						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
-						if ( ! empty( $child_value ) ) {
-							$has_content  = true;
-							$value        = wp_kses_post( $before . $child_value . $after );
-							$tab_content .= wpautop( str_replace( '#', $class_nb, $value ) );
+						foreach ( $entries as $entry ) {
+							$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+							if ( ! empty( $child_value ) ) {
+								$has_content  = true;
+								$value        = wp_kses_post( $before . $child_value . $after );
+								$tab_content .= wpautop( str_replace( '#', $class_nb, $value ) );
+							}
+						}
+
+						if ( $has_content ) {
+							$tab_id = 'bpfwe-tab-' . uniqid();
+							echo '<div class="bpfwe-tab-item">';
+							echo '<input type="radio" class="bpfwe-tab-toggle" name="' . esc_attr( $group_name ) . '" id="' . esc_attr( $tab_id ) . '"' . ( $first_tab ? ' checked' : '' ) . '>';
+							echo '<label for="' . esc_attr( $tab_id ) . '"><' . esc_attr( $tab_title_tag ) . ' class="bpfwe-tab-label">' . esc_html( $custom_title ) . '</' . esc_attr( $tab_title_tag ) . '></label>';
+							echo '<div class="bpfwe-tab-content">' . wp_kses_post( $tab_content ) . '</div>';
+							echo '</div>';
+							$first_tab = false;
 						}
 					}
+				}
 
-					if ( $has_content ) {
+				echo '</div>';
+			} else {
+				echo '<div class="bpfwe-tabs-wrapper">';
+
+				$group_name    = 'bpfwe-tab-group-' . uniqid();
+				$first_tab     = true;
+				$tab_title_tag = $settings['tab_title_tag'];
+				if ( empty( $tab_title_tag ) ) {
+					$tab_title_tag = 'span';
+				}
+
+				$entries_count = count( $entries );
+				for ( $i = 0; $i < $entries_count; $i++ ) {
+					$entry = $entries[ $i ];
+
+					// Get title.
+					$setting_title = $settings['child_key_1'];
+					$title_parts   = explode( '|', $setting_title );
+					$title_key     = $title_parts[0];
+					$before_title  = isset( $title_parts[2] ) ? $title_parts[2] : '';
+					$after_title   = isset( $title_parts[3] ) ? $title_parts[3] : '';
+					$title_value   = isset( $entry[ $title_key ] ) ? $entry[ $title_key ] : '';
+
+					// Get content.
+					$setting_content = $settings['child_key_2'];
+					$content_parts   = explode( '|', $setting_content );
+					$content_key     = $content_parts[0];
+					$before_content  = isset( $content_parts[2] ) ? $content_parts[2] : '';
+					$after_content   = isset( $content_parts[3] ) ? $content_parts[3] : '';
+					$content_value   = isset( $entry[ $content_key ] ) ? $entry[ $content_key ] : '';
+
+					if ( ! empty( $title_value ) && ! empty( $content_value ) ) {
 						$tab_id = 'bpfwe-tab-' . uniqid();
+
 						echo '<div class="bpfwe-tab-item">';
 						echo '<input type="radio" class="bpfwe-tab-toggle" name="' . esc_attr( $group_name ) . '" id="' . esc_attr( $tab_id ) . '"' . ( $first_tab ? ' checked' : '' ) . '>';
-						echo '<label for="' . esc_attr( $tab_id ) . '"><' . esc_attr( $tab_title_tag ) . ' class="bpfwe-tab-label">' . esc_html( $custom_title ) . '</' . esc_attr( $tab_title_tag ) . '></label>';
-						echo '<div class="bpfwe-tab-content">' . wp_kses_post( $tab_content ) . '</div>';
+						echo '<label for="' . esc_attr( $tab_id ) . '"><' . esc_attr( $tab_title_tag ) . ' class="bpfwe-tab-label">' . esc_html( $before_title . $title_value . $after_title ) . '</' . esc_attr( $tab_title_tag ) . '></label>';
+						echo '<div class="bpfwe-tab-content">' . wp_kses_post( wpautop( $before_content . $content_value . $after_content ) ) . '</div>';
 						echo '</div>';
+
 						$first_tab = false;
 					}
 				}
-			}
 
-			echo '</div>';
+				echo '</div>';
+			}
 		} elseif ( 'table' === $html_tag ) {
 			echo '<table class="repeater-table">';
 
@@ -474,7 +609,7 @@ class Repeater extends Tag {
 
 			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
 				$child_key     = "child_key_{$counter}";
-				$setting_value = $this->get_settings( $child_key );
+				$setting_value = $settings[ $child_key ];
 
 				if ( ! empty( $setting_value ) ) {
 					$value_parts                 = explode( '|', $setting_value );
@@ -541,36 +676,63 @@ class Repeater extends Tag {
 			}
 			echo '</tbody></table>';
 		} elseif ( 'ul' === $html_tag || 'ol' === $html_tag ) {
-			echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+			if ( 'grouped' === $settings['list_output_mode'] ) {
+				echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
 
-			for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
-				$child_key     = "child_key_{$counter}";
-				$setting_value = $this->get_settings( $child_key );
+				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+					$child_key     = "child_key_{$counter}";
+					$setting_value = $settings[ $child_key ];
 
-				if ( ! empty( $setting_value ) ) {
-					$value_parts     = explode( '|', $setting_value );
-					$child_value_key = $value_parts[0];
-					$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
-					$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
-					$list_content    = '';
-					$has_content     = false;
+					if ( ! empty( $setting_value ) ) {
+						$value_parts     = explode( '|', $setting_value );
+						$child_value_key = $value_parts[0];
+						$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
+						$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
+						$list_content    = '';
+						$has_content     = false;
 
-					foreach ( $entries as $entry ) {
-						$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
-						if ( ! empty( $child_value ) ) {
-							$has_content   = true;
-							$value         = wp_kses_post( $before . $child_value . $after );
-							$list_content .= str_replace( '#', $class_nb, $value ) . ' ';
+						foreach ( $entries as $entry ) {
+							$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+							if ( ! empty( $child_value ) ) {
+								$has_content   = true;
+								$value         = wp_kses_post( $before . $child_value . $after );
+								$list_content .= str_replace( '#', $class_nb, $value ) . ' ';
+							}
+						}
+
+						if ( $has_content ) {
+							echo '<li>' . wp_kses_post( trim( $list_content ) ) . '</li>';
 						}
 					}
+				}
 
-					if ( $has_content ) {
-						echo '<li>' . wp_kses_post( trim( $list_content ) ) . '</li>';
+				echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+			} else {
+				echo "<{$html_tag} class='repeater-list'>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+
+				foreach ( $entries as $entry ) {
+					for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
+						$child_key     = "child_key_{$counter}";
+						$setting_value = $settings[ $child_key ];
+
+						if ( ! empty( $setting_value ) ) {
+							$value_parts     = explode( '|', $setting_value );
+							$child_value_key = $value_parts[0];
+							$before          = isset( $value_parts[1] ) ? $value_parts[1] : '';
+							$after           = isset( $value_parts[2] ) ? $value_parts[2] : '';
+
+							$child_value = isset( $entry[ $child_value_key ] ) ? $entry[ $child_value_key ] : '';
+
+							if ( ! empty( $child_value ) ) {
+								$value = $before . $child_value . $after;
+								echo '<li>' . wp_kses_post( str_replace( '#', $class_nb, $value ) ) . '</li>';
+							}
+						}
 					}
 				}
-			}
 
-			echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+				echo "</{$html_tag}>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on line 326 and in the final output.
+			}
 		} else {
 			foreach ( $entries as $entry ) {
 				$has_content = false;
@@ -578,7 +740,7 @@ class Repeater extends Tag {
 
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
 					$child_key     = "child_key_{$counter}";
-					$setting_value = $this->get_settings( $child_key );
+					$setting_value = $settings[ $child_key ];
 
 					if ( ! empty( $setting_value ) ) {
 						$value_parts     = explode( '|', $setting_value );

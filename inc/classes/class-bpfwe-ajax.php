@@ -325,10 +325,10 @@ class BPFWE_Ajax {
 				}
 
 				// Add the OR group using combined terms with IN comparison.
-				if ( ! empty( $query_or ) && count( $query_or ) > 1 ) {
-					$args['tax_query'][] = array_merge( [ 'relation' => 'OR' ], $query_or );
-				} elseif ( ! empty( $query_or ) ) {
-					$args['tax_query'][] = $query_or[0];
+				if ( ! empty( $query_or ) ) {
+					foreach ( $query_or as $or_filter ) {
+						$args['tax_query'][] = $or_filter;
+					}
 				}
 			}
 
@@ -404,7 +404,7 @@ class BPFWE_Ajax {
 			// Add NUMERIC value field to query.
 			if ( ! empty( $numeric_output ) && is_array( $numeric_output ) ) {
 				foreach ( $numeric_output as $key => $value ) {
-					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
+					$terms      = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
 					$term_count = count( $terms );
 
 					if ( 1 === $term_count ) {
@@ -451,12 +451,16 @@ class BPFWE_Ajax {
 					$args['meta_query'][] = $group_or;
 				}
 
-				if ( ! empty( $meta_like_and ) ) {
+				if ( ! empty( $meta_like_and ) && count( $meta_like_and ) > 1 ) {
 					$args['meta_query'][] = array_merge( [ 'relation' => 'AND' ], $meta_like_and );
+				} elseif ( ! empty( $meta_like_and ) ) {
+					$args['meta_query'][] = $meta_like_and[0];
 				}
 
-				if ( ! empty( $meta_like_or ) ) {
+				if ( ! empty( $meta_like_or ) && count( $meta_like_or ) > 1 ) {
 					$args['meta_query'][] = array_merge( [ 'relation' => 'OR' ], $meta_like_or );
+				} elseif ( ! empty( $meta_like_or ) ) {
+					$args['meta_query'][] = $meta_like_or[0];
 				}
 
 				if ( ! empty( $meta_numeric_and ) && count( $meta_numeric_and ) > 1 ) {
@@ -552,6 +556,124 @@ class BPFWE_Ajax {
 	 * extracts the required div elements based on the provided selectors,
 	 * and returns the content as a JSON response.
 	 *
+	 * @since 1.5.0
+	 *
+	 * @return void
+	 */
+	public function bpfwe_handle_pagination_ajax() {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Access Denied' ) );
+		}
+
+		$page_id      = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
+		$widget_id    = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
+		$post_type    = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$query_type   = ! empty( $_POST['query_type'] ) ? sanitize_text_field( wp_unslash( $_POST['query_type'] ) ) : 'custom';
+		$search_terms = ! empty( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '';
+		$base         = ! empty( $_POST['base'] ) ? sanitize_url( wp_unslash( $_POST['base'] ) ) : '';
+
+		if ( empty( $page_id ) || empty( $widget_id ) ) {
+			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
+		}
+
+		$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
+		$element_data = $document->get_elements_data();
+		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
+		$paged        = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
+
+		set_query_var( 'paged', $paged );
+		set_query_var( 'page', $paged );
+		set_query_var( 'page_num', $paged );
+
+		$args = apply_filters(
+			'bpfwe_ajax_query_args',
+			array(
+				'paged'     => $paged,
+				'post_type' => $post_type,
+			)
+		);
+
+		if ( ! empty( $search_terms ) ) {
+			$args['s'] = $search_terms;
+		}
+
+		if ( 'main' === $query_type ) {
+			$archive_type     = isset( $_POST['archive_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_type'] ) ) : '';
+			$archive_taxonomy = isset( $_POST['archive_taxonomy'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_taxonomy'] ) ) : '';
+			$archive_id       = isset( $_POST['archive_id'] ) ? absint( wp_unslash( $_POST['archive_id'] ) ) : 0;
+
+			// Add conditions based on the archive type.
+			switch ( $archive_type ) {
+				case 'author':
+					$args['author__in'] = array( $archive_id );
+					break;
+				case 'date':
+					break;
+				case 'category':
+				case 'taxonomy':
+					$args['tax_query'][] = array(
+						'taxonomy'         => $archive_taxonomy,
+						'field'            => 'id',
+						'terms'            => $archive_id,
+						'include_children' => true,
+					);
+					break;
+				case 'tag':
+					$args['tag__in'] = array( $archive_id );
+					break;
+				case 'post_type':
+					$args['post_type'] = isset( $_POST['archive_post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_post_type'] ) ) : 'any';
+					break;
+			}
+		}
+
+		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
+
+		$html = $document->render_element( $widget_data );
+
+		$parsed    = wp_parse_url( $base );
+		$has_query = '' !== isset( $parsed['query'] ) && $parsed['query'];
+
+		$html = preg_replace_callback(
+			'#(href=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '(\?[^"\']*)?#',
+			function ( $matches ) use ( $base, $has_query ) {
+				$replacement = $base;
+
+				if ( '' !== isset( $matches[2] ) && $matches[2] ) {
+					$query_part = ltrim( $matches[2], '?' );
+
+					if ( $has_query || strpos( $base, '?' ) !== false ) {
+						$replacement .= '&' . $query_part;
+					} else {
+						$replacement .= '?' . $query_part;
+					}
+				}
+
+				return $matches[1] . $replacement;
+			},
+			$html
+		);
+
+		echo wp_json_encode(
+			array(
+				'html' => $html,
+			)
+		);
+
+		delete_transient( 'bpfwe_filter_query' );
+
+		wp_die();
+	}
+
+	/**
+	 * Handles AJAX requests to load page content and extract specified div elements.
+	 *
+	 * This function verifies the request, fetches the specified page content,
+	 * extracts the required div elements based on the provided selectors,
+	 * and returns the content as a JSON response.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -601,7 +723,7 @@ class BPFWE_Ajax {
 			$page_url,
 			[
 				'cookies' => $cookies,
-				'timeout' => 15,
+				'timeout' => 30,
 			]
 		);
 
@@ -659,8 +781,8 @@ class BPFWE_Ajax {
 		add_action( 'wp_ajax_post_filter_results', [ $this, 'post_filter_results' ] );
 		add_action( 'wp_ajax_nopriv_post_filter_results', [ $this, 'post_filter_results' ] );
 
-		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
-		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
+		add_action( 'wp_ajax_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
+		add_action( 'wp_ajax_nopriv_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
 	}
 
 	/**

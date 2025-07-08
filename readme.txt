@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.4.0
+Stable tag: 1.4.91
 Tested up to: 6.8
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,27 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.5.0 – 2025-07-08 =
+
+* New: Added toggle mode to Filter widget group titles.
+* New: Introduced "Select All" option per taxonomy/meta group, configurable under Advanced tab for each row.
+* New: Added `.bpfwe-selected-count` class to show number of selected terms.
+* New: Added style controls for the toggle feature under Style > Group Title.
+* New: Rewrote AJAX pagination logic in the Post widget to use Elementor's native rendering method, improving reliability and performance.
+* New: Added "Display Mode" control to the Repeater Dynamic Tag for ul/ol, Tabs, and Toggle layouts, allows toggling between flat list (field-based) and grouped list (row-based) outputs.
+* Tweak: Renamed "Group Label" to "Group Title" for clarity and consistency.
+* Fix: Added missing HTML markup for meta-based filters to ensure selected terms are properly displayed via the `.bpfwe-selected-terms` class.
+* Tweak: Reworked OR group logic in `tax_query` to avoid nested arrays and follow parent logic more clearly, each OR filter is now added separately.
+* Tweak: Search bar border radius is now responsive.
+* Compatibility: Tested up to Elementor 3.30.X.
+
+= 1.4.1 – 2025-06-25 =
+
+* Fix: Fixed Elementor widgets' pagination issue after filtering.
+* Fix: Fixed layout issue affecting the post carousel pagination.
+* Fix: Added missing **Term Order** control to the Filter widget.
+* Tweak: Made **Row Span** and **Column Span** controls responsive in the Template Grid layout of the Post widget.
+
 = 1.4.0 – 2025-06-09 =
 
 * New: Introduced **Default Filters** feature: backend users can now predefine fixed filter selections under Content > Default Filters. This enables pre-filtered content views without user interaction.
@@ -145,6 +166,6 @@ For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post
 
 == Upgrade Notice ==
 
-= 1.4.0 =
+= 1.5.0 =
 
-This update introduces Default Filters, enabling backend users to set predefined filter selections. It also fixes Template Grid layout issues and enhances sanitization of performance-related rules.
+This update introduces improved pagination, new filter toggle and select options, and enhanced Repeater tag display modes.

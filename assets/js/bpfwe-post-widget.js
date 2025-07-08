@@ -217,8 +217,10 @@
 					if ( iframe ) {
 						return;
 					}
+
 					var self = this;
 					var ajaxInProgress = false;
+
 					var $element = this.$element,
 						postContainer = $element.find( '.post-container' ),
 						loader = $element.find( '.loader' ),
@@ -228,6 +230,15 @@
 						currentPage = pagination.data( 'page' ),
 						maxPage = pagination.data( 'max-page' ) - 1,
 						postWidgetObservers = postWidgetObservers || {};
+
+					let pageID = window.elementorFrontendConfig.post.id;
+					const currentUrl = window.location.href;
+
+					if ( !pageID ) {
+						if ( !widgetID ) return;
+						var $outermost = $( '[data-id="' + widgetID + '"]' ).parents( '[data-elementor-id]' ).last();
+						if ( $outermost.length ) pageID = $outermost.data( 'elementor-id' );
+					}
 
 					if ( postContainer.length === 0 ) {
 						return;
@@ -259,59 +270,96 @@
 
 					post_count();
 
-					function loadPage ( page_url ) {
-						if ( paginationType == 'infinite' || paginationType == 'load_more' ) {
-							var loadMoreButton = $element.find( '.load-more' );
+					function getPagedFromUrl(page_url) {
+						const url = new URL(page_url, window.location.origin);
 
-							loadMoreButton.prop( 'disabled', true );
-
-							$.ajax( {
-								type: 'POST',
-								url: ajax_var.url,
-								async: true,
-								dataType: 'json',
-								data: {
-									action: 'load_page',
-									page_url: page_url,
-									nonce: ajax_var.nonce
-								},
-								success: function ( data ) {
-									var content = data.data.html,
-										oldContent = postContainer.find( '.elementor-grid' ).children().clone();
-									postContainer.empty().append( $( content ).find( innerContainer ) );
-									postContainer.find( '.elementor-grid' ).prepend( oldContent );
-									postContainer.hide().show().removeClass( 'load' );
-									afterLoad();
-								},
-								error: function ( jqXHR, textStatus, errorThrown ) {
-									console.log( 'AJAX request failed: ' + textStatus + ', ' + errorThrown );
-								},
-								complete: function () {
-									loadMoreButton.prop( 'disabled', false );
-								}
-							} );
-						} else {
-							$.ajax( {
-								type: 'POST',
-								url: ajax_var.url,
-								async: true,
-								dataType: 'json',
-								data: {
-									action: 'load_page',
-									page_url: page_url,
-									nonce: ajax_var.nonce
-								},
-								success: function ( data ) {
-									var content = data.data.html;
-									postContainer.empty().append( $( content ).find( innerContainer ) );
-									postContainer.hide().show().removeClass( 'load' );
-									afterLoad();
-								},
-								error: function ( jqXHR, textStatus, errorThrown ) {
-									console.log( 'AJAX request failed: ' + textStatus + ', ' + errorThrown );
-								}
-							} );
+						const pageNum = url.searchParams.get('page_num');
+						if (pageNum && !isNaN(pageNum)) {
+							return parseInt(pageNum, 10);
 						}
+
+						const paged = url.searchParams.get('paged');
+						if (paged && !isNaN(paged)) {
+							return parseInt(paged, 10);
+						}
+
+						const page = url.searchParams.get('page');
+						if (page && !isNaN(page)) {
+							return parseInt(page, 10);
+						}
+
+						const match = page_url.match(/\/page\/(\d+)(\/|$)/);
+						if (match && match[1]) {
+							return parseInt(match[1], 10);
+						}
+
+						return 1;
+					}
+
+					function loadPage( page_url, postType, queryType ) {
+						const isLoadMore = paginationType === 'infinite' || paginationType === 'load_more',
+							loadMoreButton = $element.find( '.load-more' ),
+							paged = getPagedFromUrl( page_url ),
+							params = new URLSearchParams(window.location.search),
+							searchParam = params.get('s');
+
+						if ( isLoadMore ) {
+							loadMoreButton.prop( 'disabled', true );
+						}
+
+						const ajaxOptions = {
+							type: 'POST',
+							url: ajax_var.url,
+							async: true,
+							data: {
+								action: 'bpfwe_handle_pagination_ajax',
+								nonce: ajax_var.nonce,
+								widget_id: widgetID,
+								page_id: pageID,
+								base: currentUrl,
+								paged: paged,
+								post_type: postType,
+								query_type: queryType,
+								s: searchParam,
+								archive_type: $( '[name="archive_type"]' ).val() || '',
+								archive_post_type: $( '[name="archive_post_type"]' ).val() || '',
+								archive_taxonomy: $( '[name="archive_taxonomy"]' ).val() || '',
+								archive_id: $( '[name="archive_id"]' ).val() || '',
+							},
+							error: function(jqXHR, textStatus, errorThrown) {
+								console.log('AJAX request failed: ' + textStatus + ', ' + errorThrown);
+							},
+						};
+
+						if (isLoadMore) {
+							ajaxOptions.success = function( data ) {
+								var response = JSON.parse( data );
+								//var content = response.html;
+								var newContent = $( response.html ).find( '.post-container-inner' );
+
+								const oldContent = postContainer.find( '.elementor-grid' ).children().clone();
+
+								postContainer.empty().append( $( newContent ) );
+								postContainer.find( '.elementor-grid' ).prepend( oldContent );
+								postContainer.hide().show().removeClass( 'load' );
+								afterLoad();
+							};
+
+							ajaxOptions.complete = function() {
+								loadMoreButton.prop( 'disabled', false );
+							};
+						} else {
+							ajaxOptions.success = function(data) {
+								var response = JSON.parse(data);
+								//var content = response.html
+								var newContent = $( response.html ).find( '.post-container-inner' );
+
+								postContainer.empty().append( $( newContent ) ).removeClass( 'load' );
+								afterLoad();
+							};
+						}
+
+						$.ajax(ajaxOptions);
 					}
 
 					function afterLoad () {
@@ -345,7 +393,9 @@
 							if ( postContainer.hasClass( 'shortcode' ) || postContainer.hasClass( 'template' ) ) {
 								loader.show();
 							}
-							loadPage( $( this ).attr( 'href' ) );
+							let postType = $(this).closest('.pagination').data('post-type') || 'post';
+							let queryType = $(this).closest('.pagination').data('query') || 'custom';
+							loadPage( $( this ).attr( 'href' ), postType, queryType );
 						}
 					);
 
@@ -495,9 +545,9 @@
 						}
 
 						if ( settings.post_slider_pagination ) {
-							wrapper.append( defaultPagi );
+							wrapper.parent().append( defaultPagi );
 						} else {
-							wrapper.append( noPagi );
+							wrapper.parent().append( noPagi );
 						}
 
 						const autoplayed = settings.post_slider_autoplay || false;

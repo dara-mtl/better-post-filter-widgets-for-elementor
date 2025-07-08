@@ -144,32 +144,25 @@
 	display: none !important;
 }
 
-.repeater-toggle + label {
-	cursor: pointer;
-	display: block;
-	padding: 10px;
-	background: #f5f5f5;
-	position: relative;
-	transition: background-color 0.3s ease;
-}
-
-.repeater-toggle + label:hover {
-	background-color: #e0e0e0;
-}
-
-.repeater-toggle + label::after {
-	content: "❯";
-	position: absolute;
-	right: 10px;
-	transition: transform 0.3s ease;
-}
-
 .toggle-title {
 	display: inline-block;
 }
 
 .toggle-wrapper {
 	border: 1px solid #ddd;
+}
+
+.filter-toggle-checkbox {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	clip: rect(0 0 0 0);
+	clip-path: inset(100%);
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .repeater-toggle {
@@ -185,18 +178,27 @@
 	transition: background-color 0.3s ease;
 }
 
+.filter-title.collapsible {
+	cursor: pointer;
+	width: 100%;
+	position: relative;
+	transition: background-color 0.3s ease;
+}
+
 .repeater-toggle + label:hover {
 	background-color: #e0e0e0;
 }
 
-.repeater-toggle + label::after {
+.repeater-toggle + label::after,
+.filter-title.collapsible::after {
 	content: "❯";
 	position: absolute;
 	right: 10px;
 	transition: transform 0.3s ease;
 }
 
-.repeater-toggle:checked + label::after {
+.repeater-toggle:checked + label::after,
+.filter-title.collapsible.collapsed::after {
 	transform: rotate(90deg);
 }
 
@@ -209,17 +211,29 @@
 	transform: translateY(0);
 }
 
+.filter-title.collapsible:has(.filter-toggle-checkbox:checked) + .bpfwe-taxonomy-wrapper,
+.filter-title.collapsible:has(.filter-toggle-checkbox:checked) + .bpfwe-custom-field-wrapper {
+	display: flex;
+	opacity: 1;
+	height: auto;
+	overflow: hidden;
+	transform: translateY(0);
+}
+
 .toggle-content {
 	opacity: 0;
 	transform: translateY(-10px);
 	height: 0;
 	padding: 0;
+	margin: 0;
 	overflow: hidden;
 	position: relative;
 	transition: height 0.3s ease, opacity 0.15s, transform 0.3s ease;
 }
 
-.low-terms-group {
+.low-terms-group,
+.filter-title.collapsible:not(.collapsed) + .bpfwe-taxonomy-wrapper,
+.filter-title.collapsible:not(.collapsed) + .bpfwe-custom-field-wrapper {
 	display: none;
 }
 
