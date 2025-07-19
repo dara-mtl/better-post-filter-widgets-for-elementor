@@ -13,7 +13,7 @@ use Elementor\Modules\DynamicTags\Module as TagsModule;
 use Elementor\Controls_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit; // Exit if accessed directly.
 }
 
 /**

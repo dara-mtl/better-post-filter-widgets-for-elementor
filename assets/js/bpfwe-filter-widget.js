@@ -16,117 +16,123 @@
 		}
 
 		// Link filter/search/sort widgets to their target post widgets via data-filters-list.
-		$( '.elementor-widget-filter-widget, .elementor-widget-search-bar-widget, .elementor-widget-sorting-widget' ).each( function () {
-			var $widget = $( this );
-			var widgetId = $widget.data( 'id' );
-			var settings = $widget.data( 'settings' );
-			var targetSelector = settings?.target_selector;
+		function linkFilterWidgets() {
+			$( '.elementor-widget-filter-widget, .elementor-widget-search-bar-widget, .elementor-widget-sorting-widget' ).each( function () {
+				var $widget = $( this );
+				var widgetId = $widget.data( 'id' );
+				var settings = $widget.data( 'settings' );
+				var targetSelector = settings?.target_selector;
 
-			if ( targetSelector && $( targetSelector ).length ) {
-				var $target = $( targetSelector );
-				var filtersList = $target.data( 'filters-list' ) ? $target.data( 'filters-list' ).split( ',' ) : [];
+				if ( targetSelector && $( targetSelector ).length ) {
+					var $target = $( targetSelector );
+					var filtersList = $target.data( 'filters-list' ) ? $target.data( 'filters-list' ).split( ',' ) : [];
 
-				if ( !filtersList.includes( widgetId ) ) {
-					filtersList.push( widgetId );
-					$target.data( 'filters-list', filtersList.join( ',' ) );
-					$target.attr( 'data-filters-list', filtersList.join( ',' ) );
-				}
-
-				var widgetID = $target.data( 'id' );
-
-				if ( !originalStates[ widgetID ] ) {
-					originalStates[ widgetID ] = $target.html();
-				}
-
-				if ( !postsPerPageCache[ widgetID ] ) {
-					const postWidgetSetting = $target.data( 'settings' );
-					let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt( postWidgetSetting.posts_per_page ) : null;
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( '.elementor-posts, .grid, .columns, .elementor-grid' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'article, .post, .item, .entry' ).length;
-					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( '.swiper-wrapper' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( '.swiper-slide' ).length;
-					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'ul.products' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
-					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'ul' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
-					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'div' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'div' ).length;
-					}
-					postsPerPageCache[ widgetID ] = postsPerPage > 0 ? postsPerPage : 50;
-				}
-
-				// Handle filter widget's settings.
-				if ( $widget.hasClass( 'elementor-widget-filter-widget' ) ) {
-
-					// General settings.
-					if ( !filterSettingsCache[ widgetID ] ) {
-						filterSettingsCache[ widgetID ] = [];
+					if ( !filtersList.includes( widgetId ) ) {
+						filtersList.push( widgetId );
+						$target.data( 'filters-list', filtersList.join( ',' ) );
+						$target.attr( 'data-filters-list', filtersList.join( ',' ) );
 					}
 
-					const filterSettings = {
-						widgetId: widgetId,
-						groupLogic: settings?.group_logic ?? '',
-						dynamicFiltering: settings?.dynamic_filtering ?? '',
-						scrollToTop: settings?.scroll_to_top ?? '',
-						displaySelectedBefore: settings?.display_selected_before ?? '',
-						nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.'
-					};
+					var widgetID = $target.data( 'id' );
 
-					filterSettingsCache[widgetID] = filterSettings;
-
-					$target.data('filter-settings', filterSettings);
-					$target.attr('data-filter-settings', JSON.stringify(filterSettings));
-
-					// Performance settings.
-					if ( !performanceSettingsCache[ widgetID ] ) {
-						performanceSettingsCache[ widgetID ] = [];
+					if ( !originalStates[ widgetID ] ) {
+						originalStates[ widgetID ] = $target.html();
 					}
 
-					const performanceSettings = {
-						widgetId: widgetId,
-						optimize_query: settings?.optimize_query === 'yes',
-						no_found_rows: settings?.no_found_rows === 'yes',
-						suppress_filters: settings?.suppress_filters === 'yes',
-						posts_per_page: parseInt( settings?.posts_per_page ) || -1
-					};
+					if ( !postsPerPageCache[ widgetID ] ) {
+						const postWidgetSetting = $target.data( 'settings' );
+						let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt( postWidgetSetting.posts_per_page ) : null;
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( '.elementor-posts, .grid, .columns, .elementor-grid' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'article, .post, .item, .entry' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( '.swiper-wrapper' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( '.swiper-slide' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'ul.products' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'ul' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'div' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'div' ).length;
+						}
+						postsPerPageCache[ widgetID ] = postsPerPage > 0 ? postsPerPage : 50;
+					}
 
-					performanceSettingsCache[ widgetID ].push( performanceSettings );
+					// Handle filter widget's settings.
+					if ( $widget.hasClass( 'elementor-widget-filter-widget' ) ) {
 
-					const mergedSettings = performanceSettingsCache[ widgetID ].reduce( ( merged, current ) => {
-						return {
-							optimize_query: merged.optimize_query || current.optimize_query,
-							no_found_rows: merged.no_found_rows || current.no_found_rows,
-							suppress_filters: merged.suppress_filters || current.suppress_filters,
-							posts_per_page: Math.min( merged.posts_per_page === -1 ? Infinity : merged.posts_per_page, current.posts_per_page === -1 ? Infinity : current.posts_per_page )
+						// General settings.
+						if ( !filterSettingsCache[ widgetID ] ) {
+							filterSettingsCache[ widgetID ] = [];
+						}
+
+						const filterSettings = {
+							widgetId: widgetId,
+							groupLogic: settings?.group_logic ?? '',
+							dynamicFiltering: settings?.dynamic_filtering ?? '',
+							scrollToTop: settings?.scroll_to_top ?? '',
+							displaySelectedBefore: settings?.display_selected_before ?? '',
+							nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
+							enableQueryDebug: settings?.enable_query_debug ?? ''
 						};
-					}, {
-						optimize_query: false,
-						no_found_rows: false,
-						suppress_filters: false,
-						posts_per_page: -1
-					});
 
-					mergedSettings.posts_per_page = mergedSettings.posts_per_page === Infinity ? -1 : mergedSettings.posts_per_page;
+						filterSettingsCache[widgetID] = filterSettings;
 
-					$target.data( 'performance-settings', mergedSettings );
-					$target.attr( 'data-performance-settings', JSON.stringify( mergedSettings ) );
+						$target.data('filter-settings', filterSettings);
+						$target.attr('data-filter-settings', JSON.stringify(filterSettings));
+
+						// Performance settings.
+						if ( !performanceSettingsCache[ widgetID ] ) {
+							performanceSettingsCache[ widgetID ] = [];
+						}
+
+						const performanceSettings = {
+							widgetId: widgetId,
+							optimize_query: settings?.optimize_query === 'yes',
+							no_found_rows: settings?.no_found_rows === 'yes',
+							suppress_filters: settings?.suppress_filters === 'yes',
+							posts_per_page: parseInt( settings?.posts_per_page ) || -1
+						};
+
+						performanceSettingsCache[ widgetID ].push( performanceSettings );
+
+						const mergedSettings = performanceSettingsCache[ widgetID ].reduce( ( merged, current ) => {
+							return {
+								optimize_query: merged.optimize_query || current.optimize_query,
+								no_found_rows: merged.no_found_rows || current.no_found_rows,
+								suppress_filters: merged.suppress_filters || current.suppress_filters,
+								posts_per_page: Math.min( merged.posts_per_page === -1 ? Infinity : merged.posts_per_page, current.posts_per_page === -1 ? Infinity : current.posts_per_page )
+							};
+						}, {
+							optimize_query: false,
+							no_found_rows: false,
+							suppress_filters: false,
+							posts_per_page: -1
+						});
+
+						mergedSettings.posts_per_page = mergedSettings.posts_per_page === Infinity ? -1 : mergedSettings.posts_per_page;
+
+						$target.data( 'performance-settings', mergedSettings );
+						$target.attr( 'data-performance-settings', JSON.stringify( mergedSettings ) );
+					}
 				}
-			}
-		} );
+			} );
+		}
+
+		// Add the filter attributes to the targeted post widget on page load.
+		linkFilterWidgets();
 
 		// Handle Filter toggle.
 		$(document).on('click', '.filter-title.collapsible', function () {
 			var $title = $(this);
-			var $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper');
+			var $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper, .bpfwe-numeric-wrapper');
 
 			if (!$content.is(':visible')) {
 				$content.css('display', 'flex').hide();
@@ -445,6 +451,10 @@
 
 				// ===== Retrieve form values, process filters, and make AJAX request for filtered posts =====
 				function get_form_values ( widgetInteractionID, paged, postWidgetID ) {
+					if ( $(document).find('div[data-filters-list*="' + widgetInteractionID + '"]').length === 0 ) {
+						linkFilterWidgets();
+					}
+					
 					let localWidgetID = widgetInteractionID ? $( 'div[data-filters-list*="' + widgetInteractionID + '"]' ).data( 'id' ) : widgetID;
 					if ( !localWidgetID ) return;
 
@@ -689,6 +699,24 @@
 						}, [] );
 					}
 
+					function reinitElementorContent(selector) {
+						const $container = $(selector);
+
+						if (! $container.length) return;
+
+						elementorFrontend.elementsHandler.runReadyTrigger($container);
+
+						$container.find('[data-element_type]').each(function () {
+							elementorFrontend.elementsHandler.runReadyTrigger($(this));
+						});
+
+						if (typeof elementorFrontend?.utils?.runElementHandlers === 'function') {
+							elementorFrontend.utils.runElementHandlers($container[0]);
+						}
+
+						$(document).trigger('elementor/lazyload/observe');
+					}
+
 					var taxonomy_output = reduceFields( category ),
 						custom_field_output = reduceFields( custom_field ),
 						custom_field_like_output = reduceFields( custom_field_like ),
@@ -721,7 +749,8 @@
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
 							nonce: ajax_var.nonce,
-							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID))
+							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID)),
+							enable_query_debug: filterSettings?.enableQueryDebug || '',
 						},
 						success: function ( data ) {
 							var response = JSON.parse( data );
@@ -734,6 +763,14 @@
 								.replace( /\?&+/, '?' )
 								.replace( /\?$/, '' ),
 								currentFormState = filterWidget.find( 'form' ).serialize();
+
+								if ( response.query ) {
+									var debugHtml = '<div class="query-debug-frame" style="background:#f5f5f5; border:1px solid #ccc; padding:10px; margin:15px 0; font-family: monospace; white-space: pre-wrap;">' + JSON.stringify( response.query, null, 2 ) + '</div>';
+									var $debugFrame = $(document).find( '.query-debug-frame' );
+									if ( $debugFrame.length ) {
+										$debugFrame.replaceWith( debugHtml );
+									}
+								}
 
 							let originalState = originalStates[ localWidgetID ];
 							if ( data === '0' || !hasValues ) {
@@ -855,10 +892,7 @@
 
 							localTargetSelector.find( 'input' ).val( searchQuery );
 
-							elementorFrontend.elementsHandler.runReadyTrigger( localTargetSelector );
-							if ( elementorFrontend.config.experimentalFeatures.e_lazyload ) {
-								document.dispatchEvent( new Event( 'elementor/lazyload/observe' ) );
-							}
+							reinitElementorContent( localTargetSelector );
 						},
 						error: function ( xhr, status, error ) {
 							console.log( 'AJAX error:', error );
@@ -874,10 +908,8 @@
 								localTargetSelector.data( 'settings', currentSettings );
 							}
 							post_count( localTargetSelector );
-							elementorFrontend.elementsHandler.runReadyTrigger( localTargetSelector );
-							if ( elementorFrontend.config.experimentalFeatures.e_lazyload ) {
-								document.dispatchEvent( new Event( 'elementor/lazyload/observe' ) );
-							}
+
+							reinitElementorContent( localTargetSelector );
 						}
 					} );
 				}

@@ -211,15 +211,6 @@
 	transform: translateY(0);
 }
 
-.filter-title.collapsible:has(.filter-toggle-checkbox:checked) + .bpfwe-taxonomy-wrapper,
-.filter-title.collapsible:has(.filter-toggle-checkbox:checked) + .bpfwe-custom-field-wrapper {
-	display: flex;
-	opacity: 1;
-	height: auto;
-	overflow: hidden;
-	transform: translateY(0);
-}
-
 .toggle-content {
 	opacity: 0;
 	transform: translateY(-10px);
@@ -232,8 +223,9 @@
 }
 
 .low-terms-group,
-.filter-title.collapsible:not(.collapsed) + .bpfwe-taxonomy-wrapper,
-.filter-title.collapsible:not(.collapsed) + .bpfwe-custom-field-wrapper {
+.filter-title.collapsible + .bpfwe-taxonomy-wrapper,
+.filter-title.collapsible + .bpfwe-custom-field-wrapper,
+.filter-title.collapsible + .bpfwe-numeric-wrapper {
 	display: none;
 }
 

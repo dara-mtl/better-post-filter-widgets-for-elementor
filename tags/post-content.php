@@ -10,9 +10,8 @@ namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 
-// If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit; // Exit if accessed directly.
 }
 
 /**

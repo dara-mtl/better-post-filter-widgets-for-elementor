@@ -249,6 +249,7 @@
 					if ( settings ) {
 						var paginationType = settings.pagination || settings.pagination_type,
 							scroll_to_top = settings.scroll_to_top,
+							paginationMode = settings.pagination_mode || 'native',
 							size = settings.scroll_threshold && settings.scroll_threshold.size ? settings.scroll_threshold.size : 0,
 							unit = settings.scroll_threshold && settings.scroll_threshold.unit ? settings.scroll_threshold.unit : 'px',
 							infinite_threshold = size + unit;
@@ -296,7 +297,7 @@
 						return 1;
 					}
 
-					function loadPage( page_url, postType, queryType ) {
+					function loadPageNew( page_url, postType, queryType ) {
 						const isLoadMore = paginationType === 'infinite' || paginationType === 'load_more',
 							loadMoreButton = $element.find( '.load-more' ),
 							paged = getPagedFromUrl( page_url ),
@@ -343,6 +344,7 @@
 								postContainer.find( '.elementor-grid' ).prepend( oldContent );
 								postContainer.hide().show().removeClass( 'load' );
 								afterLoad();
+								reinitElementorContent( innerContainer );
 							};
 
 							ajaxOptions.complete = function() {
@@ -356,11 +358,144 @@
 
 								postContainer.empty().append( $( newContent ) ).removeClass( 'load' );
 								afterLoad();
+								reinitElementorContent( innerContainer );
 							};
 						}
 
 						$.ajax(ajaxOptions);
 					}
+
+					function loadPageLegacy( page_url ) {
+						if ( paginationType == 'infinite' || paginationType == 'load_more' ) {
+							var loadMoreButton = $element.find( '.load-more' );
+
+							loadMoreButton.prop( 'disabled', true );
+
+							$.ajax( {
+								type: 'POST',
+								url: ajax_var.url,
+								async: true,
+								dataType: 'json',
+								data: {
+									action: 'load_page',
+									page_url: page_url,
+									nonce: ajax_var.nonce
+								},
+								success: function ( data ) {
+									var content = data.data.html,
+										oldContent = postContainer.find( '.elementor-grid' ).children().clone();
+									postContainer.empty().append( $( content ).find( innerContainer ) );
+									postContainer.find( '.elementor-grid' ).prepend( oldContent );
+									postContainer.hide().show().removeClass( 'load' );
+									afterLoad();
+									reinitElementorContent( innerContainer );
+								},
+								error: function ( jqXHR, textStatus, errorThrown ) {
+									console.log( 'AJAX request failed: ' + textStatus + ', ' + errorThrown );
+								},
+								complete: function () {
+									loadMoreButton.prop( 'disabled', false );
+								}
+							} );
+						} else {
+							$.ajax( {
+								type: 'POST',
+								url: ajax_var.url,
+								async: true,
+								dataType: 'json',
+								data: {
+									action: 'load_page',
+									page_url: page_url,
+									nonce: ajax_var.nonce
+								},
+								success: function ( data ) {
+									var content = data.data.html;
+									postContainer.empty().append( $( content ).find( innerContainer ) );
+									postContainer.hide().show().removeClass( 'load' );
+									afterLoad();
+									reinitElementorContent( innerContainer );
+								},
+								error: function ( jqXHR, textStatus, errorThrown ) {
+									console.log( 'AJAX request failed: ' + textStatus + ', ' + errorThrown );
+								}
+							} );
+						}
+					}
+
+					function reinitElementorContent(selector) {
+						const $container = $(selector);
+
+						if (! $container.length) return;
+
+						elementorFrontend.elementsHandler.runReadyTrigger($container);
+
+						$container.find('[data-element_type]').each(function () {
+							elementorFrontend.elementsHandler.runReadyTrigger($(this));
+						});
+
+						if (typeof elementorFrontend?.utils?.runElementHandlers === 'function') {
+							elementorFrontend.utils.runElementHandlers($container[0]);
+						}
+						
+						dynamicOffCanvas();
+						
+						$(document).trigger('elementor/lazyload/observe');
+					}
+
+					function dynamicOffCanvas() {
+						if ( $('.elementor-widget-post-widget .e-off-canvas').length === 0 ) {
+							return;
+						}
+
+						$('.elementor-widget-post-widget').each(function () {
+							const $widget = $(this);
+							const widgetId = $widget.data('id');
+
+							$widget.find('[data-elementor-type="loop-item"]').each(function () {
+								const $loopItem = $(this);
+								const loopClasses = $loopItem.attr('class') || '';
+								const postIdMatch = loopClasses.match(/e-loop-item-(\d+)/);
+								if (!postIdMatch) return;
+
+								const postId = postIdMatch[1];
+
+								const $offCanvas = $loopItem.find('.e-off-canvas');
+								if (!$offCanvas.length) return;
+
+								const currentId = $offCanvas.attr('id');
+								if (!currentId || !currentId.startsWith('off-canvas-')) return;
+
+								const originalCanvasId = currentId.replace(/^off-canvas-/, '');
+								const newId = `off-canvas-${widgetId}-${postId}-${originalCanvasId}`;
+								$offCanvas.attr('id', newId);
+
+								// Match only buttons that *look like* they open this specific off-canvas.
+								$loopItem.find('a[href*="elementor-action"]').each(function () {
+									const $btn = $(this);
+									const hrefAttr = $btn.attr('href');
+									if (!hrefAttr) return;
+
+
+										const decodedHref = decodeURIComponent(hrefAttr);
+										const settingsMatch = decodedHref.match(/settings=([^&]+)/);
+										if (!settingsMatch) return;
+
+										const settingsJson = JSON.parse(atob(settingsMatch[1]));
+										if (!settingsJson || typeof settingsJson !== 'object' || !settingsJson.id) return;
+
+										// Update ID inside base64 payload.
+										settingsJson.id = `${widgetId}-${postId}-${originalCanvasId}`;
+										const newEncodedSettings = btoa(JSON.stringify(settingsJson));
+										const newHref = decodedHref.replace(/settings=[^&]+/, 'settings=' + encodeURIComponent(newEncodedSettings));
+
+										$btn.attr('href', newHref);
+										$btn.attr('aria-controls', newId);
+
+								});
+							});
+						});
+					}
+					dynamicOffCanvas();
 
 					function afterLoad () {
 						var loadMoreButton = $element.find( '.load-more' );
@@ -395,8 +530,13 @@
 							}
 							let postType = $(this).closest('.pagination').data('post-type') || 'post';
 							let queryType = $(this).closest('.pagination').data('query') || 'custom';
-							loadPage( $( this ).attr( 'href' ), postType, queryType );
-						}
+							if (paginationMode === 'remote') {
+								loadPageLegacy($( this ).attr( 'href' ));
+							} else {
+								loadPageNew($( this ).attr( 'href' ), postType, queryType);
+							}
+
+							}
 					);
 
 					$element.off( 'click', '.load-more' ).on(

@@ -12,7 +12,7 @@ use Elementor\Core\DynamicTags\Data_Tag;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit; // Exit if accessed directly.
 }
 
 /**

@@ -3084,6 +3084,24 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'pagination_mode',
+			[
+				'type'               => \Elementor\Controls_Manager::SELECT,
+				'label'              => esc_html__( 'Pagination Mode', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'native',
+				'options'            => [
+					'native' => esc_html__( 'Elementor Native', 'better-post-filter-widgets-for-elementor' ),
+					'remote' => esc_html__( 'Legacy', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition'          => [
+					'pagination!'     => 'none',
+					'classic_layout!' => 'carousel',
+				],
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
 			'pagination_carousel',
 			[
 				'type'               => \Elementor\Controls_Manager::SELECT,
@@ -8659,7 +8677,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -9200,7 +9218,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -9585,7 +9603,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}

@@ -136,7 +136,7 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 				'dynamic'     => [
 					'active' => false,
 				],
-				'placeholder' => 'Enter a title',
+				'placeholder' => esc_html__( 'Enter a title' ),
 				'label_block' => true,
 			]
 		);

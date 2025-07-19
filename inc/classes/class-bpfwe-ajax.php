@@ -201,15 +201,16 @@ class BPFWE_Ajax {
 		$numeric_output           = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$performance_settings     = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		$group_logic       = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
-		$meta_key          = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
-		$order             = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : 'ASC';
-		$order_by          = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : 'date';
-		$search_terms      = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
-		$dynamic_filtering = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
-		$post_type         = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
-		$posts_per_page    = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
-		$paged             = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
+		$group_logic        = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
+		$meta_key           = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
+		$order              = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : 'ASC';
+		$order_by           = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : 'date';
+		$search_terms       = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
+		$dynamic_filtering  = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
+		$post_type          = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$posts_per_page     = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
+		$paged              = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
+		$enable_query_debug = ! empty( $_POST['enable_query_debug'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_query_debug'] ) ) : '';
 
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
@@ -540,11 +541,16 @@ class BPFWE_Ajax {
 
 		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
-		echo wp_json_encode(
-			array(
-				'html' => $document->render_element( $widget_data ),
-			)
-		);
+
+		$response = [
+			'html' => $document->render_element( $widget_data ),
+		];
+
+		if ( 'yes' === $enable_query_debug ) {
+			$response['query'] = $args;
+		}
+
+		echo wp_json_encode( $response );
 
 		wp_die();
 	}
@@ -783,6 +789,9 @@ class BPFWE_Ajax {
 
 		add_action( 'wp_ajax_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
 		add_action( 'wp_ajax_nopriv_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
+
+		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
+		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
 	}
 
 	/**

@@ -14,7 +14,7 @@ use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit; // Exit if accessed directly.
 }
 
 /**

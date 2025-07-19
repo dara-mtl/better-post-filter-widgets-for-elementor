@@ -2,7 +2,7 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Stable tag: 1.4.91
+Stable tag: 1.5.1
 Tested up to: 6.8
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -114,17 +114,25 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.5.0 – 2025-07-08 =
+= 1.5.1 – 2025-07-19 =
+
+* New: Added a query debug option in the Filter widget's Additional Options to allow backend users visualize the query.
+* Fix: Resolves cases where filters became non-functional after first interacting Elementor Pro's AJAX pagination.
+* Fix: Updated internal JavaScript logic to ensure widgets inside the Post widget (e.g., off-canvas panels) are properly re-initialized after AJAX interactions. This addresses broken behavior in Loop Grid using interactive widgets.
+* Tweak: Updated the "Group Label" text in the Filter widget to "Group Title" for consistency across controls.
+
+= 1.5.0 – 2025-07-11 =
 
 * New: Added toggle mode to Filter widget group titles.
-* New: Introduced "Select All" option per taxonomy/meta group, configurable under Advanced tab for each row.
+* New: Introduced "Select All" option per taxonomy/meta group, configurable under the Advanced tab of each group.
 * New: Added `.bpfwe-selected-count` class to show number of selected terms.
 * New: Added style controls for the toggle feature under Style > Group Title.
-* New: Rewrote AJAX pagination logic in the Post widget to use Elementor's native rendering method, improving reliability and performance.
+* New: Rewrote AJAX pagination logic in the Post widget to use Elementor's native rendering method, improving reliability and performance. Legacy pagination will remain available for now.
 * New: Added "Display Mode" control to the Repeater Dynamic Tag for ul/ol, Tabs, and Toggle layouts, allows toggling between flat list (field-based) and grouped list (row-based) outputs.
-* Tweak: Renamed "Group Label" to "Group Title" for clarity and consistency.
 * Fix: Added missing HTML markup for meta-based filters to ensure selected terms are properly displayed via the `.bpfwe-selected-terms` class.
-* Tweak: Reworked OR group logic in `tax_query` to avoid nested arrays and follow parent logic more clearly, each OR filter is now added separately.
+* Fix: Off-canvas widgets are now properly re-initialized after AJAX pagination and filtering.
+* Tweak: Renamed "Group Label" to "Group Title" for clarity and consistency.
+* Tweak: Reworked OR group logic in `tax_query` to avoid nested arrays and follow parent logic more closely, each OR filter is now added separately.
 * Tweak: Search bar border radius is now responsive.
 * Compatibility: Tested up to Elementor 3.30.X.
 
@@ -137,7 +145,7 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 = 1.4.0 – 2025-06-09 =
 
-* New: Introduced **Default Filters** feature: backend users can now predefine fixed filter selections under Content > Default Filters. This enables pre-filtered content views without user interaction.
+* New: Introduced **Default Filters** feature: Backend users can now define fixed taxonomy, meta, or date queries to include in the filter logic, under Content > Default Filters.
 * Fix: Resolved a layout issue in the Post widget when using the **Template Grid** layout with **User** or **Taxonomy** queries.
 * Fix: Corrected the performance sanitization rules, which were previously using a default logic, leading to inconsistent filter behavior in some cases.
 
@@ -149,23 +157,10 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 * Fix: Prevented duplicated filter forms from interfering with each other's queries.
 * Compatibility: Confirmed compatibility with Elementor version 3.29.0
 
-= 1.3.2 – 2025-05-10 =
-
-* Fix: Resolved issue where filters failed after the first AJAX request for custom post types registered via ACF.
-* Fix: Corrected index mismatch between synchronized sliders in the Post widget.
-* Fix: Prevented duplicated filter forms from interfering with each other's queries.
-* Fix: Addressed inconsistent pagination when excluding terms from taxonomy queries.
-
-= 1.3.1 – 2025-05-05 =
-
-* New: Added Vertical Post Slider option to the Post widget. Users can now toggle between horizontal and vertical layouts.
-* New: Deselectable Radio Buttons: clicking the same radio option twice will now deselect it.
-* Tweak: Improved the filter's reset behavior.
-
 For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
 
-= 1.5.0 =
+= 1.5.1 =
 
-This update introduces improved pagination, new filter toggle and select options, and enhanced Repeater tag display modes.
+Improves AJAX pagination stability, fixes filter widget re-initialization in interactive Elementor widgets, and updates group title labeling.
