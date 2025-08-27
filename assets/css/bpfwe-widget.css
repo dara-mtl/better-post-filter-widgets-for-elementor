@@ -804,7 +804,7 @@ ul.post-taxonomy li,
 .post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content {
 	content: url('../../assets/images/BPFWE-Post-Skeleton.svg');
 	pointer-events: none;
-    max-height: 150px;
+	max-height: 150px;
 	padding: 10px 0 0 0;
 }
 
@@ -1153,6 +1153,85 @@ ul.taxonomy-filter.show-toggle .label-more,
 .no-posts-found::after,
 .no-posts-found::before {
 	display: none;
+}
+
+.bpfwe-visual-range-wrapper {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+}
+
+.bpfwe-visual-icon {
+	position: relative;
+	margin-right: 6px;
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+}
+
+.bpfwe-visual-icon .icon-normal,
+.bpfwe-visual-icon .icon-selected {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.bpfwe-visual-icon .icon-selected {
+	opacity: 0;
+	visibility: hidden;
+}
+
+.bpfwe-visual-icon span {
+	display: inline-block !important;
+}
+
+.bpfwe-visual-range-wrapper input[type="radio"] {
+	display: none;
+}
+
+.bpfwe-visual-range-wrapper input:checked + label .icon-normal,
+.bpfwe-visual-range-wrapper input:checked ~ label .icon-normal {
+	opacity: 0;
+	visibility: hidden;
+}
+
+.bpfwe-visual-range-wrapper input:checked + label .icon-selected,
+.bpfwe-visual-range-wrapper input:checked ~ label .icon-selected {
+	opacity: 1;
+	visibility: visible;
+}
+
+.bpfwe-visual-range-wrapper label:hover .icon-normal,
+.bpfwe-visual-range-wrapper label:hover ~ label .icon-normal {
+	opacity: 0;
+	visibility: hidden;
+}
+
+.bpfwe-visual-range-wrapper label:hover .icon-selected,
+.bpfwe-visual-range-wrapper label:hover ~ label .icon-selected {
+	opacity: 1;
+	visibility: visible;
+}
+
+.bpfwe-visual-range-wrapper label {
+	cursor: pointer;
+}
+
+.bpfwe-visual-range-option.disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.bpfwe-term-remove:hover {
+	opacity: 0.6;
+}
+
+.bpfwe-term-remove {
+	transition: 0.3s;
+	cursor: pointer;
 }
 
 @media only screen and (max-width: 767px) {

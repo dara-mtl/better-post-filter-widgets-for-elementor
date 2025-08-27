@@ -2211,7 +2211,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 										),
 										'NOT IN' => sprintf(
 											// translators: %s is the taxonomy label.
-											__( 'Exclude %s', 'better-post-filter-widgets-for-elementor' ),
+											__( '%s to include', 'better-post-filter-widgets-for-elementor' ),
 											esc_html( $tax->label )
 										),
 									],
@@ -2444,7 +2444,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Query ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'description' => esc_html__( 'Give your Query a custom unique ID to allow server side filtering.', 'better-post-filter-widgets-for-elementor' ),
+				'description' => esc_html__( 'Give your query a unique ID to allow server side filtering.', 'better-post-filter-widgets-for-elementor' ),
 				'separator'   => 'before',
 			]
 		);
@@ -3348,31 +3348,33 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label'                => esc_html__( 'Content Horizontal Position', 'better-post-filter-widgets-for-elementor' ),
 				'type'                 => \Elementor\Controls_Manager::CHOOSE,
 				'options'              => [
-					'left'   => [
+					'left'    => [
 						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-left',
 					],
-					'center' => [
+					'center'  => [
 						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-center',
 					],
-					'right'  => [
+					'right'   => [
 						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-right',
+					],
+					'stretch' => [
+						'title' => esc_html__( 'Space Evenly', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-stretch',
 					],
 				],
 				'selectors'            => [
 					'{{WRAPPER}} .inner-content' => '{{VALUE}}',
 				],
 				'selectors_dictionary' => [
-					'left'   => 'align-items: flex-start; text-align: left;',
-					'center' => 'align-items: center; text-align: center;',
-					'right'  => 'align-items: flex-end; text-align: right;',
+					'left'    => 'align-items: flex-start; text-align: left;',
+					'center'  => 'align-items: center; text-align: center;',
+					'right'   => 'align-items: flex-end; text-align: right;',
+					'stretch' => 'align-items: stretch; text-align: justify;',
 				],
 				'separator'            => 'before',
-				'condition'            => [
-					'post_skin' => 'banner',
-				],
 			]
 		);
 
@@ -3382,29 +3384,31 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label'                => esc_html__( 'Content Vertical Position', 'better-post-filter-widgets-for-elementor' ),
 				'type'                 => \Elementor\Controls_Manager::CHOOSE,
 				'options'              => [
-					'top'    => [
+					'top'     => [
 						'title' => esc_html__( 'Top', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-v-align-top',
 					],
-					'middle' => [
+					'middle'  => [
 						'title' => esc_html__( 'Middle', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-v-align-middle',
 					],
-					'bottom' => [
+					'bottom'  => [
 						'title' => esc_html__( 'Bottom', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-v-align-bottom',
+					],
+					'stretch' => [
+						'title' => esc_html__( 'Stretch', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-v-align-stretch',
 					],
 				],
 				'selectors'            => [
 					'{{WRAPPER}} .inner-content' => 'justify-content: {{VALUE}}',
 				],
 				'selectors_dictionary' => [
-					'top'    => 'flex-start',
-					'middle' => 'center',
-					'bottom' => 'flex-end',
-				],
-				'condition'            => [
-					'post_skin' => 'banner',
+					'top'     => 'flex-start',
+					'middle'  => 'center',
+					'bottom'  => 'flex-end',
+					'stretch' => 'space-between',
 				],
 			]
 		);
@@ -8347,7 +8351,12 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$current_page   = 1;
 
 		if ( 'main' === $settings['query_type'] ) {
-			$current_page = max( 1, get_query_var( 'paged' ) );
+			if ( is_front_page() ) {
+				$current_page = max( 1, get_query_var( 'page' ) );
+			} else {
+				$current_page = max( 1, get_query_var( 'paged' ) );
+			}
+			$base = str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) );
 		} elseif ( 'custom' === $settings['query_type'] || 'user' === $settings['query_type'] || 'taxonomy' === $settings['query_type'] ) {
 			if ( is_home() || is_archive() || is_post_type_archive() ) {
 				$base         = add_query_arg( 'page_num', '%#%' );
@@ -8404,6 +8413,9 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$image        = '';
 		$pagination   = '';
 		$counter      = 0;
+
+		// Wrapper filter for post widget.
+		$query_id = $settings['query_id'];
 
 		if ( isset( $settings['classic_layout'] ) && 'carousel' === $settings['classic_layout'] ) {
 			$pagination = isset( $settings['pagination_carousel'] ) ? $settings['pagination_carousel'] : 'none';
@@ -8597,6 +8609,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		if ( 'main' === $settings['query_type'] || 'custom' === $settings['query_type'] ) {
 			if ( $bpfwe_query->have_posts() ) {
+
 				if ( $settings['skin_template'] ) {
 					$extra_templates_by_position = [];
 					$template_css_urls           = [];
@@ -8625,16 +8638,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				echo '
-				<div class="post-container ' . esc_attr( $pagination . ' ' . $skin . ' ' . $pinned_post ) . '" data-total-post="' . absint( $bpfwe_query->found_posts ) . '">
-                <div class="post-container-inner">
-				<div class="' . esc_attr( $class_swiper ) . '">
-				';
+				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
+				echo '<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="' . absint( $bpfwe_query->found_posts ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				while ( $bpfwe_query->have_posts() ) :
 					++$counter;
 					$bpfwe_query->the_post();
-
+					$attrs                                       = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 					$permalink                                   = get_permalink();
 					$new_tab                                     = '';
 					$settings['external_url_new_tab'] ? $new_tab = 'target="_blank"' : $new_tab = '';
@@ -8660,6 +8670,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						// Check if the current position should have an extra template.
 						$use_extra_template = false;
 						$extra_template_id  = '';
+						$post_id            = get_the_ID();
 
 						foreach ( $extra_templates_by_position as $position => $extra_template ) {
 							// Check if the template should apply once or be repeated.
@@ -8673,11 +8684,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
+							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -8694,11 +8705,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace( '#EXCERPT#', get_the_excerpt(), $html_content );
 						$html_content = str_replace( '#IMAGE#', $image, $html_content );
 
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo wp_kses_post( $html_content );
-						echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						echo '
+						</div>
+						</' . esc_attr( $post_html_tag ) . '>';
 					} else {
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper">';
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 						if ( 'yes' === $settings['show_featured_image'] ) {
 							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
@@ -8991,7 +9004,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, $total_pages ) ) );
 
-						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" data-post-type="' . esc_attr( get_post_type() ) . '" data-query="' . esc_attr( $settings['query_type'] ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination ' . esc_attr( $settings['display_on_carousel'] ) . '" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
@@ -9021,7 +9034,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$current_page = absint( max( 1, min( $current_page, $total_pages ) ) );
 
-						$nav_start = '<nav class="pagination bpfwe-hidden" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" data-post-type="' . esc_attr( get_post_type() ) . '" data-query="' . esc_attr( $settings['query_type'] ) . '" aria-label="Pagination">';
+						$nav_start = '<nav class="pagination bpfwe-hidden" role="navigation" data-page="' . esc_attr( $current_page ) . '" data-max-page="' . esc_attr( $total_pages ) . '" aria-label="Pagination">';
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
@@ -9073,7 +9086,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( $skin . ' ' . $pinned_post ) . '">
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>
@@ -9165,17 +9178,15 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				echo '
-				<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div>
-				<div class="post-container ' . esc_attr( $pagination . ' ' . $skin . ' ' . $pinned_post ) . '" data-nb-column="' . esc_attr( $settings['post_slider_slides_per_view'] ) . '">
-                <div class="post-container-inner">
-				<div class="' . esc_attr( $class_swiper ) . '">
-				';
+				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
+				echo '<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div><div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 				// Loop through the users.
 				foreach ( $user_query->get_results() as $user ) {
 					global $bpfwe_user_id;
 					++$counter;
 					$bpfwe_user_id                               = absint( $user->ID );
+					$attrs                                       = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 					$permalink                                   = get_author_posts_url( $bpfwe_user_id );
 					$new_tab                                     = '';
 					$settings['external_url_new_tab'] ? $new_tab = 'target="_blank"' : $new_tab = '';
@@ -9214,13 +9225,21 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '
+							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
+							<div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+							echo '
+							</div>
+							</' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
+							echo '
+							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
+							<div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+							echo '
+							</div>
+							</' . esc_attr( $post_html_tag ) . '>';
 						}
 					} elseif ( $settings['skin_custom_html'] ) {
 						$html_content = $settings['skin_custom_html'];
@@ -9229,11 +9248,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace( '#CONTENT#', get_the_author_meta( 'description', $user->ID ), $html_content );
 						$html_content = str_replace( '#EXCERPT#', wp_trim_words( get_the_author_meta( 'description', $user->ID ), 20 ), $html_content );
 
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo wp_kses_post( $html_content );
-						echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						echo '</div>
+						</' . esc_attr( $post_html_tag ) . '>
+						';
 					} else {
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper">';
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 						if ( 'yes' === $settings['show_featured_image'] ) {
 							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
@@ -9451,7 +9472,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( $skin . ' ' . $pinned_post ) . '">
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>
@@ -9544,17 +9565,15 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				echo '
-				<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div>
-				<div class="post-container ' . esc_attr( $pagination . ' ' . $skin . ' ' . $pinned_post ) . '" data-nb-column="' . esc_attr( $settings['post_slider_slides_per_view'] ) . '">
-                <div class="post-container-inner">
-				<div class="' . esc_attr( $class_swiper ) . '">
-				';
+				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
+				echo '<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div><div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 				// Loop through the terms.
 				foreach ( $terms as $term ) {
 					global $bpfwe_term_id;
 					++$counter;
 					$bpfwe_term_id                               = absint( $term->term_id );
+					$attrs                                       = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 					$permalink                                   = get_term_link( $bpfwe_term_id );
 					$term_name                                   = $term->name;
 					$term_description                            = $term->description;
@@ -9599,13 +9618,21 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="elementor-repeater-item-' . esc_attr( $extra_template['_id'] ) . ' post-wrapper row-span-expand"><div class="inner-content">';
+							echo '
+							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
+							<div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+							echo '
+							</div>
+							</' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper row-span-expand"><div class="inner-content">';
+							echo '
+							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
+							<div class="inner-content">';
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo '</div></' . esc_attr( $post_html_tag ) . '>';
+							echo '
+							</div>
+							</' . esc_attr( $post_html_tag ) . '>';
 						}
 					} elseif ( $settings['skin_custom_html'] ) {
 						$html_content = $settings['skin_custom_html'];
@@ -9614,11 +9641,15 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace( '#CONTENT#', term_description( $term->term_id ), $html_content );
 						$html_content = str_replace( '#EXCERPT#', wp_trim_words( wp_strip_all_tags( term_description( $term->term_id ) ), 20 ), $html_content );
 
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper"><div class="inner-content">';
+						echo '
+						<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo wp_kses_post( $html_content );
-						echo '</div></' . esc_attr( $post_html_tag ) . '>';
+						echo '
+						</div>
+						</' . esc_attr( $post_html_tag ) . '>
+						';
 					} else {
-						echo '<' . esc_attr( $post_html_tag ) . ' class="post-wrapper">';
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 						if ( 'yes' === $settings['show_featured_image'] && 'taxonomy' === $settings['query_type'] ) {
 							$image_size = ! empty( $settings['featured_img_size'] ) ? esc_attr( $settings['featured_img_size'] ) : 'full';
@@ -9862,7 +9893,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( $skin . ' ' . $pinned_post ) . '">
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>

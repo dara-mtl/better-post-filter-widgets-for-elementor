@@ -306,6 +306,109 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
+			'format_type',
+			[
+				'label'     => esc_html__( 'Value Formatting', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'none',
+				'options'   => [
+					'none'           => esc_html__( 'None', 'better-post-filter-widgets-for-elementor' ),
+					'date'           => esc_html__( 'Date/Time', 'better-post-filter-widgets-for-elementor' ),
+					'number'         => esc_html__( 'Number', 'better-post-filter-widgets-for-elementor' ),
+					'text'           => esc_html__( 'Text', 'better-post-filter-widgets-for-elementor' ),
+					'custom_pattern' => esc_html__( 'Custom Pattern', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'date_format',
+			[
+				'label'     => esc_html__( 'Date Format', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'Y-m-d',
+				'options'   => [
+					'Y-m-d'        => esc_html__( 'Year-Month-Day', 'better-post-filter-widgets-for-elementor' ),
+					'd/m/Y'        => esc_html__( 'Day/Month/Year', 'better-post-filter-widgets-for-elementor' ),
+					'l, F j'       => esc_html__( 'Weekday, Month Day', 'better-post-filter-widgets-for-elementor' ),
+					'F Y'          => esc_html__( 'Month Year', 'better-post-filter-widgets-for-elementor' ),
+					'Y-m-d H:i'    => esc_html__( 'Year-Month-Day, 24H', 'better-post-filter-widgets-for-elementor' ),
+					'd/m/Y H:i'    => esc_html__( 'Day/Month/Year, 24H', 'better-post-filter-widgets-for-elementor' ),
+					'l, F j H:i'   => esc_html__( 'Weekday, Month Day, 24H', 'better-post-filter-widgets-for-elementor' ),
+					'F j, Y g:i A' => esc_html__( 'Month Day, Year, 12H', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'date',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'number_decimals',
+			[
+				'label'     => esc_html__( 'Decimals', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'min'       => 0,
+				'max'       => 6,
+				'default'   => 0,
+				'condition' => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'number',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'number_suffix',
+			[
+				'label'       => esc_html__( 'After', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => esc_html__( 'seats, km, etc.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'number',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'text_case',
+			[
+				'label'     => esc_html__( 'Text Format', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'as_is',
+				'options'   => [
+					'as_is'      => esc_html__( 'As stored', 'better-post-filter-widgets-for-elementor' ),
+					'uppercase'  => esc_html__( 'Uppercase', 'better-post-filter-widgets-for-elementor' ),
+					'lowercase'  => esc_html__( 'Lowercase', 'better-post-filter-widgets-for-elementor' ),
+					'capitalize' => esc_html__( 'Capitalize', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'text',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'custom_pattern',
+			[
+				'label'       => esc_html__( 'Pattern', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => esc_html__( 'Text before #VALUE# text after', 'better-post-filter-widgets-for-elementor' ),
+				'label_block' => true,
+				'condition'   => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'custom_pattern',
+				],
+			]
+		);
+
+		$repeater->add_control(
 			'filter_style_numeric',
 			[
 				'label'     => esc_html__( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
@@ -325,6 +428,73 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
+			'visual_range',
+			[
+				'label'        => esc_html__( 'Visual Range', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'condition'    => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'visual_range_icon_normal',
+			[
+				'label'     => esc_html__( 'Icon (Normal)', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::ICONS,
+				'default'   => [
+					'value'   => 'far fa-star',
+					'library' => 'fa-solid',
+				],
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+					'visual_range'         => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'visual_range_icon_selected',
+			[
+				'label'     => esc_html__( 'Icon (Selected)', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::ICONS,
+				'default'   => [
+					'value'   => 'fas fa-star',
+					'library' => 'fa-solid',
+				],
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+					'visual_range'         => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'visual_range_max_icons',
+			[
+				'label'     => esc_html__( 'Max. Range', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'min'       => 1,
+				'max'       => 10,
+				'step'      => 1,
+				'default'   => 5,
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+					'visual_range'         => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
 			'insert_before_field',
 			[
 				'label'     => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
@@ -332,6 +502,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition' => [
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => 'range',
+					'visual_range!'        => 'yes',
 				],
 			]
 		);
@@ -629,6 +800,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'default'     => esc_html__( 'Search by keywords...', 'better-post-filter-widgets-for-elementor' ),
 				'placeholder' => esc_html__( 'Search by keywords...', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
+					'select_filter'   => 'Custom Field',
 					'filter_style_cf' => 'input',
 				],
 			]
@@ -650,6 +822,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'name',
 				'options'   => [
+					''           => esc_html__( 'None', 'better-post-filter-widgets-for-elementor' ),
 					'name'       => esc_html__( 'Name', 'better-post-filter-widgets-for-elementor' ),
 					'slug'       => esc_html__( 'Slug', 'better-post-filter-widgets-for-elementor' ),
 					'count'      => esc_html__( 'Count', 'better-post-filter-widgets-for-elementor' ),
@@ -666,15 +839,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'order',
 			[
-				'label'     => esc_html__( 'Order', 'better-post-filter-widgets-for-elementor' ),
-				'type'      => \Elementor\Controls_Manager::SELECT,
-				'default'   => 'DESC',
-				'options'   => [
+				'label'   => esc_html__( 'Order', 'better-post-filter-widgets-for-elementor' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'DESC',
+				'options' => [
 					'DESC' => esc_html__( 'Descending', 'better-post-filter-widgets-for-elementor' ),
 					'ASC'  => esc_html__( 'Ascending', 'better-post-filter-widgets-for-elementor' ),
-				],
-				'condition' => [
-					'select_filter' => 'Taxonomy',
 				],
 			]
 		);
@@ -682,16 +852,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'filter_logic',
 			[
-				'label'   => esc_html__( 'Group Logic', 'better-post-filter-widgets-for-elementor' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'OR',
-				'options' => [
+				'label'     => esc_html__( 'Group Logic', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'OR',
+				'options'   => [
 					'OR'  => esc_html__( 'OR', 'better-post-filter-widgets-for-elementor' ),
 					'AND' => esc_html__( 'AND', 'better-post-filter-widgets-for-elementor' ),
 					// 'IN' => 'IN',
 					// 'NOT IN' => 'NOT IN',
 					// 'EXISTS' => 'EXISTS',
 					// 'NOT EXISTS' => 'NOT EXISTS',
+				],
+				'condition' => [
+					'select_filter' => 'Taxonomy',
 				],
 			]
 		);
@@ -721,7 +894,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
-				'separator'    => 'before',
 				'condition'    => [
 					'select_filter' => 'Taxonomy',
 				],
@@ -882,7 +1054,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'default_filter_section',
 			[
-				'label' => __( 'Default Filters', 'better-post-filter-widgets-for-elementor' ),
+				'label' => esc_html__( 'Default Filters', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -892,13 +1064,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$pre_filter_repeater->add_control(
 			'filter_type',
 			[
-				'label'       => __( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::SELECT,
 				'options'     => [
-					'term'         => __( 'Taxonomy Term', 'better-post-filter-widgets-for-elementor' ),
-					'meta'         => __( 'Custom Field', 'better-post-filter-widgets-for-elementor' ),
-					'meta_numeric' => __( 'Custom Field (Numeric)', 'better-post-filter-widgets-for-elementor' ),
-					'date'         => __( 'Date', 'better-post-filter-widgets-for-elementor' ),
+					'term'         => esc_html__( 'Taxonomy Term', 'better-post-filter-widgets-for-elementor' ),
+					'meta'         => esc_html__( 'Custom Field', 'better-post-filter-widgets-for-elementor' ),
+					'meta_numeric' => esc_html__( 'Custom Field (Numeric)', 'better-post-filter-widgets-for-elementor' ),
+					'date'         => esc_html__( 'Date', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'default'     => 'term',
 				'label_block' => true,
@@ -908,7 +1080,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$pre_filter_repeater->add_control(
 			'taxonomy',
 			[
-				'label'       => __( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::SELECT,
 				'options'     => BPFWE_Helper::get_taxonomies_options(),
 				'default'     => array_key_first( BPFWE_Helper::get_taxonomies_options() ),
@@ -950,7 +1122,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				[
 					'label'       => sprintf(
 						// translators: %s is the taxonomy label.
-						__( '%s', 'better-post-filter-widgets-for-elementor' ),
+						__( 'Include %s', 'better-post-filter-widgets-for-elementor' ),
 						$tax->label
 					),
 					'type'        => \Elementor\Controls_Manager::SELECT2,
@@ -1018,7 +1190,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'default_filters',
 			[
-				'label'         => esc_html__( 'Default Filter Rules', 'better-post-filter-widgets-for-elementor' ),
 				'type'          => \Elementor\Controls_Manager::REPEATER,
 				'fields'        => $pre_filter_repeater->get_controls(),
 				'title_field'   => '{{{ filter_type === "term" ? "Term: " + taxonomy : filter_type === "meta" ? "Meta: " + meta_key : filter_type === "meta_numeric" ? "Meta Numeric: " + meta_key : "Post Age Limit: " + max_days_old + " Days" }}}',
@@ -1040,11 +1211,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'optimize_query',
 			[
-				'label'              => __( 'Load Only Post ID', 'better-post-filter-widgets-for-elementor' ),
+				'label'              => esc_html__( 'Load Only Post ID', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => __( 'Loads only post IDs. Best for ID-based widgets but may break those needing full post details. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Loads only post IDs. Best for ID-based widgets but may break those needing full post details. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
@@ -1053,11 +1224,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'no_found_rows',
 			[
-				'label'              => __( 'Skip Pagination Count', 'better-post-filter-widgets-for-elementor' ),
+				'label'              => esc_html__( 'Skip Pagination Count', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => __( 'Skips counting total posts. Use only if pagination isn’t needed. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Skips counting total posts. Use only if pagination isn’t needed. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
@@ -1066,11 +1237,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'suppress_filters',
 			[
-				'label'              => __( 'Bypass Query Modifications', 'better-post-filter-widgets-for-elementor' ),
+				'label'              => esc_html__( 'Bypass Query Modifications', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => __( 'Ignores query tweaks. May break 3rd party features. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Ignores query tweaks. May break 3rd party features. Do not enable this option if you\'re using a translation plugin. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
@@ -1079,9 +1250,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'posts_per_page',
 			[
-				'label'              => __( 'Posts Per Page', 'better-post-filter-widgets-for-elementor' ),
+				'label'              => esc_html__( 'Posts Per Page', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::NUMBER,
-				'description'        => __( 'Limits the number of posts per page. Use -1 to use post widget’s default value, if accesible by the query. Default: -1. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Limits the number of posts per page. Use -1 to use post widget’s default value, if accesible by the query. Default: -1. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => -1,
 				'min'                => -1,
 				'frontend_available' => true,
@@ -1091,9 +1262,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'transient_duration',
 			[
-				'label'       => __( 'Cache filter’s terms (s)', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Cache filter’s terms (s)', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::NUMBER,
-				'description' => __( 'Caches filter terms for faster loading. Set to 0 to disable (not recommended). Default: 86400 (1 day). Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'description' => esc_html__( 'Caches filter terms for faster loading. Set to 0 to disable (not recommended). Default: 86400 (1 day). Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
 				'default'     => 86400,
 				'min'         => 0,
 			]
@@ -1176,7 +1347,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'           => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
 				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => esc_html__( 'To display the currently selected terms or the total count, add the "bpfwe-selected-terms" or "bpfwe-selected-count" class to any widgets.', 'better-post-filter-widgets-for-elementor' ),
+				'raw'             => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to any widget to display selected terms, the total count, or clickable terms for quick deselection." class to any widgets.', 'better-post-filter-widgets-for-elementor' ),
 				'content_classes' => 'elementor-control-field-description',
 				'condition'       => [
 					'display_selected_terms' => 'yes',
@@ -1187,13 +1358,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'selected_terms_class',
 			[
-				'label'       => __( 'Display Terms Class', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Display Terms Class', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
 				'description' => '<script>
 					jQuery(document).ready(function($) {
 						var $input = $(".elementor-control-selected_terms_class input");
-						var widgetID = "bpfwe-selected-terms";
+						var widgetID = "selected-terms-" + elementor.getCurrentElement().model.id;
 						$input.val(widgetID).attr("readonly", true);
 
 						$input.on("click", function() {
@@ -1218,13 +1389,44 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'selected_count_class',
 			[
-				'label'       => __( 'Display Count Class', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Display Count Class', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
 				'description' => '<script>
 					jQuery(document).ready(function($) {
 						var $input = $(".elementor-control-selected_count_class input");
-						var widgetID = "bpfwe-selected-count";
+						var widgetID = "selected-count-" + elementor.getCurrentElement().model.id;
+						$input.val(widgetID).attr("readonly", true);
+
+						$input.on("click", function() {
+							this.select();
+							document.execCommand("copy");
+							var notice = elementor.notifications.showToast({
+								message: "Copied to clipboard!",
+								type: "success"
+							});
+							setTimeout(function() {
+								notice.close();
+							}, 1000);
+						});
+					});
+				</script>',
+				'condition'   => [
+					'display_selected_terms' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'quick_deselect_class',
+			[
+				'label'       => esc_html__( 'Quick Deselect Class', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'render_type' => 'ui',
+				'description' => '<script>
+					jQuery(document).ready(function($) {
+						var $input = $(".elementor-control-quick_deselect_class input");
+						var widgetID = "quick-deselect-" + elementor.getCurrentElement().model.id;
 						$input.val(widgetID).attr("readonly", true);
 
 						$input.on("click", function() {
@@ -1282,6 +1484,17 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'separator'          => 'before',
 				'default'            => esc_html__( 'It seems we can’t find what you’re looking for.', 'better-post-filter-widgets-for-elementor' ),
 				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'filter_query_id',
+			[
+				'label'              => esc_html__( 'Filter Query ID', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::TEXT,
+				'description'        => esc_html__( 'Give your filter\'s query a unique ID to allow server side filtering.', 'better-post-filter-widgets-for-elementor' ),
+				'frontend_available' => true,
+				'separator'          => 'before',
 			]
 		);
 
@@ -2012,6 +2225,101 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				],
 			]
 		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_visual_range',
+			array(
+				'label' => esc_html__( 'Visual Range', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'visual_range_icon_size',
+			[
+				'label'      => esc_html__( 'Icon Size', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper'                    => 'font-size: {{SIZE}}{{UNIT}} !important',
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper .bpfwe-visual-icon' => 'width: {{SIZE}}{{UNIT}} !important; height: {{SIZE}}{{UNIT}} !important;',
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper svg'                => 'width: {{SIZE}}{{UNIT}} !important; height: {{SIZE}}{{UNIT}} !important;',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'visual_range_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'separator'  => 'before',
+				'selectors'  => array(
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper .bpfwe-visual-icon' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'visual_range_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper .bpfwe-visual-icon' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->start_controls_tabs(
+			'visual_range_style_tabs'
+		);
+
+		$this->start_controls_tab(
+			'visual_range_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'visual_range_color_normal',
+			array(
+				'label'     => esc_html__( 'Icon Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper .icon-normal, {{WRAPPER}} .bpfwe-visual-range-wrapper .icon-normal svg' => 'color: {{VALUE}}; fill: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'visual_range_style_selected_tab',
+			[
+				'label' => esc_html__( 'Selected', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'visual_range_color_selected',
+			array(
+				'label'     => esc_html__( 'Icon Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .bpfwe-visual-range-wrapper .icon-selected, {{WRAPPER}} .bpfwe-visual-range-wrapper .icon-selected svg' => 'color: {{VALUE}}; fill: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
 
 		$this->end_controls_section();
 
@@ -2940,6 +3248,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$toggleable_class   = '';
 		$min_value          = '';
 		$max_value          = '';
+		$filter_query_id    = $settings['filter_query_id'];
 
 		if ( $settings['filter_list'] ) {
 			$index = 0;
@@ -3085,17 +3394,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					// Bypass transient for users with editing capabilities.
 					if ( false === $hiterms || current_user_can( 'edit_posts' ) ) {
-						$hiterms = get_terms(
-							[
-								'taxonomy'          => $item['filter_by'],
-								'orderby'           => $item['sort_terms'],
-								'order'             => $item['order'],
-								'hide_empty'        => $display_empty,
-								'parent'            => 'yes' === $item['show_hierarchy'] ? 0 : null,
-								'fields'            => 'all',
-								'update_meta_cache' => false,
-							]
-						);
+						$args = [
+							'taxonomy'          => $item['filter_by'],
+							'order'             => $item['order'],
+							'hide_empty'        => $display_empty,
+							'parent'            => 'yes' === $item['show_hierarchy'] ? 0 : null,
+							'fields'            => 'all',
+							'update_meta_cache' => false,
+						];
+
+						if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+							$args['orderby'] = $item['sort_terms'];
+						}
+
+						$hiterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 						if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
 							set_transient( $transient_key, $hiterms, $transient_duration );
@@ -3190,16 +3502,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
-									$args     = array(
+									$args = array(
 										'taxonomy'   => $item['filter_by'],
-										'orderby'    => $item['sort_terms'],
 										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
 										'update_meta_cache' => false,
 									);
-									$lowterms = get_terms( $args );
+
+									if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+										$args['orderby'] = $item['sort_terms'];
+									}
+
+									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
 										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
@@ -3280,16 +3596,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$child_terms         = get_transient( $child_transient_key );
 
 										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
-											$args        = array(
+											$args = array(
 												'taxonomy' => $item['filter_by'],
-												'orderby'  => $item['sort_terms'],
 												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
 												'fields'   => 'all',
 												'update_meta_cache' => false,
 											);
-											$child_terms = get_terms( $args );
+
+											if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+												$args['orderby'] = $item['sort_terms'];
+											}
+
+											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
 												set_transient( $child_transient_key, $child_terms, $transient_duration );
@@ -3448,16 +3768,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
-									$args     = array(
+									$args = array(
 										'taxonomy'   => $item['filter_by'],
-										'orderby'    => $item['sort_terms'],
 										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
 										'update_meta_cache' => false,
 									);
-									$lowterms = get_terms( $args );
+
+									if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+										$args['orderby'] = $item['sort_terms'];
+									}
+
+									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
 										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
@@ -3538,16 +3862,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$child_terms         = get_transient( $child_transient_key );
 
 										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
-											$args        = array(
+											$args = array(
 												'taxonomy' => $item['filter_by'],
-												'orderby'  => $item['sort_terms'],
 												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
 												'fields'   => 'all',
 												'update_meta_cache' => false,
 											);
-											$child_terms = get_terms( $args );
+
+											if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+												$args['orderby'] = $item['sort_terms'];
+											}
+
+											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
 												set_transient( $child_transient_key, $child_terms, $transient_duration );
@@ -3714,16 +4042,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . esc_html( $prefix . $term->name ) . esc_html( $show_counter ) . '</option>';
 
-								$args        = array(
+								$args = array(
 									'taxonomy'          => $item['filter_by'],
-									'orderby'           => $item['sort_terms'],
 									'order'             => $item['order'],
 									'parent'            => $term->term_id,
 									'hide_empty'        => $display_empty,
 									'fields'            => 'all',
 									'update_meta_cache' => false,
 								);
-								$child_terms = get_terms( $args );
+
+								if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+									$args['orderby'] = $item['sort_terms'];
+								}
+
+								$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
 								if ( ! empty( $child_terms ) ) {
 									foreach ( array_reverse( $child_terms ) as $child_term ) {
@@ -3756,7 +4088,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper" data-logic="OR">
 						<input type="text" class="input-text" id="input-text-' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '" name="post_meta" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" placeholder="' . esc_html( $placeholder ) . '">
 						</div>
 						</div>
@@ -3773,8 +4105,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$all_posts_args = array(
 								'posts_per_page'         => -1,
 								'post_type'              => $settings['filter_post_type'],
-								'orderby'                => $item['sort_terms'],
-								'order'                  => $item['order'],
 								'no_found_rows'          => true,
 								'fields'                 => 'ids',
 								'meta_key'               => $item['meta_key'],
@@ -3820,11 +4150,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								while ( $all_posts->have_posts() ) {
 									$all_posts->the_post();
-									$term                = get_post_meta( get_the_ID(), $item['meta_key'], true );
-									$terms_data[ $term ] = true;
+									$term = get_post_meta( get_the_ID(), $item['meta_key'], true );
+									if ( is_scalar( $term ) && '' !== $term ) {
+										$terms_data[ $term ] = true;
+									}
 								}
 
 								$terms_data = array_keys( $terms_data );
+
+								if ( 'DESC' === strtoupper( $item['order'] ) ) {
+									rsort( $terms_data );
+								} else {
+									sort( $terms_data );
+								}
+
 								wp_reset_postdata();
 
 								if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
@@ -3841,7 +4180,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 
@@ -3860,6 +4199,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						foreach ( $terms as $result ) {
+							$format_type = $item['format_type'] ?? 'none';
+
+							$args = [];
+
+							if ( 'date' === $format_type ) {
+								$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+							} elseif ( 'number' === $format_type ) {
+								$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+								$args['suffix']   = $item['number_suffix'] ?? '';
+							} elseif ( 'text' === $format_type ) {
+								$args['text_case'] = $item['text_case'] ?? 'as_is';
+							} elseif ( 'custom_pattern' === $format_type ) {
+								$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+							}
+
+							$formatted_value = BPFWE_Helper::format_meta_value( $result, $format_type, $args );
+
 							$toggleable_class = ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? 'toggleable' : '';
 							$show_counter     = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
 
@@ -3867,7 +4223,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							<li class="' . esc_attr( $toggleable_class ) . '">
 								<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
 									<input type="checkbox" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . esc_html( $show_counter ) . '" />
-									<span class="label-text">' . esc_html( $result ) . '</span>
+									<span class="label-text">' . esc_html( $formatted_value ) . '</span>
 								</label>
 							</li>
 							';
@@ -3887,7 +4243,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -3917,7 +4273,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 
@@ -3973,7 +4329,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper ' . esc_attr( $select2_class ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper ' . esc_attr( $select2_class ) . '" data-logic="OR">
 						<select id="' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
 						foreach ( $terms as $result ) {
 							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
@@ -4053,7 +4409,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							if ( ! empty( $term_values ) ) {
 								foreach ( $term_values as $term ) {
-									$terms[ $term ] = true; // use term as key.
+									if ( is_scalar( $term ) ) {
+										$terms[ $term ] = true;
+									}
 								}
 							}
 						}
@@ -4072,20 +4430,80 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-							<div class="bpfwe-numeric-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle']
+								? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>'
+								: '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
+							);
+
+						if ( ! empty( $item['visual_range'] ) && 'yes' === $item['visual_range'] ) {
+							$max_icons = ! empty( $item['visual_range_max_icons'] ) ? absint( $item['visual_range_max_icons'] ) : 5;
+
+							// Normalize actual values into [1, $max_icons].
+							$min_value = floatval( $min_value );
+							$max_value = floatval( $max_value );
+
+							// Round actuals.
+							$min_rounded = floor( $min_value );
+							$max_rounded = ceil( $max_value );
+
+							// If the real range is narrower than the number of icons, extend it.
+							$visual_min = 1;
+							$step       = ( $max_value - $visual_min ) / $max_icons;
+
+							$buckets = [];
+
+							for ( $i = 0; $i < $max_icons; $i++ ) {
+								$bucket_min = $visual_min + ( $i * $step );
+								$bucket_max = $bucket_min + $step;
+
+								$buckets[] = [
+									'min'   => $bucket_min,
+									'max'   => $bucket_max,
+									'value' => $i + 1,
+								];
+							}
+
+							echo '<div class="bpfwe-visual-range-wrapper" data-logic="OR" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-min="' . esc_attr( $visual_min ) . '" data-max="' . esc_attr( $visual_max ) . '">';
+
+							for ( $i = $max_icons - 1; $i >= 0; $i-- ) {
+								$bucket = $buckets[ $i ];
+
+								// Skip first bucket if its min < 1.
+								if ( 0 === $i && 1 > $bucket['min'] ) {
+									continue;
+								}
+
+								$icon_normal   = BPFWE_Helper::bpfwe_get_icons( $item['visual_range_icon_normal'] );
+								$icon_selected = BPFWE_Helper::bpfwe_get_icons( $item['visual_range_icon_selected'] );
+
+								echo '<input type="radio" id="' . esc_attr( $item['meta_key'] . '-' . $bucket['value'] ) . '" name="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $bucket['value'] ) . '" data-min="' . esc_attr( $bucket['min'] ) . '" data-max="' . esc_attr( $bucket['max'] ) . '" />';
+
+								echo '<label for="' . esc_attr( $item['meta_key'] . '-' . $bucket['value'] ) . '" class="bpfwe-visual-range-option">';
+								echo '<span class="bpfwe-visual-icon">';
+								echo '<span class="icon-normal">' . BPFWE_Helper::sanitize_and_escape_svg_input( $icon_normal ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								echo '<span class="icon-selected">' . BPFWE_Helper::sanitize_and_escape_svg_input( $icon_selected ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								echo '</span></label>';
+							}
+
+							echo '</div>';
+
+						} else {
+							echo '
+							<div class="bpfwe-numeric-wrapper" data-logic="OR">
 								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
 								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
 							</div>
-						</div>
-						';
+							';
+						}
+
+						echo '</div>';
 					}
 
 					if ( 'checkboxes' === $item['filter_style_numeric'] ) {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -4108,7 +4526,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'radio' === $item['filter_style_numeric'] ) {
 						echo '<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -4132,7 +4550,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
-						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
+						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
@@ -4165,10 +4583,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			echo '<button type="reset" class="reset-form" value="reset" onclick="this.form.reset();">' . esc_html( $reset_text ) . '</button>';
 		}
 
-			echo '</form></div>';
-			// Conditionally output debug wrapper.
-			if ( current_user_can( 'manage_options' ) && 'yes' === $settings[ 'enable_query_debug' ] ) {
-				echo '<div class="query-debug-frame"></div>';
-			}
+		echo '</form></div>';
+
+		if ( is_user_logged_in() && is_admin() && current_user_can( 'edit_posts' ) && 'yes' === $settings['enable_query_debug'] ) {
+			echo '<div class="query-debug-frame"></div>';
+		}
 	}
 }

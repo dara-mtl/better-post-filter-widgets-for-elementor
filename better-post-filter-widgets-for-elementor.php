@@ -7,11 +7,11 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.5.1
+ * Version: 1.6.0
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.8
- * Elementor tested up to: 3.30.1
+ * Elementor tested up to: 3.30.3
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -34,7 +34,7 @@ require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.5.1';
+	const VERSION                   = '1.6.0';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -113,6 +113,7 @@ final class BPFWE_Elementor {
 
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-taxonomy-swatches.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-helper.php';
+		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-background-image-handler.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-dynamic-tag.php';
 		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-ajax.php';
 	}

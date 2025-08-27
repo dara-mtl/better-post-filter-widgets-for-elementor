@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class BPFWE_Dynamic_Tag {
-	const TAG_DIR       = __DIR__ . '/../../tags/';
+	const TAG_DIR       = __DIR__ . '/../../dynamic-tags/';
 	const TAG_NAMESPACE = 'BPFWE_Dynamic_Tag\\Tags\\';
 
 	/**

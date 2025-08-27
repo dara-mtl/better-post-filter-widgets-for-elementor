@@ -171,6 +171,8 @@ class BPFWE_Ajax {
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 
+		$this->register_pre_get_posts_filter();
+
 		// Multidimensional array sanitization and validation.
 		$taxonomy_sanitization_rules = [
 			'taxonomy' => 'sanitize_text_field',
@@ -211,6 +213,7 @@ class BPFWE_Ajax {
 		$posts_per_page     = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
 		$paged              = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
 		$enable_query_debug = ! empty( $_POST['enable_query_debug'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_query_debug'] ) ) : '';
+		$query_id           = ! empty( $_POST['query_id'] ) ? sanitize_key( $_POST['query_id'] ) : 'default';
 
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
@@ -227,15 +230,20 @@ class BPFWE_Ajax {
 		set_query_var( 'page', $paged );
 		set_query_var( 'page_num', $paged );
 
-		$args = apply_filters(
-			'bpfwe_ajax_query_args',
-			array(
-				'order'     => $order,
-				'orderby'   => $order_by,
-				'post_type' => $post_type,
-				'paged'     => $paged,
-			)
+		$args = array(
+			'order'     => $order,
+			'orderby'   => $order_by,
+			'post_type' => $post_type,
+			'paged'     => $paged,
 		);
+
+		// Run global filter (affects all filter queries).
+		$args = apply_filters( 'bpfwe_ajax_query_args', $args, $this );
+
+		// Run specific filter (affects only one query instance).
+		if ( ! empty( $query_id ) ) {
+			$args = apply_filters( "bpfwe/filter_query_args/{$query_id}", $args, $this );
+		}
 
 		if ( true === $performance_settings['optimize_query'] ) {
 			$args['fields'] = 'ids';
@@ -337,47 +345,24 @@ class BPFWE_Ajax {
 		}
 
 		if ( $custom_field_output || $custom_field_like_output || $numeric_output ) {
-			$meta_query_and   = [];
-			$meta_query_or    = [];
-			$meta_like_and    = [];
-			$meta_like_or     = [];
-			$meta_numeric_and = [];
-			$meta_numeric_or  = [];
+			$meta_query_or   = [];
+			$meta_like_or    = [];
+			$meta_numeric_or = [];
 
 			// Add CUSTOM FIELD/ACF to query.
 			if ( ! empty( $custom_field_output ) && is_array( $custom_field_output ) ) {
 				foreach ( $custom_field_output as $value ) {
-					// Ensure terms is an array, and sanitize its values.
-					$terms             = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
-					$grouped_terms_and = [];
+					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] )
+						? array_map( 'sanitize_text_field', $value['terms'] )
+						: [ sanitize_text_field( $value['terms'] ) ];
 
-					foreach ( $terms as $term ) {
-						$query = [
-							'key'     => sanitize_key( $value['taxonomy'] ),
-							'value'   => $term,
-							'compare' => '=',
-						];
+					$key = sanitize_key( $value['taxonomy'] );
 
-						$row_logic = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
-
-						// If the logic is 'AND', group the terms together.
-						if ( 'AND' === $row_logic ) {
-							$grouped_terms_and[] = $query;
-						}
-					}
-
-					// Handle 'OR' logic using 'IN'.
-					if ( 'OR' === $row_logic ) {
-						$meta_query_or[] = [
-							'key'     => sanitize_key( $value['taxonomy'] ),
-							'value'   => $terms,
-							'compare' => 'IN',
-						];
-					}
-
-					if ( ! empty( $grouped_terms_and ) ) {
-						$meta_query_and[] = $grouped_terms_and;
-					}
+					$meta_query_or[] = [
+						'key'     => $key,
+						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
+						'compare' => count( $terms ) > 1 ? 'IN' : '=',
+					];
 				}
 			}
 
@@ -390,90 +375,48 @@ class BPFWE_Ajax {
 						'compare' => 'LIKE',
 					];
 
-					$row_logic = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
-
-					if ( 'AND' === $row_logic ) {
-						$meta_like_and[] = $query;
-					}
-
-					if ( 'OR' === $row_logic ) {
-						$meta_like_or[] = $query;
-					}
+					$meta_like_or[] = $query;
 				}
 			}
 
 			// Add NUMERIC value field to query.
 			if ( ! empty( $numeric_output ) && is_array( $numeric_output ) ) {
-				foreach ( $numeric_output as $key => $value ) {
-					$terms      = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
-					$term_count = count( $terms );
+				foreach ( $numeric_output as $value ) {
+					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_slice( array_map( 'sanitize_text_field', $value['terms'] ), 0, 2 ) : [ sanitize_text_field( $value['terms'] ) ];
 
-					if ( 1 === $term_count ) {
-						$query = [
-							'key'     => sanitize_key( $value['taxonomy'] ),
-							'value'   => sanitize_text_field( $terms[0] ),
-							'type'    => 'numeric',
-							'compare' => '>',
-						];
-					} else {
-						$query = [
-							'key'     => sanitize_key( $value['taxonomy'] ),
-							'value'   => array_map( 'sanitize_text_field', $terms ),
-							'type'    => 'numeric',
-							'compare' => 'BETWEEN',
-						];
-					}
+					$query = [
+						'key'     => sanitize_key( $value['taxonomy'] ),
+						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
+						'type'    => 'numeric',
+						'compare' => count( $terms ) > 1 ? 'BETWEEN' : '>=',
+					];
 
-					$row_logic = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
-
-					if ( 'AND' === $row_logic ) {
-						$meta_numeric_and[] = $query;
-					}
-
-					if ( 'OR' === $row_logic ) {
-						$meta_numeric_or[] = $query;
-					}
+					$meta_numeric_or[] = $query;
 				}
 			}
 
 			// Initialize meta_query if there are any AND/OR groups or LIKE conditions.
-			if ( ! empty( $meta_query_and ) || ! empty( $meta_query_or ) || ! empty( $meta_like_and ) || ! empty( $meta_like_or ) || ! empty( $meta_numeric_and ) || ! empty( $meta_numeric_or ) ) {
+			if ( ! empty( $meta_query_or ) || ! empty( $meta_like_or ) || ! empty( $meta_numeric_or ) ) {
 				$args['meta_query'] = [];
 
-				if ( ( count( $meta_query_and ) + count( $meta_query_or ) + count( $meta_like_and ) + count( $meta_like_or ) + count( $meta_numeric_and ) + count( $meta_numeric_or ) ) > 1 || $dynamic_filtering ) {
+				if ( ( count( $meta_query_or ) + count( $meta_like_or ) + count( $meta_numeric_or ) ) > 1 || $dynamic_filtering ) {
 					$args['meta_query']['relation'] = $group_logic;
-				}
-
-				foreach ( $meta_query_and as $group_and ) {
-					$args['meta_query'][] = array_merge( [ 'relation' => 'AND' ], $group_and );
 				}
 
 				foreach ( $meta_query_or as $group_or ) {
 					$args['meta_query'][] = $group_or;
 				}
 
-				if ( ! empty( $meta_like_and ) && count( $meta_like_and ) > 1 ) {
-					$args['meta_query'][] = array_merge( [ 'relation' => 'AND' ], $meta_like_and );
-				} elseif ( ! empty( $meta_like_and ) ) {
-					$args['meta_query'][] = $meta_like_and[0];
+				if ( ! empty( $meta_like_or ) ) {
+					foreach ( $meta_like_or as $like_query ) {
+						$args['meta_query'][] = $like_query;
+					}
 				}
 
-				if ( ! empty( $meta_like_or ) && count( $meta_like_or ) > 1 ) {
-					$args['meta_query'][] = array_merge( [ 'relation' => 'OR' ], $meta_like_or );
-				} elseif ( ! empty( $meta_like_or ) ) {
-					$args['meta_query'][] = $meta_like_or[0];
-				}
-
-				if ( ! empty( $meta_numeric_and ) && count( $meta_numeric_and ) > 1 ) {
-					$args['meta_query'][] = array_merge( [ 'relation' => 'AND' ], $meta_numeric_and );
-				} elseif ( ! empty( $meta_numeric_and ) ) {
-					$args['meta_query'][] = $meta_numeric_and[0];
-				}
-
-				if ( ! empty( $meta_numeric_or ) && count( $meta_numeric_or ) > 1 ) {
-					$args['meta_query'][] = array_merge( [ 'relation' => 'OR' ], $meta_numeric_or );
-				} elseif ( ! empty( $meta_numeric_or ) ) {
-					$args['meta_query'][] = $meta_numeric_or[0];
+				if ( ! empty( $meta_numeric_or ) ) {
+					foreach ( $meta_numeric_or as $numeric_query ) {
+						$args['meta_query'][] = $numeric_query;
+					}
 				}
 			}
 
@@ -547,8 +490,18 @@ class BPFWE_Ajax {
 		];
 
 		if ( 'yes' === $enable_query_debug ) {
-			$response['query'] = $args;
+			$response['query'] = wp_json_encode( $args, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		}
+
+		$response = preg_replace_callback(
+			'#(href=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '#',
+			function ( $matches ) {
+				return $matches[1] . untrailingslashit( home_url() );
+			},
+			$response
+		);
+
+		$response = preg_replace( '#/page/(\d+)/#', '?paged=$1', $response );
 
 		echo wp_json_encode( $response );
 
@@ -556,121 +509,24 @@ class BPFWE_Ajax {
 	}
 
 	/**
-	 * Handles AJAX requests to load page content and extract specified div elements.
+	 * Handles frontend AJAX requests for loading posts.
 	 *
-	 * This function verifies the request, fetches the specified page content,
-	 * extracts the required div elements based on the provided selectors,
-	 * and returns the content as a JSON response.
+	 * Verifies the AJAX action and nonce for security.
 	 *
-	 * @since 1.5.0
-	 *
-	 * @return void
+	 * @since 1.6.0
 	 */
-	public function bpfwe_handle_pagination_ajax() {
+	public function bpfwe_handle_frontend_ajax() {
+		if ( empty( $_POST['action'] ) || 'load_posts_ajax' !== $_POST['action'] ) {
+			return;
+		}
+
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 
+		// Verify the nonce.
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			wp_send_json_error( array( 'message' => 'Access Denied' ) );
+			status_header( 403 );
+			wp_die( 'Invalid or missing nonce', 'Forbidden', array( 'response' => 403 ) );
 		}
-
-		$page_id      = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
-		$widget_id    = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
-		$post_type    = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
-		$query_type   = ! empty( $_POST['query_type'] ) ? sanitize_text_field( wp_unslash( $_POST['query_type'] ) ) : 'custom';
-		$search_terms = ! empty( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '';
-		$base         = ! empty( $_POST['base'] ) ? sanitize_url( wp_unslash( $_POST['base'] ) ) : '';
-
-		if ( empty( $page_id ) || empty( $widget_id ) ) {
-			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
-		}
-
-		$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
-		$element_data = $document->get_elements_data();
-		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
-		$paged        = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
-
-		set_query_var( 'paged', $paged );
-		set_query_var( 'page', $paged );
-		set_query_var( 'page_num', $paged );
-
-		$args = apply_filters(
-			'bpfwe_ajax_query_args',
-			array(
-				'paged'     => $paged,
-				'post_type' => $post_type,
-			)
-		);
-
-		if ( ! empty( $search_terms ) ) {
-			$args['s'] = $search_terms;
-		}
-
-		if ( 'main' === $query_type ) {
-			$archive_type     = isset( $_POST['archive_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_type'] ) ) : '';
-			$archive_taxonomy = isset( $_POST['archive_taxonomy'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_taxonomy'] ) ) : '';
-			$archive_id       = isset( $_POST['archive_id'] ) ? absint( wp_unslash( $_POST['archive_id'] ) ) : 0;
-
-			// Add conditions based on the archive type.
-			switch ( $archive_type ) {
-				case 'author':
-					$args['author__in'] = array( $archive_id );
-					break;
-				case 'date':
-					break;
-				case 'category':
-				case 'taxonomy':
-					$args['tax_query'][] = array(
-						'taxonomy'         => $archive_taxonomy,
-						'field'            => 'id',
-						'terms'            => $archive_id,
-						'include_children' => true,
-					);
-					break;
-				case 'tag':
-					$args['tag__in'] = array( $archive_id );
-					break;
-				case 'post_type':
-					$args['post_type'] = isset( $_POST['archive_post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_post_type'] ) ) : 'any';
-					break;
-			}
-		}
-
-		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
-
-		$html = $document->render_element( $widget_data );
-
-		$parsed    = wp_parse_url( $base );
-		$has_query = '' !== isset( $parsed['query'] ) && $parsed['query'];
-
-		$html = preg_replace_callback(
-			'#(href=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '(\?[^"\']*)?#',
-			function ( $matches ) use ( $base, $has_query ) {
-				$replacement = $base;
-
-				if ( '' !== isset( $matches[2] ) && $matches[2] ) {
-					$query_part = ltrim( $matches[2], '?' );
-
-					if ( $has_query || strpos( $base, '?' ) !== false ) {
-						$replacement .= '&' . $query_part;
-					} else {
-						$replacement .= '?' . $query_part;
-					}
-				}
-
-				return $matches[1] . $replacement;
-			},
-			$html
-		);
-
-		echo wp_json_encode(
-			array(
-				'html' => $html,
-			)
-		);
-
-		delete_transient( 'bpfwe_filter_query' );
-
-		wp_die();
 	}
 
 	/**
@@ -756,12 +612,50 @@ class BPFWE_Ajax {
 	 * @return void
 	 */
 	public function pre_get_posts_filter( $query ) {
-		$filter_data = get_transient( 'bpfwe_filter_query' );
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return;
+		}
 
-		if ( $filter_data && ! $query->is_main_query() && ! ( is_admin() && ! wp_doing_ajax() ) ) {
-			foreach ( $filter_data as $key => $value ) {
-				$query->set( $key, $value );
-			}
+		$filter_data = get_transient( 'bpfwe_filter_query' );
+		if ( ! $filter_data ) {
+			return;
+		}
+
+		if ( empty( $query->query ) ) {
+			return;
+		}
+
+		$post_type = (array) $query->get( 'post_type' );
+
+		$exclude_post_types = array(
+			'attachment',
+			'revision',
+			'nav_menu_item',
+			'custom_css',
+			'customize_changeset',
+			'oembed_cache',
+			'user_request',
+			'wp_block',
+			'wp_template',
+			'wp_template_part',
+			'wp_navigation',
+			'acf-field-group',
+			'acf-field',
+			'elementor_library',
+			'elementor_font',
+			'shop_order',
+			'shop_coupon',
+			'shop_order_refund',
+			'et_pb_layout',
+		);
+
+		// If any post type in the query is in the exclusion list, bail.
+		if ( array_intersect( $post_type, $exclude_post_types ) ) {
+			return;
+		}
+
+		foreach ( $filter_data as $key => $value ) {
+			$query->set( $key, $value );
 		}
 	}
 
@@ -776,8 +670,6 @@ class BPFWE_Ajax {
 		add_action( 'init', [ $this, 'delete_filter_transient' ] );
 		add_action( 'admin_init', [ $this, 'delete_filter_transient' ] );
 
-		add_action( 'init', [ $this, 'register_pre_get_posts_filter' ], 20 );
-
 		add_action( 'wp_ajax_change_post_status', [ $this, 'change_post_status' ] );
 		add_action( 'wp_ajax_nopriv_change_post_status', [ $this, 'change_post_status' ] );
 
@@ -787,8 +679,7 @@ class BPFWE_Ajax {
 		add_action( 'wp_ajax_post_filter_results', [ $this, 'post_filter_results' ] );
 		add_action( 'wp_ajax_nopriv_post_filter_results', [ $this, 'post_filter_results' ] );
 
-		add_action( 'wp_ajax_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
-		add_action( 'wp_ajax_nopriv_bpfwe_handle_pagination_ajax', [ $this, 'bpfwe_handle_pagination_ajax' ] );
+		add_action( 'template_redirect', [ $this, 'bpfwe_handle_frontend_ajax' ] );
 
 		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
 		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );

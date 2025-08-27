@@ -463,4 +463,234 @@ class BPFWE_Helper {
 	public static function is_acf_field( $meta_key ) {
 		return function_exists( 'get_field_object' ) && get_field_object( $meta_key ) !== false;
 	}
+
+	/**
+	 * Format a meta value based on given format type and options.
+	 *
+	 * @param mixed  $value  The raw meta value.
+	 * @param string $format The format type ('none', 'date', 'number', 'text', 'custom_pattern').
+	 * @param array  $args   Optional. Additional formatting options depending on $format.
+	 *                       For 'date': ['date_format' => string]
+	 *                       For 'number': ['decimals' => int, 'suffix' => string]
+	 *                       For 'text': ['text_case' => string]
+	 *                       For 'custom_pattern': ['pattern' => string]
+	 * @return string Formatted value.
+	 */
+	public static function format_meta_value( $value, $format = 'none', $args = [] ) {
+		// Bail on non-scalar inputs.
+		if ( is_array( $value ) || is_object( $value ) ) {
+			return '';
+		}
+
+		switch ( $format ) {
+			case 'date':
+				$timestamp = false;
+				if ( is_numeric( $value ) ) {
+					// Handle ACF date stored as YYYYMMDD string (8 digits).
+					if ( preg_match( '/^\d{8}$/', $value ) ) {
+						$year      = substr( $value, 0, 4 );
+						$month     = substr( $value, 4, 2 );
+						$day       = substr( $value, 6, 2 );
+						$timestamp = strtotime( "$year-$month-$day" );
+					} else {
+						$timestamp = (int) $value;
+					}
+				} else {
+					$timestamp = strtotime( $value );
+				}
+
+				$date_format = ! empty( $args['date_format'] ) ? $args['date_format'] : get_option( 'date_format' );
+
+				if ( false !== $timestamp ) {
+					return date_i18n( $date_format, $timestamp );
+				}
+				return $value;
+
+			case 'number':
+				$decimals = isset( $args['decimals'] ) ? (int) $args['decimals'] : 0;
+				$suffix   = isset( $args['suffix'] ) ? $args['suffix'] : '';
+
+				$number    = floatval( $value );
+				$formatted = number_format_i18n( $number, $decimals );
+				return $formatted . ( '' !== $suffix ? ' ' . $suffix : '' );
+
+			case 'text':
+				$text_case = isset( $args['text_case'] ) ? $args['text_case'] : 'as_is';
+
+				switch ( $text_case ) {
+					case 'uppercase':
+						return strtoupper( $value );
+					case 'lowercase':
+						return strtolower( $value );
+					case 'capitalize':
+						return ucwords( strtolower( $value ) );
+					case 'as_is':
+					default:
+						return $value;
+				}
+
+			case 'custom_pattern':
+				$pattern = isset( $args['pattern'] ) ? $args['pattern'] : '{value}';
+				return str_replace( '#VALUE#', $value, $pattern );
+
+			case 'none':
+			default:
+				return $value;
+		}
+	}
+
+	/**
+	 * Prepare all HTML attributes for a post widget: wrapper, inner wrapper, and post.
+	 *
+	 * @param string                 $query_id  Unique query ID for the widget.
+	 * @param \Elementor\Widget_Base $widget    The widget instance.
+	 * @param array                  $defaults  Optional default attributes to merge.
+	 *
+	 * @return array {
+	 *     @type array $wrapper       Outer wrapper attributes ['class' => '', 'attributes' => '']
+	 *     @type array $wrapper_inner Inner wrapper attributes ['class' => '', 'attributes' => '']
+	 *     @type array $post          Post container attributes ['class' => '', 'attributes' => '']
+	 * }
+	 */
+	public static function bpfwe_prepare_post_widget_attributes( $query_id, $widget, $defaults = array() ) {
+		if ( empty( $query_id ) || ! is_string( $query_id ) ) {
+			$query_id = 'default';
+		}
+		if ( ! $widget instanceof \Elementor\Widget_Base ) {
+			return [
+				'wrapper'       => [
+					'class'      => '',
+					'attributes' => '',
+				],
+				'wrapper_inner' => [
+					'class'      => '',
+					'attributes' => '',
+				],
+				'post'          => [
+					'class'      => '',
+					'attributes' => '',
+				],
+			];
+		}
+		$defaults = is_array( $defaults ) ? $defaults : [];
+
+		// Prepare attributes for each component.
+		$attributes = [
+			'wrapper'       => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_attr/{$query_id}", $widget, 'wrapper', $defaults ),
+			'wrapper_inner' => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper', $defaults ),
+			'post'          => self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'wrapper', $defaults ),
+		];
+
+		// Ensure each component has valid attributes.
+		foreach ( $attributes as $key => $attr ) {
+			if ( ! isset( $attr['class'] ) || ! isset( $attr['attributes'] ) ) {
+				$attributes[ $key ] = [
+					'class'      => '',
+					'attributes' => '',
+				];
+			}
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Prepare HTML attributes for wrapper or post containers.
+	 *
+	 * @param string                 $filter_name The filter hook name (e.g. 'bpfwe/post_wrapper_attr/query_id').
+	 * @param \Elementor\Widget_Base $widget The widget instance.
+	 * @param string                 $context Optional. Context string passed to filter (e.g. 'wrapper' or 'post').
+	 * @param array                  $defaults Optional. Default attributes to start with.
+	 *
+	 * @return array {
+	 *     @type string $class       Final class attribute string.
+	 *     @type string $attributes  Final key/value attribute string (escaped).
+	 * }
+	 */
+	public static function bpfwe_prepare_attributes( $filter_name, $widget, $context = '', $defaults = array() ) {
+		if ( empty( $filter_name ) || ! is_string( $filter_name ) ) {
+			return [
+				'class'      => '',
+				'attributes' => '',
+			];
+		}
+		if ( ! $widget instanceof \Elementor\Widget_Base ) {
+			return [
+				'class'      => '',
+				'attributes' => '',
+			];
+		}
+		$defaults = is_array( $defaults ) ? $defaults : [];
+
+		$defaults = wp_parse_args(
+			$defaults,
+			array(
+				'class' => array(),
+			)
+		);
+
+		// Pass structured attributes to filter.
+		$attributes = apply_filters(
+			$filter_name,
+			$defaults,
+			$widget,
+			$context
+		);
+
+		// Merge classes into a string.
+		$class_attr = '';
+		if ( ! empty( $attributes['class'] ) ) {
+			$class_array = (array) $attributes['class'];
+			$class_attr  = esc_attr( implode( ' ', array_filter( $class_array ) ) );
+		}
+
+		// Build other attributes.
+		$other_attrs = '';
+		foreach ( $attributes as $key => $value ) {
+			if ( 'class' === $key || '' === $value ) {
+				continue;
+			}
+			if ( is_array( $value ) ) {
+				$value = implode( ' ', array_filter( $value ) );
+			}
+			$other_attrs .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+		}
+
+		return array(
+			'class'      => $class_attr,
+			'attributes' => $other_attrs,
+		);
+	}
+
+	/**
+	 * Get terms with query ID support and filter injection.
+	 *
+	 * @param array                  $args      Arguments to pass to get_terms().
+	 * @param string                 $query_id  Unique query ID to scope the filter.
+	 * @param \Elementor\Widget_Base $widget   The widget instance or context object.
+	 *
+	 * @return WP_Term[]|int[]|WP_Error Array of terms, term IDs, or WP_Error if invalid.
+	 */
+	public static function bpfwe_get_terms( $args, $query_id = '', $widget = null ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'fields'            => 'all',
+				'hide_empty'        => true,
+				'update_meta_cache' => false,
+			)
+		);
+
+		if ( ! empty( $query_id ) ) {
+			$args['bpfwe_query_id'] = sanitize_key( $query_id );
+
+			$args = apply_filters(
+				"bpfwe/get_terms_args/{$args['bpfwe_query_id']}",
+				$args,
+				$widget
+			);
+		}
+
+		return get_terms( $args );
+	}
 }
