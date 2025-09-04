@@ -723,7 +723,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			'swatch_notice',
 			[
 				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => esc_html__( 'Add swatches under Taxonomy > Terms to display them', 'better-post-filter-widgets-for-elementor' ),
+				'raw'             => esc_html__( 'To use this option first assign swatches in your Taxonomy > Terms.', 'better-post-filter-widgets-for-elementor' ),
 				'content_classes' => 'elementor-descriptor',
 				'condition'       => [
 					'display_swatch' => 'yes',
@@ -895,7 +895,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
 				'condition'    => [
-					'select_filter' => 'Taxonomy',
+					'select_filter' => [ 'Taxonomy', 'Custom Field' ],
 				],
 			]
 		);
@@ -3395,16 +3395,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					// Bypass transient for users with editing capabilities.
 					if ( false === $hiterms || current_user_can( 'edit_posts' ) ) {
 						$args = [
-							'taxonomy'          => $item['filter_by'],
-							'order'             => $item['order'],
+							'taxonomy'          => sanitize_key( $item['filter_by'] ),
+							'order'             => in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC',
 							'hide_empty'        => $display_empty,
 							'parent'            => 'yes' === $item['show_hierarchy'] ? 0 : null,
 							'fields'            => 'all',
 							'update_meta_cache' => false,
 						];
 
-						if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+						$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+						if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 							$args['orderby'] = $item['sort_terms'];
+						} else {
+							$args['orderby'] = '';
 						}
 
 						$hiterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -3503,7 +3506,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
 									$args = array(
-										'taxonomy'   => $item['filter_by'],
+										'taxonomy'   => sanitize_key( $item['filter_by'] ),
 										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
@@ -3511,8 +3514,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 
-									if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
+									} else {
+										$args['orderby'] = '';
 									}
 
 									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -3597,7 +3603,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
 											$args = array(
-												'taxonomy' => $item['filter_by'],
+												'taxonomy' => sanitize_key( $item['filter_by'] ),
 												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
@@ -3605,8 +3611,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'update_meta_cache' => false,
 											);
 
-											if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+											if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 												$args['orderby'] = $item['sort_terms'];
+											} else {
+												$args['orderby'] = '';
 											}
 
 											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -3769,7 +3778,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
 									$args = array(
-										'taxonomy'   => $item['filter_by'],
+										'taxonomy'   => sanitize_key( $item['filter_by'] ),
 										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
@@ -3777,8 +3786,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 
-									if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
+									} else {
+										$args['orderby'] = '';
 									}
 
 									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -3863,7 +3875,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
 											$args = array(
-												'taxonomy' => $item['filter_by'],
+												'taxonomy' => sanitize_key( $item['filter_by'] ),
 												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
@@ -3871,8 +3883,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'update_meta_cache' => false,
 											);
 
-											if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+											if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 												$args['orderby'] = $item['sort_terms'];
+											} else {
+												$args['orderby'] = '';
 											}
 
 											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -4043,16 +4058,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . esc_html( $prefix . $term->name ) . esc_html( $show_counter ) . '</option>';
 
 								$args = array(
-									'taxonomy'          => $item['filter_by'],
-									'order'             => $item['order'],
+									'taxonomy'          => sanitize_key( $item['filter_by'] ),
+									'order'             => in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC',
 									'parent'            => $term->term_id,
 									'hide_empty'        => $display_empty,
 									'fields'            => 'all',
 									'update_meta_cache' => false,
 								);
 
-								if ( ! empty( $item['sort_terms'] ) && '' !== $item['sort_terms'] ) {
+								$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+								if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 									$args['orderby'] = $item['sort_terms'];
+								} else {
+									$args['orderby'] = '';
 								}
 
 								$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -4095,83 +4113,183 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						';
 					}
 
-					if ( $item['meta_key'] ) {
-						// Check if transient exists.
-						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'];
-						$terms                    = get_transient( $meta_terms_transient_key );
+					if ( ! empty( $item['meta_key'] ) ) {
+						global $wpdb;
+						if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
+							if ( current_user_can( 'activate_plugins' ) ) {
+								echo esc_html__( 'Better Post Filter Widgets for Elementor requires WordPress 6.2 or later. Please update WordPress.', 'better-post-filter-widgets-for-elementor' );
+							}
+							return;
+						}
 
-						// Bypass transient for users with editing capabilities.
+						$meta_key  = sanitize_key( $item['meta_key'] );
+						$post_type = sanitize_key( $settings['filter_post_type'] );
+
+						// Build cache key (includes context).
+						$queried_object = ! empty( $settings['dynamic_filtering'] ) ? get_queried_object() : null;
+						$cache_key_bits = array( 'mk:' . $meta_key, 'pt:' . $post_type );
+
+						if ( $queried_object instanceof WP_User ) {
+							$cache_key_bits[] = 'au:' . (int) $queried_object->ID;
+						} elseif ( $queried_object instanceof WP_Term ) {
+							$cache_key_bits[] = 'tx:' . sanitize_key( $queried_object->taxonomy ) . ':' . (int) $queried_object->term_id;
+						} elseif ( $queried_object instanceof WP_Post_Type ) {
+							$cache_key_bits[] = 'ptx:' . $queried_object->name;
+						} elseif ( $queried_object instanceof WP_Date_Query ) {
+							$cache_key_bits[] = 'date:' . md5( wp_json_encode( $queried_object ) );
+						} else {
+							$cache_key_bits[] = 'ctx:none';
+						}
+
+						$cache_key   = 'bpfwe_meta_terms_' . md5( implode( '|', $cache_key_bits ) );
+						$cache_group = 'bpfwe';
+						$terms       = false;
+
+						// First check object cache.
+						if ( ! current_user_can( 'edit_posts' ) ) {
+							$cached = wp_cache_get( $cache_key, $cache_group );
+							if ( false !== $cached ) {
+								$terms = $cached;
+							}
+						}
+
+						// Fallback: check transient for backward compatibility.
+						if ( false === $terms ) {
+							$meta_terms_transient_key = 'filter_widget_meta_terms_' . $meta_key;
+							$terms                    = get_transient( $meta_terms_transient_key );
+						}
+
+						// If cache miss or user can edit, query DB.
 						if ( false === $terms || current_user_can( 'edit_posts' ) ) {
-							$all_posts_args = array(
-								'posts_per_page'         => -1,
-								'post_type'              => $settings['filter_post_type'],
-								'no_found_rows'          => true,
-								'fields'                 => 'ids',
-								'meta_key'               => $item['meta_key'],
-								'update_post_meta_cache' => false,
-								'update_post_term_cache' => false,
-							);
 
-							if ( $settings['dynamic_filtering'] ) {
-								$queried_object = get_queried_object();
-								$archive_type   = '';
+							// Taxonomy context.
+							if ( $queried_object instanceof WP_Term ) {
+								$results = $wpdb->get_results(
+									$wpdb->prepare(
+										'
+										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										INNER JOIN %i tr ON p.ID = tr.object_id
+										INNER JOIN %i tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										  AND tt.taxonomy = %s
+										  AND tt.term_id = %d
+										GROUP BY pm.meta_value
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$wpdb->term_relationships,
+										$wpdb->term_taxonomy,
+										$post_type,
+										'publish',
+										$meta_key,
+										'',
+										$queried_object->taxonomy,
+										(int) $queried_object->term_id
+									),
+									ARRAY_A
+								);
 
-								if ( $queried_object instanceof WP_User ) {
-									$archive_type = 'author';
-								} elseif ( $queried_object instanceof WP_Date_Query ) {
-									$archive_type = 'date';
-								} elseif ( $queried_object instanceof WP_Term ) {
-									$archive_type = 'taxonomy';
-								} elseif ( $queried_object instanceof WP_Post_Type ) {
-									$archive_type = 'post_type';
-								}
+								// Author context.
+							} elseif ( $queried_object instanceof WP_User ) {
+								$results = $wpdb->get_results(
+									$wpdb->prepare(
+										'
+										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										  AND p.post_author = %d
+										GROUP BY pm.meta_value
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$post_type,
+										'publish',
+										$meta_key,
+										'',
+										(int) $queried_object->ID
+									),
+									ARRAY_A
+								);
 
-								// Modify the query for author archive.
-								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
-									$all_posts_args['author'] = $queried_object->ID;
-								}
+								// Post type context.
+							} elseif ( $queried_object instanceof WP_Post_Type ) {
+								$results = $wpdb->get_results(
+									$wpdb->prepare(
+										'
+										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										GROUP BY pm.meta_value
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$queried_object->name,
+										'publish',
+										$meta_key,
+										''
+									),
+									ARRAY_A
+								);
 
-								// Modify the query for taxonomy archive.
-								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
-									$all_posts_args['tax_query'] = array(
-										array(
-											'taxonomy' => $queried_object->taxonomy,
-											'field'    => 'term_id',
-											'terms'    => $queried_object->term_id,
-										),
-									);
-								}
+								// Default (no special context).
+							} else {
+								$results = $wpdb->get_results(
+									$wpdb->prepare(
+										'
+										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										GROUP BY pm.meta_value
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$post_type,
+										'publish',
+										$meta_key,
+										''
+									),
+									ARRAY_A
+								);
 							}
 
-							$all_posts = new WP_Query( $all_posts_args );
-
-							if ( $all_posts->have_posts() ) {
-								$terms_data = array();
-
-								while ( $all_posts->have_posts() ) {
-									$all_posts->the_post();
-									$term = get_post_meta( get_the_ID(), $item['meta_key'], true );
-									if ( is_scalar( $term ) && '' !== $term ) {
-										$terms_data[ $term ] = true;
-									}
+							// Build term data.
+							$terms_data = array();
+							if ( ! empty( $results ) ) {
+								foreach ( $results as $row ) {
+									$terms_data[ $row['term'] ] = (int) $row['total'];
 								}
-
-								$terms_data = array_keys( $terms_data );
 
 								if ( 'DESC' === strtoupper( $item['order'] ) ) {
-									rsort( $terms_data );
+									arsort( $terms_data );
 								} else {
-									sort( $terms_data );
+									asort( $terms_data );
 								}
-
-								wp_reset_postdata();
-
-								if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
-									set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
-								}
-
-								$terms = $terms_data;
 							}
+
+							// Cache for non-editors.
+							if ( ! current_user_can( 'edit_posts' ) ) {
+								wp_cache_set( $cache_key, $terms_data, $cache_group, $transient_duration );
+								set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
+							}
+
+							$terms = $terms_data;
 						}
 					}
 
@@ -4198,7 +4316,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							';
 						}
 
-						foreach ( $terms as $result ) {
+						foreach ( $terms as $term_value => $count ) {
 							$format_type = $item['format_type'] ?? 'none';
 
 							$args = [];
@@ -4214,22 +4332,25 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$args['pattern'] = $item['custom_pattern'] ?? '{value}';
 							}
 
-							$formatted_value = BPFWE_Helper::format_meta_value( $result, $format_type, $args );
+							$formatted_value = BPFWE_Helper::format_meta_value( $term_value, $format_type, $args );
+
+							if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] ) {
+								$formatted_value .= ' (' . intval( $count ) . ')';
+							}
 
 							$toggleable_class = ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? 'toggleable' : '';
-							$show_counter     = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
 
 							echo '
 							<li class="' . esc_attr( $toggleable_class ) . '">
-								<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
-									<input type="checkbox" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . esc_html( $show_counter ) . '" />
+								<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
+									<input type="checkbox" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
 									<span class="label-text">' . esc_html( $formatted_value ) . '</span>
 								</label>
-							</li>
-							';
+							</li>';
 
 							++$term_index;
 						}
+
 						echo ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? '<li class="more"><span class="label-more">' . esc_html__( 'More...', 'better-post-filter-widgets-for-elementor' ) . '</span><span class="label-less">' . esc_html__( 'Less...', 'better-post-filter-widgets-for-elementor' ) . '</span></li>' : '';
 						echo '
 						</ul>
@@ -4246,21 +4367,42 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
-						foreach ( $terms as $result ) {
+
+						foreach ( $terms as $term_value => $count ) {
+							$format_type = $item['format_type'] ?? 'none';
+
+							$args = [];
+
+							if ( 'date' === $format_type ) {
+								$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+							} elseif ( 'number' === $format_type ) {
+								$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+								$args['suffix']   = $item['number_suffix'] ?? '';
+							} elseif ( 'text' === $format_type ) {
+								$args['text_case'] = $item['text_case'] ?? 'as_is';
+							} elseif ( 'custom_pattern' === $format_type ) {
+								$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+							}
+
+							$formatted_value = BPFWE_Helper::format_meta_value( $term_value, $format_type, $args );
+
+							if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] ) {
+								$formatted_value .= ' (' . intval( $count ) . ')';
+							}
+
 							$toggleable_class = ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? 'toggleable' : '';
-							$show_counter     = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
 
 							echo '
 							<li class="' . esc_attr( $toggleable_class ) . '">
-								<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
-									<input type="radio" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . esc_html( $show_counter ) . '" />
-									<span class="label-text">' . esc_html( $result ) . '</span>
+								<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
+									<input type="radio" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
+									<span class="label-text">' . esc_html( $formatted_value ) . '</span>
 								</label>
-							</li>
-							';
+							</li>';
 
 							++$term_index;
 						}
+
 						echo ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? '<li class="more"><span class="label-more">' . esc_html__( 'More...', 'better-post-filter-widgets-for-elementor' ) . '</span><span class="label-less">' . esc_html__( 'Less...', 'better-post-filter-widgets-for-elementor' ) . '</span></li>' : '';
 						echo '
 						</ul>
@@ -4287,26 +4429,44 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										<span><span class="label-text">' . esc_html( $select_all_label ) . '</span></span>
 									</span>
 								</label>
-							</li>
-							';
+							</li>';
 						}
 
-						foreach ( $terms as $result ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
+						foreach ( $terms as $term_value => $count ) {
+							$format_type = $item['format_type'] ?? 'none';
+
+							$args = [];
+
+							if ( 'date' === $format_type ) {
+								$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+							} elseif ( 'number' === $format_type ) {
+								$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+								$args['suffix']   = $item['number_suffix'] ?? '';
+							} elseif ( 'text' === $format_type ) {
+								$args['text_case'] = $item['text_case'] ?? 'as_is';
+							} elseif ( 'custom_pattern' === $format_type ) {
+								$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+							}
+
+							$formatted_value = BPFWE_Helper::format_meta_value( $term_value, $format_type, $args );
+
+							if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] ) {
+								$formatted_value .= ' (' . intval( $count ) . ')';
+							}
+
 							echo '
 							<li class="list-style">
-									<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
-									<input type="checkbox" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . esc_html( $show_counter ) . '" />
-									<span>' . esc_html( $result ) . '</span>
+								<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
+									<input type="checkbox" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
+									<span>' . esc_html( $formatted_value ) . '</span>
 								</label>
-							</li>
-							';
+							</li>';
 						}
+
 						echo '
 						</ul>
 						</div>
-						</div>
-						';
+						</div>';
 					}
 
 					if ( 'dropdown' === $item['filter_style'] || 'select2' === $item['filter_style'] || 'dropdown' === $item['filter_style_cf'] || 'select2' === $item['filter_style_cf'] ) {
@@ -4331,15 +4491,36 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-custom-field-wrapper ' . esc_attr( $select2_class ) . '" data-logic="OR">
 						<select id="' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
-						foreach ( $terms as $result ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $result->count ) . ')' : '';
-							echo '<option data-category="' . esc_attr( $result ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . '">' . esc_html( $result ) . esc_html( $show_counter ) . '</option>';
+
+						foreach ( $terms as $term_value => $count ) {
+							$format_type = $item['format_type'] ?? 'none';
+
+							$args = [];
+
+							if ( 'date' === $format_type ) {
+								$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+							} elseif ( 'number' === $format_type ) {
+								$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+								$args['suffix']   = $item['number_suffix'] ?? '';
+							} elseif ( 'text' === $format_type ) {
+								$args['text_case'] = $item['text_case'] ?? 'as_is';
+							} elseif ( 'custom_pattern' === $format_type ) {
+								$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+							}
+
+							$formatted_value = BPFWE_Helper::format_meta_value( $term_value, $format_type, $args );
+
+							if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] ) {
+								$formatted_value .= ' (' . intval( $count ) . ')';
+							}
+
+							echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '">' . esc_html( $formatted_value ) . '</option>';
 						}
+
 						echo '
 						</select>
 						</div>
-						</div>
-						';
+						</div>';
 					}
 				}
 
@@ -4348,76 +4529,157 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'];
-						$all_posts_transient   = get_transient( $numeric_transient_key );
-
-						// Bypass transient for users with editing capabilities or if transient doesn't exist.
-						if ( false === $all_posts_transient || current_user_can( 'edit_posts' ) ) {
-							$all_posts_args = array(
-								'posts_per_page'         => -1,
-								'post_type'              => $settings['filter_post_type'],
-								'fields'                 => 'ids',
-								'no_found_rows'          => true,
-								'update_post_meta_cache' => false,
-								'update_post_term_cache' => false,
-							);
-
-							if ( $settings['dynamic_filtering'] ) {
-								$queried_object = get_queried_object();
-								$archive_type   = '';
-
-								if ( $queried_object instanceof WP_User ) {
-									$archive_type = 'author';
-								} elseif ( $queried_object instanceof WP_Date_Query ) {
-									$archive_type = 'date';
-								} elseif ( $queried_object instanceof WP_Term ) {
-									$archive_type = 'taxonomy';
-								} elseif ( $queried_object instanceof WP_Post_Type ) {
-									$archive_type = 'post_type';
-								}
-
-								// Modify the query for author archive.
-								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
-									$all_posts_args['author'] = $queried_object->ID;
-								}
-
-								// Modify the query for taxonomy archive.
-								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
-									$all_posts_args['tax_query'] = array(
-										array(
-											'taxonomy' => $queried_object->taxonomy,
-											'field'    => 'term_id',
-											'terms'    => $queried_object->term_id,
-										),
-									);
-								}
+						global $wpdb;
+						if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
+							if ( current_user_can( 'activate_plugins' ) ) {
+								echo esc_html__( 'Better Post Filter Widgets for Elementor requires WordPress 6.2 or later. Please update WordPress.', 'better-post-filter-widgets-for-elementor' );
 							}
+							return;
+						}
 
-							$all_posts_query = new WP_Query( $all_posts_args );
+						$meta_key  = sanitize_key( $item['meta_key'] );
+						$post_type = sanitize_key( $settings['filter_post_type'] );
 
-							$all_posts_transient = $all_posts_query->posts;
+						// Build cache key.
+						$queried_object = ! empty( $settings['dynamic_filtering'] ) ? get_queried_object() : null;
+						$cache_key_bits = array( 'num:' . $meta_key, 'pt:' . $post_type );
 
-							if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
-								set_transient( $numeric_transient_key, $all_posts_transient, $transient_duration );
+						if ( $queried_object instanceof WP_User ) {
+							$cache_key_bits[] = 'au:' . (int) $queried_object->ID;
+						} elseif ( $queried_object instanceof WP_Term ) {
+							$cache_key_bits[] = 'tx:' . sanitize_key( $queried_object->taxonomy ) . ':' . (int) $queried_object->term_id;
+						} elseif ( $queried_object instanceof WP_Post_Type ) {
+							$cache_key_bits[] = 'ptx:' . $queried_object->name;
+						} elseif ( $queried_object instanceof WP_Date_Query ) {
+							$cache_key_bits[] = 'date:' . md5( wp_json_encode( $queried_object ) );
+						} else {
+							$cache_key_bits[] = 'ctx:none';
+						}
+
+						$numeric_cache_key = 'bpfwe_numeric_' . md5( implode( '|', $cache_key_bits ) );
+						$terms             = false;
+
+						if ( ! current_user_can( 'edit_posts' ) ) {
+							$cached = wp_cache_get( $numeric_cache_key, 'bpfwe' );
+							if ( false !== $cached ) {
+								$terms = $cached;
 							}
 						}
 
-						$terms = array(); // Initialize $terms array.
+						if ( false === $terms ) {
+							$terms = get_transient( 'filter_widget_numeric_' . $meta_key );
+						}
 
-						foreach ( $all_posts_transient as $post_id ) {
-							$term_values = get_post_custom_values( $item['meta_key'], $post_id );
+						if ( false === $terms || current_user_can( 'edit_posts' ) ) {
+							$results = array();
 
-							if ( ! empty( $term_values ) ) {
-								foreach ( $term_values as $term ) {
-									if ( is_scalar( $term ) ) {
-										$terms[ $term ] = true;
-									}
-								}
+							// Taxonomy context.
+							if ( $queried_object instanceof WP_Term ) {
+								$results = $wpdb->get_col(
+									$wpdb->prepare(
+										'
+										SELECT DISTINCT pm.meta_value AS term
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										INNER JOIN %i tr ON p.ID = tr.object_id
+										INNER JOIN %i tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										  AND tt.taxonomy = %s
+										  AND tt.term_id = %d
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$wpdb->term_relationships,
+										$wpdb->term_taxonomy,
+										$post_type,
+										'publish',
+										$meta_key,
+										'',
+										$queried_object->taxonomy,
+										(int) $queried_object->term_id
+									)
+								);
+
+								// Author context.
+							} elseif ( $queried_object instanceof WP_User ) {
+								$results = $wpdb->get_col(
+									$wpdb->prepare(
+										'
+										SELECT DISTINCT pm.meta_value AS term
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										  AND p.post_author = %d
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$post_type,
+										'publish',
+										$meta_key,
+										'',
+										(int) $queried_object->ID
+									)
+								);
+
+								// Post type context.
+							} elseif ( $queried_object instanceof WP_Post_Type ) {
+								$results = $wpdb->get_col(
+									$wpdb->prepare(
+										'
+										SELECT DISTINCT pm.meta_value AS term
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$queried_object->name,
+										'publish',
+										$meta_key,
+										''
+									)
+								);
+
+								// Default context.
+							} else {
+								$results = $wpdb->get_col(
+									$wpdb->prepare(
+										'
+										SELECT DISTINCT pm.meta_value AS term
+										FROM %i p
+										INNER JOIN %i pm ON p.ID = pm.post_id
+										WHERE p.post_type = %s
+										  AND p.post_status = %s
+										  AND pm.meta_key = %s
+										  AND pm.meta_value <> %s
+										',
+										$wpdb->posts,
+										$wpdb->postmeta,
+										$post_type,
+										'publish',
+										$meta_key,
+										''
+									)
+								);
+							}
+
+							$terms = array_map( 'trim', $results );
+
+							if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+								wp_cache_set( $numeric_cache_key, $terms, 'bpfwe', $transient_duration );
+								set_transient( 'filter_widget_numeric_' . $meta_key, $terms, $transient_duration );
 							}
 						}
 					}
-
-					$terms = array_keys( $terms );
 
 					if ( 'range' === $item['filter_style_numeric'] ) {
 						if ( empty( $terms ) || ! is_array( $terms ) ) {
@@ -4430,9 +4692,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 						echo '
 						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle']
-								? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>'
-								: '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
+							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
 							);
 
 						if ( ! empty( $item['visual_range'] ) && 'yes' === $item['visual_range'] ) {

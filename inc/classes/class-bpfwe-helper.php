@@ -119,7 +119,7 @@ class BPFWE_Helper {
 
 			if ( ! empty( $wpcf7_form_list ) && ! is_wp_error( $wpcf7_form_list ) ) {
 				foreach ( $wpcf7_form_list as $post ) {
-					$options[ $post->ID ] = $post->post_title;
+					$options[ $post->ID ] = esc_html( $post->post_title );
 				}
 			} else {
 				$options[0] = esc_html__( 'Create a Form First', 'better-post-filter-widgets-for-elementor' );
@@ -149,7 +149,7 @@ class BPFWE_Helper {
 
 		if ( ! empty( $list ) && ! is_wp_error( $list ) ) {
 			foreach ( $list as $post_id ) {
-				$options[ $post_id ] = get_the_title( $post_id );
+				$options[ $post_id ] = esc_html( get_the_title( $post_id ) );
 			}
 		}
 
@@ -531,7 +531,7 @@ class BPFWE_Helper {
 
 			case 'custom_pattern':
 				$pattern = isset( $args['pattern'] ) ? $args['pattern'] : '{value}';
-				return str_replace( '#VALUE#', $value, $pattern );
+				return str_replace( '#VALUE#', esc_html( $value ), $pattern );
 
 			case 'none':
 			default:

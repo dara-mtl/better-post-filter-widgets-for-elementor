@@ -20,7 +20,7 @@ function bpfwe_categories( $elements_manager ) {
 	$elements_manager->add_category(
 		'better-post-and-filter-widgets',
 		[
-			'title' => __( 'BPFWE Widgets', 'better-post-filter-widgets-for-elementor' ),
+			'title' => esc_html__( 'BPFWE Widgets', 'better-post-filter-widgets-for-elementor' ),
 		]
 	);
 }

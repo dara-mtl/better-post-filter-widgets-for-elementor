@@ -3342,77 +3342,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
-		$this->add_control(
-			'banner_horizontal_position',
-			[
-				'label'                => esc_html__( 'Content Horizontal Position', 'better-post-filter-widgets-for-elementor' ),
-				'type'                 => \Elementor\Controls_Manager::CHOOSE,
-				'options'              => [
-					'left'    => [
-						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-h-align-left',
-					],
-					'center'  => [
-						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-h-align-center',
-					],
-					'right'   => [
-						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-h-align-right',
-					],
-					'stretch' => [
-						'title' => esc_html__( 'Space Evenly', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-h-align-stretch',
-					],
-				],
-				'selectors'            => [
-					'{{WRAPPER}} .inner-content' => '{{VALUE}}',
-				],
-				'selectors_dictionary' => [
-					'left'    => 'align-items: flex-start; text-align: left;',
-					'center'  => 'align-items: center; text-align: center;',
-					'right'   => 'align-items: flex-end; text-align: right;',
-					'stretch' => 'align-items: stretch; text-align: justify;',
-				],
-				'separator'            => 'before',
-			]
-		);
-
-		$this->add_control(
-			'banner_vertical_position',
-			[
-				'label'                => esc_html__( 'Content Vertical Position', 'better-post-filter-widgets-for-elementor' ),
-				'type'                 => \Elementor\Controls_Manager::CHOOSE,
-				'options'              => [
-					'top'     => [
-						'title' => esc_html__( 'Top', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-v-align-top',
-					],
-					'middle'  => [
-						'title' => esc_html__( 'Middle', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-v-align-middle',
-					],
-					'bottom'  => [
-						'title' => esc_html__( 'Bottom', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-v-align-bottom',
-					],
-					'stretch' => [
-						'title' => esc_html__( 'Stretch', 'better-post-filter-widgets-for-elementor' ),
-						'icon'  => 'eicon-v-align-stretch',
-					],
-				],
-				'selectors'            => [
-					'{{WRAPPER}} .inner-content' => 'justify-content: {{VALUE}}',
-				],
-				'selectors_dictionary' => [
-					'top'     => 'flex-start',
-					'middle'  => 'center',
-					'bottom'  => 'flex-end',
-					'stretch' => 'space-between',
-				],
-			]
-		);
-
 		$this->start_controls_tabs( 'style_tabs_layout' );
 
 		$this->start_controls_tab(
@@ -3617,6 +3546,77 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				],
 				'selectors'  => [
 					'{{WRAPPER}} .post-wrapper' => 'max-height: {{SIZE}}{{UNIT}}',
+				],
+			]
+		);
+
+		$this->add_control(
+			'banner_horizontal_position',
+			[
+				'label'                => esc_html__( 'Content Horizontal Position', 'better-post-filter-widgets-for-elementor' ),
+				'type'                 => \Elementor\Controls_Manager::CHOOSE,
+				'options'              => [
+					'left'    => [
+						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-left',
+					],
+					'center'  => [
+						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-center',
+					],
+					'right'   => [
+						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-right',
+					],
+					'stretch' => [
+						'title' => esc_html__( 'Space Evenly', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-align-stretch-h',
+					],
+				],
+				'selectors'            => [
+					'{{WRAPPER}} .inner-content' => '{{VALUE}}',
+				],
+				'selectors_dictionary' => [
+					'left'    => 'align-items: flex-start; text-align: left;',
+					'center'  => 'align-items: center; text-align: center;',
+					'right'   => 'align-items: flex-end; text-align: right;',
+					'stretch' => 'align-items: stretch; text-align: justify;',
+				],
+				'separator'            => 'before',
+			]
+		);
+
+		$this->add_control(
+			'banner_vertical_position',
+			[
+				'label'                => esc_html__( 'Content Vertical Position', 'better-post-filter-widgets-for-elementor' ),
+				'type'                 => \Elementor\Controls_Manager::CHOOSE,
+				'options'              => [
+					'top'     => [
+						'title' => esc_html__( 'Top', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-v-align-top',
+					],
+					'middle'  => [
+						'title' => esc_html__( 'Middle', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-v-align-middle',
+					],
+					'bottom'  => [
+						'title' => esc_html__( 'Bottom', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-v-align-bottom',
+					],
+					'stretch' => [
+						'title' => esc_html__( 'Stretch', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-align-stretch-v',
+					],
+				],
+				'selectors'            => [
+					'{{WRAPPER}} .inner-content' => 'justify-content: {{VALUE}}',
+				],
+				'selectors_dictionary' => [
+					'top'     => 'flex-start',
+					'middle'  => 'center',
+					'bottom'  => 'flex-end',
+					'stretch' => 'space-between',
 				],
 			]
 		);

@@ -127,7 +127,7 @@ class BPFWE_Taxonomy_Swatches {
 
 		if ( $is_edit ) :
 			?>
-			<tr class="form-field bpfwe-group-separator-wrap" style="<?php echo 'none' === $swatches_type ? 'display: none;' : ''; ?>">
+			<tr class="form-field bpfwe-group-separator-wrap" style="<?php echo esc_attr( 'none' === $swatches_type ? 'display: none;' : '' ); ?>">
 				<th scope="row"><label for="bpfwe_swatches_group_text"><?php esc_html_e( 'Group Separator Text (Optional)', 'better-post-filter-widgets-for-elementor' ); ?></label></th>
 				<td>
 					<input type="text" name="bpfwe_swatches_group_text" id="bpfwe_swatches_group_text" placeholder="<?php esc_attr_e( 'Leave blank to skip the separator', 'better-post-filter-widgets-for-elementor' ); ?>" value="<?php echo esc_attr( $group_text ); ?>" />
@@ -135,7 +135,7 @@ class BPFWE_Taxonomy_Swatches {
 				</td>
 			</tr>
 		<?php else : ?>
-			<div class="form-field bpfwe-group-separator-wrap" style="<?php echo 'none' === $swatches_type ? 'display: none;' : ''; ?>">
+			<div class="form-field bpfwe-group-separator-wrap" style="<?php echo esc_attr( 'none' === $swatches_type ? 'display: none;' : '' ); ?>">
 				<label for="bpfwe_swatches_group_text"><?php esc_html_e( 'Group Separator Text (Optional)', 'better-post-filter-widgets-for-elementor' ); ?></label>
 				<input type="text" name="bpfwe_swatches_group_text" id="bpfwe_swatches_group_text" placeholder="<?php esc_attr_e( 'Leave blank to skip the separator', 'better-post-filter-widgets-for-elementor' ); ?>" value="<?php echo esc_attr( $group_text ? $group_text : '' ); ?>" />
 				<p class="description"><?php esc_html_e( 'Enter text to use this term as a group separator in the filter widget.', 'better-post-filter-widgets-for-elementor' ); ?></p>

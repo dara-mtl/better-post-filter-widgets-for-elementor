@@ -2,10 +2,10 @@
 Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
-Requires at least: 5.9
+Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -94,6 +94,10 @@ Yes, it does out-of-the-box, but be aware of the following:
 
 The filter widget is designed to work with most widgets that use a post query, such as post or product widgets. If a widget pulls data via a post query, the filter can potentially hook into it. However, pagination is fully supported only for widgets from Better Post & Filter Widgets for Elementor and Elementor Pro. Other widgets may lack pagination or loading animations, as these features rely on specific HTML and CSS.
 
+= How can I report security bugs? =
+
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/eace7b8a-24fe-4a69-b0af-ee83a3c7496a)
+
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/better-post-and-filter-widgets` directory, or install the plugin through the WordPress plugins screen directly.
@@ -115,6 +119,17 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 3. Backend view of the Elementor edit screen, showing the post widget options.
 
 == Changelog ==
+
+= 1.6.1 – 2025-09-04 =
+
+* New: Added option to show post counts for meta key values in the Filter widget.
+* Fix: Custom field label formatting now applies correctly for radio, dropdown, and label filter types.
+* Fix/Security: Added escaping to helper functions and taxonomy swatches for better security.
+* Dev/Performance: Replaced WP_Query with custom SQL for retrieving meta key lists, improving performance on large databases. Added stricter sanitization to all queries.
+* Tweak: In the Post widget, moved the "Content Horizontal Position" control from Layout to Post Content section to reflect where it actually applies.
+* Tweak: Minimum required WordPress version increased to 6.2.
+* Tweak: Verified compatibility with the latest Elementor release.
+* Tweak: Removed unused dynamic group file.
 
 = 1.6.0 – 2025-08-26 =
 
@@ -197,6 +212,6 @@ For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post
 
 == Upgrade Notice ==
 
-= 1.6.0 =
+= 1.6.1 =
 
-This update adds visual range scaling, custom label formatting, quick-deselect pills, post alignment controls, dev filters, and various fixes/improvements.
+This version improves security and performance, removes unused code, adds sanitization, and adds post counts for meta keys in the filter widget.
