@@ -177,8 +177,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'              => esc_html__( 'Post Type to Filter', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SELECT,
 				'default'            => 'post',
-				'options'            => BPFWE_Helper::bpfwe_get_post_types(),
+				'options'            => array_merge( [ 'targeted_widget' => esc_html__( 'Targeted Widget', 'better-post-filter-widgets-for-elementor' ) ], BPFWE_Helper::bpfwe_get_post_types() ),
 				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'filter_post_type_source_warning',
+			[
+				'type'            => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'             => '<div style="font-style: normal;">' . esc_html__( 'Using the post type from the targeted post widget may produce inconsistent results. If unavailable, "Any" will be used as fallback.', 'better-post-filter-widgets-for-elementor' ) . '</div>',
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+				'condition'       => [
+					'filter_post_type' => 'targeted_widget',
+				],
 			]
 		);
 
@@ -439,6 +451,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition'    => [
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => 'range',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'visual_range_inclusive',
+			[
+				'label'        => esc_html__( 'Inclusive Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'condition'    => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+					'visual_range'         => 'yes',
 				],
 			]
 		);
@@ -839,12 +868,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'order',
 			[
-				'label'   => esc_html__( 'Order', 'better-post-filter-widgets-for-elementor' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => 'DESC',
-				'options' => [
+				'label'     => esc_html__( 'Order', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'DESC',
+				'options'   => [
 					'DESC' => esc_html__( 'Descending', 'better-post-filter-widgets-for-elementor' ),
 					'ASC'  => esc_html__( 'Ascending', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'sort_terms!' => '',
 				],
 			]
 		);
@@ -988,7 +1020,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'default'     => esc_html__( 'Select All', 'better-post-filter-widgets-for-elementor' ),
 				'placeholder' => esc_html__( 'Select All', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
-					'select_all' => 'yes',
+					'filter_style!' => [ 'radio','dropdown','select2' ],
+					'select_all'    => 'yes',
 				],
 			]
 		);
@@ -1515,7 +1548,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_section();
 
-		// ------------------------------------------------------------------------- SECTION: Style
+		// ------------------------------------------------------------------------- SECTION: Style.
 		$this->start_controls_section(
 			'section_container_style',
 			[
@@ -1642,9 +1675,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .filter-title' => 'color: {{VALUE}};',
 				),
@@ -1656,9 +1686,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Background Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .filter-title' => 'background: {{VALUE}};',
 				),
@@ -1764,9 +1791,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Background Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .filter-title.collapsible.collapsed' => 'background: {{VALUE}};',
 				),
@@ -2347,9 +2371,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .form-tax input' => 'color: {{VALUE}};',
 				),
@@ -2519,9 +2540,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .list-style label span' => 'color: {{VALUE}};',
 				),
@@ -2895,6 +2913,28 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_responsive_control(
+			'reset_button_height',
+			array(
+				'label'      => esc_html__( 'Height', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px', 'em', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 30,
+						'max' => 100,
+					),
+					'em' => array(
+						'min' => 1,
+						'max' => 80,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} button.reset-form' => 'height: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
 			'reset_button_padding',
 			array(
 				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
@@ -3101,6 +3141,28 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_responsive_control(
+			'submit_button_height',
+			array(
+				'label'      => esc_html__( 'Height', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px', 'em', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 30,
+						'max' => 100,
+					),
+					'em' => array(
+						'min' => 1,
+						'max' => 80,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} button.submit-form' => 'height: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
 			'submit_button_padding',
 			array(
 				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
@@ -3244,6 +3306,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$settings           = $this->get_settings_for_display();
 		$widget_id          = $this->get_id();
 		$transient_duration = ( ! empty( $settings['transient_duration'] ) ) ? absint( $settings['transient_duration'] ) : 86400;
+		$is_editor          = current_user_can( 'edit_posts' );
 		$show_counter       = '';
 		$toggleable_class   = '';
 		$min_value          = '';
@@ -3392,11 +3455,16 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$hiterms       = get_transient( $transient_key );
 					$display_empty = 'yes' === $item['display_empty'] ? false : true;
 
+					// Invalidate cache if editing.
+					if ( $is_editor ) {
+						delete_transient( $transient_key );
+						$hiterms = false;
+					}
+
 					// Bypass transient for users with editing capabilities.
-					if ( false === $hiterms || current_user_can( 'edit_posts' ) ) {
+					if ( false === $hiterms || $is_editor ) {
 						$args = [
 							'taxonomy'          => sanitize_key( $item['filter_by'] ),
-							'order'             => in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC',
 							'hide_empty'        => $display_empty,
 							'parent'            => 'yes' === $item['show_hierarchy'] ? 0 : null,
 							'fields'            => 'all',
@@ -3404,15 +3472,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						];
 
 						$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 						if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 							$args['orderby'] = $item['sort_terms'];
-						} else {
-							$args['orderby'] = '';
+							$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 						}
 
 						$hiterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
-						if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+						if ( $transient_duration > 0 && ! $is_editor ) {
 							set_transient( $transient_key, $hiterms, $transient_duration );
 						}
 					}
@@ -3448,30 +3516,34 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$separator_html = '';
 
 							if ( $group_text && 'yes' === $item['display_swatch'] ) {
-								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
 							}
 
 							switch ( $swatches_type ) {
 								case 'color':
 									$swatches_color = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_color', true );
 									if ( $swatches_color ) {
-										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Color Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="Color Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
 									}
 									break;
 
 								case 'image':
 									$swatches_image = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_image', true );
 									if ( $swatches_image ) {
-										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
 									}
 									break;
 
 								case 'product-cat-image':
-									if ( class_exists( 'WooCommerce' ) ) {
-										$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
-										$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
-										if ( $swatches_image ) {
-											$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									if ( 'product-cat-image' === $swatches_type ) {
+										if ( class_exists( 'WooCommerce' ) ) {
+											$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
+											$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+											if ( $swatches_image ) {
+												$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+											}
+										} else {
+											$swatch_html = '';
 										}
 									}
 									break;
@@ -3479,7 +3551,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								case 'button':
 									$swatches_button_text = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_button_text', true );
 									if ( $swatches_button_text ) {
-										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $hiterm->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="Button Swatch" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
 									}
 									break;
 
@@ -3496,7 +3568,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
 								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 								</label>
-							</li>
 							';
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
@@ -3504,10 +3575,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
-								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
+								// Invalidate cache if editing.
+								if ( $is_editor ) {
+									delete_transient( $lowterms_transient_key );
+									$lowterms = false;
+								}
+
+								if ( false === $lowterms || $is_editor ) {
 									$args = array(
 										'taxonomy'   => sanitize_key( $item['filter_by'] ),
-										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
@@ -3517,19 +3593,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
-									} else {
-										$args['orderby'] = '';
+										$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 									}
 
 									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
-									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+									if ( $transient_duration > 0 && ! $is_editor ) {
 										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
 									}
 								}
 
 								if ( $lowterms ) {
-									foreach ( $lowterms as $lowterm ) {
+
+									foreach ( array_reverse( $lowterms ) as $lowterm ) {
 										$terms_stack[] = array(
 											'term'  => $lowterm,
 											'depth' => 1,
@@ -3558,30 +3634,34 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$separator_html = '';
 
 										if ( $group_text && 'yes' === $item['display_swatch'] ) {
-											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
 										}
 
 										switch ( $swatches_type ) {
 											case 'color':
 												$swatches_color = get_term_meta( $term->term_id, 'bpfwe_swatches_color', true );
 												if ( $swatches_color ) {
-													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Color Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="Color Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
 												}
 												break;
 
 											case 'image':
 												$swatches_image = get_term_meta( $term->term_id, 'bpfwe_swatches_image', true );
 												if ( $swatches_image ) {
-													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
 												}
 												break;
 
 											case 'product-cat-image':
-												if ( class_exists( 'WooCommerce' ) ) {
-													$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
-													$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
-													if ( $swatches_image ) {
-														$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												if ( 'product-cat-image' === $swatches_type ) {
+													if ( class_exists( 'WooCommerce' ) ) {
+														$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
+														$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+														if ( $swatches_image ) {
+															$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
+														}
+													} else {
+														$swatch_html = '';
 													}
 												}
 												break;
@@ -3589,7 +3669,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											case 'button':
 												$swatches_button_text = get_term_meta( $term->term_id, 'bpfwe_swatches_button_text', true );
 												if ( $swatches_button_text ) {
-													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $term->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="Button Swatch" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
 												}
 												break;
 
@@ -3601,10 +3681,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
 										$child_terms         = get_transient( $child_transient_key );
 
-										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
+										// Invalidate cache if editing.
+										if ( $is_editor ) {
+											delete_transient( $child_transient_key );
+											$child_terms = false;
+										}
+
+										if ( false === $child_terms || $is_editor ) {
 											$args = array(
 												'taxonomy' => sanitize_key( $item['filter_by'] ),
-												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
 												'fields'   => 'all',
@@ -3612,15 +3697,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											);
 
 											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 											if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 												$args['orderby'] = $item['sort_terms'];
-											} else {
-												$args['orderby'] = '';
+												$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 											}
 
 											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
-											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+											if ( $transient_duration > 0 && ! $is_editor ) {
 												set_transient( $child_transient_key, $child_terms, $transient_duration );
 											}
 										}
@@ -3635,7 +3720,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 														name="' . esc_attr( $item['filter_by'] ) . '" 
 														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
 														value="' . esc_attr( $term->term_id ) . '" />
-													<span>' . $swatch_html . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
 													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 												</label>';
 
@@ -3692,7 +3777,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									);
 								}
 							}
-
+							echo '</li>';
 							++$term_index;
 						}
 						echo ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? '<li class="more"><span class="label-more">' . esc_html__( 'More...', 'better-post-filter-widgets-for-elementor' ) . '</span><span class="label-less">' . esc_html__( 'Less...', 'better-post-filter-widgets-for-elementor' ) . '</span></li>' : '';
@@ -3720,30 +3805,34 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$separator_html = '';
 
 							if ( $group_text && 'yes' === $item['display_swatch'] ) {
-								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+								$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
 							}
 
 							switch ( $swatches_type ) {
 								case 'color':
 									$swatches_color = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_color', true );
 									if ( $swatches_color ) {
-										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Color Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="Color Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
 									}
 									break;
 
 								case 'image':
 									$swatches_image = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_image', true );
 									if ( $swatches_image ) {
-										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+										$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
 									}
 									break;
 
 								case 'product-cat-image':
-									if ( class_exists( 'WooCommerce' ) ) {
-										$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
-										$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
-										if ( $swatches_image ) {
-											$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $hiterm->name . ' Image Swatch' ) . '" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+									if ( 'product-cat-image' === $swatches_type ) {
+										if ( class_exists( 'WooCommerce' ) ) {
+											$thumbnail_id   = get_term_meta( $hiterm->term_id, 'thumbnail_id', true );
+											$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+											if ( $swatches_image ) {
+												$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $hiterm->name ) . '"></span> ';
+											}
+										} else {
+											$swatch_html = '';
 										}
 									}
 									break;
@@ -3751,7 +3840,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								case 'button':
 									$swatches_button_text = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_button_text', true );
 									if ( $swatches_button_text ) {
-										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $hiterm->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+										$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="Button Swatch" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
 									}
 									break;
 
@@ -3768,7 +3857,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
 								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 								</label>
-							</li>
 							';
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
@@ -3776,10 +3864,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
-								if ( false === $lowterms || current_user_can( 'edit_posts' ) ) {
+								// Invalidate cache if editing.
+								if ( $is_editor ) {
+									delete_transient( $lowterms_transient_key );
+									$lowterms = false;
+								}
+
+								if ( false === $lowterms || $is_editor ) {
 									$args = array(
 										'taxonomy'   => sanitize_key( $item['filter_by'] ),
-										'order'      => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 										'parent'     => $hiterm->term_id,
 										'hide_empty' => $display_empty,
 										'fields'     => 'all',
@@ -3789,19 +3882,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
-									} else {
-										$args['orderby'] = '';
+										$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 									}
 
 									$lowterms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
-									if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+									if ( $transient_duration > 0 && ! $is_editor ) {
 										set_transient( $lowterms_transient_key, $lowterms, $transient_duration );
 									}
 								}
 
 								if ( $lowterms ) {
-									foreach ( $lowterms as $lowterm ) {
+
+									foreach ( array_reverse( $lowterms ) as $lowterm ) {
 										$terms_stack[] = array(
 											'term'  => $lowterm,
 											'depth' => 1,
@@ -3830,30 +3923,34 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$separator_html = '';
 
 										if ( $group_text && 'yes' === $item['display_swatch'] ) {
-											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="' . esc_attr( $group_text . ' Group Separator' ) . '">' . esc_html( $group_text ) . '</div>';
+											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
 										}
 
 										switch ( $swatches_type ) {
 											case 'color':
 												$swatches_color = get_term_meta( $term->term_id, 'bpfwe_swatches_color', true );
 												if ( $swatches_color ) {
-													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Color Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													$swatch_html = '<span style="background-color: ' . esc_attr( $swatches_color ) . '" class="bpfwe-swatch" role="img" aria-label="Color Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
 												}
 												break;
 
 											case 'image':
 												$swatches_image = get_term_meta( $term->term_id, 'bpfwe_swatches_image', true );
 												if ( $swatches_image ) {
-													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+													$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
 												}
 												break;
 
 											case 'product-cat-image':
-												if ( class_exists( 'WooCommerce' ) ) {
-													$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
-													$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
-													if ( $swatches_image ) {
-														$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="' . esc_attr( $term->name . ' Image Swatch' ) . '" title="' . esc_attr( $term->name ) . '"></span> ';
+												if ( 'product-cat-image' === $swatches_type ) {
+													if ( class_exists( 'WooCommerce' ) ) {
+														$thumbnail_id   = get_term_meta( $term->term_id, 'thumbnail_id', true );
+														$swatches_image = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : '';
+														if ( $swatches_image ) {
+															$swatch_html = '<span style="background-image: url(' . esc_url( $swatches_image ) . ');" class="bpfwe-swatch" role="img" aria-label="Image Swatch" title="' . esc_attr( $term->name ) . '"></span> ';
+														}
+													} else {
+														$swatch_html = '';
 													}
 												}
 												break;
@@ -3861,7 +3958,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											case 'button':
 												$swatches_button_text = get_term_meta( $term->term_id, 'bpfwe_swatches_button_text', true );
 												if ( $swatches_button_text ) {
-													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="' . esc_attr( $term->name . ' Button Swatch' ) . '" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
+													$swatch_html = '<span class="bpfwe-swatch bpfwe-swatch-button" role="button" aria-label="Button Swatch" title="' . esc_attr( $swatches_button_text ) . '">' . esc_html( $swatches_button_text ) . '</span> ';
 												}
 												break;
 
@@ -3873,10 +3970,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
 										$child_terms         = get_transient( $child_transient_key );
 
-										if ( false === $child_terms || current_user_can( 'edit_posts' ) ) {
+										// Invalidate cache if editing.
+										if ( $is_editor ) {
+											delete_transient( $child_transient_key );
+											$child_terms = false;
+										}
+
+										if ( false === $child_terms || $is_editor ) {
 											$args = array(
 												'taxonomy' => sanitize_key( $item['filter_by'] ),
-												'order'    => ( strtoupper( $item['order'] ) === 'ASC' ) ? 'DESC' : 'ASC',
 												'parent'   => $term->term_id,
 												'hide_empty' => $display_empty,
 												'fields'   => 'all',
@@ -3886,13 +3988,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 											if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 												$args['orderby'] = $item['sort_terms'];
-											} else {
-												$args['orderby'] = '';
+												$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 											}
 
 											$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
-											if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
+											if ( $transient_duration > 0 && ! $is_editor ) {
 												set_transient( $child_transient_key, $child_terms, $transient_duration );
 											}
 										}
@@ -3907,13 +4008,14 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 														name="' . esc_attr( $item['filter_by'] ) . '" 
 														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
 														value="' . esc_attr( $term->term_id ) . '" />
-													<span>' . $swatch_html . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
 													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 												</label>';
 
 										if ( ! empty( $child_terms ) ) {
 											$output .= 'yes' === $item['toggle_child'] ? '<span class="low-terms-group"><ul class="child-terms depth-' . $depth . '">' : '<ul class="child-terms depth-' . $depth . '">';
 											++$open_uls;
+
 											foreach ( array_reverse( $child_terms ) as $child_term ) {
 												$terms_stack[] = array(
 													'term' => $child_term,
@@ -3964,7 +4066,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									);
 								}
 							}
-
+							echo '</li>';
 							++$term_index;
 						}
 						echo ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? '<li class="more"><span class="label-more">' . esc_html__( 'More...', 'better-post-filter-widgets-for-elementor' ) . '</span><span class="label-less">' . esc_html__( 'Less...', 'better-post-filter-widgets-for-elementor' ) . '</span></li>' : '';
@@ -4047,6 +4149,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								);
 							}
 
+							$terms_stack = array_reverse( $terms_stack );
+
 							while ( ! empty( $terms_stack ) ) {
 								$current = array_pop( $terms_stack );
 								$term    = $current['term'];
@@ -4059,7 +4163,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$args = array(
 									'taxonomy'          => sanitize_key( $item['filter_by'] ),
-									'order'             => in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC',
 									'parent'            => $term->term_id,
 									'hide_empty'        => $display_empty,
 									'fields'            => 'all',
@@ -4067,10 +4170,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								);
 
 								$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 								if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 									$args['orderby'] = $item['sort_terms'];
-								} else {
-									$args['orderby'] = '';
+									$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
 								}
 
 								$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
@@ -4114,182 +4217,110 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					}
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						global $wpdb;
-						if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
-							if ( current_user_can( 'activate_plugins' ) ) {
-								echo esc_html__( 'Better Post Filter Widgets for Elementor requires WordPress 6.2 or later. Please update WordPress.', 'better-post-filter-widgets-for-elementor' );
-							}
-							return;
+						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'];
+						$terms                    = get_transient( $meta_terms_transient_key );
+
+						// Invalidate cache if editing.
+						if ( $is_editor ) {
+							delete_transient( $meta_terms_transient_key );
+							$terms = false;
 						}
 
-						$meta_key  = sanitize_key( $item['meta_key'] );
-						$post_type = sanitize_key( $settings['filter_post_type'] );
+						// Bypass transient for users with editing capabilities.
+						if ( false === $terms || $is_editor ) {
+							$all_posts_args = array(
+								'posts_per_page'         => -1,
+								'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
+								'no_found_rows'          => true,
+								'fields'                 => 'ids',
+								'meta_key'               => $item['meta_key'],
+								'update_post_meta_cache' => false,
+								'update_post_term_cache' => false,
+							);
 
-						// Build cache key (includes context).
-						$queried_object = ! empty( $settings['dynamic_filtering'] ) ? get_queried_object() : null;
-						$cache_key_bits = array( 'mk:' . $meta_key, 'pt:' . $post_type );
+							if ( $settings['dynamic_filtering'] ) {
+								$queried_object = get_queried_object();
+								$archive_type   = '';
 
-						if ( $queried_object instanceof WP_User ) {
-							$cache_key_bits[] = 'au:' . (int) $queried_object->ID;
-						} elseif ( $queried_object instanceof WP_Term ) {
-							$cache_key_bits[] = 'tx:' . sanitize_key( $queried_object->taxonomy ) . ':' . (int) $queried_object->term_id;
-						} elseif ( $queried_object instanceof WP_Post_Type ) {
-							$cache_key_bits[] = 'ptx:' . $queried_object->name;
-						} elseif ( $queried_object instanceof WP_Date_Query ) {
-							$cache_key_bits[] = 'date:' . md5( wp_json_encode( $queried_object ) );
-						} else {
-							$cache_key_bits[] = 'ctx:none';
-						}
+								if ( $queried_object instanceof WP_User ) {
+									$archive_type = 'author';
+								} elseif ( $queried_object instanceof WP_Date_Query ) {
+									$archive_type = 'date';
+								} elseif ( $queried_object instanceof WP_Term ) {
+									$archive_type = 'taxonomy';
+								} elseif ( $queried_object instanceof WP_Post_Type ) {
+									$archive_type = 'post_type';
+								}
 
-						$cache_key   = 'bpfwe_meta_terms_' . md5( implode( '|', $cache_key_bits ) );
-						$cache_group = 'bpfwe';
-						$terms       = false;
+								// Modify the query for author archive.
+								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
+									$all_posts_args['author'] = $queried_object->ID;
+								}
 
-						// First check object cache.
-						if ( ! current_user_can( 'edit_posts' ) ) {
-							$cached = wp_cache_get( $cache_key, $cache_group );
-							if ( false !== $cached ) {
-								$terms = $cached;
-							}
-						}
-
-						// Fallback: check transient for backward compatibility.
-						if ( false === $terms ) {
-							$meta_terms_transient_key = 'filter_widget_meta_terms_' . $meta_key;
-							$terms                    = get_transient( $meta_terms_transient_key );
-						}
-
-						// If cache miss or user can edit, query DB.
-						if ( false === $terms || current_user_can( 'edit_posts' ) ) {
-
-							// Taxonomy context.
-							if ( $queried_object instanceof WP_Term ) {
-								$results = $wpdb->get_results(
-									$wpdb->prepare(
-										'
-										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										INNER JOIN %i tr ON p.ID = tr.object_id
-										INNER JOIN %i tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										  AND tt.taxonomy = %s
-										  AND tt.term_id = %d
-										GROUP BY pm.meta_value
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$wpdb->term_relationships,
-										$wpdb->term_taxonomy,
-										$post_type,
-										'publish',
-										$meta_key,
-										'',
-										$queried_object->taxonomy,
-										(int) $queried_object->term_id
-									),
-									ARRAY_A
-								);
-
-								// Author context.
-							} elseif ( $queried_object instanceof WP_User ) {
-								$results = $wpdb->get_results(
-									$wpdb->prepare(
-										'
-										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										  AND p.post_author = %d
-										GROUP BY pm.meta_value
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$post_type,
-										'publish',
-										$meta_key,
-										'',
-										(int) $queried_object->ID
-									),
-									ARRAY_A
-								);
-
-								// Post type context.
-							} elseif ( $queried_object instanceof WP_Post_Type ) {
-								$results = $wpdb->get_results(
-									$wpdb->prepare(
-										'
-										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										GROUP BY pm.meta_value
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$queried_object->name,
-										'publish',
-										$meta_key,
-										''
-									),
-									ARRAY_A
-								);
-
-								// Default (no special context).
-							} else {
-								$results = $wpdb->get_results(
-									$wpdb->prepare(
-										'
-										SELECT pm.meta_value AS term, COUNT(DISTINCT p.ID) AS total
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										GROUP BY pm.meta_value
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$post_type,
-										'publish',
-										$meta_key,
-										''
-									),
-									ARRAY_A
-								);
+								// Modify the query for taxonomy archive.
+								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
+									$all_posts_args['tax_query'] = array(
+										array(
+											'taxonomy' => $queried_object->taxonomy,
+											'field'    => 'term_id',
+											'terms'    => $queried_object->term_id,
+										),
+									);
+								}
 							}
 
-							// Build term data.
-							$terms_data = array();
-							if ( ! empty( $results ) ) {
-								foreach ( $results as $row ) {
-									$terms_data[ $row['term'] ] = (int) $row['total'];
+							$post_ids = get_posts( $all_posts_args );
+
+							if ( ! empty( $post_ids ) ) {
+								global $wpdb;
+								$terms_data = array();
+								$meta_key   = $item['meta_key'];
+
+								$results = $wpdb->get_results(
+									$wpdb->prepare(
+										"SELECT meta_value, COUNT(*) as count 
+									 FROM {$wpdb->postmeta} 
+									 WHERE meta_key = %s 
+									 AND post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")
+									 AND meta_value != '' 
+									 GROUP BY meta_value",
+										array_merge( [ $meta_key ], $post_ids )
+									)
+								);
+
+								foreach ( $results as $result ) {
+									$meta_value = $result->meta_value;
+
+									if ( ! is_scalar( $meta_value ) || is_serialized( $meta_value ) ) {
+										$terms_data = array(
+											'It appears you are using a relational field. This field type is not supported for filtering.' => esc_html__( '', 'better-post-filter-widgets-for-elementor' ),
+										);
+										break;
+									}
+
+									$terms_data[ $meta_value ] = ( isset( $terms_data[ $meta_value ] ) ? $terms_data[ $meta_value ] : 0 ) + (int) $result->count;
+								}
+
+								if ( empty( $terms_data ) ) {
+									$terms_data = array(
+										'No terms found for this field.' => esc_html__( '', 'better-post-filter-widgets-for-elementor' ),
+									);
 								}
 
 								if ( 'DESC' === strtoupper( $item['order'] ) ) {
-									arsort( $terms_data );
+									krsort( $terms_data );
 								} else {
-									asort( $terms_data );
+									ksort( $terms_data );
 								}
-							}
 
-							// Cache for non-editors.
-							if ( ! current_user_can( 'edit_posts' ) ) {
-								wp_cache_set( $cache_key, $terms_data, $cache_group, $transient_duration );
-								set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
-							}
+								$terms_data = apply_filters( "bpfwe/get_meta_terms/{$filter_query_id}", $terms_data, $this, $item );
 
-							$terms = $terms_data;
+								if ( $transient_duration > 0 && ! $is_editor ) {
+									set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
+								}
+
+								$terms = $terms_data;
+							}
 						}
 					}
 
@@ -4529,154 +4560,96 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						global $wpdb;
-						if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
-							if ( current_user_can( 'activate_plugins' ) ) {
-								echo esc_html__( 'Better Post Filter Widgets for Elementor requires WordPress 6.2 or later. Please update WordPress.', 'better-post-filter-widgets-for-elementor' );
-							}
-							return;
+						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'];
+						$terms                 = get_transient( $numeric_transient_key );
+
+						// Invalidate cache if editing.
+						if ( $is_editor ) {
+							delete_transient( $numeric_transient_key );
+							$terms = false;
 						}
 
-						$meta_key  = sanitize_key( $item['meta_key'] );
-						$post_type = sanitize_key( $settings['filter_post_type'] );
+						// Bypass transient for users with editing capabilities or if transient doesn't exist.
+						if ( false === $terms || $is_editor ) {
+							$all_posts_args = array(
+								'posts_per_page'         => -1,
+								'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
+								'no_found_rows'          => true,
+								'fields'                 => 'ids',
+								'meta_key'               => $item['meta_key'],
+								'update_post_meta_cache' => false,
+								'update_post_term_cache' => false,
+							);
 
-						// Build cache key.
-						$queried_object = ! empty( $settings['dynamic_filtering'] ) ? get_queried_object() : null;
-						$cache_key_bits = array( 'num:' . $meta_key, 'pt:' . $post_type );
+							if ( $settings['dynamic_filtering'] ) {
+								$queried_object = get_queried_object();
+								$archive_type   = '';
 
-						if ( $queried_object instanceof WP_User ) {
-							$cache_key_bits[] = 'au:' . (int) $queried_object->ID;
-						} elseif ( $queried_object instanceof WP_Term ) {
-							$cache_key_bits[] = 'tx:' . sanitize_key( $queried_object->taxonomy ) . ':' . (int) $queried_object->term_id;
-						} elseif ( $queried_object instanceof WP_Post_Type ) {
-							$cache_key_bits[] = 'ptx:' . $queried_object->name;
-						} elseif ( $queried_object instanceof WP_Date_Query ) {
-							$cache_key_bits[] = 'date:' . md5( wp_json_encode( $queried_object ) );
-						} else {
-							$cache_key_bits[] = 'ctx:none';
-						}
+								if ( $queried_object instanceof WP_User ) {
+									$archive_type = 'author';
+								} elseif ( $queried_object instanceof WP_Date_Query ) {
+									$archive_type = 'date';
+								} elseif ( $queried_object instanceof WP_Term ) {
+									$archive_type = 'taxonomy';
+								} elseif ( $queried_object instanceof WP_Post_Type ) {
+									$archive_type = 'post_type';
+								}
 
-						$numeric_cache_key = 'bpfwe_numeric_' . md5( implode( '|', $cache_key_bits ) );
-						$terms             = false;
+								// Modify query for author archive.
+								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
+									$all_posts_args['author'] = $queried_object->ID;
+								}
 
-						if ( ! current_user_can( 'edit_posts' ) ) {
-							$cached = wp_cache_get( $numeric_cache_key, 'bpfwe' );
-							if ( false !== $cached ) {
-								$terms = $cached;
-							}
-						}
-
-						if ( false === $terms ) {
-							$terms = get_transient( 'filter_widget_numeric_' . $meta_key );
-						}
-
-						if ( false === $terms || current_user_can( 'edit_posts' ) ) {
-							$results = array();
-
-							// Taxonomy context.
-							if ( $queried_object instanceof WP_Term ) {
-								$results = $wpdb->get_col(
-									$wpdb->prepare(
-										'
-										SELECT DISTINCT pm.meta_value AS term
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										INNER JOIN %i tr ON p.ID = tr.object_id
-										INNER JOIN %i tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										  AND tt.taxonomy = %s
-										  AND tt.term_id = %d
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$wpdb->term_relationships,
-										$wpdb->term_taxonomy,
-										$post_type,
-										'publish',
-										$meta_key,
-										'',
-										$queried_object->taxonomy,
-										(int) $queried_object->term_id
-									)
-								);
-
-								// Author context.
-							} elseif ( $queried_object instanceof WP_User ) {
-								$results = $wpdb->get_col(
-									$wpdb->prepare(
-										'
-										SELECT DISTINCT pm.meta_value AS term
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										  AND p.post_author = %d
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$post_type,
-										'publish',
-										$meta_key,
-										'',
-										(int) $queried_object->ID
-									)
-								);
-
-								// Post type context.
-							} elseif ( $queried_object instanceof WP_Post_Type ) {
-								$results = $wpdb->get_col(
-									$wpdb->prepare(
-										'
-										SELECT DISTINCT pm.meta_value AS term
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$queried_object->name,
-										'publish',
-										$meta_key,
-										''
-									)
-								);
-
-								// Default context.
-							} else {
-								$results = $wpdb->get_col(
-									$wpdb->prepare(
-										'
-										SELECT DISTINCT pm.meta_value AS term
-										FROM %i p
-										INNER JOIN %i pm ON p.ID = pm.post_id
-										WHERE p.post_type = %s
-										  AND p.post_status = %s
-										  AND pm.meta_key = %s
-										  AND pm.meta_value <> %s
-										',
-										$wpdb->posts,
-										$wpdb->postmeta,
-										$post_type,
-										'publish',
-										$meta_key,
-										''
-									)
-								);
+								// Modify query for taxonomy archive.
+								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
+									$all_posts_args['tax_query'] = array(
+										array(
+											'taxonomy' => $queried_object->taxonomy,
+											'field'    => 'term_id',
+											'terms'    => $queried_object->term_id,
+										),
+									);
+								}
 							}
 
-							$terms = array_map( 'trim', $results );
+							$post_ids = get_posts( $all_posts_args );
 
-							if ( $transient_duration > 0 && ! current_user_can( 'edit_posts' ) ) {
-								wp_cache_set( $numeric_cache_key, $terms, 'bpfwe', $transient_duration );
-								set_transient( 'filter_widget_numeric_' . $meta_key, $terms, $transient_duration );
+							if ( ! empty( $post_ids ) ) {
+								global $wpdb;
+								$meta_key = $item['meta_key'];
+
+								// Query only distinct numeric values.
+								$results = $wpdb->get_col(
+									$wpdb->prepare(
+										"SELECT DISTINCT CAST(meta_value AS DECIMAL(20,6)) as num_val
+										FROM {$wpdb->postmeta}
+										WHERE meta_key = %s
+										AND post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")
+										AND meta_value REGEXP '^[0-9]+(\.[0-9]+)?$'
+										ORDER BY num_val ASC",
+										array_merge( [ $meta_key ], $post_ids )
+									)
+								);
+
+								$terms = array_filter( array_map( 'floatval', $results ) );
+
+								if ( empty( $terms ) ) {
+									$terms = array(
+										0 => esc_html__( 'No numeric values found for this field.', 'better-post-filter-widgets-for-elementor' ),
+									);
+								}
+
+								if ( 'DESC' === strtoupper( $item['order'] ) ) {
+									rsort( $terms );
+								} else {
+									sort( $terms );
+								}
+
+								$terms = apply_filters( "bpfwe/get_numeric_meta_terms/{$filter_query_id}", $terms, $this, $item );
+
+								if ( $transient_duration > 0 && ! $is_editor ) {
+									set_transient( $numeric_transient_key, $terms, $transient_duration );
+								}
 							}
 						}
 					}
@@ -4698,6 +4671,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						if ( ! empty( $item['visual_range'] ) && 'yes' === $item['visual_range'] ) {
 							$max_icons = ! empty( $item['visual_range_max_icons'] ) ? absint( $item['visual_range_max_icons'] ) : 5;
 
+							$inclusive = ! empty( $item['visual_range_inclusive'] );
+
 							// Normalize actual values into [1, $max_icons].
 							$min_value = floatval( $min_value );
 							$max_value = floatval( $max_value );
@@ -4709,6 +4684,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							// If the real range is narrower than the number of icons, extend it.
 							$visual_min = 1;
 							$step       = ( $max_value - $visual_min ) / $max_icons;
+							$fixed_min  = $inclusive ? min( 1, $min_value ) : $visual_min;
 
 							$buckets = [];
 
@@ -4723,7 +4699,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								];
 							}
 
-							echo '<div class="bpfwe-visual-range-wrapper" data-logic="OR" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-min="' . esc_attr( $visual_min ) . '" data-max="' . esc_attr( $visual_max ) . '">';
+							echo '<div class="bpfwe-visual-range-wrapper" data-logic="OR" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-min="' . esc_attr( $visual_min ) . '" data-max="' . esc_attr( $bucket_max ) . '">';
 
 							for ( $i = $max_icons - 1; $i >= 0; $i-- ) {
 								$bucket = $buckets[ $i ];
@@ -4735,6 +4711,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$icon_normal   = BPFWE_Helper::bpfwe_get_icons( $item['visual_range_icon_normal'] );
 								$icon_selected = BPFWE_Helper::bpfwe_get_icons( $item['visual_range_icon_selected'] );
+
+								if ( $inclusive ) {
+									$bucket['min'] = $fixed_min;
+								}
 
 								echo '<input type="radio" id="' . esc_attr( $item['meta_key'] . '-' . $bucket['value'] ) . '" name="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $bucket['value'] ) . '" data-min="' . esc_attr( $bucket['min'] ) . '" data-max="' . esc_attr( $bucket['max'] ) . '" />';
 
@@ -4845,7 +4825,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 		echo '</form></div>';
 
-		if ( is_user_logged_in() && is_admin() && current_user_can( 'edit_posts' ) && 'yes' === $settings['enable_query_debug'] ) {
+		if ( is_user_logged_in() && is_admin() && $is_editor && 'yes' === $settings['enable_query_debug'] ) {
 			echo '<div class="query-debug-frame"></div>';
 		}
 	}

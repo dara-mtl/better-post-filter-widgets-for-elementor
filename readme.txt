@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -51,7 +51,6 @@ Unlock the power of dynamic loops in Elementor, without needing the Pro version!
 ### Crafted for Seamless Elementor Integration:
 - Blends seamlessly with Elementor's native interface.
 - No disruptive branding — Enjoy a clean, streamlined interface without unnecessary distractions.
-- Minimalist approach, ensuring your focus remains on creating content without unnecessary notifications or distractions.
 - Lightweight design, utilizing Elementor's resources to minimize external dependencies.
 
 ### Developer-Friendly:
@@ -119,6 +118,26 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 3. Backend view of the Elementor edit screen, showing the post widget options.
 
 == Changelog ==
+
+= 1.6.2 – 2025-10-06 =
+
+* Fix/Security: Patched a vulnerability reported on Patchstack. Added stricter validation for HTML tag settings in the Post widget & Repeater dynamic tag.
+* Fix: Backend cache now matches frontend output for meta key lists, preventing inconsistencies in filter options between logged-in users and visitors.
+* Fix: "Load More" pagination now correctly replaces admin-ajax.php URLs with frontend URLs to prevent exposing backend endpoints.
+* Fix: Nested term ordering has been corrected to prevent reversed or inconsistent ordering in some cases.
+* New: Filter widget can now auto-detect the targeted widget's post type using the new "Targeted Post Widget" option.
+* New: Added Inclusive Mode to the Visual Range filter, allowing users to choose between exact values (e.g., 3 stars only) or inclusive ranges (e.g., 1–3 stars).
+* New: Added height style controls for the filter's button.
+* New: Filter query results now detect Elementor Loop Grid `query_id`, ensuring filter results do not override the Loop Grid's own query.
+* New/Dev: Added two developer filters for extending meta-based terms:
+  * `bpfwe/get_numeric_meta_terms/{query_id}`
+  * `bpfwe/get_meta_terms/{query_id}`
+* Dev: Meta fetching logic refactored to a hybrid approach, combining `WP_Query` (to respect language and archive filtering) with direct database queries (for performance).
+* Dev: Order and Orderby parameters in filter and term queries are now fully conditional. If left unset, WordPress defaults or third-party plugins/functions will control sorting without interference.
+* Dev/Tweak: Moved global and query-specific filters (`bpfwe_ajax_query_args` and `bpfwe/filter_query_args/{query_id}`) to the bottom of the AJAX action to prevent them from being overwritten.
+* UI/Tweak: Fixed some filter controls still displaying under the wrong conditions.
+* Tweak: Added basic CSS values to term pills and filter buttons to prevent overlapping.
+* Tweak: Adjusted filter form HTML structure for better consistency and styling.
 
 = 1.6.1 – 2025-09-04 =
 
@@ -212,6 +231,11 @@ For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post
 
 == Upgrade Notice ==
 
-= 1.6.1 =
+= 1.6.2 =
 
-This version improves security and performance, removes unused code, adds sanitization, and adds post counts for meta keys in the filter widget.
+This release includes important security fixes, performance improvements, and new features for both users and developers.
+
+**Note / Disclaimer:**
+- The filter query results now properly respect Elementor Loop Grid `query_id`. If you were using custom workarounds for query conflicts in previous versions, your filter results may behave slightly differently.
+- Nested term ordering has been corrected and cleaned up. If you implemented manual fixes or workarounds for ordering issues before, your term lists may appear differently after this update.
+- Developer filters for meta terms (`bpfwe/get_numeric_meta_terms` and `bpfwe/get_meta_terms`) have been added. Advanced users can now extend or modify how meta-based filter terms are retrieved.

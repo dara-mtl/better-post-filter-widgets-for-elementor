@@ -953,6 +953,10 @@ form.search-post input:focus-visible {
 	line-height: 1em !important;
 }
 
+.form-tax button {
+	height: fit-content;
+}
+
 .filter-title {
 	font-weight: bold;
 	margin-bottom: 0.45rem;
@@ -1010,8 +1014,8 @@ ul.taxonomy-filter.show-toggle .label-more,
 	padding: 0 10px;
 }
 
-.parent-term:not(:has(+ .low-terms-group)) .low-group-trigger,
-.child-term:not(:has(.low-terms-group)) .low-group-trigger {
+.parent-term:not(:has(> .low-terms-group)) > label .low-group-trigger,
+.child-term:not(:has(> .low-terms-group)) > label .low-group-trigger {
 	display: none;
 }
 
@@ -1058,7 +1062,8 @@ ul.taxonomy-filter.show-toggle .label-more,
 	transform: translate(0, -50%);
 }
 
-.list-style {
+.list-style,
+.bpfwe-term-pill {
 	display: inline-block;
 }
 

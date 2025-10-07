@@ -1986,13 +1986,14 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_type',
 			[
-				'label'       => esc_html__( 'Post Type', 'better-post-filter-widgets-for-elementor' ),
-				'type'        => \Elementor\Controls_Manager::SELECT2,
-				'default'     => 'post',
-				'multiple'    => true,
-				'options'     => BPFWE_Helper::bpfwe_get_post_types(),
-				'label_block' => true,
-				'condition'   => [
+				'label'              => esc_html__( 'Post Type', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SELECT2,
+				'default'            => 'post',
+				'multiple'           => true,
+				'options'            => BPFWE_Helper::bpfwe_get_post_types(),
+				'label_block'        => true,
+				'frontend_available' => true,
+				'condition'          => [
 					'query_type' => 'custom',
 				],
 			]
@@ -8432,8 +8433,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			$class_swiper = 'elementor-grid bpfwe-masonry';
 		}
 
-		$skin          = $settings['post_skin'];
-		$post_html_tag = $settings['post_html_tag'];
+		$skin                 = $settings['post_skin'];
+		$allowed_wrapper_tags = [ 'div', 'article' ];
+		$post_html_tag        = in_array( $settings['post_html_tag'], $allowed_wrapper_tags, true ) ? $settings['post_html_tag'] : 'article';
+		$allowed_header_tags  = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span', 'p' ];
+		$html_header_tag      = in_array( $settings['html_tag'], $allowed_header_tags, true ) ? $settings['html_tag'] : 'h3';
 
 		if ( get_query_var( 'page_num' ) ) {
 			$paged = get_query_var( 'page_num' );
@@ -8770,9 +8774,9 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							// Display Title.
 							if ( 'Title' === $item['post_content'] ) {
 								if ( $item['post_title_url'] && ! empty( $permalink ) ) {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="post-title elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before . wp_trim_words( get_the_title(), absint( $item['title_length'] ), '...' ) . $after ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									echo '<' . esc_attr( $html_header_tag ) . ' class="post-title elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before . wp_trim_words( get_the_title(), absint( $item['title_length'] ), '...' ) . $after ) . '</a></' . esc_attr( $html_header_tag ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 								} else {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="post-title elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before . wp_trim_words( get_the_title(), absint( $item['title_length'] ), '...' ) . $after ) . '</' . esc_attr( $settings['html_tag'] ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									echo '<' . esc_attr( $html_header_tag ) . ' class="post-title elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before . wp_trim_words( get_the_title(), absint( $item['title_length'] ), '...' ) . $after ) . '</' . esc_attr( $html_header_tag ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 								}
 							}
 
@@ -9301,27 +9305,27 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							// WordPress Username.
 							if ( 'Username' === $item['post_content'] ) {
 								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->user_login ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->user_login ) . '</a></' . esc_attr( $html_header_tag ) . '>';
 								} else {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->user_login ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-username elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->user_login ) . '</' . esc_attr( $html_header_tag ) . '>';
 								}
 							}
 
 							// Display Name.
 							if ( 'Display Name' === $item['post_content'] ) {
 								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->display_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->display_name ) . '</a></' . esc_attr( $html_header_tag ) . '>';
 								} else {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->display_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-display-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->display_name ) . '</' . esc_attr( $html_header_tag ) . '>';
 								}
 							}
 
 							// Display Full Name.
 							if ( 'Full Name' === $item['post_content'] ) {
 								if ( $item['display_name_url'] && ! empty( $permalink ) ) {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</a></' . esc_attr( $html_header_tag ) . '>';
 								} else {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="user-full-name elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $user->first_name . ' ' . $user->last_name ) . '</' . esc_attr( $html_header_tag ) . '>';
 								}
 							}
 
@@ -9715,9 +9719,9 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							// Term Label.
 							if ( 'Term Label' === $item['post_content'] ) {
 								if ( $item['term_url'] && ! empty( $permalink ) ) {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $term_name ) . '</a></' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . esc_html( $term_name ) . '</a></' . esc_attr( $html_header_tag ) . '>';
 								} else {
-									echo '<' . esc_attr( $settings['html_tag'] ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $term_name ) . '</' . esc_attr( $settings['html_tag'] ) . '>';
+									echo '<' . esc_attr( $html_header_tag ) . ' class="term-label elementor-repeater-item-' . esc_attr( $item['_id'] ) . '">' . esc_html( $term_name ) . '</' . esc_attr( $html_header_tag ) . '>';
 								}
 							}
 

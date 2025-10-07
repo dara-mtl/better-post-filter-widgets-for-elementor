@@ -215,7 +215,7 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 				'type'               => \Elementor\Controls_Manager::SELECT,
 				'description'        => esc_html__( 'To combine filter, search, & sorting widgets, use the same target selector. When used together, the filter widget’s post type takes priority.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'post',
-				'options'            => BPFWE_Helper::bpfwe_get_post_types(),
+				'options'            => array_merge( [ 'targeted_widget' => esc_html__( 'Targeted Widget', 'better-post-filter-widgets-for-elementor' ) ], BPFWE_Helper::bpfwe_get_post_types() ),
 				'separator'          => 'after',
 				'frontend_available' => true,
 			]

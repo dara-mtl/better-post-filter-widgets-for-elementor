@@ -132,15 +132,18 @@
 
 		// Handle Filter toggle.
 		$(document).on('click', '.filter-title.collapsible', function() {
-			var $title = $(this);
-			var $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper, .bpfwe-numeric-wrapper');
+			const $title = $(this);
+			let $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper, .bpfwe-numeric-wrapper');
+
+			if (!$content.length) {
+				$content = $title.siblings('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper, .bpfwe-numeric-wrapper');
+			}
 
 			if (!$content.is(':visible')) {
 				$content.css('display', 'flex').hide();
 			}
 
 			$title.toggleClass('collapsed');
-
 			$content.stop(true, true).slideToggle(300, function() {
 				if ($content.is(':visible')) {
 					$content.css('display', 'flex');
@@ -205,75 +208,119 @@
 				});
 
 				// Initialize multi-select dropdowns with Select2 and plus symbol logic.
-				filterWidget.find('.bpfwe-multi-select2 select').each(function (index) {
-					const $select = $(this);
+				filterWidget.find('.bpfwe-multi-select2 select').each((index, el) => {
+					const $select = $(el);
 					const parentElement = $select.closest('.bpfwe-multi-select2');
-					const uniqueId = 'bpfwe-multi-select2-' + index;
+					const uniqueId = `bpfwe-multi-select2-${index}`;
 					$select.attr('id', uniqueId).prop('multiple', true).select2({
 						dropdownParent: parentElement,
 					});
 					$select.val(null).trigger('change');
-					parentElement.css({
-						"visibility": "visible",
-						"opacity": "1",
-						"transition": "opacity 0.3s ease-in-out"
-					});
+					parentElement.css({ visibility: 'visible', opacity: '1', transition: 'opacity 0.3s ease-in-out' });
 
-					function updatePlusSymbol() {
-						var $rendered = parentElement.find('.select2-selection__rendered');
+					const updatePlusSymbol = () => {
+						const $rendered = parentElement.find('.select2-selection__rendered');
 						$rendered.find('.select2-selection__e-plus-button').remove();
 						if ($select.val().length === 0) {
 							$rendered.prepend('<span class="select2-selection__choice select2-selection__e-plus-button">+</span>');
 						}
-					}
+					};
 					updatePlusSymbol();
 					$select.on('change', updatePlusSymbol);
 				});
 
 				// Toggle visibility of taxonomy filter items.
 				filterWidget.on('click', 'li.more', function() {
-					var taxonomyFilter = $(this).closest('ul.taxonomy-filter');
-					taxonomyFilter.toggleClass('show-toggle');
+					$(this).closest('ul.taxonomy-filter').toggleClass('show-toggle');
 				});
 
 				// Toggle low-level terms group visibility with +/- indicator.
 				filterWidget.on('click', '.low-group-trigger', function() {
-					var $trigger = $(this);
-					var $parentLi = $trigger.closest('li');
-					var $lowTermsGroup = $parentLi.hasClass('child-term') ? $parentLi.children('.low-terms-group') : $parentLi.next('.low-terms-group');
-					$lowTermsGroup.toggle();
-					var isExpanded = $lowTermsGroup.is(':visible');
+					var $trigger     = $(this);
+					var $parentLi    = $trigger.closest('li');
+					var $lowTermsGrp = $parentLi.children('.low-terms-group, .child-terms');
+
+					$lowTermsGrp.toggle();
+					var isExpanded = $lowTermsGrp.is(':visible');
+
 					$trigger.text(isExpanded ? '-' : '+');
 					$trigger.attr('aria-expanded', isExpanded);
 				});
 
-				// Handle radio button click to allow deselection.
-				$(document).off('mousedown', 'input[type="radio"], label.bpfwe-visual-range-option').on('mousedown', 'input[type="radio"], label.bpfwe-visual-range-option', function (e) {
-					let $radio;
-					if ($(this).is('input[type="radio"]')) {
-						$radio = $(this);
-					} else {
-						$radio = $('#' + $(this).attr('for'));
-					}
-					$radio.data('wasChecked', $radio.is(':checked'));
+				// Allow radio button deselection (with labels)
+				$(document).off('mousedown', 'input[type="radio"]').on('mousedown', 'input[type="radio"]', function (e) {
+					$(this).data('wasChecked', $(this).prop('checked'));
 				});
 
-				$(document).off('click', 'input[type="radio"], label.bpfwe-visual-range-option').on('click', 'input[type="radio"], label.bpfwe-visual-range-option', function (e) {
-					let $radio;
-					if ($(this).is('input[type="radio"]')) {
-						$radio = $(this);
-					} else {
-						$radio = $('#' + $(this).attr('for'));
-					}
+				$(document).off('click', 'input[type="radio"]').on('click', 'input[type="radio"]', function (e) {
+					var $radio = $(this);
 					if ($radio.data('wasChecked')) {
-						e.preventDefault();
+						// user clicked an already-checked radio - deselect it
 						$radio.prop('checked', false).trigger('change');
 					}
 					$radio.removeData('wasChecked');
 				});
 
-				$(document).off('keydown', 'form.form-tax input').on('keydown', 'form.form-tax input', function (e) {
-					if (e.which === 13) e.preventDefault();
+				// Label handlers - handle visual-range labels, but ignore clicks that actually targeted the input itself.
+				$(document).off('mousedown', 'label.bpfwe-visual-range-option').on('mousedown', 'label.bpfwe-visual-range-option', function (e) {
+					if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
+						return;
+					}
+
+					var $label = $(this);
+					var radioId = $label.attr('for');
+					var $radio = $();
+
+					if (radioId) {
+						var el = document.getElementById(radioId);
+						if (el) { $radio = $(el); }
+					} else {
+						$radio = $label.find('input[type="radio"]').first();
+					}
+
+					if (!$radio.length) { return; }
+					$radio.data('wasChecked', $radio.prop('checked'));
+				});
+
+				$(document).off('click', 'label.bpfwe-visual-range-option').on('click', 'label.bpfwe-visual-range-option', function (e) {
+					if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
+						return;
+					}
+
+					var $label = $(this);
+					var radioId = $label.attr('for');
+					var $radio = $();
+
+					if (radioId) {
+						var el = document.getElementById(radioId);
+						if (el) { $radio = $(el); }
+					} else {
+						$radio = $label.find('input[type="radio"]').first();
+					}
+
+					if (!$radio.length) { return; }
+
+					if ($radio.data('wasChecked')) {
+						e.preventDefault();
+						$radio.prop('checked', false).trigger('change');
+					} else {
+						e.preventDefault();
+						if (!$radio.prop('checked')) {
+							$radio.prop('checked', true).trigger('change');
+						}
+					}
+
+					$radio.removeData('wasChecked');
+				});
+
+				$(document).on('keydown', 'form.form-tax input', function (e) {
+					if (e.which === 13) {
+						e.preventDefault();
+					}
+				});
+
+				$(document).on('submit', 'form.form-tax', function (e) {
+					e.preventDefault();
 				});
 
 				const currentUrl = window.location.href;
@@ -463,7 +510,7 @@
 				}
 
 				// ===== Retrieve form values, process filters, and make AJAX request for filtered posts =====
-				function get_form_values (widgetInteractionID, paged, postWidgetID) {
+				function get_form_values(widgetInteractionID, paged, postWidgetID) {
 					if ($(document).find('div[data-filters-list*="' + widgetInteractionID + '"]').length === 0) {
 						linkFilterWidgets();
 					}
@@ -517,7 +564,7 @@
 
 					let hasValues = false;
 					
-					// Nuke the totally useless script breaking Elementor Pro dulicated content in sticky column
+					// Nuke duplicated content in sticky column
 					$('.elementor-sticky__spacer').empty();
 
 					filtersList.forEach(function (filterWidgetId) {
@@ -543,6 +590,29 @@
 							post_type = $filterWidget.data('settings')?.filter_post_type || '';
 						}
 					});
+
+					if (post_type === 'targeted_widget') {
+						let resolvedPostType = '';
+
+						// Try Elementor Pro loop grid (look for `class*="type-"`).
+						const $loopItem = localTargetSelector.find('[class*="type-"]').first();
+						if ($loopItem.length) {
+							const typeClass = $loopItem.attr('class').split(/\s+/).find(c => c.indexOf('type-') === 0);
+							if (typeClass) {
+								resolvedPostType = typeClass.replace('type-', '');
+							}
+						}
+
+						// Try BPFWE post widget (read from data-settings).
+						if (!resolvedPostType) {
+							const settings = localTargetSelector.data('settings') || {};
+							if (settings.post_type && Array.isArray(settings.post_type) && settings.post_type.length > 0) {
+								resolvedPostType = settings.post_type[0];
+							}
+						}
+
+						post_type = resolvedPostType || 'any';
+					}
 
 					var category = [],
 						custom_field = [],
@@ -641,7 +711,6 @@
 								var maxVal = parseFloat(self.data('max'));
 
 								if (!isNaN(minVal) && !isNaN(maxVal)) {
-									// Push two meta queries to simulate BETWEEN for your backend
 									numeric_field.push({
 										taxonomy: taxonomy,
 										terms: minVal,
@@ -669,122 +738,20 @@
 
 					localTargetSelector.removeClass('e-load-more-pagination-end');
 					postContainer.addClass('load');
-					localTargetSelector.addClass('load');
-					localTargetSelector.addClass('filter-initialized');
+					localTargetSelector.addClass('load filter-initialized');
 
 					if (postContainer.hasClass('shortcode') || postContainer.hasClass('template')) {
 						localTargetSelector.find('.loader').fadeIn();
 					}
 
-					if ($('.selected-terms-' + widgetInteractionID + ', .selected-count-' + widgetInteractionID + ', .quick-deselect-' + widgetInteractionID + ', .bpfwe-selected-terms, .bpfwe-selected-count').length) {
-						let selectedLabels = [];
-						let selectedItems = [];
-						var $filterWidget = $('.elementor-widget-filter-widget[data-id="' + widgetInteractionID + '"]');
-
-						if ($filterWidget.length) {
-							$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked').each(function() {
-								let labelText = $(this).closest('label').find('span').first().text().trim();
-								if (labelText) {
-									selectedLabels.push(labelText);
-								}
-							});
-
-							$filterWidget.find('select option:selected').each(function() {
-								let text = $(this).text().trim();
-								if (text && $(this).val()) {
-									selectedLabels.push(text);
-								}
-							});
-
-							$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked, select option:selected').each(function() {
-								let $input = $(this);
-								let value = $input.val();
-								let label;
-
-								if ($input.is('option')) {
-									label = $input.text().trim();
-								} else {
-									label = $input.closest('label').find('span').first().text().trim();
-								}
-
-								if (value && label) {
-									selectedItems.push({ value: value, label: label });
-								}
-							});
-
-							let termsCountText = selectedLabels.length > 0 ? selectedLabels.length + ' ' + displaySelectedBefore : '';
-							$('.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count').each(function() {
-								let $widget = $(this);
-								let $container = $widget.find('.elementor-widget-container').first();
-								let $target = $container.length ? $container.children().first() : $widget.children().first();
-
-								if ($target.length) {
-									$target.text(termsCountText);
-								}
-							});
-
-							let termsText = selectedLabels.length > 0 ? displaySelectedBefore + selectedLabels.join(', ') : '';
-							$('.selected-terms-' + widgetInteractionID + ', .bpfwe-selected-terms').each(function() {
-								let $widget = $(this);
-								let $container = $widget.find('.elementor-widget-container').first();
-								let $target = $container.length ? $container.children().first() : $widget.children().first();
-
-								if ($target.length) {
-									$target.text(termsText);
-								}
-							});
-
-							let pillsHtml = selectedItems.map(item => {
-								return `<span class="bpfwe-term-pill" data-term="${item.value}">
-									<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-								</span>`;
-							}).join('');
-
-							$('.quick-deselect-' + widgetInteractionID).each(function() {
-								let $widget = $(this);
-								let $container = $widget.find('.elementor-widget-container').first();
-								let $target = $container.length ? $container.children().first() : $widget.children().first();
-								if ($target.length) {
-									$target.html(pillsHtml);
-								}
-							});
-						}
-
-						$(document).off('click', '.bpfwe-term-remove').on('click', '.bpfwe-term-remove', function() {
-							let $pill = $(this).parent();
-							let termValue = $pill.data('term');
-							let widgetId = $(this).data('widget-id');
-
-							let $filterWidget = widgetId ? $('.elementor-widget-filter-widget[data-id="' + widgetId + '"]') : $('.elementor-widget-filter-widget');
-
-							if ($filterWidget.length) {
-								let $input = $filterWidget.find(`[value="${termValue}"]`);
-
-								if ($input.is('input[type="checkbox"], input[type="radio"]')) {
-									$input.prop('checked', false).trigger('change');
-								} else if ($input.is('option')) {
-									$input.prop('selected', false);
-									let $select = $input.closest('select');
-									if (!$select.prop('multiple')) {
-										$select.prop('selectedIndex', 0);
-									}
-									$select.trigger('change');
-								}
+					function reduceFields(fields) {
+						return fields.reduce((o, cur) => {
+							const occurs = o.reduce((n, item, i) => (item.taxonomy === cur.taxonomy ? i : n), -1);
+							if (occurs >= 0) {
+								o[occurs].terms = o[occurs].terms.concat(cur.terms);
+							} else {
+								o.push({ taxonomy: cur.taxonomy, terms: [cur.terms], logic: cur.logic });
 							}
-						});
-					}
-
-					function reduceFields (fields) {
-						return fields.reduce(function (o, cur) {
-							var occurs = o.reduce(function (n, item, i) {
-								return (item.taxonomy === cur.taxonomy) ? i : n;
-							}, -1);
-							if (occurs >= 0) o[ occurs ].terms = o[ occurs ].terms.concat(cur.terms);
-							else o = o.concat([ {
-								taxonomy: cur.taxonomy,
-								terms: [ cur.terms ],
-								logic: cur.logic
-							} ]);
 							return o;
 						}, []);
 					}
@@ -806,6 +773,8 @@
 
 						$(document).trigger('elementor/lazyload/observe');
 					}
+					
+					updateSelectedTermsDisplay(widgetInteractionID, displaySelectedBefore);
 
 					var taxonomy_output = reduceFields(category),
 						custom_field_output = reduceFields(custom_field),
@@ -891,10 +860,10 @@
 
 								localTargetSelector.find('.loader').fadeOut();
 
-								if (!$.trim(content) || !$(content).length) {
-									nothingFoundMessage = nothingFoundMessage.replace(/</g, '<').replace(/>/g, '>');
-									if (nothingFoundMessage.trim()) {
-										localTargetSelector.html('<div class="no-post">' + nothingFoundMessage + '</div>');
+								if (localTargetSelector.find('.no-post').length || localTargetSelector.find('.e-loop-nothing-found-message').length) {
+									if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
+										const safeMessage = nothingFoundMessage.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+										localTargetSelector.html(`<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>`);
 									}
 								} else {
 									var pagination = localTargetSelector.find('nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]');
@@ -986,6 +955,82 @@
 							post_count(localTargetSelector);
 
 							reinitElementorContent(localTargetSelector);
+						}
+					});
+				}
+
+				function updateSelectedTermsDisplay(widgetInteractionID, displaySelectedBefore) {
+					if (!$('.selected-terms-' + widgetInteractionID + ', .selected-count-' + widgetInteractionID + ', .quick-deselect-' + widgetInteractionID + ', .bpfwe-selected-terms, .bpfwe-selected-count').length) return;
+
+					const $filterWidget = $(`.elementor-widget-filter-widget[data-id="${widgetInteractionID}"]`);
+					if (!$filterWidget.length) return;
+
+					let selectedLabels = [];
+					let selectedItems = [];
+
+					$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked').each(function() {
+						const labelText = $(this).closest('label').find('span').first().text().trim();
+						if (labelText) selectedLabels.push(labelText);
+					});
+
+					$filterWidget.find('select option:selected').each(function() {
+						const text = $(this).text().trim();
+						if (text && $(this).val()) selectedLabels.push(text);
+					});
+
+					$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked, select option:selected').each(function() {
+						const $input = $(this);
+						const value = $input.val();
+						let label = $input.is('option') ? $input.text().trim() : $input.closest('label').find('span').first().text().trim();
+						if (value && label) selectedItems.push({ value, label });
+					});
+
+					const termsCountText = selectedLabels.length > 0 ? `${selectedLabels.length} ${displaySelectedBefore}` : '';
+					$('.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count').each(function() {
+						const $widget = $(this);
+						const $container = $widget.find('.elementor-widget-container').first();
+						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						if ($target.length) $target.text(termsCountText);
+					});
+
+					const termsText = selectedLabels.length > 0 ? `${displaySelectedBefore} ${selectedLabels.join(', ')}` : '';
+					$('.selected-terms-' + widgetInteractionID + ', .bpfwe-selected-terms').each(function() {
+						const $widget = $(this);
+						const $container = $widget.find('.elementor-widget-container').first();
+						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						if ($target.length) $target.text(termsText);
+					});
+
+					const pillsHtml = selectedItems.map(item => 
+						`<span class="bpfwe-term-pill" data-term="${item.value}">
+							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+						</span>`
+					).join('');
+
+					$('.quick-deselect-' + widgetInteractionID).each(function() {
+						const $widget = $(this);
+						const $container = $widget.find('.elementor-widget-container').first();
+						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						if ($target.length) $target.html(pillsHtml);
+					});
+
+					// Bind pill removal.
+					$(document).off('click', '.bpfwe-term-remove').on('click', '.bpfwe-term-remove', function() {
+						const $pill = $(this).parent();
+						const termValue = $pill.data('term');
+						const widgetId = $(this).data('widget-id');
+						const $localFilterWidget = widgetId ? $(`.elementor-widget-filter-widget[data-id="${widgetId}"]`) : $('.elementor-widget-filter-widget');
+
+						if ($localFilterWidget.length) {
+							let $input = $localFilterWidget.find(`[value="${termValue}"]`);
+							if ($input.is('input[type="checkbox"], input[type="radio"]')) {
+								$input.prop('checked', false).trigger('change');
+							} else if ($input.is('option')) {
+								$input.prop('selected', false);
+								const $select = $input.closest('select');
+								if (!$select.prop('multiple')) $select.prop('selectedIndex', 0);
+								$select.trigger('change');
+							}
 						}
 					});
 				}

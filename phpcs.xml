@@ -25,13 +25,15 @@
     <arg name="parallel" value="8"/>
 
     <!-- Include the WordPress-Extra standard -->
-    <rule ref="WordPress-Extra">
-        <!-- Exclude specific sniffs -->
-        <exclude name="WordPress.Security.EscapeOutput"/>
+	<rule ref="WordPress-Extra">
+		<exclude name="WordPress.Security.EscapeOutput"/>
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Generic.Arrays.DisallowLongArraySyntax"/>
-    </rule>
+		<exclude name="WordPress.Arrays.ArrayIndentation"/>
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing"/>
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment"/>
+	</rule>
 
     <!-- Include WordPress-Docs rules -->
     <rule ref="WordPress-Docs"/>

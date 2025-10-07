@@ -470,10 +470,10 @@ class BPFWE_Helper {
 	 * @param mixed  $value  The raw meta value.
 	 * @param string $format The format type ('none', 'date', 'number', 'text', 'custom_pattern').
 	 * @param array  $args   Optional. Additional formatting options depending on $format.
-	 *                       For 'date': ['date_format' => string]
-	 *                       For 'number': ['decimals' => int, 'suffix' => string]
-	 *                       For 'text': ['text_case' => string]
-	 *                       For 'custom_pattern': ['pattern' => string]
+	 *                       For 'date': ['date_format' => string].
+	 *                       For 'number': ['decimals' => int, 'suffix' => string].
+	 *                       For 'text': ['text_case' => string].
+	 *                       For 'custom_pattern': ['pattern' => string].
 	 * @return string Formatted value.
 	 */
 	public static function format_meta_value( $value, $format = 'none', $args = [] ) {

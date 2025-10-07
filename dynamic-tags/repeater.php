@@ -366,13 +366,14 @@ class Repeater extends Tag {
 	 * Render dynamic tag output.
 	 */
 	public function render() {
-		$settings = $this->get_settings_for_display();
-		$key      = sanitize_key( $settings['custom_key'] );
-		$source   = $settings['field_source'];
-		$post_id  = absint( $settings['post_id'] );
-		$term_id  = absint( $settings['term_id'] );
-		$user_id  = absint( $settings['user_id'] );
-		$html_tag = esc_attr( $settings['child_html_tag'] );
+		$settings           = $this->get_settings_for_display();
+		$key                = sanitize_key( $settings['custom_key'] );
+		$source             = $settings['field_source'];
+		$post_id            = absint( $settings['post_id'] );
+		$term_id            = absint( $settings['term_id'] );
+		$user_id            = absint( $settings['user_id'] );
+		$allowed_child_tags = [ 'none', 'div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'table', 'toggle', 'tabs' ];
+		$html_tag           = in_array( $settings['child_html_tag'], $allowed_child_tags, true ) ? esc_attr( $settings['child_html_tag'] ) : '';
 
 		if ( empty( $key ) ) {
 			return;

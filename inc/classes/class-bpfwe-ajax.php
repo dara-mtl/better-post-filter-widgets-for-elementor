@@ -171,6 +171,8 @@ class BPFWE_Ajax {
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 
+		$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
+
 		$this->register_pre_get_posts_filter();
 
 		// Multidimensional array sanitization and validation.
@@ -205,8 +207,8 @@ class BPFWE_Ajax {
 
 		$group_logic        = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
 		$meta_key           = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
-		$order              = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : 'ASC';
-		$order_by           = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : 'date';
+		$order              = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : '';
+		$order_by           = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : '';
 		$search_terms       = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
 		$dynamic_filtering  = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
 		$post_type          = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
@@ -230,19 +232,21 @@ class BPFWE_Ajax {
 		set_query_var( 'page', $paged );
 		set_query_var( 'page_num', $paged );
 
+		if ( 'targeted_widget' === $post_type ) {
+			$post_type = 'any';
+		}
+
 		$args = array(
-			'order'     => $order,
-			'orderby'   => $order_by,
 			'post_type' => $post_type,
 			'paged'     => $paged,
 		);
 
-		// Run global filter (affects all filter queries).
-		$args = apply_filters( 'bpfwe_ajax_query_args', $args, $this );
+		if ( ! empty( $order ) ) {
+			$args['order'] = $order;
+		}
 
-		// Run specific filter (affects only one query instance).
-		if ( ! empty( $query_id ) ) {
-			$args = apply_filters( "bpfwe/filter_query_args/{$query_id}", $args, $this );
+		if ( ! empty( $order_by ) ) {
+			$args['orderby'] = $order_by;
 		}
 
 		if ( true === $performance_settings['optimize_query'] ) {
@@ -473,6 +477,42 @@ class BPFWE_Ajax {
 			$is_empty = false;
 		}
 
+		// Capture Elementor query ID.
+		if ( ! empty( $ele_widget_query_id ) ) {
+			$simulated_query = new class() {
+				/**
+				 * Holds query variables to be merged into main args.
+				 *
+				 * @var array
+				 */
+				public $query_vars = [];
+
+				/**
+				 * Set a query variable.
+				 *
+				 * @param string $key   The query var key.
+				 * @param mixed  $value The value to set.
+				 */
+				public function set( $key, $value ) {
+					$this->query_vars[ $key ] = $value;
+				}
+			};
+
+			do_action( "elementor/query/{$ele_widget_query_id}", $simulated_query );
+
+			if ( ! empty( $simulated_query->query_vars ) ) {
+				$args = array_merge( $args, $simulated_query->query_vars );
+			}
+		}
+
+		// Run global filter (affects all filter queries).
+		$args = apply_filters( 'bpfwe_ajax_query_args', $args, $this );
+
+		// Run specific filter (affects only one query instance).
+		if ( ! empty( $query_id ) ) {
+			$args = apply_filters( "bpfwe/filter_query_args/{$query_id}", $args, $this );
+		}
+
 		if ( false === $is_empty ) {
 			$widget_data['settings']['args'] = $args;
 		}
@@ -494,7 +534,7 @@ class BPFWE_Ajax {
 		}
 
 		$response = preg_replace_callback(
-			'#(href=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '#',
+			'#((?:href|data-next-page)=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '#',
 			function ( $matches ) {
 				return $matches[1] . untrailingslashit( home_url() );
 			},
