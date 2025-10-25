@@ -23,112 +23,236 @@
 				var settings = $widget.data('settings');
 				var targetSelector = settings?.target_selector;
 
-				if (targetSelector && $(targetSelector).length) {
-					var $target = $(targetSelector);
-					var filtersList = $target.data('filters-list') ? $target.data('filters-list').split(',') : [];
+				// Skip widgets with no valid target selector or non-existent target
+				if (!targetSelector || !$(targetSelector).length) {
+					return;
+				}
 
-					if (!filtersList.includes(widgetId)) {
-						filtersList.push(widgetId);
-						$target.data('filters-list', filtersList.join(','));
-						$target.attr('data-filters-list', filtersList.join(','));
+				var $target = $(targetSelector);
+				var filtersList = $target.data('filters-list') ? $target.data('filters-list').split(',') : [];
+
+				// Avoid duplicate widget IDs in filters-list
+				if (!filtersList.includes(widgetId)) {
+					filtersList.push(widgetId);
+					$target.data('filters-list', filtersList.join(','));
+					$target.attr('data-filters-list', filtersList.join(','));
+				}
+
+				var widgetID = $target.data('id');
+
+				// Initialize original state only if not already set
+				if (!originalStates[widgetID]) {
+					originalStates[widgetID] = $target.html();
+				}
+
+				// Initialize posts per page cache only if not already set
+				if (!postsPerPageCache[widgetID]) {
+					const postWidgetSetting = $target.data('settings');
+					let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt(postWidgetSetting.posts_per_page) : null;
+					if (!postsPerPage) {
+						let postWrapper = $target.find('.elementor-posts, .grid, .columns, .elementor-grid').first();
+						if (postWrapper.length) postsPerPage = postWrapper.children('article, .post, .item, .entry').length;
+					}
+					if (!postsPerPage) {
+						let postWrapper = $target.find('.swiper-wrapper').first();
+						if (postWrapper.length) postsPerPage = postWrapper.children('.swiper-slide').length;
+					}
+					if (!postsPerPage) {
+						let postWrapper = $target.find('ul.products').first();
+						if (postWrapper.length) postsPerPage = postWrapper.children('li').length;
+					}
+					if (!postsPerPage) {
+						let postWrapper = $target.find('ul').first();
+						if (postWrapper.length) postsPerPage = postWrapper.children('li').length;
+					}
+					if (!postsPerPage) {
+						let postWrapper = $target.find('div').first();
+						if (postWrapper.length) postsPerPage = postWrapper.children('div').length;
+					}
+					postsPerPageCache[widgetID] = postsPerPage > 0 ? postsPerPage : 50;
+				}
+
+				// Handle filter widget's settings
+				if ($widget.hasClass('elementor-widget-filter-widget')) {
+					if (!filterSettingsCache[widgetID]) {
+						filterSettingsCache[widgetID] = [];
 					}
 
-					var widgetID = $target.data('id');
+					const filterSettings = {
+						widgetId: widgetId,
+						groupLogic: settings?.group_logic ?? '',
+						dynamicFiltering: settings?.dynamic_filtering ?? '',
+						scrollToTop: settings?.scroll_to_top ?? '',
+						displaySelectedBefore: settings?.display_selected_before ?? '',
+						nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
+						enableQueryDebug: settings?.enable_query_debug ?? '',
+						queryID: settings?.filter_query_id ?? ''
+					};
 
-					if (!originalStates[ widgetID ]) {
-						originalStates[ widgetID ] = $target.html();
+					filterSettingsCache[widgetID] = filterSettings;
+
+					$target.data('filter-settings', filterSettings);
+					$target.attr('data-filter-settings', JSON.stringify(filterSettings));
+
+					if (!performanceSettingsCache[widgetID]) {
+						performanceSettingsCache[widgetID] = [];
 					}
 
-					if (!postsPerPageCache[ widgetID ]) {
-						const postWidgetSetting = $target.data('settings');
-						let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt(postWidgetSetting.posts_per_page) : null;
-						if (!postsPerPage) {
-							let postWrapper = $target.find('.elementor-posts, .grid, .columns, .elementor-grid').first();
-							if (postWrapper.length) postsPerPage = postWrapper.children('article, .post, .item, .entry').length;
-						}
-						if (!postsPerPage) {
-							let postWrapper = $target.find('.swiper-wrapper').first();
-							if (postWrapper.length) postsPerPage = postWrapper.children('.swiper-slide').length;
-						}
-						if (!postsPerPage) {
-							let postWrapper = $target.find('ul.products').first();
-							if (postWrapper.length) postsPerPage = postWrapper.children('li').length;
-						}
-						if (!postsPerPage) {
-							let postWrapper = $target.find('ul').first();
-							if (postWrapper.length) postsPerPage = postWrapper.children('li').length;
-						}
-						if (!postsPerPage) {
-							let postWrapper = $target.find('div').first();
-							if (postWrapper.length) postsPerPage = postWrapper.children('div').length;
-						}
-						postsPerPageCache[ widgetID ] = postsPerPage > 0 ? postsPerPage : 50;
-					}
+					const performanceSettings = {
+						widgetId: widgetId,
+						optimize_query: settings?.optimize_query === 'yes',
+						no_found_rows: settings?.no_found_rows === 'yes',
+						suppress_filters: settings?.suppress_filters === 'yes',
+						posts_per_page: parseInt(settings?.posts_per_page) || -1
+					};
 
-					// Handle filter widget's settings.
-					if ($widget.hasClass('elementor-widget-filter-widget')) {
+					performanceSettingsCache[widgetID].push(performanceSettings);
 
-						// General settings.
-						if (!filterSettingsCache[ widgetID ]) {
-							filterSettingsCache[ widgetID ] = [];
-						}
-
-						const filterSettings = {
-							widgetId: widgetId,
-							groupLogic: settings?.group_logic ?? '',
-							dynamicFiltering: settings?.dynamic_filtering ?? '',
-							scrollToTop: settings?.scroll_to_top ?? '',
-							displaySelectedBefore: settings?.display_selected_before ?? '',
-							nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
-							enableQueryDebug: settings?.enable_query_debug ?? '',
-							queryID: settings?.filter_query_id ?? ''
+					const mergedSettings = performanceSettingsCache[widgetID].reduce((merged, current) => {
+						return {
+							optimize_query: merged.optimize_query || current.optimize_query,
+							no_found_rows: merged.no_found_rows || current.no_found_rows,
+							suppress_filters: merged.suppress_filters || current.suppress_filters,
+							posts_per_page: Math.min(merged.posts_per_page === -1 ? Infinity : merged.posts_per_page, current.posts_per_page === -1 ? Infinity : current.posts_per_page)
 						};
+					}, {
+						optimize_query: false,
+						no_found_rows: false,
+						suppress_filters: false,
+						posts_per_page: -1
+					});
 
-						filterSettingsCache[widgetID] = filterSettings;
+					mergedSettings.posts_per_page = mergedSettings.posts_per_page === Infinity ? -1 : mergedSettings.posts_per_page;
 
-						$target.data('filter-settings', filterSettings);
-						$target.attr('data-filter-settings', JSON.stringify(filterSettings));
-
-						// Performance settings.
-						if (!performanceSettingsCache[ widgetID ]) {
-							performanceSettingsCache[ widgetID ] = [];
-						}
-
-						const performanceSettings = {
-							widgetId: widgetId,
-							optimize_query: settings?.optimize_query === 'yes',
-							no_found_rows: settings?.no_found_rows === 'yes',
-							suppress_filters: settings?.suppress_filters === 'yes',
-							posts_per_page: parseInt(settings?.posts_per_page) || -1
-						};
-
-						performanceSettingsCache[ widgetID ].push(performanceSettings);
-
-						const mergedSettings = performanceSettingsCache[ widgetID ].reduce((merged, current) => {
-							return {
-								optimize_query: merged.optimize_query || current.optimize_query,
-								no_found_rows: merged.no_found_rows || current.no_found_rows,
-								suppress_filters: merged.suppress_filters || current.suppress_filters,
-								posts_per_page: Math.min(merged.posts_per_page === -1 ? Infinity : merged.posts_per_page, current.posts_per_page === -1 ? Infinity : current.posts_per_page)
-							};
-						}, {
-							optimize_query: false,
-							no_found_rows: false,
-							suppress_filters: false,
-							posts_per_page: -1
-						});
-
-						mergedSettings.posts_per_page = mergedSettings.posts_per_page === Infinity ? -1 : mergedSettings.posts_per_page;
-
-						$target.data('performance-settings', mergedSettings);
-						$target.attr('data-performance-settings', JSON.stringify(mergedSettings));
-					}
+					$target.data('performance-settings', mergedSettings);
+					$target.attr('data-performance-settings', JSON.stringify(mergedSettings));
 				}
 			});
 		}
 
 		// Add the filter attributes to the targeted post widget on page load.
 		linkFilterWidgets();
+
+		// Add Support for URL.
+		function bpfwe_init_url_filters() {
+			const params = new URLSearchParams(window.location.search);
+			const formId = params.get('results');
+
+			if (!formId) return;
+			const $form = $('#' + formId);
+			if (!$form.length) return;
+
+			let hasPrefill = false;
+
+			function getSection($input) {
+				const classes = ($input.closest('.flex-wrapper').attr('class') || '').split(/\s+/);
+				for (let i = 0; i < classes.length; i++) {
+					if (classes[i] && classes[i] !== 'flex-wrapper') return classes[i];
+				}
+				return null;
+			}
+
+			// Build URL query from current form state.
+			function updateUrl() {
+				const query = new URLSearchParams();
+				query.set('results', formId);
+
+				// checkboxes & radios - NO section suffix.
+				$form.find(':checkbox:checked, :radio:checked').each(function() {
+					const $input = $(this);
+					const name = $input.attr('name');
+					if (!name) return;
+					const val = $input.val();
+					const existing = query.get(name);
+					query.set(name, existing ? existing + ',' + val : val);
+				});
+
+				// text & number inputs.
+				$form.find('input[type="text"], input[type="number"]').each(function() {
+					const $input = $(this);
+					const name = $input.attr('name');
+					const val = $input.val();
+					if (!name || !val) return;
+
+					// exclude suffix for these.
+					if (
+						name.startsWith('min_') ||
+						name.startsWith('max_') ||
+						name.startsWith('post_meta_')
+					) {
+						query.set(name, val);
+						return;
+					}
+
+					const section = getSection($input);
+					const key = section ? name + '_' + section : name;
+					query.set(key, val);
+				});
+
+				const newUrl = window.location.pathname + '?' + query.toString();
+				window.history.replaceState({}, '', newUrl);
+			}
+
+			// Prefill from URL
+			params.forEach(function(value, key) {
+				if (key === 'results') return;
+
+				// Handle text/number fields with _section suffix.
+				if (key.includes('_')) {
+					const parts = key.split('_');
+					const section = parts.pop();
+					const baseKey = parts.join('_');
+					const $scope = $form.find('.flex-wrapper.' + section);
+					const $inputs = $scope.find('[name="' + baseKey + '"]');
+					if (!$inputs.length) return;
+					if ($inputs.is('input[type="text"], input[type="number"]')) {
+						$inputs.val(value);
+						hasPrefill = true;
+					}
+					return;
+				}
+
+				// Normal fields (checkbox/radio or plain inputs).
+				const $inputs = $form.find('[name="' + key + '"]');
+				if (!$inputs.length) return;
+
+				if ($inputs.is(':checkbox, :radio')) {
+					const values = value.split(',');
+					$inputs.each(function() {
+						if (values.includes($(this).val())) {
+							$(this).prop('checked', true);
+							hasPrefill = true;
+						}
+					});
+					return;
+				}
+
+				if ($inputs.is('input[type="text"], input[type="number"]')) {
+					$inputs.val(value);
+					hasPrefill = true;
+				}
+			});
+
+			// Trigger prefill filter logic.
+			if (hasPrefill) {
+				setTimeout(function() {
+					updateUrl();
+					$form.find(':checked, input[type="text"][value!=""], input[type="number"][value!=""]').trigger('change');
+					$form.trigger('change');
+				}, 300);
+			}
+
+			// Update URL dynamically.
+			const delegatedSelector =
+				'.bpfwe-filter-item, .input-text, [class^="bpfwe-filter-range-"], input[type="text"], input[type="number"], :checkbox, :radio';
+			$form.on('change input', delegatedSelector, function() {
+				updateUrl();
+			});
+
+			$form.data('bpfweUpdateUrl', updateUrl);
+		}
+
+		bpfwe_init_url_filters();
 
 		// Handle Filter toggle.
 		$(document).on('click', '.filter-title.collapsible', function() {
@@ -366,6 +490,16 @@
 					if (!widgetID) return;
 					var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
 					if ($outermost.length) pageID = $outermost.data('elementor-id');
+				} else {
+					if (!widgetID) return;
+					var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
+					if ($outermost.length) {
+						var isTemplate = $outermost.data('elementor-post-type') === 'elementor_library';
+						var typeAttr = $outermost.data('elementor-type');
+						if (isTemplate && typeAttr && typeAttr.indexOf('single') !== -1) {
+							pageID = $outermost.data('elementor-id');
+						}
+					}
 				}
 
 				// ===== Debounce the interactions =====
@@ -616,6 +750,7 @@
 
 					var category = [],
 						custom_field = [],
+						custom_field_relational = [],
 						custom_field_like = [],
 						numeric_field = [];
 
@@ -651,6 +786,16 @@
 								var self = $(this);
 								var targetArray = self.closest('.bpfwe-taxonomy-wrapper').length ? category : custom_field;
 								targetArray.push({
+									taxonomy: self.data('taxonomy'),
+									terms: self.val(),
+									logic: self.closest('div').data('logic')
+								});
+								hasValues = true;
+							});
+
+							$filterWidget.find('.bpfwe-custom-field-relational-wrapper input:checked').each(function() {
+								var self = $(this);
+								custom_field_relational.push({
 									taxonomy: self.data('taxonomy'),
 									terms: self.val(),
 									logic: self.closest('div').data('logic')
@@ -778,6 +923,7 @@
 
 					var taxonomy_output = reduceFields(category),
 						custom_field_output = reduceFields(custom_field),
+						custom_field_relational_output = reduceFields(custom_field_relational),
 						custom_field_like_output = reduceFields(custom_field_like),
 						numeric_output = reduceFields(numeric_field);
 
@@ -795,6 +941,7 @@
 							taxonomy_output: taxonomy_output,
 							dynamic_filtering: filterSettings?.dynamicFiltering,
 							custom_field_output: custom_field_output,
+							custom_field_relational_output: custom_field_relational_output,
 							custom_field_like_output: custom_field_like_output,
 							numeric_output: numeric_output,
 							post_type: post_type,
@@ -985,6 +1132,31 @@
 						if (value && label) selectedItems.push({ value, label });
 					});
 
+					$filterWidget.find('.bpfwe-numeric-wrapper').each(function() {
+						const $wrapper = $(this);
+						const $min = $wrapper.find('input[name^="min_"]');
+						const $max = $wrapper.find('input[name^="max_"]');
+
+						if ($min.length && $max.length) {
+							const minVal = $min.val();
+							const maxVal = $max.val();
+							const baseMin = $min.data('base-value');
+							const baseMax = $max.data('base-value');
+
+							if (minVal != baseMin || maxVal != baseMax) {
+								const label = `${minVal} - ${maxVal}`;
+								selectedLabels.push(label);
+								selectedItems.push({
+									value: `${minVal}-${maxVal}`,
+									label: label,
+									type: 'range',
+									minInput: $min,
+									maxInput: $max
+								});
+							}
+						}
+					});
+
 					const termsCountText = selectedLabels.length > 0 ? `${selectedLabels.length} ${displaySelectedBefore}` : '';
 					$('.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count').each(function() {
 						const $widget = $(this);
@@ -1001,11 +1173,16 @@
 						if ($target.length) $target.text(termsText);
 					});
 
-					const pillsHtml = selectedItems.map(item => 
-						`<span class="bpfwe-term-pill" data-term="${item.value}">
-							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-						</span>`
-					).join('');
+					const pillsHtml = selectedItems.map(item => {
+						if (item.type === 'range') {
+							return `<span class="bpfwe-term-pill" data-range="true" data-min="${item.minInput.attr('name')}" data-max="${item.maxInput.attr('name')}" data-widget-id="${widgetInteractionID}">
+										<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+									</span>`;
+						}
+						return `<span class="bpfwe-term-pill" data-term="${item.value}">
+									<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+								</span>`;
+					}).join('');
 
 					$('.quick-deselect-' + widgetInteractionID).each(function() {
 						const $widget = $(this);
@@ -1014,15 +1191,22 @@
 						if ($target.length) $target.html(pillsHtml);
 					});
 
-					// Bind pill removal.
 					$(document).off('click', '.bpfwe-term-remove').on('click', '.bpfwe-term-remove', function() {
 						const $pill = $(this).parent();
-						const termValue = $pill.data('term');
 						const widgetId = $(this).data('widget-id');
 						const $localFilterWidget = widgetId ? $(`.elementor-widget-filter-widget[data-id="${widgetId}"]`) : $('.elementor-widget-filter-widget');
 
-						if ($localFilterWidget.length) {
-							let $input = $localFilterWidget.find(`[value="${termValue}"]`);
+						if ($pill.data('range')) {
+							const minName = $pill.data('min');
+							const maxName = $pill.data('max');
+							const $min = $localFilterWidget.find(`input[name="${minName}"]`);
+							const $max = $localFilterWidget.find(`input[name="${maxName}"]`);
+							if ($min.length && $max.length) {
+								$min.val($min.data('base-value')).trigger('change');
+								$max.val($max.data('base-value')).trigger('change');
+							}
+						} else if ($localFilterWidget.length) {
+							let $input = $localFilterWidget.find(`[value="${$pill.data('term')}"]`);
 							if ($input.is('input[type="checkbox"], input[type="radio"]')) {
 								$input.prop('checked', false).trigger('change');
 							} else if ($input.is('option')) {

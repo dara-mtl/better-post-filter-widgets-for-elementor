@@ -7,7 +7,7 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.6.2
+ * Version: 1.7.0
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.8
@@ -34,7 +34,7 @@ require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.6.2';
+	const VERSION                   = '1.7.0';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -190,7 +190,13 @@ final class BPFWE_Elementor {
 	 * Enqueue backend scripts.
 	 */
 	public function backend_widget_scripts() {
+		// Localize and enqueue plugin scripts.
+		$ajax_params = [
+			'url'   => admin_url( 'admin-ajax.php' ),
+			'nonce' => wp_create_nonce( 'ajax-nonce' ),
+		];
 		wp_enqueue_script( 'post-editor-script', plugins_url( 'assets/js/backend/post-widget-editor.js', __FILE__ ), [], self::VERSION, true );
+		wp_localize_script( 'post-editor-script', 'ajax_var', $ajax_params );
 	}
 
 	/**

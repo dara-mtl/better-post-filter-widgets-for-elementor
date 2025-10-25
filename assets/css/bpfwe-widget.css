@@ -1024,6 +1024,10 @@ ul.taxonomy-filter.show-toggle .label-more,
 	padding-left: 0 !important;
 }
 
+.taxonomy-filter .child-terms {
+	margin-top: 5px;
+}
+
 .bpfwe-numeric-wrapper {
 	display: flex;
 	flex-direction: row;
@@ -1193,7 +1197,7 @@ ul.taxonomy-filter.show-toggle .label-more,
 }
 
 .bpfwe-visual-range-wrapper input[type="radio"] {
-	display: none;
+	display: none !important;
 }
 
 .bpfwe-visual-range-wrapper input:checked + label .icon-normal,

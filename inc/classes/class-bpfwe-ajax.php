@@ -171,7 +171,15 @@ class BPFWE_Ajax {
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 
-		$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
+		$ele_widget_query_id = '';
+
+		if ( ! empty( $widget_data['settings']['post_query_query_id'] ) ) {
+			$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
+		} elseif ( ! empty( $widget_data['settings']['posts_query_id'] ) ) {
+			$ele_widget_query_id = $widget_data['settings']['posts_query_id'];
+		} elseif ( ! empty( $widget_data['settings']['query_id'] ) ) {
+			$ele_widget_query_id = $widget_data['settings']['query_id'];
+		}
 
 		$this->register_pre_get_posts_filter();
 
@@ -198,12 +206,13 @@ class BPFWE_Ajax {
 		];
 
 		// Sanitize all arrays with bpfwe_sanitize_nested_data(), refer to function on line 133.
-		$days_array               = ! empty( $_POST['date_query'] ) ? array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_POST['date_query'] ) ) ) ) : [];
-		$taxonomy_output          = ! empty( $_POST['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['taxonomy_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$custom_field_output      = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$custom_field_like_output = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$numeric_output           = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$performance_settings     = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$days_array                     = ! empty( $_POST['date_query'] ) ? array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_POST['date_query'] ) ) ) ) : [];
+		$taxonomy_output                = ! empty( $_POST['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['taxonomy_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$custom_field_output            = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$custom_field_relational_output = ! empty( $_POST['custom_field_relational_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_relational_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$custom_field_like_output       = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$numeric_output                 = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$performance_settings           = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$group_logic        = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
 		$meta_key           = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
@@ -348,7 +357,7 @@ class BPFWE_Ajax {
 			$is_empty = false;
 		}
 
-		if ( $custom_field_output || $custom_field_like_output || $numeric_output ) {
+		if ( $custom_field_output || $custom_field_like_output || $numeric_output || $custom_field_relational_output ) {
 			$meta_query_or   = [];
 			$meta_like_or    = [];
 			$meta_numeric_or = [];
@@ -383,6 +392,41 @@ class BPFWE_Ajax {
 				}
 			}
 
+			// Add RELATIONAL FIELD to query.
+			if ( ! empty( $custom_field_relational_output ) && is_array( $custom_field_relational_output ) ) {
+				foreach ( $custom_field_relational_output as $key => $value ) {
+
+					$taxonomy_key = sanitize_key( $value['taxonomy'] );
+					$term_ids     = array_map( 'absint', (array) $value['terms'] );
+					$row_logic    = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
+
+					if ( empty( $term_ids ) ) {
+						continue;
+					}
+
+					if ( count( $term_ids ) > 1 ) {
+						$or_group = array( 'relation' => $row_logic );
+
+						foreach ( $term_ids as $term_id ) {
+							$or_group[] = array(
+								'key'     => $taxonomy_key,
+								'value'   => $term_id,
+								'compare' => 'LIKE',
+							);
+						}
+
+						$meta_like_or[] = $or_group;
+
+					} else {
+						$meta_like_or[] = array(
+							'key'     => $taxonomy_key,
+							'value'   => $term_ids[0],
+							'compare' => 'LIKE',
+						);
+					}
+				}
+			}
+
 			// Add NUMERIC value field to query.
 			if ( ! empty( $numeric_output ) && is_array( $numeric_output ) ) {
 				foreach ( $numeric_output as $value ) {
@@ -391,7 +435,7 @@ class BPFWE_Ajax {
 					$query = [
 						'key'     => sanitize_key( $value['taxonomy'] ),
 						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
-						'type'    => 'numeric',
+						'type'    => 'NUMERIC',
 						'compare' => count( $terms ) > 1 ? 'BETWEEN' : '>=',
 					];
 
@@ -700,6 +744,70 @@ class BPFWE_Ajax {
 	}
 
 	/**
+	 * Handles AJAX search requests for related items used in the Elementor filter widget.
+	 *
+	 * This function verifies the AJAX nonce, then searches both posts and users
+	 * matching the provided query term. Results are returned as a combined JSON
+	 * response compatible with Select2 for use within Elementor repeater fields.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @return void Sends a JSON response with search results or an error message.
+	 */
+	public function bpfwe_search_related_items() {
+		$nonce = isset( $_GET['nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['nonce'] ) ) : '';
+
+		// Verify the nonce.
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
+			wp_send_json_error( [ 'message' => 'Access Denied' ], 403 );
+		}
+
+		$search   = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+		$page     = isset( $_GET['page'] ) ? absint( $_GET['page'] ) : 1;
+		$per_page = 6;
+		$results  = [];
+
+		$post_type = ! empty( $_GET['post_type'] ) ? sanitize_text_field( wp_unslash( $_GET['post_type'] ) ) : 'any';
+
+		// Search posts.
+		$post_query = new WP_Query(
+			[
+				's'              => $search,
+				'post_type'      => $post_type,
+				'posts_per_page' => $per_page,
+				'paged'          => $page,
+				'no_found_rows'  => true,
+			]
+		);
+
+		foreach ( $post_query->posts as $post ) {
+			$results[] = [
+				'id'   => $post->ID,
+				'text' => $post->post_title . ' (Post)',
+			];
+		}
+
+		// Search users.
+		$user_query = new WP_User_Query(
+			[
+				'search'         => '*' . $search . '*',
+				'search_columns' => [ 'user_login', 'display_name', 'user_email' ],
+				'number'         => $per_page,
+				'paged'          => $page,
+			]
+		);
+
+		foreach ( $user_query->get_results() as $user ) {
+			$results[] = [
+				'id'   => $user->ID,
+				'text' => $user->display_name . ' (User)',
+			];
+		}
+
+		wp_send_json_success( $results );
+	}
+
+	/**
 	 * Constructor for the BPFWE_Ajax class.
 	 *
 	 * Initializes AJAX hooks and sets up the class.
@@ -723,6 +831,8 @@ class BPFWE_Ajax {
 
 		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
 		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
+
+		add_action( 'wp_ajax_bpfwe_search_related_items', [ $this, 'bpfwe_search_related_items' ] );
 	}
 
 	/**

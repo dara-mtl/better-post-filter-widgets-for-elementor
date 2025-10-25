@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.6.2
+Stable tag: 1.7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -13,13 +13,13 @@ The only free pro-grade Elementor filter for posts, taxonomies, custom fields, A
 
 == Description ==
 
-The only free Elementor plugin for unlimited pro-grade filtering of all your post content. Filter by taxonomies, custom fields, ACF, meta fields, and numeric ranges – with seamless integration, no restrictions, and full customization. Get advanced filtering features without paying for limitations.
+The only free Elementor plugin for unlimited pro-grade filtering of all your post content. Filter by taxonomies, custom fields, ACF, relational fields, and numeric ranges – with seamless integration, no restrictions, and full customization. Get advanced filtering features without paying for limitations.
 
 ### Filter Widget Key Features:
 - Compatible with Elementor Pro post widget, ACF, WooCommerce and most translation plugins.
 - Filter any post type.
 - Customizable filter items list with easy re-ordering options.
-- Filter anything using taxonomies, custom field/ACF, and numeric fields.
+- Filter anything using taxonomies, custom fields/ACF, relational and numeric fields.
 - Keyword search support for custom field/ACF.
 - Various filter types catered to diverse use-cases: checkboxes, radio buttons, label list, dropdown, numeric range, select2 (single & multiple select).
 - Fine-tune the filter with the choice of relation (AND or OR) between terms and parents.
@@ -119,6 +119,19 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.7.0 – 2025-10-24 =
+
+* New: Added support for relational ACF and array fields to the Filter widget – currently compatible with User, Post Object, and Relationship fields.
+  * Relational fields were also added to the Default Filter section, allowing pre-filtering of results based on related users or posts.
+* New: Added quick deselect pill support for numeric ranges.
+* New: Added URL-based filter triggering.
+  * Filters can now be triggered using ?results=filter-XXXXXXX (replace XXXXXXX with the Filter ID).
+  * After interacting with the widget, the URL scheme will be automatically revealed for sharing or linking.
+* New: Filter query results now detect Elementor Pro and BPFWE Post Widget `query_id`, ensuring filter results do not override the Loop Grid's own query.
+* New/Dev: Added a developer filter for extending relational meta-based terms:
+  * `bpfwe/get_relational_terms/{query_id}`
+* Fix: Prevented a potential HTTP 500 error when using a single template directly on a static page instead of assigning the template to the page itself.
+
 = 1.6.2 – 2025-10-06 =
 
 * Fix/Security: Patched a vulnerability reported on Patchstack. Added stricter validation for HTML tag settings in the Post widget & Repeater dynamic tag.
@@ -174,68 +187,14 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 * Fix: Pagination in the Post widget returned incorrect total pages when using the main query. The plugin now explicitly sets 'post_status' to 'publish' for main queries.
 * Core: Refactored part of the plugin's query filtering logic to improve inner template rendering in Elementor. Query arguments are now injected using widget-specific $query_id logic, resolving conflicts and ensuring correct post context for dynamic tags and nested templates.
 
-= 1.5.2 – 2025-07-29 =
-
-* Tweak: Simplified the meta query logic by removing unnecessary nesting and the AND/OR group logic option. Meta queries now use a leaner structure, reflecting WordPress's actual behavior.
-* Fix: Standalone Sorting widget no longer resets its value unexpectedly after AJAX interactions.
-* Fix: Suppressed PHP warning triggered by the Post widget's pagination.
-* Fix: Resolved background image rendering issues after AJAX pagination and filtering. To benefit from this fix, users must use the plugin's Image Custom Field dynamic tag for background images:
-  * For featured images, use the meta key _thumbnail_id
-  * For ACF fields or other custom meta, use the appropriate custom key.
-* Tweak: Improved debug data output for the Filter widget. Display is now more accurately reflects the executed query.
-
-= 1.5.1 – 2025-07-19 =
-
-* New: Added a query debug option in the Filter widget's Additional Options to allow backend users visualize the query.
-* Fix: Resolves cases where filters became non-functional after first interacting Elementor Pro's AJAX pagination.
-* Fix: Updated internal JavaScript logic to ensure widgets inside the Post widget (e.g., off-canvas panels) are properly re-initialized after AJAX interactions. This addresses broken behavior in Loop Grid using interactive widgets.
-* Tweak: Updated the "Group Label" text in the Filter widget to "Group Title" for consistency across controls.
-
-= 1.5.0 – 2025-07-11 =
-
-* New: Added toggle mode to Filter widget group titles.
-* New: Introduced "Select All" option per taxonomy/meta group, configurable under the Advanced tab of each group.
-* New: Added `.bpfwe-selected-count` class to show number of selected terms.
-* New: Added style controls for the toggle feature under Style > Group Title.
-* New: Rewrote AJAX pagination logic in the Post widget to use Elementor's native rendering method, improving reliability and performance. Legacy pagination will remain available for now.
-* New: Added "Display Mode" control to the Repeater Dynamic Tag for ul/ol, Tabs, and Toggle layouts, allows toggling between flat list (field-based) and grouped list (row-based) outputs.
-* Fix: Added missing HTML markup for meta-based filters to ensure selected terms are properly displayed via the `.bpfwe-selected-terms` class.
-* Fix: Off-canvas widgets are now properly re-initialized after AJAX pagination and filtering.
-* Tweak: Renamed "Group Label" to "Group Title" for clarity and consistency.
-* Tweak: Reworked OR group logic in `tax_query` to avoid nested arrays and follow parent logic more closely, each OR filter is now added separately.
-* Tweak: Search bar border radius is now responsive.
-* Compatibility: Tested up to Elementor 3.30.X.
-
-= 1.4.1 – 2025-06-25 =
-
-* Fix: Fixed Elementor widgets' pagination issue after filtering.
-* Fix: Fixed layout issue affecting the post carousel pagination.
-* Fix: Added missing **Term Order** control to the Filter widget.
-* Tweak: Made **Row Span** and **Column Span** controls responsive in the Template Grid layout of the Post widget.
-
-= 1.4.0 – 2025-06-09 =
-
-* New: Introduced **Default Filters** feature: Backend users can now define fixed taxonomy, meta, or date queries to include in the filter logic, under Content > Default Filters.
-* Fix: Resolved a layout issue in the Post widget when using the **Template Grid** layout with **User** or **Taxonomy** queries.
-* Fix: Corrected the performance sanitization rules, which were previously using a default logic, leading to inconsistent filter behavior in some cases.
-
-= 1.3.3 – 2025-05-24 =
-
-* New: Added styling controls for checkbox and radio button labels in the Filter widget, allowing greater design flexibility.
-* New: Introduced `.bpfwe-selected-terms` class to display currently selected filter terms inside any widget.
-* Fix: Resolved a crash when using the Custom Field dynamic tag with array-type fields in combination with the wpautop() function.
-* Fix: Prevented duplicated filter forms from interfering with each other's queries.
-* Compatibility: Confirmed compatibility with Elementor version 3.29.0
-
 For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
 
-= 1.6.2 =
+= 1.7.0 =
 
-This release includes important security fixes, performance improvements, and new features for both users and developers.
+New in This Update:
 
-**Note / Disclaimer:**
-- The filter query results now properly respect Elementor Loop Grid `query_id`. If you were using custom workarounds for query conflicts in previous versions, your filter results may behave slightly differently.
-- Nested term ordering has been corrected and cleaned up. If you implemented manual fixes or workarounds for ordering issues before, your term lists may appear differently after this update.
-- Developer filters for meta terms (`bpfwe/get_numeric_meta_terms` and `bpfwe/get_meta_terms`) have been added. Advanced users can now extend or modify how meta-based filter terms are retrieved.
+* Relational ACF / array fields now supported, including pre-filtering in the Default Filter.
+* Quick deselect pills for numeric ranges.
+* Trigger filters directly via URL using ?results=filter-XXXXXXX.
