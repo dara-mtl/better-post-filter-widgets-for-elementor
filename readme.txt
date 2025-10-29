@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -119,9 +119,16 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.7.1 – 2025-10-29 =
+
+* Fix: Added "Include Loop Grid Query ID" switch under the Query section to prevent potential query ID conflicts.
+  * The automatic inclusion of the Loop/Post Widget Query ID is now disabled by default for backward compatibility.
+* UI/Tweak: Reorganized Filter widget UI for clarity and better grouping of query-related controls.
+* Tweak: Added `$with_css = true` parameter to the Template Grid option in the Post Widget.
+
 = 1.7.0 – 2025-10-24 =
 
-* New: Added support for relational ACF and array fields to the Filter widget – currently compatible with User, Post Object, and Relationship fields.
+* New: Added "Include Loop Grid Query ID" switch under the Query section to prevent potential query ID conflicts
   * Relational fields were also added to the Default Filter section, allowing pre-filtering of results based on related users or posts.
 * New: Added quick deselect pill support for numeric ranges.
 * New: Added URL-based filter triggering.

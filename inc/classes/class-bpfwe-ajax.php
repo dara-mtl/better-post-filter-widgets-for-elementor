@@ -162,6 +162,7 @@ class BPFWE_Ajax {
 
 		$page_id   = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
 		$widget_id = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
+		$inject_id = ! empty( $_POST['inject_id'] ) ? sanitize_text_field( wp_unslash( $_POST['inject_id'] ) ) : '';
 
 		if ( empty( $page_id ) || empty( $widget_id ) ) {
 			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
@@ -171,14 +172,19 @@ class BPFWE_Ajax {
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 
-		$ele_widget_query_id = '';
+		$ele_widget_query_id   = '';
+		$bpfwe_widget_query_id = '';
 
-		if ( ! empty( $widget_data['settings']['post_query_query_id'] ) ) {
-			$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
-		} elseif ( ! empty( $widget_data['settings']['posts_query_id'] ) ) {
-			$ele_widget_query_id = $widget_data['settings']['posts_query_id'];
-		} elseif ( ! empty( $widget_data['settings']['query_id'] ) ) {
-			$ele_widget_query_id = $widget_data['settings']['query_id'];
+		if ( $inject_id ) {
+			if ( ! empty( $widget_data['settings']['post_query_query_id'] ) ) {
+				$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
+			} elseif ( ! empty( $widget_data['settings']['posts_query_id'] ) ) {
+				$ele_widget_query_id = $widget_data['settings']['posts_query_id'];
+			}
+
+			if ( ! empty( $widget_data['settings']['query_id'] ) ) {
+				$bpfwe_widget_query_id = $widget_data['settings']['query_id'];
+			}
 		}
 
 		$this->register_pre_get_posts_filter();
@@ -522,7 +528,7 @@ class BPFWE_Ajax {
 		}
 
 		// Capture Elementor query ID.
-		if ( ! empty( $ele_widget_query_id ) ) {
+		if ( ! empty( $ele_widget_query_id ) || ! empty( $bpfwe_widget_query_id ) ) {
 			$simulated_query = new class() {
 				/**
 				 * Holds query variables to be merged into main args.
@@ -542,7 +548,11 @@ class BPFWE_Ajax {
 				}
 			};
 
-			do_action( "elementor/query/{$ele_widget_query_id}", $simulated_query );
+			if ( $ele_widget_query_id ) {
+				do_action( "elementor/query/{$ele_widget_query_id}", $simulated_query );
+			} else {
+				do_action( "bpfwe/query/{$bpfwe_widget_query_id}", $simulated_query );
+			}
 
 			if ( ! empty( $simulated_query->query_vars ) ) {
 				$args = array_merge( $args, $simulated_query->query_vars );

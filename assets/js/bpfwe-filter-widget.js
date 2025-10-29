@@ -86,6 +86,7 @@
 						displaySelectedBefore: settings?.display_selected_before ?? '',
 						nothingFoundMessage: settings?.nothing_found_message ?? 'It seems we can’t find what you’re looking for.',
 						enableQueryDebug: settings?.enable_query_debug ?? '',
+						injectID: settings?.inject_query_id ?? '',
 						queryID: settings?.filter_query_id ?? ''
 					};
 
@@ -957,6 +958,7 @@
 							nonce: ajax_var.nonce,
 							performance_settings: JSON.stringify(getPerformanceSettings(localWidgetID)),
 							enable_query_debug: filterSettings?.enableQueryDebug || '',
+							inject_id: filterSettings?.injectID || '',
 							query_id: filterSettings?.queryID || '',
 						},
 						success: function (data) {

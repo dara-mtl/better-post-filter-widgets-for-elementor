@@ -8689,11 +8689,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						if ( $use_extra_template ) {
 							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
 							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
 					} elseif ( $settings['skin_custom_html'] ) {
@@ -9232,7 +9232,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -9240,7 +9240,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -9625,7 +9625,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -9633,7 +9633,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
