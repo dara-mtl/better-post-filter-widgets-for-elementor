@@ -121,6 +121,7 @@ class BPFWE_Ajax {
 	 */
 	public function delete_filter_transient() {
 		delete_transient( 'bpfwe_filter_query' );
+		delete_transient( 'bpfwe_filter_post_ids' );
 	}
 
 	/**
@@ -160,9 +161,10 @@ class BPFWE_Ajax {
 			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 
-		$page_id   = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
-		$widget_id = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
-		$inject_id = ! empty( $_POST['inject_id'] ) ? sanitize_text_field( wp_unslash( $_POST['inject_id'] ) ) : '';
+		$page_id          = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
+		$widget_id        = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
+		$filter_widget_id = ! empty( $_POST['filter_widget'] ) ? sanitize_key( wp_unslash( $_POST['filter_widget'] ) ) : '';
+		$inject_id        = ! empty( $_POST['inject_id'] ) ? sanitize_text_field( wp_unslash( $_POST['inject_id'] ) ) : '';
 
 		if ( empty( $page_id ) || empty( $widget_id ) ) {
 			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
@@ -576,26 +578,66 @@ class BPFWE_Ajax {
 			return;
 		}
 
+		if ( false === $is_empty && $filter_widget_id ) {
+			$facet_args                   = $args;
+			$facet_args['posts_per_page'] = -1;
+			$facet_args['fields']         = 'ids';
+			$facet_args['no_found_rows']  = true;
+			$facet_args['orderby']        = 'none';
+
+			unset(
+				$facet_args['paged'],
+				$facet_args['page'],
+				$facet_args['offset'],
+				$facet_args['order'],
+				$facet_args['meta_key']
+			);
+
+			$facet_query  = new WP_Query( $facet_args );
+			$all_post_ids = $facet_query->posts;
+
+			set_transient( 'bpfwe_filter_post_ids', $all_post_ids, 60 * 60 * 24 );
+		} else {
+			delete_transient( 'bpfwe_filter_post_ids' );
+		}
+
 		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
+
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 
-		$response = [
-			'html' => $document->render_element( $widget_data ),
+		$widget_html = $document->render_element( $widget_data );
+
+		$ajax_endpoints = [
+			admin_url( 'admin-ajax.php' ),
+			plugin_dir_url( BPFWE_PLUGIN_FILE ) . 'inc/bpfwe-ajax-handler.php',
 		];
+
+		foreach ( $ajax_endpoints as $endpoint ) {
+			$widget_html = preg_replace_callback(
+				'#((?:href|data-next-page)=["\'])' . preg_quote( $endpoint, '#' ) . '#',
+				static fn( $matches ) => $matches[1] . untrailingslashit( home_url() ),
+				$widget_html
+			);
+		}
+
+		$widget_html = preg_replace( '#/page/(\d+)/#', '?paged=$1', $widget_html );
+
+		$response = [
+			'html' => $widget_html,
+		];
+
+		if ( $filter_widget_id ) {
+			$filter_data = \Elementor\Utils::find_element_recursive( $element_data, $filter_widget_id );
+			if ( $filter_data ) {
+				$response['filters'] = [
+					$filter_widget_id => $document->render_element( $filter_data ),
+				];
+			}
+		}
 
 		if ( 'yes' === $enable_query_debug ) {
 			$response['query'] = wp_json_encode( $args, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		}
-
-		$response = preg_replace_callback(
-			'#((?:href|data-next-page)=["\'])' . preg_quote( admin_url( 'admin-ajax.php' ), '#' ) . '#',
-			function ( $matches ) {
-				return $matches[1] . untrailingslashit( home_url() );
-			},
-			$response
-		);
-
-		$response = preg_replace( '#/page/(\d+)/#', '?paged=$1', $response );
 
 		echo wp_json_encode( $response );
 

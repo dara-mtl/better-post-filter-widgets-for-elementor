@@ -7,10 +7,10 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.7.1
+ * Version: 1.8.0
  * Requires PHP: 7.4
- * Requires at least: 5.9
- * Tested up to: 6.8
+ * Requires at least: 6.2
+ * Tested up to: 6.9
  * Elementor tested up to: 3.32.4
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
@@ -25,6 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+// BPFWE constants.
+define( 'BPFWE_PLUGIN_FILE', __FILE__ );
+define( 'BPFWE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'BPFWE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'BPFWE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
 // Add widget categories.
 require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
 
@@ -34,7 +40,7 @@ require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.7.1';
+	const VERSION                   = '1.8.0';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -175,6 +181,7 @@ final class BPFWE_Elementor {
 		// Localize and enqueue plugin scripts.
 		$ajax_params = [
 			'url'            => admin_url( 'admin-ajax.php' ),
+			'bpfwe_url'      => plugin_dir_url( __FILE__ ) . 'inc/bpfwe-ajax-handler.php',
 			'nonce'          => wp_create_nonce( 'ajax-nonce' ),
 			'isUserLoggedIn' => is_user_logged_in(),
 		];

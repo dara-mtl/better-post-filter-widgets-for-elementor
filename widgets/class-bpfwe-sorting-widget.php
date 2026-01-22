@@ -136,7 +136,7 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 				'dynamic'     => [
 					'active' => false,
 				],
-				'placeholder' => esc_html__( 'Enter a title' ),
+				'placeholder' => esc_html__( 'Enter a title', 'better-post-filter-widgets-for-elementor' ),
 				'label_block' => true,
 			]
 		);

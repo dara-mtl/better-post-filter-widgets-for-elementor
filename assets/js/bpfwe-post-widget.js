@@ -7,6 +7,7 @@
 
 				bindEvents: function() {
 					this.fetchMasonry();
+					this.fetchFeedLayout();
 					this.changePostStatus();
 					this.getPinnedPosts();
 					this.getPostsByAjax();
@@ -139,6 +140,289 @@
 					createMasonryLayout();
 
 					$(window).off('resize.bpfweMasonry').on('resize.bpfweMasonry', this.debounce(createMasonryLayout, 300));
+				},
+
+				fetchFeedLayout: function () {
+					var settings = this.getElementSettings();
+					var isFeed = settings.classic_layout === 'feed';
+
+					if ( ! isFeed ) {
+						return;
+					}
+
+					var noTermLabel = settings.uncategorized_section_label || 'Uncategorized';
+
+					var $container;
+					$container = this.$element.find( '.post-container' );
+					$container.removeClass( 'feed-ready' );
+
+					if ( $container.length === 0 ) return;
+					var $inner = $container.find( '.post-container-inner' );
+					if ( $inner.length === 0 ) $inner = $container;
+					var $grid = $inner.find( '.elementor-grid' );
+					var $pagination = $inner.find( '.pagination' );
+					var $pagination_button = $inner.find( '.load-more-wrapper' );
+					if ( $grid.length === 0 ) return;
+					var $posts = $grid.find( '.post-wrapper' );
+					if ( $posts.length === 0 ) return;
+
+					// Helper.
+					const slugify = ( str ) => {
+						if ( !str ) return '';
+						return str
+							.toLowerCase()
+							.trim()
+							.replace( /\s+/g, '-' )
+							.replace( /[^\w\-]+/g, '' )
+							.replace( /\-\-+/g, '-' )
+							.replace( /^-+|-+$/g, '' );
+					};
+
+					// Unique feed section ID to avoid conflicts when multiple widgets on same page.
+					var feedID = 'feed-section-' + this.$element.data( 'id' );
+
+					$container.attr( 'id', feedID );
+
+					// Collect terms from posts data.
+					var postsData = [];
+					$posts.each( function () {
+						var $p = $( this );
+						var termsAttr = $p.attr( 'data-terms' ) || $p.attr( 'data-term' ) || $p.attr( 'data-term' ) || '';
+						var termList = termsAttr.split( ',' ).map( t => t.trim() ).filter( Boolean );
+						var termNamesAttr = $p.attr( 'data-term-names' ) || '';
+						postsData.push( {
+							$el: $p,
+							terms: termList,
+							termSlugs: termList.map( t => slugify( t ) ),
+							termNames: termNamesAttr
+						} );
+					} );
+
+					// Unique original terms + slug mapping.
+					var allTerms = [];
+					var termToSlug = {};
+					var slugToOriginal = {};
+
+					postsData.forEach( p => {
+						p.terms.forEach( original => {
+							if ( original && !termToSlug.hasOwnProperty( original ) ) {
+								var slug = slugify( original );
+								if ( slug ) {
+									termToSlug[ original ] = slug;
+									slugToOriginal[ slug ] = original;
+									allTerms.push( original );
+								}
+							}
+						} );
+					} );
+
+					// Posts with no terms.
+					var noTermPosts = postsData.filter( p => p.terms.length === 0 );
+					var hasNoTerm = noTermPosts.length > 0;
+
+					allTerms.sort( ( a, b ) => a.localeCompare( b ) );
+
+					// Map display title.
+					var termToTitle = {};
+					allTerms.forEach( original => {
+						var displayTitle = original;
+						for ( var i = 0; i < postsData.length; i++ ) {
+							var map = postsData[ i ].termNames;
+							if ( !map ) continue;
+							var pairs = map.split( ',' ).map( p => p.trim() );
+							for ( var j = 0; j < pairs.length; j++ ) {
+								var parts = pairs[ j ].split( ':' );
+								if ( parts.length === 2 && parts[ 0 ].trim() === original ) {
+									displayTitle = parts[ 1 ].trim();
+									break;
+								}
+							}
+							if ( displayTitle !== original ) break;
+						}
+						termToTitle[ original ] = displayTitle;
+					} );
+
+					// Remove original grid.
+					$grid.remove();
+					$pagination.remove();
+					$pagination_button.remove();
+
+					var wID = this.$element.data( 'id' );
+
+					var filterClass = 'feed-filters-' + wID;
+					var anchorFilterClass = 'feed-anchor-filters-' + wID;
+					var injectionClass = 'feed-term-list-' + wID;
+					var anchorInjectionClass = 'feed-anchor-list-' + wID;
+
+					// Build Filtering Filter.
+					var $filters = $( '<div class="' + filterClass + '"></div>' );
+					var $allLink = $( '<a href="#" class="sort-all active">All</a>' );
+					$filters.append( $allLink );
+
+					allTerms.forEach( original => {
+						var slug = termToSlug[ original ];
+						var display = termToTitle[ original ] || original;
+						var $link = $( '<a href="#" class="sort-' + slug + '">' + display + '</a>' );
+						$filters.append( $link );
+					} );
+
+					// Build Anchor-Only Filter.
+					var $anchorFilters = $( '<div class="' + anchorFilterClass + '"></div>' );
+
+					allTerms.forEach( original => {
+						var slug = termToSlug[ original ];
+						var display = termToTitle[ original ] || original;
+						var $link = $( '<a href="#' + slug + '-' + wID + '" class="external sort-' + slug + '">' + display + '</a>' );
+						$anchorFilters.append( $link );
+					} );
+
+					if ( hasNoTerm && this.$element.hasClass( 'show-no-terms' ) ) {
+						$anchorFilters.append(
+							$( '<a></a>' )
+							.attr( 'href', '#none-' + wID )
+							.addClass( 'external sort-none' )
+							.text( noTermLabel )
+						);
+					}
+
+					// Click events only on the FILTERING version.
+					$( document ).on( 'click', '.' + filterClass + ' a', function ( e ) {
+						e.preventDefault();
+						var $this = $( this );
+						if ( $this.hasClass( 'active' ) ) return;
+
+						$( '.' + filterClass + ' a' ).removeClass( 'active' );
+						$this.addClass( 'active' );
+
+						var isAll = $this.hasClass( 'sort-all' );
+						var slug = isAll ? null : $this.attr( 'class' ).match( /sort-([\w-]+)/ )[ 1 ];
+
+						var $headers = $inner.find( '.feed-header' );
+						var $grids = $inner.find( '.elementor-grid' );
+						var $allSections = $headers.add( $grids );
+
+						var $toShow = isAll ? $allSections : $headers.filter( '[data-term="' + slug + '"]' ).add( $grids.filter( '.term-' + slug ) );
+
+						var $toHide = $allSections.not( $toShow );
+
+						$toHide.stop( true, true ).fadeOut( 300 );
+						$toShow.stop( true, true ).fadeIn( 300 );
+					} );
+
+					// Inject FILTERING filters.
+					$( '.' + injectionClass ).each( function () {
+						var $widget = $( this );
+						var $containerW = $widget.find( '.elementor-widget-container' ).first();
+						var $target = $containerW.length ? $containerW.children().first() : $widget.children().first();
+						if ( $target.length ) {
+							$target.html( $filters.clone() );
+						}
+					} );
+
+					// Inject ANCHOR-ONLY filters.
+					$( '.' + anchorInjectionClass ).each( function () {
+						var $widget = $( this );
+						var $containerW = $widget.find( '.elementor-widget-container' ).first();
+						var $target = $containerW.length ? $containerW.children().first() : $widget.children().first();
+						if ( $target.length ) {
+							$target.html( $anchorFilters.clone() );
+						}
+					} );
+
+					allTerms.forEach( original => {
+						var slug = termToSlug[ original ];
+						var display = termToTitle[ original ] || original;
+
+						var $header = $( '<div></div>' )
+							.addClass( 'feed-header' )
+							.attr( 'data-term', slug )
+							.attr( 'id', slug + '-' + wID )
+							.append( $( '<span></span>' ).addClass( 'feed-title' ).text( display ) );
+
+						$inner.append( $header );
+
+						var $newGrid = $( '<div></div>' ).addClass( 'elementor-grid term-' + slug );
+
+						postsData.forEach( p => {
+							if ( p.termSlugs.includes( slug ) ) {
+								$newGrid.append( p.$el.clone() );
+							}
+						} );
+
+						$inner.append( $newGrid );
+					} );
+
+					// No-term posts.
+					if ( hasNoTerm && this.$element.hasClass( 'show-no-terms' ) ) {
+
+						var noTermSlug = 'none';
+
+						var $header = $( '<div></div>' )
+							.addClass( 'feed-header' )
+							.attr( 'data-term', noTermSlug )
+							.attr( 'id', noTermSlug + '-' + wID )
+							.append(
+								$( '<span></span>' )
+								.addClass( 'feed-title' )
+								.text( noTermLabel )
+							);
+
+						$inner.append( $header );
+
+						var $emptyGrid = $( '<div></div>' ).addClass( 'elementor-grid term-none' );
+
+						noTermPosts.forEach( function ( p ) {
+							$emptyGrid.append( p.$el.clone() );
+						} );
+
+						$inner.append( $emptyGrid );
+					}
+
+					$inner.append( $pagination );
+					$inner.append( $pagination_button );
+
+					// Display the feed when it's ready.
+					$container.addClass( 'feed-ready' );
+
+					var anchorClassSelector = '.feed-anchor-filters-' + wID;
+					var $menu = $( anchorClassSelector );
+
+					if ( $menu.length ) {
+						if ( !window._feedAnchorObservers ) window._feedAnchorObservers = {};
+
+						if ( window._feedAnchorObservers[ wID ] ) {
+							try {
+								window._feedAnchorObservers[ wID ].disconnect();
+							} catch ( e ) {
+								console.warn( "Failed to disconnect old observer:", e );
+							}
+							delete window._feedAnchorObservers[ wID ];
+						}
+
+						// New observer.
+						var obs = new IntersectionObserver( function ( entries ) {
+							entries.forEach( function ( entry ) {
+								if ( entry.isIntersecting ) {
+									var id = entry.target.getAttribute( 'id' );
+									if ( !id ) return;
+
+									$menu.find( 'a' ).removeClass( 'active' );
+									$menu.find( 'a[href="#' + id + '"]' ).addClass( 'active' );
+								}
+							} );
+						}, {
+							root: null,
+							threshold: 0.3
+						} );
+
+						window._feedAnchorObservers[ wID ] = obs;
+
+						// Attach to headers.
+						$inner.find( '.feed-header' ).each( function () {
+							obs.observe( this );
+						} );
+					}
+
 				},
 
 				changePostStatus: function() {
@@ -276,7 +560,7 @@
 					if (settings) {
 						var paginationType = settings.pagination || settings.pagination_type,
 							scroll_to_top = settings.scroll_to_top,
-							paginationMode = settings.pagination_mode || 'native',
+							paginationMode = 'native',
 							size = settings.scroll_threshold && settings.scroll_threshold.size ? settings.scroll_threshold.size : 0,
 							unit = settings.scroll_threshold && settings.scroll_threshold.unit ? settings.scroll_threshold.unit : 'px',
 							infinite_threshold = size + unit;
@@ -373,63 +657,6 @@
 						$.ajax(ajaxPagination);
 					}
 
-					function loadPageLegacy(page_url) {
-						if (paginationType == 'infinite' || paginationType == 'load_more') {
-							var loadMoreButton = $element.find('.load-more');
-
-							loadMoreButton.prop('disabled', true);
-
-							$.ajax({
-								type: 'POST',
-								url: ajax_var.url,
-								async: true,
-								dataType: 'json',
-								data: {
-									action: 'load_page',
-									page_url: page_url,
-									nonce: ajax_var.nonce
-								},
-								success: function (data) {
-									var content = data.data.html,
-										oldContent = postContainer.find('.elementor-grid').children().clone();
-									postContainer.empty().append($(content).find(innerContainer));
-									postContainer.find('.elementor-grid').prepend(oldContent);
-									postContainer.hide().show().removeClass('load');
-									afterLoad();
-									reinitElementorContent(innerContainer);
-								},
-								error: function (jqXHR, textStatus, errorThrown) {
-									console.log('AJAX request failed: ' + textStatus + ', ' + errorThrown);
-								},
-								complete: function() {
-									loadMoreButton.prop('disabled', false);
-								}
-							});
-						} else {
-							$.ajax({
-								type: 'POST',
-								url: ajax_var.url,
-								async: true,
-								dataType: 'json',
-								data: {
-									action: 'load_page',
-									page_url: page_url,
-									nonce: ajax_var.nonce
-								},
-								success: function (data) {
-									var content = data.data.html;
-									postContainer.empty().append($(content).find(innerContainer));
-									postContainer.hide().show().removeClass('load');
-									afterLoad();
-									reinitElementorContent(innerContainer);
-								},
-								error: function (jqXHR, textStatus, errorThrown) {
-									console.log('AJAX request failed: ' + textStatus + ', ' + errorThrown);
-								}
-							});
-						}
-					}
-
 					function reinitElementorContent(selector) {
 						const $container = $(selector);
 
@@ -521,6 +748,7 @@
 						post_count();
 						ajaxInProgress = false;
 						self.fetchMasonry();
+						self.fetchFeedLayout();
 						self.postCarousel();
 					}
 
@@ -537,11 +765,7 @@
 								loader.show();
 							}
 
-							if (paginationMode === 'remote') {
-								loadPageLegacy($(this).attr('href'));
-							} else {
-								loadPageNew($(this).attr('href'));
-							}
+							loadPageNew($(this).attr('href'));
 
 							}
 					);

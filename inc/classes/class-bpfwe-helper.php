@@ -577,8 +577,8 @@ class BPFWE_Helper {
 		// Prepare attributes for each component.
 		$attributes = [
 			'wrapper'       => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_attr/{$query_id}", $widget, 'wrapper', $defaults ),
-			'wrapper_inner' => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper', $defaults ),
-			'post'          => self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'wrapper', $defaults ),
+			'wrapper_inner' => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper_inner', $defaults ),
+			'post'          => self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'post', $defaults ),
 		];
 
 		// Ensure each component has valid attributes.

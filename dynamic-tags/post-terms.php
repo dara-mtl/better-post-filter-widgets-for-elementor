@@ -29,12 +29,9 @@ class Post_Terms extends Tag {
 	/**
 	 * Get tag name.
 	 *
-	 * Retrieve the dynamic tag name for internal use.
-	 *
 	 * @since 1.0.0
 	 * @access public
-	 *
-	 * @return string Tag name.
+	 * @return string
 	 */
 	public function get_name() {
 		return 'post-terms';
@@ -43,27 +40,20 @@ class Post_Terms extends Tag {
 	/**
 	 * Get tag title.
 	 *
-	 * Retrieve the dynamic tag title displayed in the editor.
-	 *
 	 * @since 1.0.0
 	 * @access public
-	 *
-	 * @return string Tag title.
+	 * @return string
 	 */
 	public function get_title() {
 		return esc_html__( 'Post Terms', 'better-post-filter-widgets-for-elementor' );
 	}
 
-
 	/**
 	 * Get tag group.
 	 *
-	 * Retrieve the group the tag belongs to.
-	 *
 	 * @since 1.0.0
 	 * @access public
-	 *
-	 * @return string Dynamic tag group.
+	 * @return string
 	 */
 	public function get_group() {
 		return 'post';
@@ -72,12 +62,9 @@ class Post_Terms extends Tag {
 	/**
 	 * Get tag categories.
 	 *
-	 * Retrieve the list of categories the tag belongs to.
-	 *
 	 * @since 1.0.0
 	 * @access public
-	 *
-	 * @return array Dynamic tag categories.
+	 * @return array
 	 */
 	public function get_categories() {
 		return [ TagsModule::TEXT_CATEGORY ];
@@ -85,9 +72,6 @@ class Post_Terms extends Tag {
 
 	/**
 	 * Register controls.
-	 *
-	 * Define the controls for the dynamic tag, such as taxonomy selection, separator,
-	 * and display options.
 	 *
 	 * @since 1.0.0
 	 * @access protected
@@ -159,12 +143,24 @@ class Post_Terms extends Tag {
 				'label_off' => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
+
+		$this->add_control(
+			'list_style',
+			[
+				'label'   => esc_html__( 'List Style', 'better-post-filter-widgets-for-elementor' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'none',
+				'options' => [
+					'none' => esc_html__( 'Inline', 'better-post-filter-widgets-for-elementor' ),
+					'ul'   => esc_html__( 'Unordered List', 'better-post-filter-widgets-for-elementor' ),
+					'ol'   => esc_html__( 'Ordered List', 'better-post-filter-widgets-for-elementor' ),
+				],
+			]
+		);
 	}
 
 	/**
 	 * Render dynamic tag output.
-	 *
-	 * Generates the HTML output for the terms, with optional linking, separator, and display settings.
 	 *
 	 * @since 1.0.0
 	 * @access public
@@ -175,7 +171,8 @@ class Post_Terms extends Tag {
 		$separator         = $settings['separator'];
 		$parent_terms_only = 'yes' === $settings['parent_terms_only'];
 		$max_terms         = $settings['max_terms'];
-		$link_enabled      = 'yes' === $settings['link']; // Check if link is enabled.
+		$link_enabled      = 'yes' === $settings['link'];
+		$list_style        = isset( $settings['list_style'] ) ? $settings['list_style'] : 'none';
 
 		// Get the term list.
 		$terms = get_the_terms( get_the_ID(), $taxonomy );
@@ -202,6 +199,16 @@ class Post_Terms extends Tag {
 			$output[] = $term_name;
 		}
 
-		echo wp_kses_post( implode( $separator, $output ) );
+		if ( 'none' !== $list_style ) {
+			$items = '';
+			foreach ( $output as $item ) {
+				$items .= '<li>' . $item . '</li>';
+			}
+			$tag          = ( 'ol' === $list_style ) ? 'ol' : 'ul';
+			$allowed_tags = in_array( $tag, array( 'ol', 'ul' ), true ) ? $tag : '';
+			echo '<' . esc_attr( $allowed_tags ) . '>' . wp_kses_post( $items ) . '</' . esc_attr( $allowed_tags ) . '>';
+		} else {
+			echo wp_kses_post( implode( $separator, $output ) );
+		}
 	}
 }

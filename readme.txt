@@ -3,9 +3,9 @@ Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -56,13 +56,31 @@ Unlock the power of dynamic loops in Elementor, without needing the Pro version!
 ### Developer-Friendly:
 Tailor the widget to your needs with the help of a dedicated filters.
 
+== Connecting the Filter Widget ==
+
+To link your Filter Widget to a Post or Loop Grid widget, follow these steps:
+
+1. Open the Post Widget settings in Elementor.
+Go to the Advanced tab and enter the following in the CSS Classes field:
+`results`
+2. Open your Filter Widget.
+In the Post Widget Target field, enter:
+`.results`
+3. Save the page. The filter will now update the correct widget.
+
+Note: `results` is a reference class. You can choose any class or id name you like, as long as the Filter Widget target matches the Post Widget class (with a .) or id (with a #).
+
+= Troubleshooting =
+
+- Make sure the Post Widget class name and the Filter Widget target match.
+- Check for incompatible plugins or theme conflicts:
+  1. Temporarily switch to a default WordPress theme.
+  2. Deactivate all other plugins except Elementor and Better Post & Filter Widgets.
+  3. Test the filter. If it works, reactivate your plugins one by one to find the one causing the conflict.
+- Disable caching or optimization plugins while testing, as they can interfere with AJAX.
+- Check the browser console for JavaScript errors (press F12 and look under the Console tab) and resolve any errors that appear.
+
 == Frequently Asked Questions ==
-
-= How do I use the Filter Widget? =
-
-If you're having trouble getting the Filter Widget to work properly, follow these steps to ensure it's set up correctly:
-1. Ensure that you have set a unique ID or class for the target post widget. Without it, the widget will not know where to apply the filters.
-2. Verify that you have selected the correct post type to filter.
 
 = The post meta are not displaying =
 
@@ -119,6 +137,48 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.8.0 – Upcoming =
+
+* New: True faceted filtering for the Filter widget.
+  * Filter options now react to each other in real time (dynamic counts & availability)
+  * Unavailable options can be greyed out or hidden to prevent dead-end combinations
+  * Faceted behavior is fully opt-in and can be enabled globally or per individual filter group
+  * Feature will continue to be refined and expanded in future releases
+* New: Feed layout for the Post widget.
+  * Posts can now be grouped by taxonomy or specific terms (magazine/news feed look)
+  * Added quick controls to filter/show only the selected group
+* New: Free numeric input for meta-based filters.
+  * Numeric filters are no longer limited to predefined ranges.
+  * Users can manually enter custom minimum and maximum values.
+  * Backend users can define custom placeholders for numeric inputs.
+* New: Start expanded option for Filter widget toggle mode.
+* New: Custom AJAX handler (experimental).
+  * Optional high-performance replacement for admin-ajax.php.
+  * Can be enabled per Filter widget under Performance settings.
+  * Fully isolated and opt-in — safe for testing without affecting existing sites.
+  * Planned to become the default in a future release.
+* Fix: Corrected a typo in the Post widget where "Excluded terms" was labeled as "Included terms".
+* Fix: Fixed an issue where the inner wrapper class filter was not applied correctly in the Post widget
+* Fix: Potentially resolved an Elementor editor issue where container CSS could break when using the main query in the Post widget.
+* Tweak: Post terms output can now be displayed as: comma-separated, ul or ol.
+* Tweak: Improved widget UI consistency by replacing RAW text with notice controls where appropriate.
+* Dev: Internal change to Filter widget behavior.
+  * Previously, Filter widget settings (e.g. custom AJAX, faceting mode) were applied globally to all linked filters.
+  * Now each Filter widget uses its own settings independently.
+
+= 1.7.3 – 2025-12-03 =
+
+* Fix: Search bar issue when multiple widgets share the same filter.
+
+= 1.7.2 – 2025-12-03 =
+
+* Fix: Corrected an issue where using ?results=filter-XXXXXXX did not reload the page with the correct filter options pre-selected.
+* Fix: Resolved an issue where search queries returned empty when two or more Search widgets were linked to the same Post widget on the same page.
+* New: Added a Display Format control to the Term Meta dynamic tag, allowing terms to be shown inline, as an unordered list (ul), or as an ordered list (ol).
+* New: Added a style control for select fields inside the Filter widget.
+* New: Added a style control for customizing the Select2 background inside the Filter widget.
+* Tweak: Checked and confirmed full compatibility with WordPress 6.9.
+
 = 1.7.1 – 2025-10-29 =
 
 * Fix: Added "Include Loop Grid Query ID" switch under the Query section to prevent potential query ID conflicts.
@@ -139,69 +199,11 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
   * `bpfwe/get_relational_terms/{query_id}`
 * Fix: Prevented a potential HTTP 500 error when using a single template directly on a static page instead of assigning the template to the page itself.
 
-= 1.6.2 – 2025-10-06 =
-
-* Fix/Security: Patched a vulnerability reported on Patchstack. Added stricter validation for HTML tag settings in the Post widget & Repeater dynamic tag.
-* Fix: Backend cache now matches frontend output for meta key lists, preventing inconsistencies in filter options between logged-in users and visitors.
-* Fix: "Load More" pagination now correctly replaces admin-ajax.php URLs with frontend URLs to prevent exposing backend endpoints.
-* Fix: Nested term ordering has been corrected to prevent reversed or inconsistent ordering in some cases.
-* New: Filter widget can now auto-detect the targeted widget's post type using the new "Targeted Post Widget" option.
-* New: Added Inclusive Mode to the Visual Range filter, allowing users to choose between exact values (e.g., 3 stars only) or inclusive ranges (e.g., 1–3 stars).
-* New: Added height style controls for the filter's button.
-* New: Filter query results now detect Elementor Loop Grid `query_id`, ensuring filter results do not override the Loop Grid's own query.
-* New/Dev: Added two developer filters for extending meta-based terms:
-  * `bpfwe/get_numeric_meta_terms/{query_id}`
-  * `bpfwe/get_meta_terms/{query_id}`
-* Dev: Meta fetching logic refactored to a hybrid approach, combining `WP_Query` (to respect language and archive filtering) with direct database queries (for performance).
-* Dev: Order and Orderby parameters in filter and term queries are now fully conditional. If left unset, WordPress defaults or third-party plugins/functions will control sorting without interference.
-* Dev/Tweak: Moved global and query-specific filters (`bpfwe_ajax_query_args` and `bpfwe/filter_query_args/{query_id}`) to the bottom of the AJAX action to prevent them from being overwritten.
-* UI/Tweak: Fixed some filter controls still displaying under the wrong conditions.
-* Tweak: Added basic CSS values to term pills and filter buttons to prevent overlapping.
-* Tweak: Adjusted filter form HTML structure for better consistency and styling.
-
-= 1.6.1 – 2025-09-04 =
-
-* New: Added option to show post counts for meta key values in the Filter widget.
-* Fix: Custom field label formatting now applies correctly for radio, dropdown, and label filter types.
-* Fix/Security: Added escaping to helper functions and taxonomy swatches for better security.
-* Dev/Performance: Replaced WP_Query with custom SQL for retrieving meta key lists, improving performance on large databases. Added stricter sanitization to all queries.
-* Tweak: In the Post widget, moved the "Content Horizontal Position" control from Layout to Post Content section to reflect where it actually applies.
-* Tweak: Minimum required WordPress version increased to 6.2.
-* Tweak: Verified compatibility with the latest Elementor release.
-* Tweak: Removed unused dynamic group file.
-
-= 1.6.0 – 2025-08-26 =
-
-* New: Added visual range option to transform numeric ranges into a 1–10 scale, ideal for star ratings or scoring systems.
-* New: Added label formatting for custom fields.
-* New: Introduced `.quick-deselect-FILTERID` class to create quick-remove "pills" that deselect associated filter terms when clicked.
-* New: Added post wrapper alignment controls for post widget content.
-* Dev: Added filters to extend queries and widget attributes for both the post and filter widgets. See [docs](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/filter-widget/custom-filter-for-term-queries/).
-  * `bpfwe/filter_query_args/{query_id}` – Modify filter's query arguments before execution.
-  * `bpfwe/get_terms_args/{query_id}` – Modify arguments passed to the filter's get_terms().
-  * `bpfwe/post_wrapper_attr/{query_id}` – Add or modify attributes for the post wrapper container.
-  * `bpfwe/post_wrapper_inner_attr/{query_id}` – Add or modify attributes for the inner post wrapper container.
-  * `bpfwe/post_attr/{query_id}` – Add or modify attributes for each post item.
-* Fix: Resolved issue where post content dynamic tag did not display after AJAX re-render.
-* Fix: Masonry layout flickering on mobile devices.
-* Tweak: Improved Filter widget UI.
-* Tweak: More robust post and filter widgets pagination.
-
-= 1.5.3 – 2025-08-07 =
-
-* New: Added a "None" option to the Filter widget's term order setting.
-* New: Added a Gallery Mode to the Image Custom Field dynamic tag.
-* Fix: Pagination in the Post widget returned incorrect total pages when using the main query. The plugin now explicitly sets 'post_status' to 'publish' for main queries.
-* Core: Refactored part of the plugin's query filtering logic to improve inner template rendering in Elementor. Query arguments are now injected using widget-specific $query_id logic, resolving conflicts and ensuring correct post context for dynamic tags and nested templates.
-
-For more information, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
+For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
 
-= 1.7.0 =
+= 1.8.0 =
 
-New in This Update:
-
-* Relational ACF / array fields now supported, including pre-filtering in the Default Filter.
-* Quick deselect pills for numeric ranges.
-* Trigger filters directly via URL using ?results=filter-XXXXXXX.
+Version 1.8.0 introduces powerful new filtering and layout capabilities.
+This release brings true faceted filtering with real-time option interaction, a new feed-style layout for Posts, free numeric inputs for meta filters, and multiple UX and performance improvements. It also includes UI refinements, bug fixes, and an experimental high-performance AJAX handler for advanced setups.

@@ -165,8 +165,70 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'grid'     => esc_html__( 'Grid', 'better-post-filter-widgets-for-elementor' ),
 					'masonry'  => esc_html__( 'Masonry', 'better-post-filter-widgets-for-elementor' ),
 					'carousel' => esc_html__( 'Carousel', 'better-post-filter-widgets-for-elementor' ),
+					'feed'     => esc_html__( 'Feed Layout', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'display_uncategorized',
+			[
+				'label'        => esc_html__( 'Show Posts Without Terms', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'show-no-terms',
+				'prefix_class' => '',
+				'default'      => '',
+				'condition'    => [
+					'classic_layout' => 'feed',
+				],
+			]
+		);
+
+		$this->add_control(
+			'uncategorized_section_label',
+			[
+				'label'              => esc_html__( 'Uncategorized Title', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::TEXT,
+				'default'            => esc_html__( 'Uncategorized', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder'        => esc_html__( 'Uncategorized', 'better-post-filter-widgets-for-elementor' ),
+				'frontend_available' => true,
+				'condition'          => [
+					'classic_layout'         => 'feed',
+					'display_uncategorized!' => '',
+				],
+			]
+		);
+
+		$this->add_control(
+			'display_feed_buttons',
+			[
+				'label'        => esc_html__( 'Display Feed Filter Buttons', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'condition'   => [
+					'classic_layout' => 'feed',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_buttons_description',
+			[
+				'type'        => \Elementor\Controls_Manager::NOTICE,
+				'notice_type' => 'info',
+				'dismissible' => false,
+				'heading'     => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
+				'content'     => esc_html__( 'Add "feed-anchor-filters-WIDGETID" or "feed-filters-WIDGETID" to a Heading or Text widget. Make sure the widget has content (you can use HTML entity &nbsp to keep it blank), otherwise it won’t appear on the page.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'classic_layout'       => 'feed',
+					'display_feed_buttons' => 'yes',
+				],
 			]
 		);
 
@@ -537,7 +599,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label'       => esc_html__( 'Count Text (Singular)', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'input_type'  => 'text',
-				'placeholder' => __( 'Post', 'cwm-widget' ),
+				'placeholder' => __( 'Post', 'better-post-filter-widgets-for-elementor' ),
 				'default'     => 'Post',
 				'condition'   => [
 					'post_content' => 'Term Count',
@@ -551,7 +613,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label'       => esc_html__( 'Count Text (Plurial)', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'input_type'  => 'text',
-				'placeholder' => __( 'Posts', 'cwm-widget' ),
+				'placeholder' => __( 'Posts', 'better-post-filter-widgets-for-elementor' ),
 				'default'     => 'Posts',
 				'condition'   => [
 					'post_content' => 'Term Count',
@@ -2212,7 +2274,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 										),
 										'NOT IN' => sprintf(
 											// translators: %s is the taxonomy label.
-											__( '%s to include', 'better-post-filter-widgets-for-elementor' ),
+											__( '%s to exclude', 'better-post-filter-widgets-for-elementor' ),
 											esc_html( $tax->label )
 										),
 									],
@@ -2440,6 +2502,19 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		// $this->add_control(
+			// 'post_custom_handler',
+			// [
+				// 'label'              => esc_html__( 'Custom AJAX Handler', 'better-post-filter-widgets-for-elementor' ),
+				// 'type'               => \Elementor\Controls_Manager::SWITCHER,
+				// 'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				// 'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				// 'description'        => esc_html__( 'Loads a minimal WP environment for faster query processing. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				// 'default'            => 'no',
+				// 'frontend_available' => true,
+			// ]
+		// );
+
 		$this->add_control(
 			'query_id',
 			[
@@ -2644,10 +2719,10 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_slider_pagination',
 			[
-				'label'              => esc_html__( 'Pagination', 'cwm-widget' ),
+				'label'              => esc_html__( 'Pagination', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'           => esc_html__( 'Yes', 'cwm-widget' ),
-				'label_off'          => esc_html__( 'No', 'cwm-widget' ),
+				'label_on'           => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value'       => 'yes',
 				'default'            => 'yes',
 				'frontend_available' => true,
@@ -3078,24 +3153,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'step'               => 1,
 				'condition'          => [
 					'pagination'      => [ 'numbers', 'numbers_and_prev_next', 'load_more', 'infinite' ],
-					'classic_layout!' => 'carousel',
-				],
-				'frontend_available' => true,
-			]
-		);
-
-		$this->add_control(
-			'pagination_mode',
-			[
-				'type'               => \Elementor\Controls_Manager::SELECT,
-				'label'              => esc_html__( 'Pagination Mode', 'better-post-filter-widgets-for-elementor' ),
-				'default'            => 'native',
-				'options'            => [
-					'native' => esc_html__( 'Elementor Native', 'better-post-filter-widgets-for-elementor' ),
-					'remote' => esc_html__( 'Legacy', 'better-post-filter-widgets-for-elementor' ),
-				],
-				'condition'          => [
-					'pagination!'     => 'none',
 					'classic_layout!' => 'carousel',
 				],
 				'frontend_available' => true,
@@ -4199,6 +4256,368 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_tab();
 
 		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+
+		// ------------------------------------------------------------------------- CONTROL: Feed Layout
+		$this->start_controls_section(
+			'feed_style',
+			[
+				'label'     => esc_html__( 'Feed Layout', 'better-post-filter-widgets-for-elementor' ),
+				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'classic_layout' => 'feed',
+				],
+			]
+		);
+
+		$this->add_control(
+			'header_title',
+			[
+				'label'     => esc_html__( 'Title', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => 'feed_typography',
+				'selector' =>
+					'{{WRAPPER}} .feed-header, {{WRAPPER}} .feed-header a',
+			]
+		);
+
+		$this->add_responsive_control(
+			'feed_align',
+			[
+				'type'       => \Elementor\Controls_Manager::CHOOSE,
+				'label'      => esc_html__( 'Alignment', 'better-post-filter-widgets-for-elementor' ),
+				'options'    => [
+					'left'   => [
+						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-text-align-left',
+					],
+					'center' => [
+						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-text-align-center',
+					],
+					'right'  => [
+						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-text-align-right',
+					],
+				],
+				'selectors_dictionary' => [
+					'left'   => 'margin-right:auto; order: -1;',
+					'center' => 'margin:0 auto; text-align:center;',
+					'right'  => 'margin-left:auto; order: 1;',
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .feed-title' => '{{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_margin',
+			[
+				'label'      => esc_html__( 'Title Gap (px)', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [
+						'min'  => 1,
+						'max'  => 100,
+						'step' => 1,
+					],
+				],
+				'default'    => [
+					'unit' => 'px',
+					'size' => 20,
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .feed-header' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'selectors' => [
+					'{{WRAPPER}} .feed-header a' => 'color: {{VALUE}}',
+					'{{WRAPPER}} .feed-header'   => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_background_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+				'selectors' => [
+					'{{WRAPPER}} .feed-header' => 'background-color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'feed_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em', 'rem' ],
+				'selectors'  => [
+					'{{WRAPPER}} .feed-header .feed-title' =>
+						'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'header_separator',
+			[
+				'label'     => esc_html__( 'Separator', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'feed_show_separator',
+			[
+				'label'        => esc_html__( 'Show Separator', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			]
+		);
+
+		$this->add_control(
+			'feed_separator_width',
+			[
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ '%' ],
+				'range'      => [
+					'%' => [
+						'min' => 0,
+						'max' => 100,
+					],
+				],
+				'default'    => [
+					'unit' => '%',
+					'size' => 100,
+				],
+				'label'      => esc_html__( 'Separator Width (%)', 'better-post-filter-widgets-for-elementor' ),
+				'selectors'  => [
+					'{{WRAPPER}} .feed-header'  => 'width: {{SIZE}}{{UNIT}};',
+				],
+				'condition'  => [
+					'feed_show_separator' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_separator_thickness',
+			[
+				'label'      => esc_html__( 'Separator Thickness (px)', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [
+						'min'  => 1,
+						'max'  => 20,
+						'step' => 1,
+					],
+				],
+				'default'    => [
+					'unit' => 'px',
+					'size' => 1,
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .feed-header::before, {{WRAPPER}} .feed-header::after'  => 'border-block-start: {{SIZE}}{{UNIT}} solid;',
+				],
+				'condition'  => [
+					'feed_show_separator' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_separator_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Separator Color', 'better-post-filter-widgets-for-elementor' ),
+				'selectors' => [
+					'{{WRAPPER}} .feed-header::before, {{WRAPPER}} .feed-header::after'  => 'border-color: {{VALUE}}',
+				],
+				'separator' => 'after',
+				'condition' => [
+					'feed_show_separator' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'filter_button_title',
+			[
+				'label'     => esc_html__( 'Filter Button', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'      => 'feed_filter_button_typography',
+				'selector'  => '.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a',
+				'separator' => 'before',
+			]
+		);
+
+		$this->start_controls_tabs( 'feed_style_tabs' );
+
+		$this->start_controls_tab(
+			'feed_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '#fff',
+				'selectors' => [
+					'.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a' => 'color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_bg_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '#0E4B65',
+				'selectors' => [
+					'.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a' =>
+						'background-color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name'     => 'feed_filter_button_border_type',
+				'label'    => esc_html__( 'Border Type', 'better-post-filter-widgets-for-elementor' ),
+				'selector' => '.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a',
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_border_radius',
+			[
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a' =>
+						'border-radius: {{SIZE}}{{UNIT}}',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'feed_style_hover_tab',
+			[
+				'label' => esc_html__( 'Hover', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_hover_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '',
+				'selectors' => [
+					'.feed-anchor-filters-{{ID}} a:hover, .feed-term-list-{{ID}} a:hover' => 'color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_hover_bg_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '',
+				'selectors' => [
+					'.feed-anchor-filters-{{ID}} a:hover, .feed-term-list-{{ID}} a:hover' =>
+						'background-color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_hover_border_color',
+			[
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'label'     => esc_html__( 'Border Color', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => '',
+				'selectors' => [
+					'.feed-anchor-filters-{{ID}} a:hover, .feed-term-list-{{ID}} a:hover' =>
+						'border-color: {{VALUE}}',
+				],
+				'condition' => [
+					'feed_filter_button_border_type_border!' => '',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->add_responsive_control(
+			'filter_button_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em', 'rem' ],
+				'selectors'  => [
+					'.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a' =>
+						'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'feed_filter_button_gap',
+			[
+				'label'      => esc_html__( 'Button Gap', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'.feed-anchor-filters-{{ID}} a, .feed-term-list-{{ID}} a' =>
+						'gap: {{SIZE}}{{UNIT}}',
+				],
+			]
+		);
 
 		$this->end_controls_section();
 
@@ -8405,8 +8824,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 	 */
 	protected function render() {
 		global $wp_query;
-		$current_query_vars = $GLOBALS['wp_query']->query_vars;
-		$settings           = $this->get_settings_for_display();
+		$settings = $this->get_settings_for_display();
 
 		$overlay      = 'yes' === $settings['overlay'] ? '<span class="overlay"></span>' : '';
 		$lazy_load    = 'yes' === $settings['post_slider_lazy_load'] ? 'swiper-lazy' : '';
@@ -8604,7 +9022,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		}
 
 		if ( 'main' === $settings['query_type'] ) {
-			$bpfwe_query = new WP_Query( $current_query_vars );
+			$current_query_vars = $wp_query->query_vars;
+			$bpfwe_query        = new WP_Query( $current_query_vars );
 		} elseif ( 'custom' === $settings['query_type'] ) {
 			$bpfwe_query = new WP_Query( $query_args );
 		}
@@ -8643,7 +9062,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 
 				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
-				echo '<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="' . absint( $bpfwe_query->found_posts ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="' . absint( $bpfwe_query->found_posts ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				while ( $bpfwe_query->have_posts() ) :
 					++$counter;
@@ -8669,6 +9088,78 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 					}
 
+					if ( 'feed' === $settings['classic_layout'] ) {
+						$post_id   = get_the_ID();
+						$post_type = get_post_type( $post_id );
+
+						$taxonomies    = get_object_taxonomies( $post_type, 'names' );
+						$display_terms = array();
+
+						$post_types_array = array( $post_type );
+
+						$included_terms = array();
+						$excluded_terms = array();
+
+						if ( ! empty( $taxonomies ) ) {
+							foreach ( $taxonomies as $tax ) {
+								$tax_control_key = $tax . '_' . implode( '_', $post_types_array );
+								if ( 'post' === implode( '_', $post_types_array ) ) {
+									if ( 'post_tag' === $tax ) {
+										$tax_control_key = 'tags';
+									} elseif ( 'category' === $tax ) {
+										$tax_control_key = 'categories';
+									}
+								}
+								if ( ! empty( $settings[ $tax_control_key ] ) ) {
+									$operator_key = $tax . '_' . implode( '_', $post_types_array ) . '_filter_type';
+									$operator     = $settings[ $operator_key ];
+									$term_ids     = array_map( 'intval', $settings[ $tax_control_key ] );
+									if ( 'IN' === $operator ) {
+										$included_terms[ $tax ] = $term_ids;
+									} elseif ( 'NOT IN' === $operator ) {
+										$excluded_terms[ $tax ] = $term_ids;
+									}
+								}
+							}
+						}
+
+						if ( ! empty( $taxonomies ) ) {
+							foreach ( $taxonomies as $tax ) {
+								// Get the post's terms for this taxonomy.
+								$post_terms = wp_get_object_terms( $post_id, $tax, array( 'fields' => 'all' ) );
+								if ( is_wp_error( $post_terms ) || empty( $post_terms ) ) {
+									continue;
+								}
+								// If includes exist for this taxonomy, only show those that match.
+								if ( isset( $included_terms[ $tax ] ) && ! empty( $included_terms[ $tax ] ) ) {
+									foreach ( $post_terms as $term ) {
+										if ( in_array( $term->term_id, $included_terms[ $tax ], true ) ) {
+											$display_terms[] = $term->name;
+										}
+									}
+									continue;
+								}
+								// If excludes exist for this taxonomy, skip those terms.
+								if ( isset( $excluded_terms[ $tax ] ) && ! empty( $excluded_terms[ $tax ] ) ) {
+									foreach ( $post_terms as $term ) {
+										if ( ! in_array( $term->term_id, $excluded_terms[ $tax ], true ) ) {
+											$display_terms[] = $term->name;
+										}
+									}
+									continue;
+								}
+								// If no include/exclude rules: show all terms for this post.
+								foreach ( $post_terms as $term ) {
+									$display_terms[] = $term->name;
+								}
+							}
+						}
+						$display_terms = array_unique( array_map( 'sanitize_text_field', $display_terms ) );
+						$feed_terms    = implode( ',', $display_terms );
+					} else {
+						$feed_terms = '';
+					}
+
 					if ( $settings['skin_template'] ) {
 
 						// Check if the current position should have an extra template.
@@ -8688,11 +9179,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						}
 
 						if ( $use_extra_template ) {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
-							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
@@ -8709,13 +9200,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace( '#EXCERPT#', get_the_excerpt(), $html_content );
 						$html_content = str_replace( '#IMAGE#', $image, $html_content );
 
-						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo wp_kses_post( $html_content );
 						echo '
 						</div>
 						</' . esc_attr( $post_html_tag ) . '>';
 					} else {
-						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 						if ( 'yes' === $settings['show_featured_image'] ) {
 							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
@@ -8993,6 +9484,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						echo '</' . esc_attr( $post_html_tag ) . '>';
 					}
 				endwhile;
+				wp_reset_postdata();
 				echo '</div>';
 
 				if ( 'numbers' === $pagination || 'numbers_and_prev_next' === $pagination ) {
@@ -9125,8 +9617,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					echo '<input type="hidden" name="archive_id" value="' . esc_attr( $queried_object->ID ) . '">';
 				}
 			}
-
-			wp_reset_postdata();
 		}
 
 		if ( 'user' === $settings['query_type'] ) {

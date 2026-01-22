@@ -6,19 +6,17 @@
 		const originalFiltersStates = {};
 		const postsPerPageCache     = {};
 
-		let dynamicHandler          = '';
-		let globalEventsBound       = false;
-		let ajaxInProgress          = false;
+		let dynamic_handler         = '';
 
 		if ($('.elementor-widget-filter-widget').length) {
-			dynamicHandler = 'filter-widget';
+			dynamic_handler = 'filter-widget';
 		} else if ($('.elementor-widget-search-bar-widget').length) {
-			dynamicHandler = 'search-bar-widget';
+			dynamic_handler = 'search-bar-widget';
 		} else {
-			dynamicHandler = 'sorting-widget';
+			dynamic_handler = 'sorting-widget';
 		}
 
-		// Debounce the interactions
+		// ===== Debounce the interactions =====
 		function debounce (func, delay) {
 			let timeoutId;
 			return function() {
@@ -27,44 +25,6 @@
 				clearTimeout(timeoutId);
 				timeoutId = setTimeout(() => func.apply(context, args), delay);
 			};
-		}
-
-		function reduceFields(fields) {
-		  const grouped = {};
-		  fields.forEach((cur) => {
-			const { taxonomy, terms, logic } = cur;
-			if (!grouped[taxonomy]) {
-			  grouped[taxonomy] = { taxonomy, terms: [], logic };
-			}
-			grouped[taxonomy].terms = grouped[taxonomy].terms.concat(terms);
-		  });
-		  return Object.values(grouped);
-		}
-
-		function getPageNumber(url) {
-			const parsedUrl = new URL(url, window.location.origin);
-
-			const pageNum = parsedUrl.searchParams.get('page_num');
-			if (pageNum && !isNaN(pageNum)) {
-				return parseInt(pageNum, 10);
-			}
-
-			const paged = parsedUrl.searchParams.get('paged');
-			if (paged && !isNaN(paged)) {
-				return parseInt(paged, 10);
-			}
-
-			const page = parsedUrl.searchParams.get('page');
-			if (page && !isNaN(page)) {
-				return parseInt(page, 10);
-			}
-
-			const match = url.match(/\/page\/(\d+)(\/|$)/);
-			if (match && match[1]) {
-				return parseInt(match[1], 10);
-			}
-
-			return 1;
 		}
 
 		// Link filter/search/sort widgets to their target post widgets via data-filters-list.
@@ -133,7 +93,7 @@
 		linkFilterWidgets();
 
 		// Add Support for URL.
-		function bpfweInitUrlFilters() {
+		function bpfwe_init_url_filters() {
 			const params = new URLSearchParams(window.location.search);
 			const formId = params.get('results');
 
@@ -296,19 +256,19 @@
 			}
 
 			// Update URL dynamically.
-			const delegatedSelector = '.bpfwe-filter-item, .input-text, [class^="bpfwe-filter-range-"], input[type="text"], input[type="number"], :checkbox, :radio';
+			const delegatedSelector =
+				'.bpfwe-filter-item, .input-text, [class^="bpfwe-filter-range-"], input[type="text"], input[type="number"], :checkbox, :radio';
 			$form.on('change input', delegatedSelector, function() {
 				updateUrl();
 			});
 
 			$form.data('bpfweUpdateUrl', updateUrl);
 		}
-		bpfweInitUrlFilters();
+		bpfwe_init_url_filters();
 
 		// Handle Filter toggle.
 		$document.on('click', '.filter-title.collapsible', function() {
 			const $title = $(this);
-
 			let $content = $title.next('.bpfwe-taxonomy-wrapper, .bpfwe-custom-field-wrapper, .bpfwe-numeric-wrapper');
 
 			if (!$content.length) {
@@ -333,6 +293,7 @@
 			},
 
 			getAjaxFilter() {
+				let ajaxInProgress = false;
 				const filterWidget = this.$element.find('.filter-container');
 
 				// Initialize single-select dropdowns with Select2.
@@ -376,7 +337,7 @@
 					$select.on('change', updatePlusSymbol);
 				});
 
-				// When "Select All" span is clicked.
+				// When "Select All" span is clicked (scoped inside the widget).
 				filterWidget.find('.bpfwe-select-all').on('click', function() {
 					const $selectAll = $(this);
 					const taxonomy = $selectAll.data('taxonomy');
@@ -392,7 +353,6 @@
 					$relatedCheckboxes.prop('checked', isChecked).trigger('change');
 				});
 
-				// When "Select All" span is clicked again.
 				filterWidget.find('input.bpfwe-filter-item').on('change', function() {
 					const $changed = $(this);
 					const taxonomy = $changed.data('taxonomy');
@@ -402,6 +362,7 @@
 					});
 
 					const $selectAll = filterWidget.find('.bpfwe-select-all[data-taxonomy="' + taxonomy + '"]');
+
 					const allChecked = $groupCheckboxes.length === $groupCheckboxes.filter(':checked').length;
 
 					$selectAll.toggleClass('checked', allChecked);
@@ -425,221 +386,81 @@
 					$trigger.attr('aria-expanded', isExpanded);
 				});
 
-				if (!globalEventsBound) {
-					globalEventsBound = true;
+				// Allow radio button deselection (with labels).
+				$document.off('mousedown', 'input[type="radio"]').on('mousedown', 'input[type="radio"]', function (e) {
+					$(this).data('wasChecked', $(this).prop('checked'));
+				});
 
-					// Radio input: store checked state on mousedown to allow deselection.
-					$document.off('mousedown.bpfwe-filter', 'form.form-tax input[type="radio"]').on('mousedown.bpfwe-filter', 'form.form-tax input[type="radio"]', function (e) {
-						$(this).data('wasChecked', $(this).prop('checked'));
-					});
+				$document.off('click', 'input[type="radio"]').on('click', 'input[type="radio"]', function (e) {
+					var $radio = $(this);
+					if ($radio.data('wasChecked')) {
+						// user clicked an already-checked radio - deselect it.
+						$radio.prop('checked', false).trigger('change');
+					}
+					$radio.removeData('wasChecked');
+				});
 
-					// Radio input: deselect when clicking an already-checked radio.
-					$document.off('click.bpfwe-filter', 'form.form-tax input[type="radio"]').on('click.bpfwe-filter', 'form.form-tax input[type="radio"]', function (e) {
-						var $radio = $(this);
-						if ($radio.data('wasChecked')) {
-							// user clicked an already-checked radio - deselect it.
-							$radio.prop('checked', false).trigger('change');
-						}
-						$radio.removeData('wasChecked');
-					});
+				// Label handlers - handle visual-range labels, but ignore clicks that actually targeted the input itself.
+				$document.off('mousedown', 'label.bpfwe-visual-range-option').on('mousedown', 'label.bpfwe-visual-range-option', function (e) {
+					if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
+						return;
+					}
 
-					// Visual range label: capture radio checked state before click (ignore direct input clicks).
-					$document.off('mousedown.bpfwe-filter', 'form.form-tax label.bpfwe-visual-range-option').on('mousedown.bpfwe-filter', 'form.form-tax label.bpfwe-visual-range-option', function (e) {
-						if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
-							return;
-						}
+					var $label = $(this);
+					var radioId = $label.attr('for');
+					var $radio = $();
 
-						var $label = $(this);
-						var radioId = $label.attr('for');
-						var $radio = $();
+					if (radioId) {
+						var el = document.getElementById(radioId);
+						if (el) { $radio = $(el); }
+					} else {
+						$radio = $label.find('input[type="radio"]').first();
+					}
 
-						if (radioId) {
-							var el = document.getElementById(radioId);
-							if (el) { $radio = $(el); }
-						} else {
-							$radio = $label.find('input[type="radio"]').first();
-						}
+					if (!$radio.length) { return; }
+					$radio.data('wasChecked', $radio.prop('checked'));
+				});
 
-						if (!$radio.length) { return; }
-						$radio.data('wasChecked', $radio.prop('checked'));
-					});
+				$document.off('click', 'label.bpfwe-visual-range-option').on('click', 'label.bpfwe-visual-range-option', function (e) {
+					if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
+						return;
+					}
 
-					// Visual range label: toggle radio selection and support deselect behavior.
-					$document.off('click.bpfwe-filter', 'form.form-tax label.bpfwe-visual-range-option').on('click.bpfwe-filter', 'form.form-tax label.bpfwe-visual-range-option', function (e) {
-						if ($(e.target).is('input[type="radio"]') || $(e.target).closest('input[type="radio"]').length) {
-							return;
-						}
+					var $label = $(this);
+					var radioId = $label.attr('for');
+					var $radio = $();
 
-						var $label = $(this);
-						var radioId = $label.attr('for');
-						var $radio = $();
+					if (radioId) {
+						var el = document.getElementById(radioId);
+						if (el) { $radio = $(el); }
+					} else {
+						$radio = $label.find('input[type="radio"]').first();
+					}
 
-						if (radioId) {
-							var el = document.getElementById(radioId);
-							if (el) { $radio = $(el); }
-						} else {
-							$radio = $label.find('input[type="radio"]').first();
-						}
+					if (!$radio.length) { return; }
 
-						if (!$radio.length) { return; }
-
-						if ($radio.data('wasChecked')) {
-							e.preventDefault();
-							$radio.prop('checked', false).trigger('change');
-						} else {
-							e.preventDefault();
-							if (!$radio.prop('checked')) {
-								$radio.prop('checked', true).trigger('change');
-							}
-						}
-
-						$radio.removeData('wasChecked');
-					});
-
-					// Filter form: prevent Enter key from submitting inside inputs.
-					$document.on('keydown.bpfwe-filter', 'form.form-tax input', function (e) {
-						if (e.which === 13) {
-							e.preventDefault();
-						}
-					});
-
-					// Filter form: disable native form submission.
-					$document.on('submit.bpfwe-filter', 'form.form-tax', function (e) {
+					if ($radio.data('wasChecked')) {
 						e.preventDefault();
-					});
-
-					// Filter form: auto-apply filters on input change (debounced).
-					$document.off('change.bpfwe-filter keydown.bpfwe-filter input.bpfwe-filter', 'form.form-tax').on('change.bpfwe-filter keydown.bpfwe-filter input.bpfwe-filter','form.form-tax', debounce(function (e) {
-						if ($(e.target).closest('.bpfwe-numeric-wrapper input.input-val').length) {
-							return;
-						}
-
-						var $widget = $(this).closest('.elementor-widget-filter-widget');
-						var widgetInteractionID = $widget.data('id');
-						if (!widgetInteractionID) return;
-
-						const isSubmitPresent = $widget.find('.submit-form').length > 0;
-
-						if (!isSubmitPresent) {
-							if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
-								getFormValues(widgetInteractionID);
-								return;
-							}
-							if (!isInteracting) {
-								getFormValues(widgetInteractionID);
-							}
-						}
-					}, 700));
-
-					// Numeric range: apply filter only on valid complete range or Enter key.
-					$document.off('change.bpfwe-filter keydown.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val').on('change.bpfwe-filter keydown.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val', debounce(function (e) {
-						// Only react to Enter on keydown
-						if (e.type === 'keydown' && e.key !== 'Enter') {
-							return;
-						}
-
-						const $wrapper = $(this).closest('.bpfwe-numeric-wrapper');
-						if (!$wrapper.length) return;
-
-						const $widget = $wrapper.closest('.elementor-widget-filter-widget');
-						const widgetInteractionID = $widget.data('id');
-						if (!widgetInteractionID) return;
-
-						const isSubmitPresent = $widget.find('.submit-form').length > 0;
-
-						if (!isSubmitPresent) {
-							const $min = $wrapper.find('input[name^="min_"]');
-							const $max = $wrapper.find('input[name^="max_"]');
-
-							if (!$min.length || !$max.length) return;
-
-							const minVal = $min.val();
-							const maxVal = $max.val();
-
-							// Do not trigger on partial ranges.
-							if (minVal === '' || maxVal === '') {
-								return;
-							}
-
-							// Numeric safety.
-							if (isNaN(minVal) || isNaN(maxVal)) {
-								return;
-							}
-
-							// Soft invalid range guard.
-							if (minVal > maxVal) {
-								return;
-							}
-
-							if (!isInteracting) {
-								getFormValues(widgetInteractionID);
-							}
-						}
-
-						}, 700)
-					);
-
-					// Filter submit button: manually trigger filter evaluation.
-					$document.off('click.bpfwe-filter', 'form.form-tax .submit-form').on('click.bpfwe-filter', 'form.form-tax .submit-form', function() {
-						var $widget = $(this).closest('.elementor-widget-filter-widget');
-						var widgetInteractionID = $widget.data('id');
-						if (!widgetInteractionID) return;
-						getFormValues(widgetInteractionID);
-						return false;
-					});
-
-					// Sorting widget: apply ordering change immediately.
-					$document.off('change.bpfwe-filter', 'form.form-order-by').on('change.bpfwe-filter', 'form.form-order-by', function() {
-						var $widget = $(this).closest('.elementor-widget-sorting-widget');
-						var widgetInteractionID = $widget.data('id');
-						if (!widgetInteractionID) return;
-						getFormValues(widgetInteractionID);
-					});
-
-					// Search widget: submit search and optionally prevent redirect.
-					$document.off('submit.bpfwe-filter', 'form.search-post').on('submit.bpfwe-filter', 'form.search-post', function() {
-						var $widget = $(this).closest('.elementor-widget-search-bar-widget');
-						var widgetInteractionID = $widget.data('id');
-						if (!widgetInteractionID) return;
-						getFormValues(widgetInteractionID);
-						if ($(this).hasClass('no-redirect')) {
-							return false;
-						}
-					});
-
-					// Pagination links: load specific page via AJAX.
-					$document.off('click.bpfwe-filter', '.pagination-filter a').on('click.bpfwe-filter', '.pagination-filter a', function (e) {
-						var postWidgetID = $(this).closest('[data-id]').data('id');
+						$radio.prop('checked', false).trigger('change');
+					} else {
 						e.preventDefault();
-						var url = $(this).attr('href');
-						var paged = getPageNumber(url);
-						getFormValues(null, paged, postWidgetID);
-					});
-
-					// Load more button: fetch next page or fallback to pagination link.
-					$document.off('click.bpfwe-filter', '.load-more-filter').on('click.bpfwe-filter', '.load-more-filter', function (e) {
-						e.preventDefault();
-
-						var $widget = $(this).closest('[data-id]');
-						var postWidgetID = $widget.data('id');
-						var url = $widget.find('.e-load-more-anchor').data('next-page');
-
-						if (url) {
-							var paged = getPageNumber(url);
-							getFormValues(null, paged, postWidgetID);
-						} else {
-							var nextPageLink = $widget.find('.pagination-filter a.next');
-
-							if (nextPageLink.length) {
-								nextPageLink.trigger('click');
-								currentPage++;
-								$widget.data('current-page', currentPage);
-								var loadMoreButton = $widget.find('.load-more');
-								loadMoreButton.text('Loading...').prop('disabled', true);
-							}
+						if (!$radio.prop('checked')) {
+							$radio.prop('checked', true).trigger('change');
 						}
-					});
-				}
+					}
+
+					$radio.removeData('wasChecked');
+				});
+
+				$document.on('keydown', 'form.form-tax input', function (e) {
+					if (e.which === 13) {
+						e.preventDefault();
+					}
+				});
+
+				$document.on('submit', 'form.form-tax', function (e) {
+					e.preventDefault();
+				});
 
 				const currentUrl = window.location.href;
 				const filterSetting = this.$element.data('settings');
@@ -647,7 +468,6 @@
 				if (!filterSetting) return;
 
 				let targetPostWidget = filterSetting?.target_selector ?? '';
-
 				if (!targetPostWidget || !$(targetPostWidget).length) {
 					let $closestWidget = $('.elementor-widget-loop-carousel, .elementor-widget-loop-grid, .elementor-widget-post-widget, .elementor-widget-posts').first();
 					if ($closestWidget.length) {
@@ -655,7 +475,6 @@
 						targetPostWidget = $closestWidget.attr('id') ? `#${$closestWidget.attr('id')}` : widgetClass ? `.${widgetClass}` : '';
 					}
 				}
-
 				if (!targetPostWidget || targetPostWidget === '.') return;
 
 				let currentPage = 1,
@@ -709,28 +528,173 @@
 					interactionTimeout = setTimeout(() => isInteracting = false, 700);
 				});
 
-				filterWidget.on('click', '.reset-form', function () {
-					var resetWidgetID = $(this).closest('.elementor-widget-filter-widget').data('id');
-
-					if (!resetWidgetID) {
+				// ===== Filter widgets: inputs =====
+				$document.off('change keydown input', 'form.form-tax').on('change keydown input','form.form-tax', debounce(function (e) {
+					if ($(e.target).closest('.bpfwe-numeric-wrapper input.input-val').length) {
 						return;
 					}
 
-					bpfweResetLinkedWidgets(resetWidgetID, "full");
+					var $widget = $(this).closest('.elementor-widget-filter-widget');
+					var widgetInteractionID = $widget.data('id');
+					if (!widgetInteractionID) return;
+
+					const isSubmitPresent = $widget.find('.submit-form').length > 0;
+
+					if (!isSubmitPresent) {
+						if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
+							get_form_values(widgetInteractionID);
+							return;
+						}
+						if (!isInteracting) {
+							get_form_values(widgetInteractionID);
+						}
+					}
+				}, 700));
+
+				$document.off('change keydown', '.bpfwe-numeric-wrapper input.input-val').on('change keydown', '.bpfwe-numeric-wrapper input.input-val', debounce(function (e) {
+					// Only react to Enter on keydown
+					if (e.type === 'keydown' && e.key !== 'Enter') {
+						return;
+					}
+
+					const $wrapper = $(this).closest('.bpfwe-numeric-wrapper');
+					if (!$wrapper.length) return;
+
+					const $widget = $wrapper.closest('.elementor-widget-filter-widget');
+					const widgetInteractionID = $widget.data('id');
+					if (!widgetInteractionID) return;
+
+					const isSubmitPresent = $widget.find('.submit-form').length > 0;
+
+					if (!isSubmitPresent) {
+						const $min = $wrapper.find('input[name^="min_"]');
+						const $max = $wrapper.find('input[name^="max_"]');
+
+						if (!$min.length || !$max.length) return;
+
+						const minVal = $min.val();
+						const maxVal = $max.val();
+
+						// Do not trigger on partial ranges.
+						if (minVal === '' || maxVal === '') {
+							return;
+						}
+
+						// Numeric safety.
+						if (isNaN(minVal) || isNaN(maxVal)) {
+							return;
+						}
+
+						// Soft invalid range guard.
+						if (minVal > maxVal) {
+							return;
+						}
+
+						if (!isInteracting) {
+							get_form_values(widgetInteractionID);
+						}
+					}
+
+					}, 700)
+				);
+
+				// ===== Filter widgets: submit button =====
+				$document.off('click', '.submit-form').on('click', '.submit-form', function() {
+					var $widget = $(this).closest('.elementor-widget-filter-widget');
+					var widgetInteractionID = $widget.data('id');
+					if (!widgetInteractionID) return;
+					get_form_values(widgetInteractionID);
+					return false;
 				});
 
-				if (currentUrl.includes('?search=')) {
-					getFormValues();
+				// ===== Sorting widgets =====
+				$document.off('change', 'form.form-order-by').on('change', 'form.form-order-by', function() {
+					var $widget = $(this).closest('.elementor-widget-sorting-widget');
+					var widgetInteractionID = $widget.data('id');
+					if (!widgetInteractionID) return;
+					get_form_values(widgetInteractionID);
+				});
+
+				// ===== Search bar widgets =====
+				$document.off('submit', 'form.search-post').on('submit', 'form.search-post', function() {
+					var $widget = $(this).closest('.elementor-widget-search-bar-widget');
+					var widgetInteractionID = $widget.data('id');
+					if (!widgetInteractionID) return;
+					get_form_values(widgetInteractionID);
+					if ($(this).hasClass('no-redirect')) {
+						return false;
+					}
+				});
+
+				if (currentUrl.includes('?search=')) get_form_values();
+
+				// ===== Utility Functions =====
+				function getPageNumber(url) {
+					const parsedUrl = new URL(url, window.location.origin);
+
+					const pageNum = parsedUrl.searchParams.get('page_num');
+					if (pageNum && !isNaN(pageNum)) {
+						return parseInt(pageNum, 10);
+					}
+
+					const paged = parsedUrl.searchParams.get('paged');
+					if (paged && !isNaN(paged)) {
+						return parseInt(paged, 10);
+					}
+
+					const page = parsedUrl.searchParams.get('page');
+					if (page && !isNaN(page)) {
+						return parseInt(page, 10);
+					}
+
+					const match = url.match(/\/page\/(\d+)(\/|$)/);
+					if (match && match[1]) {
+						return parseInt(match[1], 10);
+					}
+
+					return 1;
 				}
 
-				function postCount($target) {
+				// ===== Pagination: numbers and load more =====
+				$document.off('click', '.pagination-filter a').on('click', '.pagination-filter a', function (e) {
+					var postWidgetID = $(this).closest('[data-id]').data('id');
+					e.preventDefault();
+					var url = $(this).attr('href');
+					var paged = getPageNumber(url);
+					get_form_values(null, paged, postWidgetID);
+				});
+
+				$document.off('click', '.load-more-filter').on('click', '.load-more-filter', function (e) {
+					e.preventDefault();
+
+					var $widget = $(this).closest('[data-id]');
+					var postWidgetID = $widget.data('id');
+					var url = $widget.find('.e-load-more-anchor').data('next-page');
+
+					if (url) {
+						var paged = getPageNumber(url);
+						get_form_values(null, paged, postWidgetID);
+					} else {
+						var nextPageLink = $widget.find('.pagination-filter a.next');
+
+						if (nextPageLink.length) {
+							nextPageLink.trigger('click');
+							currentPage++;
+							$widget.data('current-page', currentPage);
+							var loadMoreButton = $widget.find('.load-more');
+							loadMoreButton.text('Loading...').prop('disabled', true);
+						}
+					}
+				});
+
+				function post_count($target) {
 					let postCount = $target.find('.post-container').data('total-post') || 0;
 					postCount = Number(postCount);
 					$('.filter-post-count .number').text(postCount);
 				}
 
-				// Retrieve form values, process filters, and make AJAX request for filtered posts.
-				function getFormValues(widgetInteractionID, paged, postWidgetID) {
+				// ===== Retrieve form values, process filters, and make AJAX request for filtered posts =====
+				function get_form_values(widgetInteractionID, paged, postWidgetID) {
 					if ($document.find('div[data-filters-list*="' + widgetInteractionID + '"]').length === 0) {
 						linkFilterWidgets();
 					}
@@ -803,27 +767,19 @@
 					let resolvedFilterWidgetId = isFiltering ? widgetInteractionID : null;
 
 					if (!resolvedFilterWidgetId) {
-						let $postWidget = $('div[data-id="' + localWidgetID + '"]');
-						let closestDist = Infinity;
-						filtersList.forEach(id => {
-							let $filter = $('.elementor-widget-filter-widget[data-id="' + id + '"]');
-							if ($filter.length) {
-								let dist = Math.abs($postWidget.offset().top - $filter.offset().top); // Vertical distance as proxy
-								if (dist < closestDist) {
-									closestDist = dist;
-									resolvedFilterWidgetId = id;
+						for (let i = 0; i < filtersList.length; i++) {
+							const candidateId = filtersList[i];
+							const $candidate = $('.elementor-widget-filter-widget[data-id="' + candidateId + '"]');
+
+							if ($candidate.length) {
+								const settings = $candidate.data('settings') || {};
+
+								// First filter widget defining a query becomes authority.
+								if (settings.filter_query_id) {
+									resolvedFilterWidgetId = candidateId;
+									break;
 								}
 							}
-						});
-					}
-
-					if (!resolvedFilterWidgetId) {
-						// Fallback: Find last visible filter widget on the page.
-						const $allVisibleFilters = $('.elementor-widget-filter-widget:visible');
-
-						if ($allVisibleFilters.length > 0) {
-							const $lastOne = $allVisibleFilters.last();
-							resolvedFilterWidgetId = $lastOne.data('id');
 						}
 					}
 					
@@ -857,7 +813,7 @@
 							nothingFoundMessage = filterSettings.nothing_found_message || '';
 							isFacetted = filterSettings.is_facetted || false;
 							FacetWidgetId = currentfilterWidgetId;
-							customAjax = filterSettings.filter_custom_handler || false;
+							customAjax = filterSettings.use_custom_handler || false;
 							scrollToTop = filterSettings.scroll_to_top || 'no';
 							displaySelectedBefore = filterSettings.display_selected_before || 'no';
 							enableQueryDebug = filterSettings.enable_query_debug || false;
@@ -1095,6 +1051,18 @@
 						}, 800);
 					});
 
+					function reduceFields(fields) {
+						return fields.reduce((o, cur) => {
+							const occurs = o.reduce((n, item, i) => (item.taxonomy === cur.taxonomy ? i : n), -1);
+							if (occurs >= 0) {
+								o[occurs].terms = o[occurs].terms.concat(cur.terms);
+							} else {
+								o.push({ taxonomy: cur.taxonomy, terms: [cur.terms], logic: cur.logic });
+							}
+							return o;
+						}, []);
+					}
+
 					function reinitElementorContent(selector) {
 						const $container = $(selector);
 
@@ -1187,7 +1155,7 @@
 									currentSettings.pagination_load_type = 'ajax';
 									localTargetSelector.data('settings', currentSettings);
 								}
-								postCount(localTargetSelector);
+								post_count(localTargetSelector);
 								var resetWidgetID = $loadingWidget.closest('.elementor-widget-filter-widget').data('id');
 								bpfweResetLinkedWidgets(resetWidgetID, "partial");
 							} else {
@@ -1236,7 +1204,7 @@
 										localTargetSelector.data('settings', currentSettings);
 									}
 
-									postCount(localTargetSelector);
+									post_count(localTargetSelector);
 								}
 							}
 							localTargetSelector.removeClass('filter-initialized');
@@ -1272,13 +1240,13 @@
 
 							if (localTargetSelector.hasClass('filter-active') && paginationType === 'infinite') {
 								debounce(function() {
-									bpfweInfiniteScroll(localWidgetID, localTargetSelector);
+									bpfwe_infinite_scroll(localWidgetID, localTargetSelector);
 								}, 800)();
 							}
 
 							if (localTargetSelector.hasClass('filter-active') && paginationType === 'cwm_infinite') {
 								debounce(function() {
-									elementorInfiniteScroll(localWidgetID, localTargetSelector);
+									elementor_infinite_scroll(localWidgetID, localTargetSelector);
 								}, 800)();
 							}
 
@@ -1301,7 +1269,7 @@
 								localTargetSelector.data('settings', currentSettings);
 							}
 
-							postCount(localTargetSelector);
+							post_count(localTargetSelector);
 							reinitElementorContent(localTargetSelector);
 						}
 					});
@@ -1430,7 +1398,7 @@
 					});
 				}
 
-				function bpfweInfiniteScroll (widgetID, targetSelector) {
+				function bpfwe_infinite_scroll (widgetID, targetSelector) {
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						$paginationNext = targetSelector.find('.pagination-filter a.next');
 
@@ -1452,7 +1420,7 @@
 											ajaxInProgress = true;
 											var url = $nextLink.attr('href');
 											var paged = getPageNumber(url);
-											getFormValues(null, paged, widgetID);
+											get_form_values(null, paged, widgetID);
 										}
 									}
 								});
@@ -1466,7 +1434,7 @@
 					}
 				}
 
-				function elementorInfiniteScroll (widgetID, targetSelector) {
+				function elementor_infinite_scroll (widgetID, targetSelector) {
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						currentPage = targetSelector.data('current-page') || 1,
 						maxPage = scrollAnchor.data('max-page');
@@ -1488,7 +1456,7 @@
 											ajaxInProgress = true;
 											currentPage++;
 											targetSelector.data('current-page', currentPage);
-											getFormValues(null, currentPage, widgetID);
+											get_form_values(null, currentPage, widgetID);
 										}
 									}
 								});
@@ -1509,7 +1477,6 @@
 					if (!filters || !Object.keys(filters).length) {
 						return;
 					}
-
 					const filterWidgetId = Object.keys(filters)[0];
 					const container = $('.elementor-widget-filter-widget[data-id="' + filterWidgetId + '"]');
 					if (!container.length) return;
@@ -1654,6 +1621,16 @@
 					}
 				}
 
+				filterWidget.on('click', '.reset-form', function () {
+					var resetWidgetID = $(this).closest('.elementor-widget-filter-widget').data('id');
+
+					if (!resetWidgetID) {
+						return;
+					}
+
+					bpfweResetLinkedWidgets(resetWidgetID, "full");
+				});
+
 				function bpfweResetLinkedWidgets(resetWidgetID, $mode="partial") {
 					var $resetWidget = $('.elementor-widget-filter-widget[data-id="' + resetWidgetID + '"]');
 					var $targetPostWidget = $('div[data-filters-list*="' + resetWidgetID + '"]');
@@ -1736,15 +1713,21 @@
 							});
 
 							// Restore numeric range from snapshot
-							const $incoming = originalFiltersStates[widgetId] ? $(originalFiltersStates[widgetId]) : null;
-							if ($incoming) {
+							for (var id in originalFiltersStates) {
+								if (!$filterWidget.length) continue;
+
+								const $incoming = $(originalFiltersStates[id]);
+
 								$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
 									const $currentWrapper = $(this).closest('.flex-wrapper');
 									if (!$currentWrapper.length) return;
+
 									const className = $currentWrapper.attr('class') || '';
 									const selector = '.flex-wrapper.' + className.trim().replace(/\s+/g, '.');
 									const $replacement = $incoming.find(selector);
+
 									if (!$replacement.length) return;
+
 									// Replace entire numeric wrapper.
 									$currentWrapper.replaceWith($replacement);
 								});
@@ -1768,7 +1751,7 @@
 					$targetPostWidget.data('current-page', 1);
 
 					if($mode === "full") {
-						getFormValues(resetWidgetID);
+						get_form_values(resetWidgetID);
 					}
 					
 					$targetPostWidget.removeClass('filter-active');
@@ -1777,7 +1760,7 @@
 		});
 
 		if (!elementorFrontend.isEditMode()) {
-			elementorFrontend.elementsHandler.attachHandler(dynamicHandler, FilterWidgetHandler);
+			elementorFrontend.elementsHandler.attachHandler(dynamic_handler, FilterWidgetHandler);
 		} else {
 			elementorFrontend.elementsHandler.attachHandler('filter-widget', FilterWidgetHandler);
 		}

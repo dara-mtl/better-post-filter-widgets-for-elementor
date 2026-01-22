@@ -185,10 +185,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'filter_post_type_source_warning',
 			[
-				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => '<div style="font-style: normal;">' . esc_html__( 'Using the post type from the targeted post widget may produce inconsistent results. If unavailable, "Any" will be used as fallback.', 'better-post-filter-widgets-for-elementor' ) . '</div>',
-				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
-				'condition'       => [
+				'type'        => \Elementor\Controls_Manager::NOTICE,
+				'notice_type' => 'warning',
+				'dismissible' => true,
+				'content'     => esc_html__( 'Using the post type from the targeted post widget may produce inconsistent results. If unavailable, "Any" will be used as fallback.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
 					'filter_post_type' => 'targeted_widget',
 				],
 			]
@@ -259,20 +260,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
-		// $repeater->add_control(
-		// 'filter_toggle_initial_state',
-		// [
-		// 'label'        => __( 'Start Expanded', 'better-post-filter-widgets-for-elementor' ),
-		// 'type'         => \Elementor\Controls_Manager::SWITCHER,
-		// 'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
-		// 'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
-		// 'return_value' => 'yes',
-		// 'default'      => '',
-		// 'condition'    => [
-		// 'filter_toggle' => 'yes',
-		// ],
-		// ]
-		// );
+		$repeater->add_control(
+			'filter_toggle_initial_state',
+			[
+				'label'        => __( 'Start Expanded', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'condition'    => [
+					'filter_toggle' => 'yes',
+				],
+			]
+		);
 
 		$repeater->add_control(
 			'select_filter',
@@ -442,7 +443,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'filter_style_numeric',
 			[
-				'label'     => esc_html__( 'Filter Type', 'better-post-filter-widgets-for-elementor' ),
+				'label'     => esc_html__( 'Field Type', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'range',
 				'options'   => [
@@ -450,6 +451,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'checkboxes' => esc_html__( 'Checkboxes', 'better-post-filter-widgets-for-elementor' ),
 					'radio'      => esc_html__( 'Radio Buttons', 'better-post-filter-widgets-for-elementor' ),
 					'list'       => esc_html__( 'Label List', 'better-post-filter-widgets-for-elementor' ),
+					'input'      => esc_html__( 'Input Field', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'separator' => 'before',
 				'condition' => [
@@ -549,7 +551,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'      => \Elementor\Controls_Manager::TEXT,
 				'condition' => [
 					'select_filter'        => 'Numeric',
-					'filter_style_numeric' => 'range',
+					'filter_style_numeric' => [ 'range','input' ],
 					'visual_range!'        => 'yes',
 				],
 			]
@@ -768,18 +770,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
-			'swatch_notice',
-			[
-				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => esc_html__( 'To use this option first assign swatches in your Taxonomy > Terms.', 'better-post-filter-widgets-for-elementor' ),
-				'content_classes' => 'elementor-descriptor',
-				'condition'       => [
-					'display_swatch' => 'yes',
-				],
-			]
-		);
-
-		$repeater->add_control(
 			'hide_label_swatch',
 			[
 				'label'        => esc_html__( 'Hide Label', 'better-post-filter-widgets-for-elementor' ),
@@ -789,6 +779,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'hide-swatch-label',
 				'condition'    => [
+					'display_swatch' => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'swatch_notice',
+			[
+				'type'        => \Elementor\Controls_Manager::NOTICE,
+				'notice_type' => 'info',
+				'dismissible' => false,
+				// translators: %s is an HTML link to the taxonomy settings page.
+				'content'     => sprintf( wp_kses( __( 'Add swatches to your taxonomy terms to enable this feature. %s', 'better-post-filter-widgets-for-elementor' ), [ 'a' => [ 'href' => [], 'target' => [] ] ] ), '<a href="' . esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) ) . '" target="_blank">' . esc_html__( 'Go to taxonomy settings.', 'better-post-filter-widgets-for-elementor' ) . '</a>' ),
+				'condition'   => [
 					'display_swatch' => 'yes',
 				],
 			]
@@ -851,6 +855,51 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'select_filter'   => 'Custom Field',
 					'filter_style_cf' => 'input',
 				],
+			]
+		);
+
+		$repeater->add_control(
+			'min_input_placeholder',
+			[
+				'label'       => esc_html__( 'Min. Placeholder', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Min.', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'Min.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'input',
+					'visual_range!'        => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'max_input_placeholder',
+			[
+				'label'       => esc_html__( 'Max. Placeholder', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Max.', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'Max.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'input',
+					'visual_range!'        => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'group_facet_mode',
+			[
+				'label'     => esc_html__( 'Group Facet Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'inherit',
+				'options'   => [
+					'inherit'       => esc_html__( 'Inherit', 'better-post-filter-widgets-for-elementor' ),
+					'disable-facet' => esc_html__( 'Grey out', 'better-post-filter-widgets-for-elementor' ),
+					'hide-facet'    => esc_html__( 'Hide', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'separator' => 'before',
 			]
 		);
 
@@ -1097,6 +1146,35 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$this->add_control(
+			'is_facetted',
+			[
+				'label'              => esc_html__( 'Enable Faceted Filter', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value'       => 'yes',
+				'default'            => '',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'facet_mode',
+			[
+				'label'     => esc_html__( 'Facet Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'disable-facet',
+				'options'   => [
+					'disable-facet' => esc_html__( 'Grey out', 'better-post-filter-widgets-for-elementor' ),
+					'hide-facet'    => esc_html__( 'Hide', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'is_facetted' => 'yes',
+				],
+			]
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -1284,6 +1362,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'filter_custom_handler',
+			[
+				'label'              => esc_html__( 'Custom AJAX Handler', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Loads a minimal WP environment for faster query processing. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'default'            => 'no',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
 			'optimize_query',
 			[
 				'label'              => esc_html__( 'Load Only Post ID', 'better-post-filter-widgets-for-elementor' ),
@@ -1371,10 +1462,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'inject_query_id_warning',
 			[
-				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => '<div style="font-style: normal;">' . esc_html__( 'This option may conflict with other Query ID. Ensure the filter still works as expected after turning this on.', 'better-post-filter-widgets-for-elementor' ) . '</div>',
-				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
-				'condition'       => [
+				'type'        => \Elementor\Controls_Manager::NOTICE,
+				'notice_type' => 'warning',
+				'dismissible' => true,
+				'content'     => esc_html__( 'This option may conflict with other Query ID. Ensure the filter still works as expected after turning this on.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
 					'inject_query_id!' => '',
 				],
 			]
@@ -1481,11 +1573,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'selected_terms_description',
 			[
-				'label'           => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
-				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to any widget to display selected terms, the total count, or clickable terms for quick deselection." class to any widgets.', 'better-post-filter-widgets-for-elementor' ),
-				'content_classes' => 'elementor-control-field-description',
-				'condition'       => [
+				'type'        => \Elementor\Controls_Manager::NOTICE,
+				'notice_type' => 'info',
+				'dismissible' => false,
+				'heading'     => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
+				'content'     => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to a Heading or Text widget. Make sure the widget has content (you can use HTML entity &nbsp to keep it blank), otherwise it won’t appear on the page.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
 					'display_selected_terms' => 'yes',
 				],
 			]
@@ -2771,6 +2864,92 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 
 		$this->start_controls_section(
+			'section_dropdown',
+			array(
+				'label' => esc_html__( 'Select Dropdown', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'dropdown_typography',
+				'selector' => '{{WRAPPER}} select',
+			)
+		);
+
+		$this->add_control(
+			'dropdown_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} select'        => 'color: {{VALUE}} !important;',
+					'{{WRAPPER}} select option' => 'color: {{VALUE}} !important;',
+				),
+			)
+		);
+
+		$this->add_control(
+			'dropdown_background',
+			array(
+				'label'     => esc_html__( 'Background Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} select'        => 'background-color !important; {{VALUE}}; appearance: none; -webkit-appearance: none; -moz-appearance: none;',
+					'{{WRAPPER}} select option' => 'background-color: {{VALUE}} !important;',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'dropdown_border',
+				'selector' => '{{WRAPPER}} select',
+			)
+		);
+
+		$this->add_responsive_control(
+			'dropdown_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'{{WRAPPER}} select' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'dropdown_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} select' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'dropdown_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} select' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
 			'section_select2',
 			array(
 				'label' => esc_html__( 'Select2', 'better-post-filter-widgets-for-elementor' ),
@@ -2837,6 +3016,17 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} .select2-selection--single .select2-selection__rendered, {{WRAPPER}} .bpfwe-multi-select2 .select2-selection__choice, .select2-results__options' => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_control(
+			'selection_select2_highlight_background',
+			array(
+				'label'     => esc_html__( 'Highlight Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .select2-container--default .select2-results__option--highlighted[aria-selected]' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
@@ -3410,6 +3600,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$widget_id          = $this->get_id();
 		$transient_duration = ( ! empty( $settings['transient_duration'] ) ) ? absint( $settings['transient_duration'] ) : 86400;
 		$is_editor          = current_user_can( 'edit_posts' );
+		$is_facetted        = $settings['is_facetted'] ? true : false;
+		$facet_mode         = $settings['facet_mode'] ? $settings['facet_mode'] : '';
 		$show_counter       = '';
 		$toggleable_class   = '';
 		$min_value          = '';
@@ -3420,7 +3612,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			$index = 0;
 			echo '
 			<div class="filter-container" data-target-post-widget="' . esc_attr( $settings['target_selector'] ) . '">
-			<form id="filter-' . esc_attr( $widget_id ) . '" class="form-tax elementor-grid" action="/" method="get" autocomplete="on">
+			<form id="filter-' . esc_attr( $widget_id ) . '" class="form-tax elementor-grid ' . esc_attr( $facet_mode ) . '" action="/" method="get" autocomplete="on">
 			<input type="hidden" name="bpf_filter_nonce" value="' . esc_attr( wp_create_nonce( 'nonce' ) ) . '">
 			';
 
@@ -3497,7 +3689,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( '' !== $min ) {
 									printf(
-										'<input type="number" class="input-min bpfwe-filter-item" name="min_%1$s" data-taxonomy="%1$s" value="%2$s">',
+										'<input type="number" inputmode="numeric" pattern="[0-9]*" class="input-min bpfwe-filter-item" name="min_%1$s" data-taxonomy="%1$s" value="%2$s">',
 										esc_attr( $meta_key ),
 										esc_attr( $min )
 									);
@@ -3505,7 +3697,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( '' !== $max ) {
 									printf(
-										'<input type="number" class="input-max bpfwe-filter-item" name="max_%1$s" data-taxonomy="%1$s" value="%2$s">',
+										'<input type="number" inputmode="numeric" pattern="[0-9]*" class="input-max bpfwe-filter-item" name="max_%1$s" data-taxonomy="%1$s" value="%2$s">',
 										esc_attr( $meta_key ),
 										esc_attr( $max )
 									);
@@ -3577,6 +3769,67 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					return;
 				}
 
+				// Retrieve current filter's query.
+				$filter_data          = get_transient( 'bpfwe_filter_query' );
+				$allowed_term_ids     = [];
+				$facetted_term_counts = [];
+				$post_ids             = [];
+				$group_facet_mode     = ( 'inherit' !== $item['group_facet_mode'] ) ? $item['group_facet_mode'] : '';
+				$taxonomy_is_faceted  = false;
+
+				$wrapper_classes_tax  = [ 'flex-wrapper', $item['filter_by'] ];
+				$wrapper_classes_meta = [ 'flex-wrapper', $item['meta_key'] ];
+
+				if ( '' !== $group_facet_mode ) {
+					$wrapper_classes_tax[]  = $group_facet_mode;
+					$wrapper_classes_meta[] = $group_facet_mode;
+				}
+
+				$wrapper_classes_tax  = implode( ' ', $wrapper_classes_tax );
+				$wrapper_classes_meta = implode( ' ', $wrapper_classes_meta );
+
+				if ( $is_facetted && is_array( $filter_data ) && 'Taxonomy' === $item['select_filter'] ) {
+
+					$taxonomy = sanitize_key( $item['filter_by'] );
+					$post_ids = get_transient( 'bpfwe_filter_post_ids' );
+
+					if ( empty( $post_ids ) || ! is_array( $post_ids ) ) {
+						return;
+					}
+
+					$taxonomy_is_faceted = true;
+
+					foreach ( $post_ids as $post_id ) {
+
+						$post_term_ids = wp_get_post_terms(
+							absint( $post_id ),
+							$taxonomy,
+							[
+								'fields'  => 'ids',
+								'orderby' => 'none',
+							]
+						);
+
+						if ( is_wp_error( $post_term_ids ) || empty( $post_term_ids ) ) {
+							continue;
+						}
+
+						foreach ( $post_term_ids as $term_id ) {
+							$term_id = absint( $term_id );
+
+							$allowed_term_ids[ $term_id ] = true;
+
+							if ( isset( $facetted_term_counts[ $term_id ] ) ) {
+								++$facetted_term_counts[ $term_id ];
+							} else {
+								$facetted_term_counts[ $term_id ] = 1;
+							}
+						}
+					}
+
+					$allowed_term_ids = array_keys( $allowed_term_ids );
+				}
+
 				++$index;
 
 				if ( 'Taxonomy' === $item['select_filter'] ) {
@@ -3617,11 +3870,37 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 					}
 
+					// Extend allowed_term_ids with ancestors for hierarchy in faceted mode.
+					if ( $is_facetted && 'yes' === $item['show_hierarchy'] && ! empty( $allowed_term_ids ) ) {
+						$extended_allowed = $allowed_term_ids;
+						foreach ( $allowed_term_ids as $term_id ) {
+							$ancestors        = get_ancestors( $term_id, $item['filter_by'], 'taxonomy' );
+							$extended_allowed = array_merge( $extended_allowed, $ancestors );
+						}
+						$allowed_term_ids = array_unique( $extended_allowed );
+					}
+
+					// Intersect base terms with allowed IDs.
+					if ( $is_facetted && $taxonomy_is_faceted ) {
+						$hiterms = array_filter(
+							$hiterms,
+							function ( $term ) use ( $allowed_term_ids ) {
+
+								if ( empty( $allowed_term_ids ) ) {
+									// Faceted, but no matches for this taxonomy -> remove all.
+									return false;
+								}
+
+								return in_array( absint( $term->term_id ), $allowed_term_ids, true );
+							}
+						);
+					}
+
 					if ( 'checkboxes' === $item['filter_style'] || 'checkboxes' === $item['filter_style_cf'] ) {
 						$term_index = 0;
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_tax ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-taxonomy-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
@@ -3641,7 +3920,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						foreach ( $hiterms as $key => $hiterm ) {
-							$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
+							$has_children = $is_facetted && 'yes' === $item['show_hierarchy'] && ! empty( get_term_children( $hiterm->term_id, $hiterm->taxonomy ) );
+
+							if ( $is_facetted && $has_children ) {
+								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
+							} else {
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+							}
+
 							$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $hiterm->term_id, 'bpfwe_swatches_type', true ) : '';
 							$group_text     = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_group_text', true );
 							$swatch_html    = '';
@@ -3697,7 +3984,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								' . wp_kses_post( $separator_html ) . '
 								<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
 								<input type="checkbox" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
-								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
+								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . wp_kses_post( $hiterm->name . $show_counter ) . '</span></span>
 								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 								</label>
 							';
@@ -3735,6 +4022,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									}
 								}
 
+								// Intersect base terms with allowed IDs.
+								if ( $is_facetted && $taxonomy_is_faceted ) {
+									$lowterms = array_filter(
+										$lowterms,
+										function ( $term ) use ( $allowed_term_ids, $display_empty ) {
+
+											// Faceted and this taxonomy participated, but no matches -> clear all.
+											if ( empty( $allowed_term_ids ) ) {
+												return false;
+											}
+
+											if ( ! in_array( absint( $term->term_id ), $allowed_term_ids, true ) ) {
+												return false;
+											}
+
+											if ( ! $display_empty && 0 === (int) $term->count ) {
+												return false;
+											}
+
+											return true;
+										}
+									);
+								}
+
 								if ( $lowterms ) {
 
 									foreach ( array_reverse( $lowterms ) as $lowterm ) {
@@ -3759,11 +4070,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											--$open_uls;
 										}
 
-										$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $term->count ) . ')' : '';
-										$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
-										$group_text     = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
-										$swatch_html    = '';
-										$separator_html = '';
+										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+										$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+										$swatches_type   = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
+										$group_text      = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
+										$swatch_html     = '';
+										$separator_html  = '';
 
 										if ( $group_text && 'yes' === $item['display_swatch'] ) {
 											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
@@ -3842,6 +4154,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											}
 										}
 
+										// Intersect base terms with allowed IDs.
+										if ( $is_facetted && $taxonomy_is_faceted ) {
+											$child_terms = array_filter(
+												$child_terms,
+												function ( $term ) use ( $allowed_term_ids, $display_empty ) {
+
+													// Faceted and this taxonomy participated, but no matches -> clear all.
+													if ( empty( $allowed_term_ids ) ) {
+														return false;
+													}
+
+													if ( ! in_array( absint( $term->term_id ), $allowed_term_ids, true ) ) {
+														return false;
+													}
+
+													if ( ! $display_empty && 0 === (int) $term->count ) {
+														return false;
+													}
+
+													return true;
+												}
+											);
+										}
+
 										$output .= '
 											<li class="child-term depth-' . $depth . '">
 												' . wp_kses_post( $separator_html ) . '
@@ -3852,7 +4188,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 														name="' . esc_attr( $item['filter_by'] ) . '" 
 														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
 														value="' . esc_attr( $term->term_id ) . '" />
-													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . wp_kses_post( $term->name . $show_counter ) . '</span></span>
 													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 												</label>';
 
@@ -3896,6 +4232,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'style' => array(),
 												'role'  => array(),
 												'label' => array(),
+												'data-reset' => array(),
 												'title' => array(),
 											),
 											'div'   => array(
@@ -3923,14 +4260,22 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'radio' === $item['filter_style'] || 'radio' === $item['filter_style_cf'] ) {
 						$term_index = 0;
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_tax ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-taxonomy-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
 
 						foreach ( $hiterms as $key => $hiterm ) {
-							$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
+							$has_children = $is_facetted && 'yes' === $item['show_hierarchy'] && ! empty( get_term_children( $hiterm->term_id, $hiterm->taxonomy ) );
+
+							if ( $is_facetted && $has_children ) {
+								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
+							} else {
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+							}
+
 							$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $hiterm->term_id, 'bpfwe_swatches_type', true ) : '';
 							$group_text     = get_term_meta( $hiterm->term_id, 'bpfwe_swatches_group_text', true );
 							$swatch_html    = '';
@@ -3986,7 +4331,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								' . wp_kses_post( $separator_html ) . '
 								<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
 								<input type="radio" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
-								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span></span>
+								<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . wp_kses_post( $hiterm->name . $show_counter ) . '</span></span>
 								<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 								</label>
 							';
@@ -4024,6 +4369,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									}
 								}
 
+								// Intersect base terms with allowed IDs.
+								if ( $is_facetted && $taxonomy_is_faceted ) {
+									$lowterms = array_filter(
+										$lowterms,
+										function ( $term ) use ( $allowed_term_ids, $display_empty ) {
+
+											// Faceted and this taxonomy participated, but no matches -> clear all.
+											if ( empty( $allowed_term_ids ) ) {
+												return false;
+											}
+
+											if ( ! in_array( absint( $term->term_id ), $allowed_term_ids, true ) ) {
+												return false;
+											}
+
+											if ( ! $display_empty && 0 === (int) $term->count ) {
+												return false;
+											}
+
+											return true;
+										}
+									);
+								}
+
 								if ( $lowterms ) {
 
 									foreach ( array_reverse( $lowterms ) as $lowterm ) {
@@ -4048,11 +4417,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											--$open_uls;
 										}
 
-										$show_counter   = 'yes' === $item['show_counter'] ? ' (' . intval( $term->count ) . ')' : '';
-										$swatches_type  = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
-										$group_text     = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
-										$swatch_html    = '';
-										$separator_html = '';
+										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+										$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+										$swatches_type   = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
+										$group_text      = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
+										$swatch_html     = '';
+										$separator_html  = '';
 
 										if ( $group_text && 'yes' === $item['display_swatch'] ) {
 											$separator_html = '<div class="bpfwe-group-separator" role="separator" aria-label="Group Separator">' . esc_html( $group_text ) . '</div>';
@@ -4130,6 +4500,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											}
 										}
 
+										// Intersect base terms with allowed IDs.
+										if ( $is_facetted && $taxonomy_is_faceted ) {
+											$child_terms = array_filter(
+												$child_terms,
+												function ( $term ) use ( $allowed_term_ids, $display_empty ) {
+
+													// Faceted and this taxonomy participated, but no matches -> clear all.
+													if ( empty( $allowed_term_ids ) ) {
+														return false;
+													}
+
+													if ( ! in_array( absint( $term->term_id ), $allowed_term_ids, true ) ) {
+														return false;
+													}
+
+													if ( ! $display_empty && 0 === (int) $term->count ) {
+														return false;
+													}
+
+													return true;
+												}
+											);
+										}
+
 										$output .= '
 											<li class="child-term depth-' . $depth . '">
 												' . wp_kses_post( $separator_html ) . '
@@ -4140,7 +4534,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 														name="' . esc_attr( $item['filter_by'] ) . '" 
 														data-taxonomy="' . esc_attr( $term->taxonomy ) . '" 
 														value="' . esc_attr( $term->term_id ) . '" />
-													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . esc_html( $term->name ) . esc_html( $show_counter ) . '</span></span>
+													<span>' . wp_kses_post( $swatch_html ) . '<span class="label-text">' . wp_kses_post( $term->name . $show_counter ) . '</span></span>
 													<span class="low-group-trigger" role="button" aria-expanded="false">+</span>
 												</label>';
 
@@ -4185,6 +4579,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'style' => array(),
 												'role'  => array(),
 												'label' => array(),
+												'data-reset' => array(),
 												'title' => array(),
 											),
 											'div'   => array(
@@ -4211,8 +4606,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					if ( 'list' === $item['filter_style'] || 'list' === $item['filter_style_cf'] ) {
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_tax ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-taxonomy-wrapper" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
 						<ul class="taxonomy-filter">
 						';
@@ -4232,12 +4627,20 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						foreach ( $hiterms as $key => $hiterm ) {
-							$show_counter = 'yes' === $item['show_counter'] ? ' (' . intval( $hiterm->count ) . ')' : '';
+							$has_children = $is_facetted && 'yes' === $item['show_hierarchy'] && ! empty( get_term_children( $hiterm->term_id, $hiterm->taxonomy ) );
+
+							if ( $is_facetted && $has_children ) {
+								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
+							} else {
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+							}
+
 							echo '
 							<li class="list-style">
 							<label for="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '">
 							<input type="checkbox" id="' . esc_attr( $hiterm->slug ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['filter_by'] ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '" />
-							<span>' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</span>
+							<span>' . wp_kses_post( $hiterm->name . $show_counter ) . '</span>
 							</label>
 							</li>
 							';
@@ -4267,10 +4670,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['filter_by'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_tax ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-taxonomy-wrapper ' . esc_attr( $select2_class ) . '" data-logic="' . esc_attr( $item['filter_logic'] ) . '">
-						<select id="' . esc_attr( $item['filter_by'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
+						<select id="' . esc_attr( $item['filter_by'] ) . '-' . esc_attr( $widget_id ) . '" name="' . esc_attr( $item['filter_by'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
 
 						if ( 'yes' === $item['show_hierarchy'] ) {
 							$terms_stack = array();
@@ -4289,9 +4692,16 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$depth   = $current['depth'];
 
 								$prefix       = str_repeat( '— ', $depth );
-								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (' . intval( $term->count ) . ')' : '';
+								$has_children = $is_facetted && 'yes' === $item['show_hierarchy'] && ! empty( get_term_children( $term->term_id, $term->taxonomy ) );
 
-								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . esc_html( $prefix . $term->name ) . esc_html( $show_counter ) . '</option>';
+								if ( $is_facetted && $has_children ) {
+									$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
+								} else {
+									$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+									$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+								}
+
+								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . wp_kses_post( $prefix . $term->name . $show_counter ) . '</option>';
 
 								$args = array(
 									'taxonomy'          => sanitize_key( $item['filter_by'] ),
@@ -4310,6 +4720,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$child_terms = BPFWE_Helper::bpfwe_get_terms( $args, $filter_query_id, $this );
 
+								// Intersect base terms with allowed IDs.
+								if ( $is_facetted && $taxonomy_is_faceted ) {
+									$child_terms = array_filter(
+										$child_terms,
+										function ( $term ) use ( $allowed_term_ids, $display_empty ) {
+
+											// Faceted and this taxonomy participated, but no matches -> clear all.
+											if ( empty( $allowed_term_ids ) ) {
+												return false;
+											}
+
+											if ( ! in_array( absint( $term->term_id ), $allowed_term_ids, true ) ) {
+												return false;
+											}
+
+											if ( ! $display_empty && 0 === (int) $term->count ) {
+												return false;
+											}
+
+											return true;
+										}
+									);
+								}
+
 								if ( ! empty( $child_terms ) ) {
 									foreach ( array_reverse( $child_terms ) as $child_term ) {
 										$terms_stack[] = array(
@@ -4321,8 +4755,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							}
 						} else {
 							foreach ( $hiterms as $hiterm ) {
-								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (' . intval( $hiterm->count ) . ')' : '';
-								echo '<option data-category="' . esc_attr( $hiterm->term_id ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '">' . esc_html( $hiterm->name ) . esc_html( $show_counter ) . '</option>';
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
+								echo '<option data-count="' . absint( $effective_count ) . '" data-reset="' . absint( $effective_count ) . '" data-category="' . esc_attr( $hiterm->term_id ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '">' . wp_kses_post( $hiterm->name . $show_counter ) . '</option>';
 							}
 						}
 
@@ -4341,8 +4776,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'input' === $item['filter_style_cf'] ) {
 						$placeholder = esc_html( $item['text_input_placeholder'] ) ? esc_html( $item['text_input_placeholder'] ) : '';
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-custom-field-wrapper" data-logic="OR">
 						<input type="text" class="input-text" id="input-text-' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '" name="post_meta" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" placeholder="' . esc_html( $placeholder ) . '">
 						</div>
@@ -4360,50 +4795,55 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$terms = false;
 						}
 
-						// Bypass transient for users with editing capabilities.
-						if ( false === $terms || $is_editor ) {
-							$all_posts_args = array(
-								'posts_per_page'         => -1,
-								'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
-								'no_found_rows'          => true,
-								'fields'                 => 'ids',
-								'meta_key'               => $item['meta_key'],
-								'update_post_meta_cache' => false,
-								'update_post_term_cache' => false,
-							);
+						// Bypass transient for users with editing capabilities or if transient doesn't exist.
+						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							if ( $settings['dynamic_filtering'] ) {
-								$queried_object = get_queried_object();
-								$archive_type   = '';
+							if ( $is_facetted && $post_ids ) {
+								$post_ids = $post_ids;
+							} else {
+								$all_posts_args = array(
+									'posts_per_page' => -1,
+									'post_type'      => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
+									'no_found_rows'  => true,
+									'fields'         => 'ids',
+									'meta_key'       => $item['meta_key'],
+									'update_post_meta_cache' => false,
+									'update_post_term_cache' => false,
+								);
 
-								if ( $queried_object instanceof WP_User ) {
-									$archive_type = 'author';
-								} elseif ( $queried_object instanceof WP_Date_Query ) {
-									$archive_type = 'date';
-								} elseif ( $queried_object instanceof WP_Term ) {
-									$archive_type = 'taxonomy';
-								} elseif ( $queried_object instanceof WP_Post_Type ) {
-									$archive_type = 'post_type';
+								if ( $settings['dynamic_filtering'] ) {
+									$queried_object = get_queried_object();
+									$archive_type   = '';
+
+									if ( $queried_object instanceof WP_User ) {
+										$archive_type = 'author';
+									} elseif ( $queried_object instanceof WP_Date_Query ) {
+										$archive_type = 'date';
+									} elseif ( $queried_object instanceof WP_Term ) {
+										$archive_type = 'taxonomy';
+									} elseif ( $queried_object instanceof WP_Post_Type ) {
+										$archive_type = 'post_type';
+									}
+
+									// Modify the query for author archive.
+									if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
+										$all_posts_args['author'] = $queried_object->ID;
+									}
+
+									// Modify the query for taxonomy archive.
+									if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
+										$all_posts_args['tax_query'] = array(
+											array(
+												'taxonomy' => $queried_object->taxonomy,
+												'field'    => 'term_id',
+												'terms'    => $queried_object->term_id,
+											),
+										);
+									}
 								}
 
-								// Modify the query for author archive.
-								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
-									$all_posts_args['author'] = $queried_object->ID;
-								}
-
-								// Modify the query for taxonomy archive.
-								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
-									$all_posts_args['tax_query'] = array(
-										array(
-											'taxonomy' => $queried_object->taxonomy,
-											'field'    => 'term_id',
-											'terms'    => $queried_object->term_id,
-										),
-									);
-								}
+								$post_ids = get_posts( $all_posts_args );
 							}
-
-							$post_ids = get_posts( $all_posts_args );
 
 							if ( ! empty( $post_ids ) ) {
 								global $wpdb;
@@ -4416,7 +4856,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$cache_key   = md5( $meta_key . '_' . implode( ',', $post_ids ) );
 
 									// Try to get cached results, invalidate cache if editing.
-									if ( $is_editor ) {
+									if ( $is_editor || $is_facetted ) {
 										wp_cache_delete( $cache_key, $cache_group );
 										$results = false;
 									} else {
@@ -4436,7 +4876,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											)
 										);
 
-										if ( ! $is_editor ) {
+										if ( ! $is_editor || ! $is_facetted ) {
 											wp_cache_set( $cache_key, $results, $cache_group, 12 * HOUR_IN_SECONDS );
 										}
 									}
@@ -4457,7 +4897,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$cache_key   = md5( $meta_key . '_' . implode( ',', $post_ids ) );
 
 									// Try to get cached results, invalidate cache if editing.
-									if ( $is_editor ) {
+									if ( $is_editor || $is_facetted ) {
 										wp_cache_delete( $cache_key, $cache_group );
 										$results = false;
 									} else {
@@ -4476,7 +4916,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											)
 										);
 
-										if ( ! $is_editor ) {
+										if ( ! $is_editor || ! $is_facetted ) {
 											wp_cache_set( $cache_key, $results, $cache_group, 12 * HOUR_IN_SECONDS );
 										}
 									}
@@ -4592,7 +5032,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$terms_data = apply_filters( 'bpfwe/get_' . ( $is_relational ? 'relational' : 'meta' ) . "_terms/{$filter_query_id}", $terms_data, $this, $item );
 
-								if ( $transient_duration > 0 && ! $is_editor ) {
+								if ( $transient_duration > 0 && ! $is_editor && ! $is_facetted ) {
 									set_transient( $meta_terms_transient_key, $terms_data, $transient_duration );
 								}
 
@@ -4606,8 +5046,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'checkboxes' === $item['filter_style'] || 'checkboxes' === $item['filter_style_cf'] ) {
 						$term_index = 0;
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="' . esc_attr( $custom_field_class ) . ' elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="' . esc_attr( ! empty( $item['filter_logic'] ) ? strtoupper( $item['filter_logic'] ) : 'OR' ) . '">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
@@ -4652,7 +5092,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								}
 
 								if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] && is_numeric( $count ) ) {
-									$formatted_value .= ' (' . intval( $count ) . ')';
+									$formatted_value .= ' (<span class="count" data-reset="' . intval( $count ) . '">' . intval( $count ) . '</span>)';
 								}
 
 								$toggleable_class = ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? 'toggleable' : '';
@@ -4661,7 +5101,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								<li class="' . esc_attr( $toggleable_class ) . '">
 									<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
 										<input type="checkbox" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
-										<span class="label-text">' . esc_html( $formatted_value ) . '</span>
+										<span class="label-text">' . wp_kses_post( $formatted_value ) . '</span>
 									</label>
 								</li>';
 
@@ -4683,8 +5123,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					if ( 'radio' === $item['filter_style'] || 'radio' === $item['filter_style_cf'] ) {
 						$term_index = 0;
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="' . esc_attr( $custom_field_class ) . ' elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
@@ -4715,7 +5155,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								}
 
 								if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] && is_numeric( $count ) ) {
-									$formatted_value .= ' (' . intval( $count ) . ')';
+									$formatted_value .= ' (<span class="count" data-reset="' . intval( $count ) . '">' . intval( $count ) . '</span>)';
 								}
 
 								$toggleable_class = ( $term_index > 5 && 'show-toggle' === $item['show_toggle'] ) ? 'toggleable' : '';
@@ -4724,7 +5164,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								<li class="' . esc_attr( $toggleable_class ) . '">
 									<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
 										<input type="radio" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
-										<span class="label-text">' . esc_html( $formatted_value ) . '</span>
+										<span class="label-text">' . wp_kses_post( $formatted_value ) . '</span>
 									</label>
 								</li>';
 
@@ -4742,8 +5182,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					if ( 'list' === $item['filter_style'] || 'list' === $item['filter_style_cf'] ) {
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="' . esc_attr( $custom_field_class ) . ' elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle'] ) . '">
 						';
@@ -4787,14 +5227,14 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								}
 
 								if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] && is_numeric( $count ) ) {
-									$formatted_value .= ' (' . intval( $count ) . ')';
+									$formatted_value .= ' (<span class="count" data-reset="' . intval( $count ) . '">' . intval( $count ) . '</span>)';
 								}
 
 								echo '
 								<li class="list-style">
 									<label for="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '">
 										<input type="checkbox" id="' . esc_attr( $term_value ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '" />
-										<span>' . esc_html( $formatted_value ) . '</span>
+										<span>' . wp_kses_post( $formatted_value ) . '</span>
 									</label>
 								</li>';
 							}
@@ -4824,10 +5264,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="' . esc_attr( $custom_field_class ) . ' ' . esc_attr( $select2_class ) . '" data-logic="OR">
-						<select id="' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
+						<select id="' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '" name="' . esc_attr( $item['meta_key'] ) . '-' . esc_attr( $widget_id ) . '">' . wp_kses( $default_val, array( 'option' => array( 'value' => array() ) ) );
 
 						if ( ! empty( $terms ) ) {
 							foreach ( $terms as $term_value => $term_data ) {
@@ -4855,10 +5295,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								}
 
 								if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] && is_numeric( $count ) ) {
-									$formatted_value .= ' (' . intval( $count ) . ')';
+									$formatted_value .= '(<span class="counter">' . intval( $count ) . '</span>)';
 								}
 
-								echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '">' . esc_html( $formatted_value ) . '</option>';
+								echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '">' . wp_kses_post( $formatted_value ) . '</option>';
 							}
 						}
 
@@ -4870,7 +5310,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				}
 
 				if ( 'Numeric' === $item['select_filter'] ) {
-
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
@@ -4884,49 +5323,54 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
-						if ( false === $terms || $is_editor ) {
-							$all_posts_args = array(
-								'posts_per_page'         => -1,
-								'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
-								'no_found_rows'          => true,
-								'fields'                 => 'ids',
-								'meta_key'               => $item['meta_key'],
-								'update_post_meta_cache' => false,
-								'update_post_term_cache' => false,
-							);
+						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							if ( $settings['dynamic_filtering'] ) {
-								$queried_object = get_queried_object();
-								$archive_type   = '';
+							if ( $is_facetted && $post_ids ) {
+								$post_ids = $post_ids;
+							} else {
+								$all_posts_args = array(
+									'posts_per_page' => -1,
+									'post_type'      => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : $settings['filter_post_type'],
+									'no_found_rows'  => true,
+									'fields'         => 'ids',
+									'meta_key'       => $item['meta_key'],
+									'update_post_meta_cache' => false,
+									'update_post_term_cache' => false,
+								);
 
-								if ( $queried_object instanceof WP_User ) {
-									$archive_type = 'author';
-								} elseif ( $queried_object instanceof WP_Date_Query ) {
-									$archive_type = 'date';
-								} elseif ( $queried_object instanceof WP_Term ) {
-									$archive_type = 'taxonomy';
-								} elseif ( $queried_object instanceof WP_Post_Type ) {
-									$archive_type = 'post_type';
+								if ( $settings['dynamic_filtering'] ) {
+									$queried_object = get_queried_object();
+									$archive_type   = '';
+
+									if ( $queried_object instanceof WP_User ) {
+										$archive_type = 'author';
+									} elseif ( $queried_object instanceof WP_Date_Query ) {
+										$archive_type = 'date';
+									} elseif ( $queried_object instanceof WP_Term ) {
+										$archive_type = 'taxonomy';
+									} elseif ( $queried_object instanceof WP_Post_Type ) {
+										$archive_type = 'post_type';
+									}
+
+									// Modify query for author archive.
+									if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
+										$all_posts_args['author'] = $queried_object->ID;
+									}
+
+									// Modify query for taxonomy archive.
+									if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
+										$all_posts_args['tax_query'] = array(
+											array(
+												'taxonomy' => $queried_object->taxonomy,
+												'field'    => 'term_id',
+												'terms'    => $queried_object->term_id,
+											),
+										);
+									}
 								}
 
-								// Modify query for author archive.
-								if ( 'author' === $archive_type && $queried_object instanceof WP_User ) {
-									$all_posts_args['author'] = $queried_object->ID;
-								}
-
-								// Modify query for taxonomy archive.
-								if ( 'taxonomy' === $archive_type && $queried_object instanceof WP_Term ) {
-									$all_posts_args['tax_query'] = array(
-										array(
-											'taxonomy' => $queried_object->taxonomy,
-											'field'    => 'term_id',
-											'terms'    => $queried_object->term_id,
-										),
-									);
-								}
+								$post_ids = get_posts( $all_posts_args );
 							}
-
-							$post_ids = get_posts( $all_posts_args );
 
 							if ( ! empty( $post_ids ) ) {
 								global $wpdb;
@@ -4936,7 +5380,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$cache_key   = md5( $meta_key . '_' . implode( ',', $post_ids ) );
 
 								// Try to get cached results, invalidate cache if editing.
-								if ( $is_editor ) {
+								if ( $is_editor || $is_facetted ) {
 									wp_cache_delete( $cache_key, $cache_group );
 									$results = false;
 								} else {
@@ -4956,7 +5400,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										)
 									);
 
-									if ( ! $is_editor ) {
+									if ( ! $is_editor || ! $is_facetted ) {
 										wp_cache_set( $cache_key, $results, $cache_group, 12 * HOUR_IN_SECONDS );
 									}
 								}
@@ -4977,7 +5421,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								$terms = apply_filters( "bpfwe/get_numeric_meta_terms/{$filter_query_id}", $terms, $this, $item );
 
-								if ( $transient_duration > 0 && ! $is_editor ) {
+								if ( $transient_duration > 0 && ! $is_editor && ! $is_facetted ) {
 									set_transient( $numeric_transient_key, $terms, $transient_duration );
 								}
 							}
@@ -4994,8 +5438,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						}
 
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
 							);
 
 						if ( ! empty( $item['visual_range'] ) && 'yes' === $item['visual_range'] ) {
@@ -5060,8 +5504,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						} else {
 							echo '
 							<div class="bpfwe-numeric-wrapper" data-logic="OR">
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
 							</div>
 							';
 						}
@@ -5069,10 +5513,37 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						echo '</div>';
 					}
 
+					if ( 'input' === $item['filter_style_numeric'] ) {
+						$min_placeholder = esc_html( $item['min_input_placeholder'] ) ? esc_html( $item['min_input_placeholder'] ) : '';
+						$max_placeholder = esc_html( $item['max_input_placeholder'] ) ? esc_html( $item['max_input_placeholder'] ) : '';
+
+						if ( empty( $terms ) || ! is_array( $terms ) ) {
+							$min_value = 0;
+							$max_value = 0;
+						} else {
+							$min_value = floatval( min( $terms ) );
+							$max_value = floatval( max( $terms ) );
+						}
+
+						echo '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
+							);
+
+						echo '
+						<div class="bpfwe-numeric-wrapper" data-logic="OR">
+							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" placeholder="' . esc_html( $min_placeholder ) . '"></span>
+							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" placeholder="' . esc_html( $max_placeholder ) . '"></span>
+						</div>
+						';
+
+						echo '</div>';
+					}
+
 					if ( 'checkboxes' === $item['filter_style_numeric'] ) {
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
@@ -5095,7 +5566,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					if ( 'radio' === $item['filter_style_numeric'] ) {
 						echo '<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . ' ' . esc_attr( $item['hide_label_swatch'] ) . ' ' . esc_attr( $item['hide_input_swatch'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
@@ -5118,8 +5589,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					if ( 'list' === $item['filter_style_numeric'] ) {
 						echo '
-						<div class="flex-wrapper ' . esc_attr( $item['meta_key'] ) . '">
-						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' collapsed' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
+						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
+						' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>' ) . '
 						<div class="bpfwe-custom-field-wrapper elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" data-logic="OR">
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';

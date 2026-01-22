@@ -87,6 +87,11 @@ jQuery(window).on('elementor:init', function () {
 		});
 	}
 
+	function updateFacetVisibility($panel) {
+		const isFacetted = $panel.find('input[data-setting="is_facetted"]').prop('checked');
+		$panel.find('.elementor-control-group_facet_mode').toggleClass('elementor-hidden-control', !isFacetted);
+	}
+
 	const debounce = (fn, wait) => {
 		let t;
 		return (...args) => {
@@ -97,8 +102,13 @@ jQuery(window).on('elementor:init', function () {
 
 	elementor.hooks.addAction('panel/open_editor/widget/filter-widget', (panel) => {
 		const $panel = jQuery(panel.$el);
-
 		$panel.find('.elementor-repeater-fields').each((_, el) => initSelect2(jQuery(el)));
+
+		updateFacetVisibility($panel);
+
+		$panel.off('change.bpfweFacet').on('change.bpfweFacet', 'input[data-setting="is_facetted"]', function () {
+			updateFacetVisibility($panel);
+		});
 
 		const observer = new MutationObserver(debounce(mutations => {
 			mutations.forEach(m => {
