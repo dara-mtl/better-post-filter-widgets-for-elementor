@@ -3,7 +3,6 @@
 	$(window).on('elementor/frontend/init', function() {
 		const $document = $(document);
 		const originalStates        = {};
-		const originalFiltersStates = {};
 		const postsPerPageCache     = {};
 
 		let dynamicHandler          = '';
@@ -97,11 +96,6 @@
 					originalStates[targetWidgetID] = $target.html();
 				}
 
-				// Store facetted filter HTML.
-				if (!originalFiltersStates[interactionWidgetID]) {
-					originalFiltersStates[interactionWidgetID] = $widget.html();
-				}
-
 				// Initialize posts per page cache only if not already set.
 				if (!postsPerPageCache[targetWidgetID]) {
 					const postWidgetSetting = $target.data('settings');
@@ -136,13 +130,10 @@
 		function bpfweInitUrlFilters() {
 			const params = new URLSearchParams(window.location.search);
 			const formId = params.get('results');
-
 			if (!formId) return;
 			const $form = $('#' + formId);
 			if (!$form.length) return;
-
 			let hasPrefill = false;
-
 			function getSection($input) {
 				const classes = ($input.closest('.flex-wrapper').attr('class') || '').split(/\s+/);
 				for (let i = 0; i < classes.length; i++) {
@@ -150,7 +141,6 @@
 				}
 				return null;
 			}
-
 			let urlChanged = false;
 			['min__regular_price', 'max__regular_price'].forEach(function(oldKey) {
 				if (params.has(oldKey)) {
@@ -164,12 +154,10 @@
 				const newUrl = window.location.pathname + '?' + params.toString();
 				window.history.replaceState({}, '', newUrl);
 			}
-
 			// Build URL query from current form state.
 			function updateUrl() {
 				const query = new URLSearchParams();
 				query.set('results', formId);
-
 				// checkboxes & radios - NO section suffix.
 				$form.find(':checkbox:checked, :radio:checked').each(function() {
 					const $input = $(this);
@@ -179,28 +167,36 @@
 					const existing = query.get(name);
 					query.set(name, existing ? existing + ',' + val : val);
 				});
-
 				// text & number inputs.
 				$form.find('input[type="text"], input[type="number"]').each(function() {
 					const $input = $(this);
 					const name = $input.attr('name');
 					const val = $input.val();
 					if (!name || !val) return;
-
 					if (name.startsWith('min_') || name.startsWith('max_')) {
 						query.set(name, val);
 						return;
 					}
-
 					const section = getSection($input);
 					const key = section ? name + '_' + section : name;
 					query.set(key, val);
 				});
-
+				// selects.
+				$form.find('select').each(function() {
+					const $input = $(this);
+					const name = $input.attr('name');
+					if (!name) return;
+					let val = $input.val();
+					if (val === null || val === '') return;
+					if (Array.isArray(val)) {
+						val = val.join(',');
+					} 
+					const existing = query.get(name);
+					query.set(name, existing ? existing + ',' + val : val);
+				});
 				const newUrl = window.location.pathname + '?' + query.toString();
 				window.history.replaceState({}, '', newUrl);
 			}
-
 			const sectionClasses = (function() {
 				const classes = {};
 				$form.find('.flex-wrapper').each(function() {
@@ -213,11 +209,9 @@
 					return b.length - a.length;
 				});
 			})();
-
 			// Prefill from URL.
 			params.forEach(function(value, key) {
 				if (key === 'results') return;
-
 				if (key.startsWith('min_') || key.startsWith('max_')) {
 					let $inputs = $form.find('[name="' + key + '"]');
 					if (!$inputs.length) {
@@ -230,7 +224,6 @@
 					}
 					return;
 				}
-
 				let matched = false;
 				for (let i = 0; i < sectionClasses.length; i++) {
 					const section = sectionClasses[i];
@@ -256,7 +249,7 @@
 								matched = true;
 								break;
 							} else {
-								$inputs.val(value);
+								const values = $inputs.prop('multiple') ? value.split(',') : value;
 								hasPrefill = true;
 								matched = true;
 								break;
@@ -265,10 +258,8 @@
 					}
 				}
 				if (matched) return;
-
 				const $inputsDirect = $form.find('[name="' + key + '"]');
 				if (!$inputsDirect.length) return;
-
 				if ($inputsDirect.is(':checkbox, :radio')) {
 					const values = value.split(',');
 					$inputsDirect.each(function() {
@@ -279,28 +270,52 @@
 					});
 					return;
 				}
-
 				if ($inputsDirect.is('input[type="text"], input[type="number"]')) {
-					$inputsDirect.val(value);
+						$inputsDirect.val(value);
+						hasPrefill = true;
+					} else if ($inputsDirect.is('select')) {
+						const values = $inputsDirect.prop('multiple') ? value.split(',') : value;
+					
+					if ($inputsDirect.prop('multiple')) {
+						setTimeout(function() {
+							$inputsDirect.val(values).trigger('change');
+						}, 100);
+					} else {
+						$inputsDirect.val(values).trigger('change');
+					}
+					
 					hasPrefill = true;
 				}
+				
 			});
-
 			// Trigger prefill filter logic.
 			if (hasPrefill) {
 				setTimeout(function() {
+					$form.find('select[multiple]').each(function() {
+						const $select = $(this);
+						const val = $select.val();
+						if (!val || val.length === 0) {
+							const paramName = $select.attr('name');
+							const paramVal = params.get(paramName);
+							if (paramVal) {
+								const values = paramVal.split(',');
+								$select.val(values).trigger('change');
+							}
+						}
+					});
+					
 					updateUrl();
+					
 					$form.find(':checked, input[type="text"][value!=""], input[type="number"][value!=""]').trigger('change');
 					$form.trigger('change');
 				}, 300);
 			}
-
+			
 			// Update URL dynamically.
-			const delegatedSelector = '.bpfwe-filter-item, .input-text, [class^="bpfwe-filter-range-"], input[type="text"], input[type="number"], :checkbox, :radio';
+			const delegatedSelector = '.bpfwe-filter-item, .input-text, [class^="bpfwe-filter-range-"], input[type="text"], input[type="number"], :checkbox, :radio, select';
 			$form.on('change input', delegatedSelector, function() {
 				updateUrl();
 			});
-
 			$form.data('bpfweUpdateUrl', updateUrl);
 		}
 		bpfweInitUrlFilters();
@@ -509,34 +524,46 @@
 					});
 
 					// Filter form: auto-apply filters on input change (debounced).
-					$document.off('change.bpfwe-filter keydown.bpfwe-filter input.bpfwe-filter', 'form.form-tax').on('change.bpfwe-filter keydown.bpfwe-filter input.bpfwe-filter','form.form-tax', debounce(function (e) {
-						if ($(e.target).closest('.bpfwe-numeric-wrapper input.input-val').length) {
+					$document.off('change.bpfwe-filter input.bpfwe-filter', 'form.form-tax').on('change.bpfwe-filter input.bpfwe-filter','form.form-tax', debounce(function (e) {
+						var $target = $(e.target);
+
+						if ($target.is('.bpfwe-numeric-wrapper input.input-val')) {
+							return;
+						}
+
+						// Ignore Select2 search field typing.
+						if ($target.is('.select2-search__field') || $target.closest('.select2-container').length) {
+							return;
+						}
+
+						var isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
+
+						//if (isTouchDevice && $target.is('.bpfwe-numeric-wrapper input') && $target.is(':focus') && $target.val() === '') {
+						if (isTouchDevice && $target.is('.bpfwe-numeric-wrapper input') && ($target.is(':focus') || $target.val() === '')) {
 							return;
 						}
 
 						var $widget = $(this).closest('.elementor-widget-filter-widget');
+						if ($target.is('.bpfwe-numeric-wrapper input')) {
+							var $activeWrapper = $target.closest('.bpfwe-numeric-wrapper');
+							snapshotNumericFacet($widget, $activeWrapper);
+						} else {
+							$(this).find('.bpfwe-numeric-wrapper[data-faceted-range]').removeAttr('data-faceted-range');
+						}
+
 						var widgetInteractionID = $widget.data('id');
 						if (!widgetInteractionID) return;
 
 						const isSubmitPresent = $widget.find('.submit-form').length > 0;
 
 						if (!isSubmitPresent) {
-							if (e.type === 'change' || (e.type === 'keydown' && e.key === 'Enter')) {
-								getFormValues(widgetInteractionID);
-								return;
-							}
-							if (!isInteracting) {
-								getFormValues(widgetInteractionID);
-							}
+							getFormValues(widgetInteractionID);
 						}
+
 					}, 700));
 
 					// Numeric range: apply filter only on valid complete range or Enter key.
-					$document.off('change.bpfwe-filter keydown.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val').on('change.bpfwe-filter keydown.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val', debounce(function (e) {
-						// Only react to Enter on keydown
-						if (e.type === 'keydown' && e.key !== 'Enter') {
-							return;
-						}
+					$document.off('change.bpfwe-filter input.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val').on('change.bpfwe-filter input.bpfwe-filter', 'form.form-tax .bpfwe-numeric-wrapper input.input-val', debounce(function (e) {
 
 						const $wrapper = $(this).closest('.bpfwe-numeric-wrapper');
 						if (!$wrapper.length) return;
@@ -547,37 +574,30 @@
 
 						const isSubmitPresent = $widget.find('.submit-form').length > 0;
 
-						if (!isSubmitPresent) {
-							const $min = $wrapper.find('input[name^="min_"]');
-							const $max = $wrapper.find('input[name^="max_"]');
+						const $min = $wrapper.find('input[name^="min_"]');
+						const $max = $wrapper.find('input[name^="max_"]');
+						if (!$min.length || !$max.length) return;
 
-							if (!$min.length || !$max.length) return;
+						const minVal = ($min.val() || '').trim();
+						const maxVal = ($max.val() || '').trim();
 
-							const minVal = $min.val();
-							const maxVal = $max.val();
+						const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
 
-							// Do not trigger on partial ranges.
-							if (minVal === '' || maxVal === '') {
-								return;
-							}
-
-							// Numeric safety.
-							if (isNaN(minVal) || isNaN(maxVal)) {
-								return;
-							}
-
-							// Soft invalid range guard.
-							if (minVal > maxVal) {
-								return;
-							}
-
-							if (!isInteracting) {
-								getFormValues(widgetInteractionID);
-							}
+						// Skip incomplete inputs on touch devices.
+						if (isTouchDevice && $(this).is('.bpfwe-numeric-wrapper input.input-val') && ($min.is(':focus') || $max.is(':focus') || minVal === '' || maxVal === '')) {
+							return;
 						}
 
-						}, 700)
-					);
+						// Do not trigger on partial ranges.
+						if (minVal === '' || maxVal === '') return;
+						if (isNaN(minVal) || isNaN(maxVal)) return;
+						if (Number(minVal) >= Number(maxVal)) return;
+
+						if (!isSubmitPresent) {
+							getFormValues(widgetInteractionID);
+						}
+
+					}, 700));
 
 					// Filter submit button: manually trigger filter evaluation.
 					$document.off('click.bpfwe-filter', 'form.form-tax .submit-form').on('click.bpfwe-filter', 'form.form-tax .submit-form', function() {
@@ -679,35 +699,39 @@
 					var infinite_threshold = '0px';
 				}
 
-				let pageID = window.elementorFrontendConfig.post.id;
+				let globalTemplateID = null;
+
+				// Scan all filter widgets on the page.
+				$('.elementor-widget-filter-widget, .elementor-widget-search-bar-widget, .elementor-widget-sorting-widget').each(function() {
+					const settings = $(this).data('settings');
+					if (settings && settings.elementor_template_id) {
+						globalTemplateID = settings.elementor_template_id;
+						return false;
+					}
+				});
+
+				// If a global template ID exists, use it directly.
+				let pageID = globalTemplateID;
 
 				if (!pageID) {
-					if (!widgetID) return;
-					var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
-					if ($outermost.length) pageID = $outermost.data('elementor-id');
-				} else {
-					if (!widgetID) return;
-					var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
-					if ($outermost.length) {
-						var isTemplate = $outermost.data('elementor-post-type') === 'elementor_library';
-						var typeAttr = $outermost.data('elementor-type');
-						if (isTemplate && typeAttr && typeAttr.indexOf('single') !== -1) {
-							pageID = $outermost.data('elementor-id');
+					// fallback logic only runs if no override.
+					pageID = window.elementorFrontendConfig.post.id || null;
+					if (!pageID) {
+						if (!widgetID) return;
+						var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
+						if ($outermost.length) pageID = $outermost.data('elementor-id');
+					} else {
+						if (!widgetID) return;
+						var $outermost = $('[data-id="' + widgetID + '"]').parents('[data-elementor-id]').last();
+						if ($outermost.length) {
+							var isTemplate = $outermost.data('elementor-post-type') === 'elementor_library';
+							var typeAttr = $outermost.data('elementor-type');
+							if (isTemplate && typeAttr && typeAttr.indexOf('single') !== -1) {
+								pageID = $outermost.data('elementor-id');
+							}
 						}
 					}
 				}
-
-				let isInteracting = false,
-					interactionTimeout;
-
-				filterWidget.on('mousedown keydown touchstart', 'form.form-tax', function() {
-					isInteracting = true;
-					clearTimeout(interactionTimeout);
-				});
-
-				filterWidget.on('mouseup keyup touchend', 'form.form-tax', function() {
-					interactionTimeout = setTimeout(() => isInteracting = false, 700);
-				});
 
 				filterWidget.on('click', '.reset-form', function () {
 					var resetWidgetID = $(this).closest('.elementor-widget-filter-widget').data('id');
@@ -782,8 +806,8 @@
 					let isFacetted = false;
 					let FacetWidgetId = '';
 					let customAjax = false;
-					let scrollToTop = 'no';
-					let displaySelectedBefore = 'no';
+					let scrollToTop = '';
+					let displaySelectedBefore = '';
 					let enableQueryDebug = false;
 					let injectID = false;
 					let queryID = '';
@@ -858,8 +882,8 @@
 							isFacetted = filterSettings.is_facetted || false;
 							FacetWidgetId = currentfilterWidgetId;
 							customAjax = filterSettings.filter_custom_handler || false;
-							scrollToTop = filterSettings.scroll_to_top || 'no';
-							displaySelectedBefore = filterSettings.display_selected_before || 'no';
+							scrollToTop = filterSettings.scroll_to_top || '';
+							displaySelectedBefore = filterSettings.display_selected_before || '';
 							enableQueryDebug = filterSettings.enable_query_debug || false;
 							injectID = filterSettings.inject_query_id || false;
 							queryID = filterSettings.filter_query_id || '';
@@ -986,61 +1010,69 @@
 								}
 							});
 
-							$filterWidget.find('.bpfwe-numeric-wrapper input:not(.input-val)').each(function() {
-								var self = $(this);
-								var initial_val = self.data('base-value');
-								if (self.val() === '' || self.val() != initial_val) {
-									if (self.val() === '') self.val(initial_val);
-									var _class = self.attr("class").split(' ')[ 0 ];
-									$filterWidget.find('.bpfwe-numeric-wrapper input').each(function() {
-										var _this = $(this);
-										if (_this.hasClass(_class)) {
-											numeric_field.push({
-												taxonomy: _this.data('taxonomy'),
-												terms: _this.val(),
-												logic: _this.closest('div').data('logic')
-											});
-											hasValues = true;
+							// Fixed range numeric fields.
+							$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
+								var $wrapper = $(this);
+								var snapshot = $wrapper.attr('data-faceted-range');
+
+								$wrapper.find('input:not(.input-val)').each(function () {
+									var self = $(this);
+									var initialVal = self.attr('data-base-value');
+
+									if (self.val() === '' || self.val() != initialVal || snapshot) {
+
+										if (self.val() === '') {
+											self.val(initialVal);
 										}
-									});
-								}
+
+										var fieldClass = self.attr('class').split(' ')[0];
+
+										$wrapper.find('input').each(function () {
+											var _this = $(this);
+
+											if (_this.hasClass(fieldClass)) {
+												var terms = snapshot !== undefined ? snapshot.split('|') : _this.val();
+
+												numeric_field.push({
+													taxonomy: _this.data('taxonomy'),
+													terms: terms,
+													logic: $wrapper.data('logic')
+												});
+
+												hasValues = true;
+											}
+										});
+									}
+								});
 							});
 
-							// ===== Free-range numeric fields =====
+							// Free-range numeric fields.
 							$filterWidget.find('.bpfwe-numeric-wrapper').has('input.input-val').each(function() {
 								const $wrapper = $(this);
-								const $min     = $wrapper.find('input.input-val').first();
-								const $max     = $wrapper.find('input.input-val').last();
+								const $min = $wrapper.find('input.input-val').first();
+								const $max = $wrapper.find('input.input-val').last();
 
 								const minVal = ($min.val() || '').trim();
 								const maxVal = ($max.val() || '').trim();
 
-								if (minVal === '' || maxVal === '') {
-									return;
-								}
-
-								const initialMin = ($min.data('base-value') ?? '').toString().trim();
-								const initialMax = ($max.data('base-value') ?? '').toString().trim();
-
-								if (minVal === initialMin && maxVal === initialMax) {
+								if (minVal === '' && maxVal === '') {
 									return;
 								}
 
 								[$min, $max].forEach($el => {
 									const currentVal = ($el.val() || '').trim();
-									const baseVal    = ($el.data('base-value') ?? '').toString().trim();
 
-									if (currentVal !== baseVal && currentVal !== '') {
-										numeric_field.push({
-											taxonomy: $el.data('taxonomy'),
-											terms:    currentVal,
-											logic:    $wrapper.data('logic') || $el.closest('[data-logic]').data('logic')
-										});
-										hasValues = true;
-									}
+									numeric_field.push({
+										taxonomy: $el.data('taxonomy'),
+										terms: currentVal,
+										logic: $wrapper.data('logic') || $el.closest('[data-logic]').data('logic')
+									});
 								});
+
+								hasValues = true;
 							});
 
+							// Visual range fields.
 							$filterWidget.find('.bpfwe-visual-range-wrapper input[type="radio"]:checked').each(function() {
 								var self = $(this);
 								var taxonomy = self.closest('.bpfwe-visual-range-wrapper').data('taxonomy');
@@ -1214,13 +1246,13 @@
 										localTargetSelector.html(`<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>`);
 									}
 								} else {
-									var pagination = localTargetSelector.find('nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]');
+									var pagination = localTargetSelector.find('.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]');
 									pagination.addClass('pagination-filter');
 
 									var scrollAnchor = localTargetSelector.find('.e-load-more-anchor');
 
 									var loadMoreButton = localTargetSelector.find('.load-more'),
-										elementorLoadMoreButton = localTargetSelector.find('.e-load-more-anchor').nextAll().find('.elementor-button-link.elementor-button');
+										elementorLoadMoreButton = localTargetSelector.find('.e-load-more-anchor').nextAll().find('a.elementor-button');
 
 									loadMoreButton.addClass('load-more-filter');
 									elementorLoadMoreButton.addClass('load-more-filter');
@@ -1309,27 +1341,22 @@
 
 				function updateSelectedTermsDisplay(widgetInteractionID, displaySelectedBefore) {
 					if (!$('.selected-terms-' + widgetInteractionID + ', .selected-count-' + widgetInteractionID + ', .quick-deselect-' + widgetInteractionID + ', .bpfwe-selected-terms, .bpfwe-selected-count').length) return;
-
 					const $filterWidget = $(`.elementor-widget-filter-widget[data-id="${widgetInteractionID}"]`);
 					if (!$filterWidget.length) return;
-
 					let selectedLabels = [];
 					let selectedItems = [];
-
 					// Checkboxes & radios
 					$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked').each(function() {
 						let labelText = $(this).closest('label').find('span').first().text().trim();
 						labelText = labelText.replace(/\s*\(\d+\)\s*$/, '').replace(/\s*\(\–\)\s*$/, '');
 						if (labelText) selectedLabels.push(labelText);
 					});
-
 					// Selects
 					$filterWidget.find('select option:selected').each(function() {
 						let text = $(this).text().trim();
 						text = text.replace(/\s*\(\d+\)\s*$/, '').replace(/\s*\(\–\)\s*$/, '');
 						if (text && $(this).val()) selectedLabels.push(text);
 					});
-
 					// Build selectedItems
 					$filterWidget.find('input[type="checkbox"]:checked, input[type="radio"]:checked, select option:selected').each(function() {
 						const $input = $(this);
@@ -1338,22 +1365,19 @@
 						label = label.replace(/\s*\(\d+\)\s*$/, '').replace(/\s*\(\–\)\s*$/, '');
 						if (value && label) selectedItems.push({ value, label });
 					});
-
 					// Numeric ranges
 					$filterWidget.find('.bpfwe-numeric-wrapper').each(function() {
 						const $wrapper = $(this);
 						const $min = $wrapper.find('input[name^="min_"]');
 						const $max = $wrapper.find('input[name^="max_"]');
-
+						if ($min.hasClass('input-val') || $max.hasClass('input-val')) return;
 						if ($min.length && $max.length) {
 							const minVal = $min.val();
 							const maxVal = $max.val();
-							const baseMin = $min.data('base-value');
-							const baseMax = $max.data('base-value');
-
+							const baseMin = $min.attr('data-base-value');
+							const baseMax = $max.attr('data-base-value');
 							// Skip if empty
 							if (minVal === '' && maxVal === '') return;
-
 							if (minVal != baseMin || maxVal != baseMax) {
 								const label = `${minVal || ''} - ${maxVal || ''}`;
 								selectedLabels.push(label);
@@ -1367,7 +1391,6 @@
 							}
 						}
 					});
-
 					const termsCountText = selectedLabels.length > 0 ? `${selectedLabels.length} ${displaySelectedBefore}` : '';
 					$('.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count').each(function() {
 						const $widget = $(this);
@@ -1375,7 +1398,6 @@
 						const $target = $container.length ? $container.children().first() : $widget.children().first();
 						if ($target.length) $target.text(termsCountText);
 					});
-
 					const termsText = selectedLabels.length > 0 ? `${displaySelectedBefore || ''} ${selectedLabels.join(', ')}`.trim() : '';
 					$('.selected-terms-' + widgetInteractionID + ', .bpfwe-selected-terms').each(function() {
 						const $widget = $(this);
@@ -1383,54 +1405,51 @@
 						const $target = $container.length ? $container.children().first() : $widget.children().first();
 						if ($target.length) $target.text(termsText);
 					});
-
 					const pillsHtml = selectedItems.map(item => {
 						if (item.type === 'range') {
 							return `<span class="bpfwe-term-pill" data-range="true" data-min="${item.minInput.attr('name')}" data-max="${item.maxInput.attr('name')}" data-widget-id="${widgetInteractionID}">
-										<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-									</span>`;
+							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+							</span>`;
 						}
 						return `<span class="bpfwe-term-pill" data-term="${item.value}">
-									<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-								</span>`;
+						<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+						</span>`;
 					}).join('');
-
 					$('.quick-deselect-' + widgetInteractionID).each(function() {
 						const $widget = $(this);
 						const $container = $widget.find('.elementor-widget-container').first();
 						const $target = $container.length ? $container.children().first() : $widget.children().first();
 						if ($target.length) $target.html(pillsHtml);
 					});
-
 					$document.off('click', '.bpfwe-term-remove').on('click', '.bpfwe-term-remove', function() {
 						const $pill = $(this).parent();
 						const widgetId = $(this).data('widget-id');
 						const $localFilterWidget = widgetId ? $(`.elementor-widget-filter-widget[data-id="${widgetId}"]`) : $('.elementor-widget-filter-widget');
-
 						if ($pill.data('range')) {
 							const minName = $pill.data('min');
 							const maxName = $pill.data('max');
 							const $min = $localFilterWidget.find(`input[name="${minName}"]`);
 							const $max = $localFilterWidget.find(`input[name="${maxName}"]`);
 							if ($min.length && $max.length) {
-								$min.val($min.data('base-value')).trigger('change');
-								$max.val($max.data('base-value')).trigger('change');
+								$min.val($min.attr('data-base-value')).trigger('change');
+								$max.val($max.attr('data-base-value')).trigger('change');
 							}
-						} else if ($localFilterWidget.length) {
+							} else if ($localFilterWidget.length) {
 							let $input = $localFilterWidget.find(`[value="${$pill.data('term')}"]`);
 							if ($input.is('input[type="checkbox"], input[type="radio"]')) {
 								$input.prop('checked', false).trigger('change');
-							} else if ($input.is('option')) {
+								} else if ($input.is('option')) {
 								$input.prop('selected', false);
 								const $select = $input.closest('select');
 								if (!$select.prop('multiple')) $select.prop('selectedIndex', 0);
 								$select.trigger('change');
 							}
 						}
+						updateSelectedTermsDisplay(widgetId, displaySelectedBefore);
 					});
 				}
 
-				function bpfweInfiniteScroll (widgetID, targetSelector) {
+				function bpfweInfiniteScroll(widgetID, targetSelector) {
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						$paginationNext = targetSelector.find('.pagination-filter a.next');
 
@@ -1466,7 +1485,7 @@
 					}
 				}
 
-				function elementorInfiniteScroll (widgetID, targetSelector) {
+				function elementorInfiniteScroll(widgetID, targetSelector) {
 					var scrollAnchor = targetSelector.find('.e-load-more-anchor'),
 						currentPage = targetSelector.data('current-page') || 1,
 						maxPage = scrollAnchor.data('max-page');
@@ -1502,6 +1521,36 @@
 					}
 				}
 
+				function snapshotNumericFacet($widget, $activeWrapper) {
+					var settings = $widget.data('settings') || {};
+
+					if (settings.is_facetted !== 'yes') {
+						return;
+					}
+
+					if (!$activeWrapper || !$activeWrapper.length) {
+						return;
+					}
+
+					// Clear previous numeric facet states.
+					//$widget.find('.bpfwe-numeric-wrapper[data-faceted-range]').not($activeWrapper).removeAttr('data-faceted-range');
+
+					var $inputs = $activeWrapper.find('input[type="number"]');
+
+					if ($inputs.length < 2) {
+						return;
+					}
+
+					var minVal = $inputs.eq(0).val();
+					var maxVal = $inputs.eq(1).val();
+
+					if (!minVal || !maxVal) {
+						return;
+					}
+
+					$activeWrapper.attr('data-faceted-range', minVal + '|' + maxVal);
+				}
+
 				function bpfweSyncFacetFilters(data, hasValues, filters) {
 					if (data === '0' || !hasValues) {
 						return;
@@ -1525,11 +1574,30 @@
 						const selector = '.flex-wrapper.' + className.trim().replace(/\s+/g, '.');
 						const $replacement = $incoming.find(selector);
 						if (!$replacement.length) return;
+
 						// Numeric wrapper replacement.
 						if ($current.find('.bpfwe-numeric-wrapper').length) {
-							$current.replaceWith($replacement);
-							return;
+						  const $currentMin = $current.find('input:not(.input-val)[name^="min_"]');
+						  const $currentMax = $current.find('input:not(.input-val)[name^="max_"]');
+						  const $replMin = $replacement.find('input:not(.input-val)[name^="min_"]');
+						  const $replMax = $replacement.find('input:not(.input-val)[name^="max_"]');
+						  if ($currentMin.length && $replMin.length) {
+							//$currentMin.attr('min', $replMin.attr('min'));
+							$currentMin.attr('max', $replMin.attr('max'));
+							$currentMin.attr('value', $replMin.attr('value'));
+							$currentMin.attr('data-base-value', $replMin.attr('data-base-value'));
+							$currentMin.val($replMin.val());
+						  }
+						  if ($currentMax.length && $replMax.length) {
+							$currentMax.attr('min', $replMax.attr('min'));
+							//$currentMax.attr('max', $replMax.attr('max'));
+							$currentMax.attr('value', $replMax.attr('value'));
+							$currentMax.attr('data-base-value', $replMax.attr('data-base-value'));
+							$currentMax.val($replMax.val());
+						  }
+						  return;
 						}
+
 						// Reset disabled state.
 						$current.find('.bpfwe-option-disabled').removeClass('bpfwe-option-disabled');
 						// Checkboxes & radios.
@@ -1716,10 +1784,23 @@
 								}
 							});
 
-							// Numeric fields.
-							$filterWidget.find('.bpfwe-numeric-wrapper input:not(.input-value)').each(function () {
-								var initialVal = $(this).data('base-value');
-								$(this).val(initialVal);
+							// Numeric fields (fixed and free-range).
+							$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
+								const $wrapper = $(this);
+
+								// Fixed-range inputs
+								$wrapper.find('input:not(.input-val)').each(function () {
+									const initialVal = $(this).data('base-value');
+									$(this).val(initialVal);
+								});
+
+								// Free-range inputs
+								$wrapper.find('input.input-val').each(function () {
+									$(this).val(''); // clear free-range values
+								});
+
+								// Remove faceted range snapshot
+								$wrapper.removeAttr('data-faceted-range');
 							});
 
 							// Text inputs.
@@ -1735,20 +1816,33 @@
 								}
 							});
 
-							// Restore numeric range from snapshot
-							const $incoming = originalFiltersStates[widgetId] ? $(originalFiltersStates[widgetId]) : null;
-							if ($incoming) {
-								$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
-									const $currentWrapper = $(this).closest('.flex-wrapper');
-									if (!$currentWrapper.length) return;
-									const className = $currentWrapper.attr('class') || '';
-									const selector = '.flex-wrapper.' + className.trim().replace(/\s+/g, '.');
-									const $replacement = $incoming.find(selector);
-									if (!$replacement.length) return;
-									// Replace entire numeric wrapper.
-									$currentWrapper.replaceWith($replacement);
-								});
-							}
+							$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
+								$(this).removeAttr('data-faceted-range');
+								const $inputs = $(this).find('input:not(.input-val)');
+								if ($inputs.length < 2) return;
+
+								const $min = $inputs.eq(0);
+								const $max = $inputs.eq(1);
+
+								const minVal  = $min.data('base-min');
+								const maxVal  = $max.data('base-max');
+								const minBound = $min.data('base-min')  || minVal;
+								const maxBound = $max.data('base-max')  || maxVal;
+
+								// Restore values
+								if (minVal !== undefined) $min.val(minVal).attr('value', minVal).attr('data-base-value', minVal);
+								if (maxVal !== undefined) $max.val(maxVal).attr('value', maxVal).attr('data-base-value', maxVal);
+
+								// Restore bounds to both
+								if (minBound !== undefined) {
+									$min.attr('min', minBound);
+									$max.attr('min', minBound);
+								}
+								if (maxBound !== undefined) {
+									$min.attr('max', maxBound);
+									$max.attr('max', maxBound);
+								}
+							});
 						}
 
 						// Sorting widget.

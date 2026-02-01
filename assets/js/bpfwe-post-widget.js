@@ -168,14 +168,8 @@
 
 					// Helper.
 					const slugify = ( str ) => {
-						if ( !str ) return '';
-						return str
-							.toLowerCase()
-							.trim()
-							.replace( /\s+/g, '-' )
-							.replace( /[^\w\-]+/g, '' )
-							.replace( /\-\-+/g, '-' )
-							.replace( /^-+|-+$/g, '' );
+						if ( ! str ) return '';
+						return encodeURIComponent( str.trim().toLowerCase() );
 					};
 
 					// Unique feed section ID to avoid conflicts when multiple widgets on same page.
@@ -831,26 +825,22 @@
 
 					const sequence = [ 38, 38, 40, 40, 37, 39, 37, 39, 66, 65 ];
 					let index = 0;
-					const message = 'Follow the white rabbit.';
+					const message = 'Beware the Forest’s Mushrooms';
 
-					$(document).off('keydown').on(
-						'keydown',
-						function (event) {
-							if (event.keyCode === sequence[ index ]) {
-								index++;
-								if (index === sequence.length) {
-									trigger();
-									index = 0;
-								}
-							} else {
+					$(document).off('keydown.bpfwe-post').on('keydown.bpfwe-post', function (event) {
+						if (event.keyCode === sequence[index]) {
+							index++;
+							if (index === sequence.length) {
+								trigger();
 								index = 0;
 							}
+						} else {
+							index = 0;
 						}
-					);
+					});
 
 					function trigger() {
 						const notification = document.createElement('div');
-						notification.textContent = message;
 						notification.style.position = 'fixed';
 						notification.style.bottom = '10px';
 						notification.style.right = '10px';
@@ -858,14 +848,36 @@
 						notification.style.color = '#fff';
 						notification.style.padding = '10px';
 						notification.style.zIndex = '1000';
+						notification.style.textAlign = 'center';
+						notification.style.borderRadius = '8px';
+						notification.style.fontFamily = 'sans-serif';
+						notification.style.display = 'flex';
+						notification.style.flexDirection = 'column';
+						notification.style.alignItems = 'center';
+						notification.style.gap = '5px';
+
+						const mushroom = document.createElement('div');
+						mushroom.textContent = '🍄';
+						mushroom.style.fontSize = '2rem';
+						mushroom.style.animation = 'dance 0.5s infinite alternate';
+
+						const text = document.createElement('div');
+						text.textContent = message;
+
+						notification.appendChild(mushroom);
+						notification.appendChild(text);
 						document.body.appendChild(notification);
 
-						setTimeout(
-							() => {
-								notification.remove();
-							},
-							5000
-						);
+						setTimeout(() => notification.remove(), 10000);
+
+						const style = document.createElement('style');
+						style.textContent = `
+						@keyframes dance {
+							0% { transform: translateY(0) rotate(0deg); }
+							50% { transform: translateY(-5px) rotate(-10deg); }
+							100% { transform: translateY(0) rotate(10deg); }
+						}`;
+						document.head.appendChild(style);
 					}
 				},
 

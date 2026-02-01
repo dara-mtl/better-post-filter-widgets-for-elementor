@@ -1577,7 +1577,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'notice_type' => 'info',
 				'dismissible' => false,
 				'heading'     => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
-				'content'     => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to a Heading or Text widget. Make sure the widget has content (you can use HTML entity &nbsp to keep it blank), otherwise it won’t appear on the page.', 'better-post-filter-widgets-for-elementor' ),
+				'content'     => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to a Heading or Text widget. The widget needs content (use a non-breaking space to keep it blank), otherwise it will not appear on the page.', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
 					'display_selected_terms' => 'yes',
 				],
@@ -1712,6 +1712,18 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'rows'               => 3,
 				'separator'          => 'before',
 				'default'            => esc_html__( 'It seems we can’t find what you’re looking for.', 'better-post-filter-widgets-for-elementor' ),
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'elementor_template_id',
+			[
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'label'       => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
+				'description' => esc_html__( 'Only use this field if this widget is rendered inside an Elementor Pro template (Single, Archive, etc.) and filtering returns AJAX 500. Only needed once per template. Leave empty for automatic detection.', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'e.g. 202', 'better-post-filter-widgets-for-elementor' ),
+				'separator'   => 'before',
 				'frontend_available' => true,
 			]
 		);
@@ -2787,9 +2799,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
 				'selectors' => array(
 					'{{WRAPPER}} .list-style label:hover span, {{WRAPPER}} .list-style label input[type="checkbox"]:checked + span' => 'color: {{VALUE}};',
 				),
@@ -4798,8 +4807,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
 						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							if ( $is_facetted && $post_ids ) {
-								$post_ids = $post_ids;
+							$facet_post_ids = get_transient( 'bpfwe_filter_post_ids' );
+							if ( $is_facetted && ! empty( $facet_post_ids ) && is_array( $facet_post_ids ) ) {
+								$post_ids = $facet_post_ids;
 							} else {
 								$all_posts_args = array(
 									'posts_per_page' => -1,
@@ -5295,7 +5305,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								}
 
 								if ( ! empty( $item['show_counter'] ) && 'yes' === $item['show_counter'] && is_numeric( $count ) ) {
-									$formatted_value .= '(<span class="counter">' . intval( $count ) . '</span>)';
+									$formatted_value .= ' (<span class="count" data-reset="' . intval( $count ) . '">' . intval( $count ) . '</span>)';
 								}
 
 								echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '">' . wp_kses_post( $formatted_value ) . '</option>';
@@ -5325,8 +5335,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
 						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							if ( $is_facetted && $post_ids ) {
-								$post_ids = $post_ids;
+							$facet_post_ids = get_transient( 'bpfwe_filter_post_ids' );
+							if ( $is_facetted && ! empty( $facet_post_ids ) && is_array( $facet_post_ids ) ) {
+								$post_ids = $facet_post_ids;
 							} else {
 								$all_posts_args = array(
 									'posts_per_page' => -1,
@@ -5504,8 +5515,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						} else {
 							echo '
 							<div class="bpfwe-numeric-wrapper" data-logic="OR">
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
+								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
 							</div>
 							';
 						}

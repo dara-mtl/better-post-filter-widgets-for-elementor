@@ -224,7 +224,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'notice_type' => 'info',
 				'dismissible' => false,
 				'heading'     => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
-				'content'     => esc_html__( 'Add "feed-anchor-filters-WIDGETID" or "feed-filters-WIDGETID" to a Heading or Text widget. Make sure the widget has content (you can use HTML entity &nbsp to keep it blank), otherwise it won’t appear on the page.', 'better-post-filter-widgets-for-elementor' ),
+				'content'     => esc_html__( 'Add "feed-anchor-filters-WIDGETID" or "feed-filters-WIDGETID" to a Heading or Text widget. The widget needs content (use a non-breaking space to keep it blank), otherwise it will not appear on the page.', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
 					'classic_layout'       => 'feed',
 					'display_feed_buttons' => 'yes',
@@ -9582,7 +9582,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="0">
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>
@@ -9966,7 +9966,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="0">
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>
@@ -10387,7 +10387,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				}
 			} else {
 				echo '
-				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post ] ) ) ) . '>
+				<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="0">
 					<div class="post-container-inner">
 						<div class="no-post">' . esc_html( $settings['nothing_found_message'] ) . '</div>
 					</div>

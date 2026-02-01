@@ -365,6 +365,28 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'sorting_settings_section',
+			[
+				'label' => esc_html__( 'Additional Options', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->add_control(
+			'elementor_template_id',
+			[
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'label'       => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
+				'description' => esc_html__( 'Only use this field if this widget is rendered inside an Elementor Pro template (Single, Archive, etc.) and filtering returns AJAX 500. Only needed once per template. Leave empty for automatic detection.', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'e.g. 202', 'better-post-filter-widgets-for-elementor' ),
+				'separator'   => 'before',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->end_controls_section();
 	}
 
 

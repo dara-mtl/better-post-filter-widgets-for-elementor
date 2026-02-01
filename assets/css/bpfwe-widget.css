@@ -1150,13 +1150,20 @@ ul.child-terms {
 	display: none;
 }
 
-.list-style label span:not(.count) {
+.list-style label span {
 	display: block;
 	padding: 8px 10px;
 	margin-bottom: 4px;
 	color: #fff;
 	background-color: var(--e-global-color-primary);
 	transition: background-color 0.1s;
+}
+
+.list-style label span.count {
+	margin: 0 !important;
+	padding: 0 !important;
+	color: inherit !important;
+	background: transparent !important;
 }
 
 .list-style input[type="checkbox"]:checked + span {

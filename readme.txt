@@ -5,11 +5,11 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-The only free pro-grade Elementor filter for posts, taxonomies, custom fields, ACF, WooCommerce, WPML & more. Ditch paid limits!
+The only free pro-grade Elementor filtering system for posts, taxonomies, custom fields, ACF, WooCommerce, WPML & more. Ditch paid limits!
 
 == Description ==
 
@@ -17,6 +17,7 @@ The only free Elementor plugin for unlimited pro-grade filtering of all your pos
 
 ### Filter Widget Key Features:
 - Compatible with Elementor Pro post widget, ACF, WooCommerce and most translation plugins.
+- True faceted filtering with real-time option availability and dynamic result counts.
 - Filter any post type.
 - Customizable filter items list with easy re-ordering options.
 - Filter anything using taxonomies, custom fields/ACF, relational and numeric fields.
@@ -38,11 +39,12 @@ The only free Elementor plugin for unlimited pro-grade filtering of all your pos
 - Flexible post content options: title, content, excerpt, custom field/ACF, taxonomy, HTML, post meta, read more, bookmark, edit options, product price, product rating, buy now, and product badge.
 - Flexible query system with AJAX pagination.
 - Customize widget content and style like native Elementor widgets.
+- Feed-style layouts with taxonomy-based grouping, ideal for magazine or news-style content.
 
 [Post Slider/Carousel Demo](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/elementor-post-slider-travel-theme-demo/) – Check out the post widget possibilities.
 
 ### Create Loop Grids for Free:
-Unlock the power of dynamic loops in Elementor, without needing the Pro version! Effortlessly showcase custom content in a loop format and experience the full potential of Elementor at no extra cost.
+Create dynamic loop grids without Elementor Pro. Design fully custom layouts using any Elementor widget and dynamic tag, while keeping full compatibility with filtering and AJAX pagination.
 
 ### Exclusive Dynamic Tags:
 - Exclusive Repeater Field Tag: Unlock the ability to directly output ACF repeater fields in the Elementor frontend, with the flexibility to wrap each part in different HTML tags.
@@ -54,21 +56,7 @@ Unlock the power of dynamic loops in Elementor, without needing the Pro version!
 - Lightweight design, utilizing Elementor's resources to minimize external dependencies.
 
 ### Developer-Friendly:
-Tailor the widget to your needs with the help of a dedicated filters.
-
-== Connecting the Filter Widget ==
-
-To link your Filter Widget to a Post or Loop Grid widget, follow these steps:
-
-1. Open the Post Widget settings in Elementor.
-Go to the Advanced tab and enter the following in the CSS Classes field:
-`results`
-2. Open your Filter Widget.
-In the Post Widget Target field, enter:
-`.results`
-3. Save the page. The filter will now update the correct widget.
-
-Note: `results` is a reference class. You can choose any class or id name you like, as long as the Filter Widget target matches the Post Widget class (with a .) or id (with a #).
+Tailor the widgets to your needs using dedicated filters and developer hooks.
 
 = Troubleshooting =
 
@@ -81,6 +69,20 @@ Note: `results` is a reference class. You can choose any class or id name you li
 - Check the browser console for JavaScript errors (press F12 and look under the Console tab) and resolve any errors that appear.
 
 == Frequently Asked Questions ==
+
+= Connecting the Filter Widget =
+
+To link your Filter Widget to a Post or Loop Grid widget, follow these steps:
+
+1. Open the Post Widget settings in Elementor.
+Go to the Advanced tab and enter the following in the CSS Classes field:
+`results`
+2. Open your Filter Widget.
+In the Post Widget Target field, enter:
+`.results`
+3. Save the page. The filter will now update the correct widget.
+
+Note: `results` is a reference class. You can choose any class or id name you like, as long as the Filter Widget target matches the Post Widget class (with a .) or id (with a #).
 
 = The post meta are not displaying =
 
@@ -137,16 +139,26 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.8.0 – Upcoming =
+= 1.8.1 – 2026-01-29 =
 
-* New: True faceted filtering for the Filter widget.
-  * Filter options now react to each other in real time (dynamic counts & availability)
-  * Unavailable options can be greyed out or hidden to prevent dead-end combinations
-  * Faceted behavior is fully opt-in and can be enabled globally or per individual filter group
-  * Feature will continue to be refined and expanded in future releases
-* New: Feed layout for the Post widget.
-  * Posts can now be grouped by taxonomy or specific terms (magazine/news feed look)
-  * Added quick controls to filter/show only the selected group
+* Fix: Fixed Select2 search field incorrectly triggering filters on input.
+* Fix: URL parameters not triggering Select and Select2 fields correctly.
+* Fix: Formating issue with the selected terms classes.
+* Fix: Fixed interaction issues with free numeric input ranges on mobile devices.
+* Fix: Fixed numeric ranges being reset when using pagination with faceted filtering enabled.
+* Fix: Fixed "No posts found" message on the post widget causing layout issues.
+* Fix: Fixed meta-based filters not being correctly taken into account by faceted logic.
+* Fix: Fixed spacing inconsistency for term count numbers on dropdown.
+* Fix: Filter pagination detection
+* New: Added "Elementor Template ID" field under Additional Options for filter, search, and sorting widgets. Use this to manually specify the template ID when AJAX filtering fails inside Elementor Pro templates (Single, Archive, etc.). Only needed once per template.
+
+= 1.8.0 – 2026-01-22 =
+
+* New: Filter widget now supports true faceted filtering, with dynamic counts and real-time option updates.
+  * Unavailable options can be greyed out or hidden to prevent dead-end combinations.
+  * Faceted behavior is fully opt-in and can be enabled globally or per individual filter group.
+  * Feature will continue to be refined and expanded in future releases.
+* New: Post widget now has a feed-style layout, letting you group posts by taxonomy or specific terms.
 * New: Free numeric input for meta-based filters.
   * Numeric filters are no longer limited to predefined ranges.
   * Users can manually enter custom minimum and maximum values.
@@ -158,13 +170,12 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
   * Fully isolated and opt-in — safe for testing without affecting existing sites.
   * Planned to become the default in a future release.
 * Fix: Corrected a typo in the Post widget where "Excluded terms" was labeled as "Included terms".
-* Fix: Fixed an issue where the inner wrapper class filter was not applied correctly in the Post widget
+* Fix: Fixed an issue where the inner wrapper class filter was not applied correctly in the Post widget.
+* Fix: Fixed Filter widget Load More pagination compatibility with Elementor Pro widgets.
 * Fix: Potentially resolved an Elementor editor issue where container CSS could break when using the main query in the Post widget.
 * Tweak: Post terms output can now be displayed as: comma-separated, ul or ol.
 * Tweak: Improved widget UI consistency by replacing RAW text with notice controls where appropriate.
-* Dev: Internal change to Filter widget behavior.
-  * Previously, Filter widget settings (e.g. custom AJAX, faceting mode) were applied globally to all linked filters.
-  * Now each Filter widget uses its own settings independently.
+* Dev: Filter widget settings are now handled per widget rather than globally across linked filters.
 
 = 1.7.3 – 2025-12-03 =
 
@@ -203,7 +214,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.0 =
+= 1.8.1 =
 
-Version 1.8.0 introduces powerful new filtering and layout capabilities.
-This release brings true faceted filtering with real-time option interaction, a new feed-style layout for Posts, free numeric inputs for meta filters, and multiple UX and performance improvements. It also includes UI refinements, bug fixes, and an experimental high-performance AJAX handler for advanced setups.
+This update includes multiple bug fixes and stability improvements.
