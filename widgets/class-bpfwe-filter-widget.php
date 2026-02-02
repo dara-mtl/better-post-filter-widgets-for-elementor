@@ -1447,6 +1447,17 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'filter_query_id',
+			[
+				'label'              => esc_html__( 'Filter Query ID', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::TEXT,
+				'description'        => esc_html__( 'Give your filter\'s query a unique ID to allow server side filtering.', 'better-post-filter-widgets-for-elementor' ),
+				'separator'          => 'after',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
 			'inject_query_id',
 			[
 				'label'              => esc_html__( 'Include Loop Grid Query ID', 'better-post-filter-widgets-for-elementor' ),
@@ -1469,17 +1480,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition'   => [
 					'inject_query_id!' => '',
 				],
-			]
-		);
-
-		$this->add_control(
-			'filter_query_id',
-			[
-				'label'              => esc_html__( 'Filter Query ID', 'better-post-filter-widgets-for-elementor' ),
-				'type'               => \Elementor\Controls_Manager::TEXT,
-				'description'        => esc_html__( 'Give your filter\'s query a unique ID to allow server side filtering.', 'better-post-filter-widgets-for-elementor' ),
-				'separator'          => 'before',
-				'frontend_available' => true,
 			]
 		);
 
@@ -1719,10 +1719,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'elementor_template_id',
 			[
-				'type'        => \Elementor\Controls_Manager::TEXT,
+				'type'        => \Elementor\Controls_Manager::NUMBER,
 				'label'       => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
-				'description' => esc_html__( 'Only use this field if this widget is rendered inside an Elementor Pro template (Single, Archive, etc.) and filtering returns AJAX 500. Only needed once per template. Leave empty for automatic detection.', 'better-post-filter-widgets-for-elementor' ),
-				'placeholder' => esc_html__( 'e.g. 202', 'better-post-filter-widgets-for-elementor' ),
+				'description' => esc_html__( 'Leave empty for automatic detection. If the filter returns an error 500 inside an Elementor Pro template, enter the ID of the template that contains the target widget so the correct document can be resolved.', 'better-post-filter-widgets-for-elementor' ),
 				'separator'   => 'before',
 				'frontend_available' => true,
 			]
@@ -4710,7 +4709,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 								}
 
-								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" value="' . esc_attr( $term->term_id ) . '">' . wp_kses_post( $prefix . $term->name . $show_counter ) . '</option>';
+								echo '<option data-bold="true" data-category="' . esc_attr( $term->term_id ) . '" data-taxonomy="' . esc_attr( $term->taxonomy ) . '" data-reset="' . intval( $effective_count ) . '" value="' . esc_attr( $term->term_id ) . '">' . wp_kses_post( $prefix . $term->name . $show_counter ) . '</option>';
 
 								$args = array(
 									'taxonomy'          => sanitize_key( $item['filter_by'] ),
@@ -5308,7 +5307,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$formatted_value .= ' (<span class="count" data-reset="' . intval( $count ) . '">' . intval( $count ) . '</span>)';
 								}
 
-								echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $term_value ) . '">' . wp_kses_post( $formatted_value ) . '</option>';
+								echo '<option data-category="' . esc_attr( $term_value ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-reset="' . intval( $count ) . '" value="' . esc_attr( $term_value ) . '">' . wp_kses_post( $formatted_value ) . '</option>';
 							}
 						}
 

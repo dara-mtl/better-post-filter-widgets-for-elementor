@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,18 +139,19 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.8.1 – 2026-01-29 =
+= 1.8.2 – 2026-02-02 =
 
-* Fix: Fixed Select2 search field incorrectly triggering filters on input.
-* Fix: URL parameters not triggering Select and Select2 fields correctly.
-* Fix: Formating issue with the selected terms classes.
-* Fix: Fixed interaction issues with free numeric input ranges on mobile devices.
-* Fix: Fixed numeric ranges being reset when using pagination with faceted filtering enabled.
-* Fix: Fixed "No posts found" message on the post widget causing layout issues.
-* Fix: Fixed meta-based filters not being correctly taken into account by faceted logic.
-* Fix: Fixed spacing inconsistency for term count numbers on dropdown.
-* Fix: Filter pagination detection
-* New: Added "Elementor Template ID" field under Additional Options for filter, search, and sorting widgets. Use this to manually specify the template ID when AJAX filtering fails inside Elementor Pro templates (Single, Archive, etc.). Only needed once per template.
+* Fix: Select2 search field incorrectly triggering filters on input.
+* Fix: Selected term classes incorrectly adding extra words in some setups.
+* Fix: Interaction issues with free numeric input ranges on mobile devices.
+* Fix: Numeric ranges being reset when using pagination with faceted filtering enabled.
+* Fix: "No posts found" message on the post widget causing layout issues.
+* Fix: Meta-based filters not being correctly taken into account by faceted logic.
+* Fix: Spacing inconsistency for term count numbers on dropdowns.
+* Fix: Numbered pagination not working correctly in some setups.
+* Fix: Post widget feed layout rendering incorrectly with non-Latin characters.
+* New: URL parameters can now trigger Select and Select2 fields.
+* New/Fix: Added "Elementor Template ID" field under Additional Options for filter, search, and sorting widgets. Use this to manually specify the template ID containing the target widget when AJAX filtering fails inside an Elementor Pro template.
 
 = 1.8.0 – 2026-01-22 =
 
@@ -214,6 +215,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.1 =
+= 1.8.2 =
 
 This update includes multiple bug fixes and stability improvements.

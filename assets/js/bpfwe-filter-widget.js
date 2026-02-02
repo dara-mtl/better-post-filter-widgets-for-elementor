@@ -158,7 +158,7 @@
 			function updateUrl() {
 				const query = new URLSearchParams();
 				query.set('results', formId);
-				// checkboxes & radios - NO section suffix.
+
 				$form.find(':checkbox:checked, :radio:checked').each(function() {
 					const $input = $(this);
 					const name = $input.attr('name');
@@ -527,24 +527,20 @@
 					$document.off('change.bpfwe-filter input.bpfwe-filter', 'form.form-tax').on('change.bpfwe-filter input.bpfwe-filter','form.form-tax', debounce(function (e) {
 						var $target = $(e.target);
 
-						if ($target.is('.bpfwe-numeric-wrapper input.input-val')) {
-							return;
-						}
-
-						// Ignore Select2 search field typing.
-						if ($target.is('.select2-search__field') || $target.closest('.select2-container').length) {
+						if ($target.is('.select2-search__field') || $target.closest('.select2-container').length || $target.is('.bpfwe-numeric-wrapper input.input-val')) {
 							return;
 						}
 
 						var isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
+						var isNumericInput = $target.is('.bpfwe-numeric-wrapper input');
 
-						//if (isTouchDevice && $target.is('.bpfwe-numeric-wrapper input') && $target.is(':focus') && $target.val() === '') {
-						if (isTouchDevice && $target.is('.bpfwe-numeric-wrapper input') && ($target.is(':focus') || $target.val() === '')) {
+						if ((!isTouchDevice && e.type === 'input' && isNumericInput) || (isTouchDevice && isNumericInput && ($target.is(':focus') || $target.val() === ''))) {
 							return;
 						}
 
 						var $widget = $(this).closest('.elementor-widget-filter-widget');
-						if ($target.is('.bpfwe-numeric-wrapper input')) {
+
+						if (isNumericInput) {
 							var $activeWrapper = $target.closest('.bpfwe-numeric-wrapper');
 							snapshotNumericFacet($widget, $activeWrapper);
 						} else {
@@ -552,6 +548,7 @@
 						}
 
 						var widgetInteractionID = $widget.data('id');
+
 						if (!widgetInteractionID) return;
 
 						const isSubmitPresent = $widget.find('.submit-form').length > 0;
@@ -559,7 +556,6 @@
 						if (!isSubmitPresent) {
 							getFormValues(widgetInteractionID);
 						}
-
 					}, 700));
 
 					// Numeric range: apply filter only on valid complete range or Enter key.
@@ -1048,9 +1044,9 @@
 
 							// Free-range numeric fields.
 							$filterWidget.find('.bpfwe-numeric-wrapper').has('input.input-val').each(function() {
-								const $wrapper = $(this);
-								const $min = $wrapper.find('input.input-val').first();
-								const $max = $wrapper.find('input.input-val').last();
+								const self = $(this);
+								const $min = self.find('input.input-val').first();
+								const $max = self.find('input.input-val').last();
 
 								const minVal = ($min.val() || '').trim();
 								const maxVal = ($max.val() || '').trim();
@@ -1065,7 +1061,7 @@
 									numeric_field.push({
 										taxonomy: $el.data('taxonomy'),
 										terms: currentVal,
-										logic: $wrapper.data('logic') || $el.closest('[data-logic]').data('logic')
+										logic: self.data('logic') || $el.closest('[data-logic]').data('logic')
 									});
 								});
 
@@ -1745,7 +1741,14 @@
 								const $select = $(this);
 
 								$select.find('option').each(function () {
-									$(this).prop('disabled', false).removeClass('bpfwe-option-disabled');
+									const $opt = $(this);
+									$opt.prop('disabled', false).removeClass('bpfwe-option-disabled');
+									const resetVal = $opt.attr('data-reset');
+									const $span = $opt.find('.count');
+
+									if ($span.length) {
+										$span.attr('data-reset', resetVal).text(resetVal);
+									}
 								});
 
 								if ($select.hasClass('select2-hidden-accessible')) {
@@ -1755,12 +1758,12 @@
 										$select.val(null);
 									}
 
-									// Visually refresh Select2 only
+									// Visually refresh Select2 only.
 									const config = $select.data('select2').options.options;
 									$select.select2('destroy');
 									$select.select2(config);
 
-									// Restore "+" symbol for multi-selects
+									// Restore "+" symbol for multi-selects.
 									if ($select.prop('multiple')) {
 										const $parent = $select.closest('.bpfwe-multi-select2');
 										const $rendered = $parent.find('.select2-selection__rendered');
@@ -1788,18 +1791,18 @@
 							$filterWidget.find('.bpfwe-numeric-wrapper').each(function () {
 								const $wrapper = $(this);
 
-								// Fixed-range inputs
+								// Fixed-range inputs.
 								$wrapper.find('input:not(.input-val)').each(function () {
 									const initialVal = $(this).data('base-value');
 									$(this).val(initialVal);
 								});
 
-								// Free-range inputs
+								// Free-range inputs.
 								$wrapper.find('input.input-val').each(function () {
-									$(this).val(''); // clear free-range values
+									$(this).val('');
 								});
 
-								// Remove faceted range snapshot
+								// Remove faceted range snapshot.
 								$wrapper.removeAttr('data-faceted-range');
 							});
 
@@ -1829,11 +1832,11 @@
 								const minBound = $min.data('base-min')  || minVal;
 								const maxBound = $max.data('base-max')  || maxVal;
 
-								// Restore values
+								// Restore values.
 								if (minVal !== undefined) $min.val(minVal).attr('value', minVal).attr('data-base-value', minVal);
 								if (maxVal !== undefined) $max.val(maxVal).attr('value', maxVal).attr('data-base-value', maxVal);
 
-								// Restore bounds to both
+								// Restore bounds to both.
 								if (minBound !== undefined) {
 									$min.attr('min', minBound);
 									$max.attr('min', minBound);
