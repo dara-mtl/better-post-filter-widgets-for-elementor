@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,6 +139,12 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.8.3 – 2026-02-06 =
+
+* Fix: Improved Elementor template auto-detection for more reliable AJAX rendering when using Elementor Pro templates.
+* Tweak: Added clearer validation and fallback logic when resolving templates, pages, and widget data during AJAX requests.
+* Tweak: Clarified descriptions for performance-related options to help avoid incompatible configurations.
+
 = 1.8.2 – 2026-02-02 =
 
 * Fix: Select2 search field incorrectly triggering filters on input.
@@ -215,6 +221,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.2 =
+= 1.8.3 =
 
-This update includes multiple bug fixes and stability improvements.
+This update includes stability improvements.

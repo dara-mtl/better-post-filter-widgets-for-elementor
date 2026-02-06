@@ -161,18 +161,60 @@ class BPFWE_Ajax {
 			wp_send_json_error( array( 'message' => 'Access Denied' ) );
 		}
 
+		$template_id      = ! empty( $_POST['template_id'] ) ? absint( wp_unslash( $_POST['template_id'] ) ) : '';
 		$page_id          = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
 		$widget_id        = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
-		$filter_widget_id = ! empty( $_POST['filter_widget'] ) ? sanitize_key( wp_unslash( $_POST['filter_widget'] ) ) : '';
+		$filter_widget_id = ! empty( $_POST['filter_widget'] ) ? sanitize_text_field( wp_unslash( $_POST['filter_widget'] ) ) : '';
 		$inject_id        = ! empty( $_POST['inject_id'] ) ? sanitize_text_field( wp_unslash( $_POST['inject_id'] ) ) : '';
 
-		if ( empty( $page_id ) || empty( $widget_id ) ) {
-			wp_send_json_error( array( 'message' => 'A page and widget ID are recquired.' ) );
+		if ( empty( $template_id ) || empty( $widget_id ) ) {
+			status_header( 400 );
+			wp_send_json_error( array(
+				'message' => sprintf(
+					'A valid template ID and widget ID are required. Provided template: %s, widget: %s',
+					$template_id ?: '(empty)',
+					$widget_id ?: '(empty)'
+				)
+			) );
 		}
 
-		$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
+		$document = \Elementor\Plugin::$instance->documents->get( $template_id );
+
+		if ( ! $document && ! empty( $page_id ) ) {
+			$document = \Elementor\Plugin::$instance->documents->get( $page_id );
+		}
+
+		if ( ! $document ) {
+			status_header( 400 );
+			wp_send_json_error( array(
+				'message' => sprintf(
+					'The template ID %s does not exist.',
+					$template_id
+				)
+			) );
+		}
+
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
+
+		// If widget is not not found in template_id, fallback to page_id document.
+		if ( ! $widget_data && ! empty( $page_id ) ) {
+			$document = \Elementor\Plugin::$instance->documents->get( $page_id );
+			$element_data = $document->get_elements_data();
+			$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
+		}
+
+		if ( ! $widget_data ) {
+			status_header( 400 );
+			wp_send_json_error( array(
+				'message' => sprintf(
+					'Widget ID "%s" not found in template ID %s or page ID %s.',
+					$widget_id,
+					$template_id,
+					$page_id ?: '(none)'
+				)
+			) );
+		}
 
 		$ele_widget_query_id   = '';
 		$bpfwe_widget_query_id = '';

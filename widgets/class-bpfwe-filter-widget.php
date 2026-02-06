@@ -1143,6 +1143,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'return_value'       => 'yes',
 				'default'            => '',
 				'frontend_available' => true,
+				'description'        => esc_html__( 'Enable this on archives for the filter to detect the current archive context (category, tag, author, etc.)', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
@@ -1368,7 +1369,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => esc_html__( 'Loads a minimal WP environment for faster query processing. Default: Off. Impact on Speed: High.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Uses a front-end AJAX endpoint instead of admin-ajax.php to reduce overhead. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
@@ -1394,7 +1395,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => esc_html__( 'Skips counting total posts. Use only if pagination isn’t needed. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Do NOT enable this if you are using pagination. Skips counting total posts. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
@@ -1407,7 +1408,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'               => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => esc_html__( 'Ignores query tweaks. May break 3rd party features. Do not enable this option if you\'re using a translation plugin. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Do NOT enable this if you are using a translation plugin (WPML, Polylang, TranslatePress, etc.). Ignores query tweaks. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
 				'default'            => 'no',
 				'frontend_available' => true,
 			]
