@@ -345,13 +345,29 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'default'   => 'none',
 				'options'   => [
 					'none'           => esc_html__( 'None', 'better-post-filter-widgets-for-elementor' ),
-					'date'           => esc_html__( 'Date/Time', 'better-post-filter-widgets-for-elementor' ),
+					'date'           => esc_html__( 'Date', 'better-post-filter-widgets-for-elementor' ),
+					'time'           => esc_html__( 'Time', 'better-post-filter-widgets-for-elementor' ),
 					'number'         => esc_html__( 'Number', 'better-post-filter-widgets-for-elementor' ),
 					'text'           => esc_html__( 'Text', 'better-post-filter-widgets-for-elementor' ),
 					'custom_pattern' => esc_html__( 'Custom Pattern', 'better-post-filter-widgets-for-elementor' ),
+					'custom_format'  => esc_html__( 'Custom Format', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'condition' => [
 					'select_filter' => [ 'Custom Field', 'Numeric' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'custom_format_string',
+			[
+				'label'       => esc_html__( 'Format String', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => esc_html__( 'e.g. Y-m-d, H:i, U', 'better-post-filter-widgets-for-elementor' ),
+				'label_block' => true,
+				'condition'   => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'custom_format',
 				],
 			]
 		);
@@ -362,7 +378,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Date Format', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'Y-m-d',
-				'options'   => [
+				'options'  => [
 					'Y-m-d'        => esc_html__( 'Year-Month-Day', 'better-post-filter-widgets-for-elementor' ),
 					'd/m/Y'        => esc_html__( 'Day/Month/Year', 'better-post-filter-widgets-for-elementor' ),
 					'l, F j'       => esc_html__( 'Weekday, Month Day', 'better-post-filter-widgets-for-elementor' ),
@@ -375,6 +391,27 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition' => [
 					'select_filter' => [ 'Custom Field', 'Numeric' ],
 					'format_type'   => 'date',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'time_format',
+			[
+				'label'     => esc_html__( 'Time Format', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'H:i',
+				'options'   => [
+					'H:i'               => esc_html__( '24H (14:30)', 'better-post-filter-widgets-for-elementor' ),
+					'H:i:s'             => esc_html__( '24H with seconds (14:30:00)', 'better-post-filter-widgets-for-elementor' ),
+					'g:i A'             => esc_html__( '12H (2:30 PM)', 'better-post-filter-widgets-for-elementor' ),
+					'g:i:s A'           => esc_html__( '12H with seconds (2:30:00 PM)', 'better-post-filter-widgets-for-elementor' ),
+					'G\h i\m'           => esc_html__( 'Duration (2h 30m)', 'better-post-filter-widgets-for-elementor' ),
+					'G\h\r\s i\m\i\n'   => esc_html__( 'Duration (2hrs 30min)', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
+					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'time',
 				],
 			]
 		);
@@ -790,8 +827,24 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'        => \Elementor\Controls_Manager::NOTICE,
 				'notice_type' => 'info',
 				'dismissible' => false,
-				// translators: %s is an HTML link to the taxonomy settings page.
-				'content'     => sprintf( wp_kses( __( 'Add swatches to your taxonomy terms to enable this feature. %s', 'better-post-filter-widgets-for-elementor' ), [ 'a' => [ 'href' => [], 'target' => [] ] ] ), '<a href="' . esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) ) . '" target="_blank">' . esc_html__( 'Go to taxonomy settings.', 'better-post-filter-widgets-for-elementor' ) . '</a>' ),
+				'content' => sprintf(
+					wp_kses(
+						// translators: %s is an HTML link to the taxonomy settings page.
+						__(
+							'Add swatches to your taxonomy terms to enable this feature. %s',
+							'better-post-filter-widgets-for-elementor'
+						),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					),
+					'<a href="' . esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) ) . '" target="_blank">' .
+						esc_html__( 'Go to taxonomy settings.', 'better-post-filter-widgets-for-elementor' ) .
+					'</a>'
+				),
 				'condition'   => [
 					'display_swatch' => 'yes',
 				],
@@ -1144,6 +1197,22 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'default'            => '',
 				'frontend_available' => true,
 				'description'        => esc_html__( 'Enable this on archives for the filter to detect the current archive context (category, tag, author, etc.)', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'dynamic_filtering_term',
+			[
+				'label'        => esc_html__( 'Filter Terms by Current Archive', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'separator'    => 'after',
+				'condition'    => [
+					'dynamic_filtering' => 'yes',
+				],
 			]
 		);
 
@@ -1720,10 +1789,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'elementor_template_id',
 			[
-				'type'        => \Elementor\Controls_Manager::NUMBER,
-				'label'       => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
-				'description' => esc_html__( 'Leave empty for automatic detection. If the filter returns an error 500 inside an Elementor Pro template, enter the ID of the template that contains the target widget so the correct document can be resolved.', 'better-post-filter-widgets-for-elementor' ),
-				'separator'   => 'before',
+				'type'               => \Elementor\Controls_Manager::NUMBER,
+				'label'              => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Leave empty for automatic detection. If the filter returns an error 500 inside an Elementor Pro template, enter the ID of the template that contains the target widget so the correct document can be resolved.', 'better-post-filter-widgets-for-elementor' ),
+				'separator'          => 'before',
 				'frontend_available' => true,
 			]
 		);
@@ -3761,6 +3830,52 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				}
 			}
 
+			// Pre-fetch post IDs scoped to the current archive context so that taxonomy term lists only show terms present in this archive.
+			$archive_scoped_post_ids = [];
+
+			if ( 'yes' === $settings['dynamic_filtering'] && 'yes' === $settings['dynamic_filtering_term'] && is_archive() ) {
+				$queried_object    = get_queried_object();
+				$archive_post_args = [
+					'posts_per_page'         => -1,
+					'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : sanitize_key( $settings['filter_post_type'] ),
+					'no_found_rows'          => true,
+					'fields'                 => 'ids',
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+				];
+
+				if ( $queried_object instanceof WP_User ) {
+					$archive_post_args['author'] = $queried_object->ID;
+				} elseif ( $queried_object instanceof WP_Term ) {
+					$archive_post_args['tax_query'] = [
+						[
+							'taxonomy' => $queried_object->taxonomy,
+							'field'    => 'term_id',
+							'terms'    => $queried_object->term_id,
+						],
+					];
+				} elseif ( $queried_object instanceof WP_Post_Type ) {
+					$archive_post_args['post_type'] = $queried_object->name;
+				}
+
+				$archive_scoped_post_ids = get_posts( $archive_post_args );
+			}
+
+			// Build a suffix for transient keys so that archive-scoped results are cached separately from non-scoped (site-wide) results.
+			$archive_context_key = '';
+			if ( ! empty( $archive_scoped_post_ids ) ) {
+				$queried_obj = get_queried_object();
+				if ( $queried_obj instanceof WP_Term ) {
+					$archive_context_key = '_arc_' . absint( $queried_obj->term_id );
+				} elseif ( $queried_obj instanceof WP_Post_Type ) {
+					$archive_context_key = '_arc_' . sanitize_key( $queried_obj->name );
+				} elseif ( $queried_obj instanceof WP_User ) {
+					$archive_context_key = '_arc_u' . absint( $queried_obj->ID );
+				}
+			}
+
+			$all_term_ids_in_archive = [];
+
 			foreach ( $settings['filter_list'] as $item ) {
 				if ( 'Taxonomy' === $item['select_filter'] && ! taxonomy_exists( $item['filter_by'] ) ) {
 					return;
@@ -3779,9 +3894,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				}
 
 				// Retrieve current filter's query.
-				$filter_data          = get_transient( 'bpfwe_filter_query' );
+				$filter_data          = BPFWE_Ajax::get_filter_query();
 				$allowed_term_ids     = [];
 				$facetted_term_counts = [];
+				$archive_term_counts  = [];
 				$post_ids             = [];
 				$group_facet_mode     = ( 'inherit' !== $item['group_facet_mode'] ) ? $item['group_facet_mode'] : '';
 				$taxonomy_is_faceted  = false;
@@ -3800,7 +3916,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				if ( $is_facetted && is_array( $filter_data ) && 'Taxonomy' === $item['select_filter'] ) {
 
 					$taxonomy = sanitize_key( $item['filter_by'] );
-					$post_ids = get_transient( 'bpfwe_filter_post_ids' );
+					$post_ids = BPFWE_Ajax::get_filter_post_ids();
 
 					if ( empty( $post_ids ) || ! is_array( $post_ids ) ) {
 						return;
@@ -3839,12 +3955,41 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$allowed_term_ids = array_keys( $allowed_term_ids );
 				}
 
+				// Build archive-scoped term counts when dynamic archive filtering is active but no AJAX facet is running.
+				if ( ! empty( $archive_scoped_post_ids ) && 'Taxonomy' === $item['select_filter'] && empty( $facetted_term_counts ) ) {
+					$archive_taxonomy = sanitize_key( $item['filter_by'] );
+
+					foreach ( $archive_scoped_post_ids as $archive_post_id ) {
+						$post_term_ids = wp_get_post_terms(
+							absint( $archive_post_id ),
+							$archive_taxonomy,
+							[
+								'fields'  => 'ids',
+								'orderby' => 'none',
+							]
+						);
+
+						if ( is_wp_error( $post_term_ids ) || empty( $post_term_ids ) ) {
+							continue;
+						}
+
+						foreach ( $post_term_ids as $term_id ) {
+							$term_id = absint( $term_id );
+							if ( isset( $archive_term_counts[ $term_id ] ) ) {
+								++$archive_term_counts[ $term_id ];
+							} else {
+								$archive_term_counts[ $term_id ] = 1;
+							}
+						}
+					}
+				}
+
 				++$index;
 
 				if ( 'Taxonomy' === $item['select_filter'] ) {
 
 					// Check if transient exists.
-					$transient_key = 'filter_widget_taxonomy_' . $item['filter_by'];
+					$transient_key = 'filter_widget_taxonomy_' . $item['filter_by'] . $archive_context_key;
 
 					$hiterms       = get_transient( $transient_key );
 					$display_empty = 'yes' === $item['display_empty'] ? false : true;
@@ -3864,6 +4009,36 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							'fields'            => 'all',
 							'update_meta_cache' => false,
 						];
+
+						// Scope top-level terms to archive context when active.
+						if ( ! empty( $archive_scoped_post_ids ) ) {
+							// Reset and rebuild per taxonomy group.
+							$all_term_ids_in_archive = [];
+
+							foreach ( $archive_scoped_post_ids as $archive_post_id ) {
+								$post_terms = wp_get_post_terms(
+									absint( $archive_post_id ),
+									sanitize_key( $item['filter_by'] ),
+									[ 'fields' => 'ids' ]
+								);
+
+								if ( is_wp_error( $post_terms ) || empty( $post_terms ) ) {
+									continue;
+								}
+
+								foreach ( $post_terms as $pt_id ) {
+									$all_term_ids_in_archive[] = absint( $pt_id );
+									$ancestors                 = get_ancestors( absint( $pt_id ), sanitize_key( $item['filter_by'] ), 'taxonomy' );
+									foreach ( $ancestors as $ancestor_id ) {
+										$all_term_ids_in_archive[] = absint( $ancestor_id );
+									}
+								}
+							}
+
+							$all_term_ids_in_archive = array_unique( $all_term_ids_in_archive );
+							$args['include']         = $all_term_ids_in_archive;
+							$args['hide_empty']      = true;
+						}
 
 						$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 
@@ -3934,7 +4109,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							if ( $is_facetted && $has_children ) {
 								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
 							} else {
-								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : ( isset( $archive_term_counts[ $hiterm->term_id ] ) ? $archive_term_counts[ $hiterm->term_id ] : $hiterm->count );
 								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 							}
 
@@ -4000,7 +4175,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
 								$terms_stack            = array();
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								// Invalidate cache if editing.
@@ -4018,7 +4193,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 
+									if ( ! empty( $archive_scoped_post_ids ) ) {
+										$args['include']    = $all_term_ids_in_archive;
+										$args['hide_empty'] = true;
+									}
+
 									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
 										$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
@@ -4079,7 +4260,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											--$open_uls;
 										}
 
-										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : ( isset( $archive_term_counts[ $term->term_id ] ) ? $archive_term_counts[ $term->term_id ] : $term->count );
 										$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 										$swatches_type   = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
 										$group_text      = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
@@ -4131,7 +4312,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												break;
 										}
 
-										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key;
 										$child_terms         = get_transient( $child_transient_key );
 
 										// Invalidate cache if editing.
@@ -4148,6 +4329,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'fields'   => 'all',
 												'update_meta_cache' => false,
 											);
+
+											// Scope grandchild terms to archive context.
+											if ( ! empty( $archive_scoped_post_ids ) ) {
+												$args['include']    = $all_term_ids_in_archive;
+												$args['hide_empty'] = true;
+											}
 
 											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 
@@ -4281,7 +4468,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							if ( $is_facetted && $has_children ) {
 								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
 							} else {
-								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : ( isset( $archive_term_counts[ $hiterm->term_id ] ) ? $archive_term_counts[ $hiterm->term_id ] : $hiterm->count );
 								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 							}
 
@@ -4347,7 +4534,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
 								$terms_stack            = array();
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id;
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								// Invalidate cache if editing.
@@ -4365,7 +4552,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										'update_meta_cache' => false,
 									);
 
+									if ( ! empty( $archive_scoped_post_ids ) ) {
+										$args['include']    = $all_term_ids_in_archive;
+										$args['hide_empty'] = true;
+									}
+
 									$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 									if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 										$args['orderby'] = $item['sort_terms'];
 										$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
@@ -4426,7 +4619,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 											--$open_uls;
 										}
 
-										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+										$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : ( isset( $archive_term_counts[ $term->term_id ] ) ? $archive_term_counts[ $term->term_id ] : $term->count );
 										$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 										$swatches_type   = 'yes' === $item['display_swatch'] ? get_term_meta( $term->term_id, 'bpfwe_swatches_type', true ) : '';
 										$group_text      = get_term_meta( $term->term_id, 'bpfwe_swatches_group_text', true );
@@ -4478,7 +4671,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												break;
 										}
 
-										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id;
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key;
 										$child_terms         = get_transient( $child_transient_key );
 
 										// Invalidate cache if editing.
@@ -4496,7 +4689,13 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												'update_meta_cache' => false,
 											);
 
+											if ( ! empty( $archive_scoped_post_ids ) ) {
+												$args['include']    = $all_term_ids_in_archive;
+												$args['hide_empty'] = true;
+											}
+
 											$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
+
 											if ( ! empty( $item['sort_terms'] ) && in_array( $item['sort_terms'], $valid_orderby, true ) ) {
 												$args['orderby'] = $item['sort_terms'];
 												$args['order']   = in_array( $item['order'], [ 'ASC', 'DESC' ], true ) ? $item['order'] : 'ASC';
@@ -4641,7 +4840,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							if ( $is_facetted && $has_children ) {
 								$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
 							} else {
-								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : ( isset( $archive_term_counts[ $hiterm->term_id ] ) ? $archive_term_counts[ $hiterm->term_id ] : $hiterm->count );
 								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 							}
 
@@ -4706,7 +4905,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								if ( $is_facetted && $has_children ) {
 									$show_counter = ( 'yes' === $item['show_counter'] ) ? ' (–)' : '';
 								} else {
-									$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : $term->count;
+									$effective_count = isset( $facetted_term_counts[ $term->term_id ] ) ? $facetted_term_counts[ $term->term_id ] : ( isset( $archive_term_counts[ $term->term_id ] ) ? $archive_term_counts[ $term->term_id ] : $term->count );
 									$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 								}
 
@@ -4719,6 +4918,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									'fields'            => 'all',
 									'update_meta_cache' => false,
 								);
+
+								if ( ! empty( $archive_scoped_post_ids ) ) {
+									$args['include']    = $all_term_ids_in_archive;
+									$args['hide_empty'] = true;
+								}
 
 								$valid_orderby = [ '', 'name', 'slug', 'count', 'term_group', 'term_order', 'term_id' ];
 
@@ -4764,7 +4968,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							}
 						} else {
 							foreach ( $hiterms as $hiterm ) {
-								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : $hiterm->count;
+								$effective_count = isset( $facetted_term_counts[ $hiterm->term_id ] ) ? $facetted_term_counts[ $hiterm->term_id ] : ( isset( $archive_term_counts[ $hiterm->term_id ] ) ? $archive_term_counts[ $hiterm->term_id ] : $hiterm->count );
 								$show_counter    = ( 'yes' === $item['show_counter'] ) ? ' (<span class="count" data-reset="' . $effective_count . '">' . $effective_count . '</span>)' : '';
 								echo '<option data-count="' . absint( $effective_count ) . '" data-reset="' . absint( $effective_count ) . '" data-category="' . esc_attr( $hiterm->term_id ) . '" data-taxonomy="' . esc_attr( $hiterm->taxonomy ) . '" value="' . esc_attr( $hiterm->term_id ) . '">' . wp_kses_post( $hiterm->name . $show_counter ) . '</option>';
 							}
@@ -4795,7 +4999,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					}
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'];
+						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'] . $archive_context_key;
 						$terms                    = get_transient( $meta_terms_transient_key );
 
 						// Invalidate cache if editing.
@@ -4807,7 +5011,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
 						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							$facet_post_ids = get_transient( 'bpfwe_filter_post_ids' );
+							$facet_post_ids = BPFWE_Ajax::get_filter_post_ids();
 							if ( $is_facetted && ! empty( $facet_post_ids ) && is_array( $facet_post_ids ) ) {
 								$post_ids = $facet_post_ids;
 							} else {
@@ -5086,6 +5290,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( 'date' === $format_type ) {
 									$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+								} elseif ( 'time' === $format_type ) {
+									$args['time_format'] = $item['time_format'] ?? get_option( 'time_format' );
 								} elseif ( 'number' === $format_type ) {
 									$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
 									$args['suffix']   = $item['number_suffix'] ?? '';
@@ -5093,6 +5299,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['text_case'] = $item['text_case'] ?? 'as_is';
 								} elseif ( 'custom_pattern' === $format_type ) {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+								} elseif ( 'custom_format' === $format_type ) {
+									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
 								}
 
 								if ( $is_relational ) {
@@ -5149,6 +5357,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( 'date' === $format_type ) {
 									$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+								} elseif ( 'time' === $format_type ) {
+									$args['time_format'] = $item['time_format'] ?? get_option( 'time_format' );
 								} elseif ( 'number' === $format_type ) {
 									$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
 									$args['suffix']   = $item['number_suffix'] ?? '';
@@ -5156,6 +5366,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['text_case'] = $item['text_case'] ?? 'as_is';
 								} elseif ( 'custom_pattern' === $format_type ) {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+								} elseif ( 'custom_format' === $format_type ) {
+									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
 								}
 
 								if ( $is_relational ) {
@@ -5221,6 +5433,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( 'date' === $format_type ) {
 									$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+								} elseif ( 'time' === $format_type ) {
+									$args['time_format'] = $item['time_format'] ?? get_option( 'time_format' );
 								} elseif ( 'number' === $format_type ) {
 									$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
 									$args['suffix']   = $item['number_suffix'] ?? '';
@@ -5228,6 +5442,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['text_case'] = $item['text_case'] ?? 'as_is';
 								} elseif ( 'custom_pattern' === $format_type ) {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+								} elseif ( 'custom_format' === $format_type ) {
+									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
 								}
 
 								if ( $is_relational ) {
@@ -5289,6 +5505,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 								if ( 'date' === $format_type ) {
 									$args['date_format'] = $item['date_format'] ?? get_option( 'date_format' );
+								} elseif ( 'time' === $format_type ) {
+									$args['time_format'] = $item['time_format'] ?? get_option( 'time_format' );
 								} elseif ( 'number' === $format_type ) {
 									$args['decimals'] = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
 									$args['suffix']   = $item['number_suffix'] ?? '';
@@ -5296,6 +5514,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['text_case'] = $item['text_case'] ?? 'as_is';
 								} elseif ( 'custom_pattern' === $format_type ) {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
+								} elseif ( 'custom_format' === $format_type ) {
+									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
 								}
 
 								if ( $is_relational ) {
@@ -5323,7 +5543,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'];
+						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . $archive_context_key;
 						$terms                 = get_transient( $numeric_transient_key );
 
 						// Invalidate cache if editing.
@@ -5335,7 +5555,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
 						if ( false === $terms || $is_editor || $is_facetted ) {
 
-							$facet_post_ids = get_transient( 'bpfwe_filter_post_ids' );
+							$facet_post_ids = BPFWE_Ajax::get_filter_post_ids();
 							if ( $is_facetted && ! empty( $facet_post_ids ) && is_array( $facet_post_ids ) ) {
 								$post_ids = $facet_post_ids;
 							} else {

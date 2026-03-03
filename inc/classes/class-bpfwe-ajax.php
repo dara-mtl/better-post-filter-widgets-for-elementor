@@ -17,6 +17,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Includes actions such as changing post status, pinning posts, and optimizing filters.
  */
 class BPFWE_Ajax {
+	/**
+	 * Holds the singleton instance.
+	 *
+	 * @var BPFWE_Ajax|null
+	 */
+	private static $instance = null;
+	/**
+	 * Holds the current filter query args.
+	 *
+	 * @var array|null
+	 */
+	private $filter_query;
+
+	/**
+	 * Holds the current filter post IDs for faceting.
+	 *
+	 * @var array|null
+	 */
+	private $filter_post_ids;
 
 	/**
 	 * Changes the status of a post via AJAX.
@@ -119,9 +138,9 @@ class BPFWE_Ajax {
 	 *
 	 * @return void
 	 */
-	public function delete_filter_transient() {
-		delete_transient( 'bpfwe_filter_query' );
-		delete_transient( 'bpfwe_filter_post_ids' );
+	public function reset_filter_state() {
+		$this->filter_query    = null;
+		$this->filter_post_ids = null;
 	}
 
 	/**
@@ -169,13 +188,15 @@ class BPFWE_Ajax {
 
 		if ( empty( $template_id ) || empty( $widget_id ) ) {
 			status_header( 400 );
-			wp_send_json_error( array(
+			wp_send_json_error(
+				array(
 				'message' => sprintf(
 					'A valid template ID and widget ID are required. Provided template: %s, widget: %s',
-					$template_id ?: '(empty)',
-					$widget_id ?: '(empty)'
+					$template_id ? $template_id : '(empty)',
+					$widget_id ? $widget_id : '(empty)'
+				),
 				)
-			) );
+			);
 		}
 
 		$document = \Elementor\Plugin::$instance->documents->get( $template_id );
@@ -186,12 +207,14 @@ class BPFWE_Ajax {
 
 		if ( ! $document ) {
 			status_header( 400 );
-			wp_send_json_error( array(
+			wp_send_json_error(
+				array(
 				'message' => sprintf(
 					'The template ID %s does not exist.',
 					$template_id
+				),
 				)
-			) );
+			);
 		}
 
 		$element_data = $document->get_elements_data();
@@ -199,21 +222,23 @@ class BPFWE_Ajax {
 
 		// If widget is not not found in template_id, fallback to page_id document.
 		if ( ! $widget_data && ! empty( $page_id ) ) {
-			$document = \Elementor\Plugin::$instance->documents->get( $page_id );
+			$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
 			$element_data = $document->get_elements_data();
 			$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 		}
 
 		if ( ! $widget_data ) {
 			status_header( 400 );
-			wp_send_json_error( array(
+			wp_send_json_error(
+				array(
 				'message' => sprintf(
 					'Widget ID "%s" not found in template ID %s or page ID %s.',
 					$widget_id,
 					$template_id,
-					$page_id ?: '(none)'
+					$page_id ? $page_id : '(none)'
+				),
 				)
-			) );
+			);
 		}
 
 		$ele_widget_query_id   = '';
@@ -341,6 +366,7 @@ class BPFWE_Ajax {
 				$terms             = is_array( $value['terms'] ) ? array_map( 'absint', $value['terms'] ) : [ absint( $value['terms'] ) ];
 				$grouped_terms_and = [];
 				$grouped_terms_or  = [];
+				$row_logic         = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
 
 				foreach ( $terms as $term ) {
 					$query = [
@@ -349,8 +375,6 @@ class BPFWE_Ajax {
 						'terms'            => $term,
 						'include_children' => true,
 					];
-
-					$row_logic = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
 
 					// If the logic is 'AND', group the terms together.
 					if ( 'AND' === $row_logic ) {
@@ -616,7 +640,7 @@ class BPFWE_Ajax {
 		}
 
 		if ( true === $is_empty ) {
-			delete_transient( 'bpfwe_filter_query' );
+			$this->filter_query = null;
 			return;
 		}
 
@@ -638,16 +662,33 @@ class BPFWE_Ajax {
 			$facet_query  = new WP_Query( $facet_args );
 			$all_post_ids = $facet_query->posts;
 
-			set_transient( 'bpfwe_filter_post_ids', $all_post_ids, 60 * 60 * 24 );
+			$this->filter_post_ids = $all_post_ids;
 		} else {
-			delete_transient( 'bpfwe_filter_post_ids' );
+			$this->filter_post_ids = null;
 		}
 
-		set_transient( 'bpfwe_filter_query', $args, 60 * 60 * 24 );
+		$this->filter_query = $args;
 
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 
+		$captured_found_posts   = null;
+		$captured_max_num_pages = null;
+
+		$capture_hook = function ( $found_posts, $query ) use ( &$captured_found_posts, &$captured_max_num_pages ) {
+			if ( $query->is_main_query() || $query->get( 'no_found_rows' ) ) {
+				return $found_posts;
+			}
+			$posts_per_page = (int) $query->get( 'posts_per_page' );
+			if ( $posts_per_page > 0 ) {
+				$captured_found_posts   = (int) $found_posts;
+				$captured_max_num_pages = (int) ceil( $found_posts / $posts_per_page );
+			}
+			return $found_posts;
+		};
+
+		add_filter( 'found_posts', $capture_hook, 10, 2 );
 		$widget_html = $document->render_element( $widget_data );
+		remove_filter( 'found_posts', $capture_hook, 10 );
 
 		$ajax_endpoints = [
 			admin_url( 'admin-ajax.php' ),
@@ -665,7 +706,9 @@ class BPFWE_Ajax {
 		$widget_html = preg_replace( '#/page/(\d+)/#', '?paged=$1', $widget_html );
 
 		$response = [
-			'html' => $widget_html,
+			'html'          => $widget_html,
+			'max_num_pages' => $captured_max_num_pages ?? 0,
+			'found_posts'   => $captured_found_posts ?? 0,
 		];
 
 		if ( $filter_widget_id ) {
@@ -708,77 +751,6 @@ class BPFWE_Ajax {
 	}
 
 	/**
-	 * Handles AJAX requests to load page content and extract specified div elements.
-	 *
-	 * This function verifies the request, fetches the specified page content,
-	 * extracts the required div elements based on the provided selectors,
-	 * and returns the content as a JSON response.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function load_page_callback() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-
-		// Verify the nonce.
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			wp_send_json_error( [ 'message' => 'Access Denied' ], 403 );
-		}
-
-		// Fetch and sanitize the URL.
-		$page_url = isset( $_POST['page_url'] ) ? esc_url_raw( wp_unslash( $_POST['page_url'] ) ) : '';
-
-		// Ensure the URL is complete and belongs to the same domain.
-		if ( ! empty( $page_url ) && strpos( $page_url, 'http' ) !== 0 ) {
-			$page_url = home_url( ltrim( $page_url, '/' ) );
-		}
-
-		// Validate the domain to prevent external requests.
-		$parsed_url      = wp_parse_url( $page_url );
-		$parsed_home_url = wp_parse_url( home_url() );
-		if ( empty( $parsed_url['host'] ) || $parsed_url['host'] !== $parsed_home_url['host'] ) {
-			wp_send_json_error( [ 'message' => 'Invalid URL' ], 403 );
-		}
-
-		// Filter cookies to only include authentication-related ones.
-		$allowed_cookies = [ 'wordpress_logged_in_', 'wp-settings-', 'wp-settings-time-' ];
-		$cookies         = [];
-
-		foreach ( $_COOKIE as $name => $value ) {
-			foreach ( $allowed_cookies as $allowed_cookie ) {
-				if ( strpos( $name, $allowed_cookie ) === 0 ) {
-					$cookies[] = new WP_Http_Cookie(
-						[
-							'name'  => sanitize_key( wp_unslash( $name ) ),
-							'value' => sanitize_text_field( wp_unslash( $value ) ),
-						]
-					);
-				}
-			}
-		}
-
-		// Fetch page content securely.
-		$response = wp_safe_remote_get(
-			$page_url,
-			[
-				'cookies' => $cookies,
-				'timeout' => 30,
-			]
-		);
-
-		// Handle errors.
-		if ( is_wp_error( $response ) ) {
-			wp_send_json_error( [ 'message' => 'Failed to fetch content' ] );
-		}
-
-		// Retrieve the page content.
-		$body = wp_remote_retrieve_body( $response );
-
-		wp_send_json_success( [ 'html' => $body ] );
-	}
-
-	/**
 	 * Modifies the query to filter posts based on custom parameters.
 	 *
 	 * Hooked to `pre_get_posts` for advanced query customization.
@@ -794,7 +766,8 @@ class BPFWE_Ajax {
 			return;
 		}
 
-		$filter_data = get_transient( 'bpfwe_filter_query' );
+		$filter_data = $this->filter_query;
+
 		if ( ! $filter_data ) {
 			return;
 		}
@@ -902,6 +875,33 @@ class BPFWE_Ajax {
 	}
 
 	/**
+	 * Returns the singleton instance.
+	 *
+	 * @return BPFWE_Ajax|null
+	 */
+	public static function get_instance() {
+		return self::$instance;
+	}
+
+	/**
+	 * Returns the current filter query args.
+	 *
+	 * @return array|null
+	 */
+	public static function get_filter_query() {
+		return self::$instance ? self::$instance->filter_query : null;
+	}
+
+	/**
+	 * Returns the current filter post IDs for faceting.
+	 *
+	 * @return array|null
+	 */
+	public static function get_filter_post_ids() {
+		return self::$instance ? self::$instance->filter_post_ids : null;
+	}
+
+	/**
 	 * Constructor for the BPFWE_Ajax class.
 	 *
 	 * Initializes AJAX hooks and sets up the class.
@@ -909,11 +909,12 @@ class BPFWE_Ajax {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		add_action( 'init', [ $this, 'delete_filter_transient' ] );
-		add_action( 'admin_init', [ $this, 'delete_filter_transient' ] );
+		self::$instance = $this;
+
+		add_action( 'init', [ $this, 'reset_filter_state' ] );
+		add_action( 'admin_init', [ $this, 'reset_filter_state' ] );
 
 		add_action( 'wp_ajax_change_post_status', [ $this, 'change_post_status' ] );
-		add_action( 'wp_ajax_nopriv_change_post_status', [ $this, 'change_post_status' ] );
 
 		add_action( 'wp_ajax_pin_post', [ $this, 'pin_post' ] );
 		add_action( 'wp_ajax_nopriv_pin_post', [ $this, 'pin_post' ] );
@@ -922,9 +923,6 @@ class BPFWE_Ajax {
 		add_action( 'wp_ajax_nopriv_post_filter_results', [ $this, 'post_filter_results' ] );
 
 		add_action( 'template_redirect', [ $this, 'bpfwe_handle_frontend_ajax' ] );
-
-		add_action( 'wp_ajax_load_page', [ $this, 'load_page_callback' ] );
-		add_action( 'wp_ajax_nopriv_load_page', [ $this, 'load_page_callback' ] );
 
 		add_action( 'wp_ajax_bpfwe_search_related_items', [ $this, 'bpfwe_search_related_items' ] );
 	}

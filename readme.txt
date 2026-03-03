@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,6 +139,18 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.8.4 – 2026-02-26 =
+
+* New: Add to Cart support added to the Post widget.
+* New: Added Time format option for custom field value formatting in the Filter widget.
+* New: A single Filter widget can now target multiple Post widgets using a comma-separated list of selectors.
+* New: Taxonomy terms in the Filter widget can now dynamically adapt on archive pages.
+* Fix: Resolved an issue where the Post Content dynamic tag would echo its content in the Elementor editor.
+* Fix: Background image class now correctly resolves individual images per loop item instead of repeating the first resolved image.
+* Fix: Background image class now correctly resolves context for taxonomy, user, and author loop queries instead of always defaulting to post ID.
+* Fix: ACF/SCF compatibility added to taxonomy and user query featured image resolution.
+* Tweak: Reinforced security and data validation.
+
 = 1.8.3 – 2026-02-06 =
 
 * Fix: Improved Elementor template auto-detection for more reliable AJAX rendering when using Elementor Pro templates.
@@ -221,6 +233,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.3 =
+= 1.8.4 =
 
-This update includes stability improvements.
+This update includes security and stability improvements.

@@ -84,24 +84,34 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 	 */
 	public function render() {
 		$current_url = '';
+
 		if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$current_url = esc_url( 'http://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+			$current_url = 'http://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		}
 
-		$max_length      = absint( $this->get_settings( 'max_length' ) );
-		$trimmed_content = wp_strip_all_tags( get_the_content() );
+		$max_length = absint( $this->get_settings( 'max_length' ) );
 
-		if ( $max_length ) {
-			$post_content = wp_trim_words( $trimmed_content, $max_length, '...' );
+		$is_elementor_editor = (
+			strpos( $current_url, 'preview_nonce' ) !== false ||
+			strpos( $current_url, 'elementor-preview' ) !== false ||
+			is_admin()
+		);
+
+		if ( $is_elementor_editor ) {
+			echo esc_html__( 'This is the post content. The full content will only display live.', 'better-post-filter-widgets-for-elementor' );
+			return;
 		}
 
-		if ( strpos( $current_url, 'preview_nonce' ) !== false || ( is_admin() && ! wp_doing_ajax() ) ) {
-			echo esc_html__( 'This is the post content. The full content will only display on the live page.', 'better-post-filter-widgets-for-elementor' );
-		} elseif ( ! empty( $post_content ) ) {
-				echo wp_kses_post( $post_content );
+		$raw_content = get_the_content();
+
+		if ( $max_length > 0 ) {
+			$trimmed_content = wp_strip_all_tags( $raw_content );
+			$post_content    = wp_trim_words( $trimmed_content, $max_length, '...' );
+
+			echo wp_kses_post( $post_content );
 		} else {
-			$full_content = the_content();
-			echo wp_kses_post( $full_content ?? '' );
+			$full_content = apply_filters( 'the_content', $raw_content );
+			echo wp_kses_post( $full_content );
 		}
 	}
 }

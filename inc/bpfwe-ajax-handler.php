@@ -9,35 +9,20 @@
 
 define( 'DOING_AJAX', true );
 
-if ( ! isset( $_POST['action'] ) ) {
+// Bail early before loading WordPress if no action is present.
+if ( empty( $_POST['action'] ) ) {
 	die( '-1' );
 }
 
-$bpfwe_bootstrap_path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
+$bpfwe_bootstrap_path = dirname( __DIR__, 2 ) . '/';
+
+if ( ! file_exists( $bpfwe_bootstrap_path . 'wp-load.php' ) ) {
+	die( '-1' );
+}
 
 if ( ! defined( 'ABSPATH' ) ) {
 	require_once $bpfwe_bootstrap_path . 'wp-load.php';
 }
-
-header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
-header( 'X-Robots-Tag: noindex' );
-send_nosniff_header();
-header( 'Cache-Control: no-cache' );
-header( 'Pragma: no-cache' );
-
-if ( ! isset( $_REQUEST['action'] ) ) {
-	die( '-1' );
-}
-
-$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-
-// Verify the nonce.
-if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-	wp_send_json_error( [ 'message' => 'Access Denied' ], 403 );
-	wp_die();
-}
-
-$bpfwe_allowed_actions = [];
 
 $bpfwe_allowed_actions = array(
 	'change_post_status',
@@ -46,16 +31,32 @@ $bpfwe_allowed_actions = array(
 	'load_page_callback',
 );
 
-$bpfwe_requested_action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+$bpfwe_requested_action = sanitize_text_field( wp_unslash( $_POST['action'] ) );
 
 if ( ! in_array( $bpfwe_requested_action, $bpfwe_allowed_actions, true ) ) {
 	wp_die( '0' );
 }
 
+// Send headers after WordPress is loaded so get_option() and send_nosniff_header() are available.
+header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+header( 'X-Robots-Tag: noindex' );
+send_nosniff_header();
+header( 'Cache-Control: no-cache' );
+header( 'Pragma: no-cache' );
+
+// Verify nonce after WordPress is loaded and action is validated.
+$bpfwe_nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+if ( ! $bpfwe_nonce || ! wp_verify_nonce( $bpfwe_nonce, 'ajax-nonce' ) ) {
+	wp_send_json_error( array( 'message' => 'Access Denied' ), 403 );
+	wp_die();
+}
+
+// Fire the appropriate action hook based on login status, mirroring how WordPress core admin-ajax.php works.
 if ( is_user_logged_in() ) {
 	do_action( 'wp_ajax_' . $bpfwe_requested_action );
 } else {
 	do_action( 'wp_ajax_nopriv_' . $bpfwe_requested_action );
 }
 
-die( '0' );
+wp_die( '0' );

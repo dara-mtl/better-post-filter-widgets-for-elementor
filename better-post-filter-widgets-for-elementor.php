@@ -7,11 +7,11 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.8.3
+ * Version: 1.8.4
  * Requires PHP: 7.4
  * Requires at least: 6.2
  * Tested up to: 6.9
- * Elementor tested up to: 3.35.0
+ * Elementor tested up to: 3.35.5
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -32,7 +32,7 @@ define( 'BPFWE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BPFWE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Add widget categories.
-require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
+require_once BPFWE_PLUGIN_DIR . 'widget-categories.php';
 
 /**
  * Main BPFWE Elementor Widgets Class
@@ -40,7 +40,7 @@ require_once plugin_dir_path( __FILE__ ) . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.8.3';
+	const VERSION                   = '1.8.4';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -68,7 +68,7 @@ final class BPFWE_Elementor {
 	 * BPFWE_Elementor constructor.
 	 */
 	public function __construct() {
-		require_once plugin_dir_path( __FILE__ ) . 'inc/query-var.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/query-var.php';
 		add_action( 'plugins_loaded', [ $this, 'on_plugins_loaded' ] );
 	}
 
@@ -117,11 +117,13 @@ final class BPFWE_Elementor {
 		add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'backend_widget_scripts' ] );
 		add_action( 'admin_enqueue_scripts', array( $this, 'bpfwe_swatches_scripts' ) );
 
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-taxonomy-swatches.php';
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-helper.php';
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-background-image-handler.php';
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-dynamic-tag.php';
-		require_once plugin_dir_path( __FILE__ ) . 'inc/classes/class-bpfwe-ajax.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-taxonomy-swatches.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-helper.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-background-image-handler.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-dynamic-tag.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-ajax.php';
+
+		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
 	}
 
 	/**
@@ -181,7 +183,7 @@ final class BPFWE_Elementor {
 		// Localize and enqueue plugin scripts.
 		$ajax_params = [
 			'url'            => admin_url( 'admin-ajax.php' ),
-			'bpfwe_url'      => plugin_dir_url( __FILE__ ) . 'inc/bpfwe-ajax-handler.php',
+			'bpfwe_url'      => BPFWE_PLUGIN_URL . 'inc/bpfwe-ajax-handler.php',
 			'nonce'          => wp_create_nonce( 'ajax-nonce' ),
 			'isUserLoggedIn' => is_user_logged_in(),
 		];
@@ -223,11 +225,11 @@ final class BPFWE_Elementor {
 	 * Register widgets.
 	 */
 	public function init_widgets() {
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-bpfwe-post-widget.php';
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-bpfwe-filter-widget.php';
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-bpfwe-search-bar-widget.php';
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-bpfwe-sorting-widget.php';
-		require_once plugin_dir_path( __FILE__ ) . 'widgets/class-bpfwe-posts-found-widget.php';
+		require_once BPFWE_PLUGIN_DIR . 'widgets/class-bpfwe-post-widget.php';
+		require_once BPFWE_PLUGIN_DIR . 'widgets/class-bpfwe-filter-widget.php';
+		require_once BPFWE_PLUGIN_DIR . 'widgets/class-bpfwe-search-bar-widget.php';
+		require_once BPFWE_PLUGIN_DIR . 'widgets/class-bpfwe-sorting-widget.php';
+		require_once BPFWE_PLUGIN_DIR . 'widgets/class-bpfwe-posts-found-widget.php';
 
 		$widgets_manager = \Elementor\Plugin::instance()->widgets_manager;
 		$widgets_manager->register( new \BPFWE_Post_Widget() );
@@ -297,6 +299,23 @@ final class BPFWE_Elementor {
 		);
 
 		printf( '<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', wp_kses_post( $message ) );
+	}
+
+	/**
+	 * Add custom links to the plugin row meta.
+	 *
+	 * @param array  $links_array Array of the plugin's metadata links.
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @return array Modified links array.
+	 */
+	public function plugin_row_meta( $links_array, $plugin_file ) {
+		if ( BPFWE_PLUGIN_BASENAME === $plugin_file ) {
+			$links_array[] = '<a href="https://wpsmartwidgets.com/donate/" target="_blank" rel="noopener noreferrer">'
+				. '<span class="dashicons dashicons-heart" style="font-size:20px;height:20px;width:20px;"></span>'
+				. esc_html__( 'Donate', 'better-post-filter-widgets-for-elementor' )
+				. '</a>';
+		}
+		return $links_array;
 	}
 }
 

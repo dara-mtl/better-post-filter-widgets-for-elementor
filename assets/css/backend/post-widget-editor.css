@@ -29,3 +29,7 @@
 .show-html .elementor-control-html_style {
 	display: initial;
 }
+
+.bpfwe-facet-disabled .elementor-control-group_facet_mode {
+	display: none !important;
+}

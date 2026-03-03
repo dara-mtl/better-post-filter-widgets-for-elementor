@@ -38,7 +38,9 @@ function bpfwe_elementor_pre_get_posts( $query ) {
 	if ( ! is_admin() && $query->is_main_query() && is_search() ) {
 		if ( isset( $_GET['post-type'] ) && ! empty( $_GET['post-type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$post_type = sanitize_text_field( wp_unslash( $_GET['post-type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- Read-only action for search functionality.
-			$query->set( 'post_type', $post_type );
+			if ( post_type_exists( $post_type ) ) {
+				$query->set( 'post_type', $post_type );
+			}
 		}
 	}
 }

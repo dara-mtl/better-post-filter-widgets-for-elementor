@@ -89,7 +89,8 @@ jQuery(window).on('elementor:init', function () {
 
 	function updateFacetVisibility($panel) {
 		const isFacetted = $panel.find('input[data-setting="is_facetted"]').prop('checked');
-		$panel.find('.elementor-control-group_facet_mode').toggleClass('elementor-hidden-control', !isFacetted);
+
+		$panel.toggleClass('bpfwe-facet-disabled', !isFacetted);
 	}
 
 	const debounce = (fn, wait) => {

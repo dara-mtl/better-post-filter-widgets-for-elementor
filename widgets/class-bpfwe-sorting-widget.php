@@ -377,10 +377,10 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'elementor_template_id',
 			[
-				'type'        => \Elementor\Controls_Manager::NUMBER,
-				'label'       => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
-				'description' => esc_html__( 'Leave empty for automatic detection. If the filter returns an error 500 inside an Elementor Pro template, enter the ID of the template that contains the target widget so the correct document can be resolved.', 'better-post-filter-widgets-for-elementor' ),
-				'separator'   => 'before',
+				'type'               => \Elementor\Controls_Manager::NUMBER,
+				'label'              => esc_html__( 'Elementor Template ID', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Leave empty for automatic detection. If the filter returns an error 500 inside an Elementor Pro template, enter the ID of the template that contains the target widget so the correct document can be resolved.', 'better-post-filter-widgets-for-elementor' ),
+				'separator'          => 'before',
 				'frontend_available' => true,
 			]
 		);

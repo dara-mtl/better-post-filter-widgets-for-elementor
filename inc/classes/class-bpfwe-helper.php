@@ -100,36 +100,6 @@ class BPFWE_Helper {
 	}
 
 	/**
-	 * Retrieves a list of Contact Form 7 forms.
-	 *
-	 * @return array Options array of Contact Form 7 forms.
-	 */
-	public static function bpfwe_retrieve_cf7() {
-		if ( function_exists( 'wpcf7' ) ) {
-			$options = [];
-
-			$wpcf7_form_list = get_posts(
-				array(
-					'post_type' => 'wpcf7_contact_form',
-					'showposts' => 20,
-				)
-			);
-
-			$options[0] = esc_html__( 'Select a Form', 'better-post-filter-widgets-for-elementor' );
-
-			if ( ! empty( $wpcf7_form_list ) && ! is_wp_error( $wpcf7_form_list ) ) {
-				foreach ( $wpcf7_form_list as $post ) {
-					$options[ $post->ID ] = esc_html( $post->post_title );
-				}
-			} else {
-				$options[0] = esc_html__( 'Create a Form First', 'better-post-filter-widgets-for-elementor' );
-			}
-
-			return $options;
-		}
-	}
-
-	/**
 	 * Retrieves a list of posts from a given custom post type.
 	 *
 	 * @param string $cpt             Custom post type slug.
@@ -275,24 +245,21 @@ class BPFWE_Helper {
 		$weeks    = (int) floor( $diff->d / 7 );
 		$diff->d -= $weeks * 7;
 
-		$string = [
-			'y' => 'year',
-			'm' => 'month',
-			'w' => 'week',
-			'd' => 'day',
-			'h' => 'hour',
-			'i' => 'minute',
-			's' => 'second',
+		$units = [
+			'y' => [ __( 'year', 'better-post-filter-widgets-for-elementor' ), __( 'years', 'better-post-filter-widgets-for-elementor' ) ],
+			'm' => [ __( 'month', 'better-post-filter-widgets-for-elementor' ), __( 'months', 'better-post-filter-widgets-for-elementor' ) ],
+			'w' => [ __( 'week', 'better-post-filter-widgets-for-elementor' ), __( 'weeks', 'better-post-filter-widgets-for-elementor' ) ],
+			'd' => [ __( 'day', 'better-post-filter-widgets-for-elementor' ), __( 'days', 'better-post-filter-widgets-for-elementor' ) ],
+			'h' => [ __( 'hour', 'better-post-filter-widgets-for-elementor' ), __( 'hours', 'better-post-filter-widgets-for-elementor' ) ],
+			'i' => [ __( 'minute', 'better-post-filter-widgets-for-elementor' ), __( 'minutes', 'better-post-filter-widgets-for-elementor' ) ],
+			's' => [ __( 'second', 'better-post-filter-widgets-for-elementor' ), __( 'seconds', 'better-post-filter-widgets-for-elementor' ) ],
 		];
 
 		$string_values = [];
-		foreach ( $string as $k => $v ) {
-			if ( 'w' === $k ) {
-				if ( $weeks ) {
-					$string_values[ $k ] = $weeks . ' ' . $v . ( $weeks > 1 ? 's' : '' );
-				}
-			} elseif ( $diff->$k ) {
-					$string_values[ $k ] = $diff->$k . ' ' . $v . ( $diff->$k > 1 ? 's' : '' );
+		foreach ( $units as $k => $labels ) {
+			$count = ( 'w' === $k ) ? $weeks : $diff->$k;
+			if ( $count ) {
+				$string_values[ $k ] = $count . ' ' . ( 1 === $count ? $labels[0] : $labels[1] );
 			}
 		}
 
@@ -300,7 +267,15 @@ class BPFWE_Helper {
 			$string_values = array_slice( $string_values, 0, 1 );
 		}
 
-		return $string_values ? implode( ', ', $string_values ) . ' ago' : 'just now';
+		if ( ! $string_values ) {
+			return __( 'just now', 'better-post-filter-widgets-for-elementor' );
+		}
+
+		return sprintf(
+			/* translators: %s: time difference, e.g. "3 minutes" */
+			__( '%s ago', 'better-post-filter-widgets-for-elementor' ),
+			implode( ', ', $string_values )
+		);
 	}
 
 	/**
@@ -310,121 +285,108 @@ class BPFWE_Helper {
 	 * @return string Sanitized input.
 	 */
 	public static function sanitize_and_escape_svg_input( $input ) {
-		// Get the default allowed HTML tags from wp_kses_post().
-		$allowed_html = wp_kses_allowed_html( 'post' );
+		static $allowed_html = null;
 
-		// Define additional allowed HTML tags specifically for SVG elements.
-		$allowed_html = array_merge(
-			$allowed_html,
-			[
-				'i'        => [ 'class' => [] ],
-				'b'        => [],
-				'strong'   => [],
-				'em'       => [],
-				'u'        => [],
-				'br'       => [],
-				'svg'      => [
-					'xmlns'               => [],
-					'width'               => [],
-					'height'              => [],
-					'viewBox'             => [],
-					'preserveAspectRatio' => [],
-					'fill'                => [],
-					'stroke'              => [],
-					'stroke-width'        => [],
-					'd'                   => [],
-					'x'                   => [],
-					'y'                   => [],
-					'cx'                  => [],
-					'cy'                  => [],
-					'r'                   => [],
-					'rx'                  => [],
-					'ry'                  => [],
-					'points'              => [],
-					'transform'           => [],
-					'dy'                  => [],
-					'dx'                  => [],
-				],
-				'path'     => [
-					'd'            => [],
-					'fill'         => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-					'transform'    => [],
-				],
-				'circle'   => [
-					'cx'           => [],
-					'cy'           => [],
-					'r'            => [],
-					'fill'         => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-				],
-				'rect'     => [
-					'x'            => [],
-					'y'            => [],
-					'width'        => [],
-					'height'       => [],
-					'rx'           => [],
-					'ry'           => [],
-					'fill'         => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-				],
-				'line'     => [
-					'x1'           => [],
-					'y1'           => [],
-					'x2'           => [],
-					'y2'           => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-				],
-				'polygon'  => [
-					'points'       => [],
-					'fill'         => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-				],
-				'polyline' => [
-					'points'       => [],
-					'fill'         => [],
-					'stroke'       => [],
-					'stroke-width' => [],
-				],
-				'text'     => [
-					'x'           => [],
-					'y'           => [],
-					'fill'        => [],
-					'font-size'   => [],
-					'font-family' => [],
-					'text-anchor' => [],
-				],
-				'tspan'    => [
-					'x'           => [],
-					'y'           => [],
-					'fill'        => [],
-					'font-size'   => [],
-					'font-family' => [],
-					'dy'          => [],
-					'dx'          => [],
-				],
-			]
-		);
-
-		preg_match( '/<svg[^>]*viewBox=["\']([^"\']*)["\'][^>]*>/', $input, $matches );
-		$view_box = isset( $matches[1] ) ? $matches[1] : '';
-
-		// Sanitize the input using wp_kses with the combined allowed HTML.
-		$sanitized_input = wp_kses( $input, $allowed_html );
-
-		// If the viewBox is set, ensure it stays in the SVG tag.
-		if ( $view_box ) {
-			$sanitized_input = preg_replace( '/<svg([^>]*)>/', '<svg$1 viewBox="' . esc_attr( $view_box ) . '">', $sanitized_input );
+		if ( null === $allowed_html ) {
+			$allowed_html = array_merge(
+				wp_kses_allowed_html( 'post' ),
+				[
+					'i'        => [ 'class' => [] ],
+					'b'        => [],
+					'strong'   => [],
+					'em'       => [],
+					'u'        => [],
+					'br'       => [],
+					'svg'      => [
+						'xmlns'               => [],
+						'width'               => [],
+						'height'              => [],
+						'viewbox'             => [],
+						'preserveaspectratio' => [],
+						'fill'                => [],
+						'stroke'              => [],
+						'stroke-width'        => [],
+						'd'                   => [],
+						'x'                   => [],
+						'y'                   => [],
+						'cx'                  => [],
+						'cy'                  => [],
+						'r'                   => [],
+						'rx'                  => [],
+						'ry'                  => [],
+						'points'              => [],
+						'transform'           => [],
+						'dy'                  => [],
+						'dx'                  => [],
+					],
+					'path'     => [
+						'd'            => [],
+						'fill'         => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+						'transform'    => [],
+					],
+					'circle'   => [
+						'cx'           => [],
+						'cy'           => [],
+						'r'            => [],
+						'fill'         => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+					],
+					'rect'     => [
+						'x'            => [],
+						'y'            => [],
+						'width'        => [],
+						'height'       => [],
+						'rx'           => [],
+						'ry'           => [],
+						'fill'         => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+					],
+					'line'     => [
+						'x1'           => [],
+						'y1'           => [],
+						'x2'           => [],
+						'y2'           => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+					],
+					'polygon'  => [
+						'points'       => [],
+						'fill'         => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+					],
+					'polyline' => [
+						'points'       => [],
+						'fill'         => [],
+						'stroke'       => [],
+						'stroke-width' => [],
+					],
+					'text'     => [
+						'x'           => [],
+						'y'           => [],
+						'fill'        => [],
+						'font-size'   => [],
+						'font-family' => [],
+						'text-anchor' => [],
+					],
+					'tspan'    => [
+						'x'           => [],
+						'y'           => [],
+						'fill'        => [],
+						'font-size'   => [],
+						'font-family' => [],
+						'dy'          => [],
+						'dx'          => [],
+					],
+				]
+			);
 		}
 
-		$sanitized_input = preg_replace( '/(fill|stroke)=["\'](#[a-fA-F0-9]{3,6})["\']/', '$1="$2"', $sanitized_input );
-
-		return $sanitized_input;
+		return wp_kses( $input, $allowed_html );
 	}
 
 	/**
@@ -471,9 +433,11 @@ class BPFWE_Helper {
 	 * @param string $format The format type ('none', 'date', 'number', 'text', 'custom_pattern').
 	 * @param array  $args   Optional. Additional formatting options depending on $format.
 	 *                       For 'date': ['date_format' => string].
+	 *                       For 'time': ['time_format' => string].
 	 *                       For 'number': ['decimals' => int, 'suffix' => string].
 	 *                       For 'text': ['text_case' => string].
 	 *                       For 'custom_pattern': ['pattern' => string].
+	 *                       For 'custom_format': ['custom_format_string' => string].
 	 * @return string Formatted value.
 	 */
 	public static function format_meta_value( $value, $format = 'none', $args = [] ) {
@@ -506,6 +470,30 @@ class BPFWE_Helper {
 				}
 				return $value;
 
+			case 'time':
+				$time_format = ! empty( $args['time_format'] ) ? $args['time_format'] : get_option( 'time_format' );
+
+				if ( 'dur_hm' === $time_format || 'dur_hms' === $time_format ) {
+					$total_minutes = (int) $value;
+					$hours         = (int) floor( $total_minutes / 60 );
+					$minutes       = $total_minutes % 60;
+					if ( 'dur_hms' === $time_format ) {
+						return sprintf( '%dhrs %dmin', $hours, $minutes );
+					}
+					return sprintf( '%dh %dm', $hours, $minutes );
+				}
+
+				$timestamp = false;
+				if ( is_numeric( $value ) ) {
+					$timestamp = (int) $value;
+				} else {
+					$timestamp = strtotime( $value );
+				}
+				if ( false !== $timestamp ) {
+					return date_i18n( $time_format, $timestamp );
+				}
+				return $value;
+
 			case 'number':
 				$decimals = isset( $args['decimals'] ) ? (int) $args['decimals'] : 0;
 				$suffix   = isset( $args['suffix'] ) ? $args['suffix'] : '';
@@ -530,8 +518,31 @@ class BPFWE_Helper {
 				}
 
 			case 'custom_pattern':
-				$pattern = isset( $args['pattern'] ) ? $args['pattern'] : '{value}';
+				$pattern = isset( $args['pattern'] ) ? $args['pattern'] : '#VALUE#';
 				return str_replace( '#VALUE#', esc_html( $value ), $pattern );
+
+			case 'custom_format':
+				$format_string = ! empty( $args['custom_format_string'] ) ? $args['custom_format_string'] : '';
+				if ( '' === $format_string ) {
+					return $value;
+				}
+				$timestamp = false;
+				if ( is_numeric( $value ) ) {
+					if ( preg_match( '/^\d{8}$/', $value ) ) {
+						$year      = substr( $value, 0, 4 );
+						$month     = substr( $value, 4, 2 );
+						$day       = substr( $value, 6, 2 );
+						$timestamp = strtotime( "$year-$month-$day" );
+					} else {
+						$timestamp = (int) $value;
+					}
+				} else {
+					$timestamp = strtotime( $value );
+				}
+				if ( false !== $timestamp ) {
+					return date_i18n( $format_string, $timestamp );
+				}
+				return $value;
 
 			case 'none':
 			default:

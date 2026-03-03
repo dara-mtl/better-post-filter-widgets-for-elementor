@@ -538,6 +538,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'Product Price'  => esc_html__( 'Product Price', 'better-post-filter-widgets-for-elementor' ),
 				'Product Rating' => esc_html__( 'Product Rating', 'better-post-filter-widgets-for-elementor' ),
 				'Buy Now'        => esc_html__( 'Buy Now', 'better-post-filter-widgets-for-elementor' ),
+				'Add to Cart'    => esc_html__( 'Add to Cart', 'better-post-filter-widgets-for-elementor' ),
 				'Product Badge'  => esc_html__( 'Product Badge', 'better-post-filter-widgets-for-elementor' ),
 			];
 		} else {
@@ -1095,6 +1096,19 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'placeholder' => esc_html__( 'Buy Now', 'better-post-filter-widgets-for-elementor' ),
 				'condition'   => [
 					'post_content' => 'Buy Now',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'product_add_to_cart_text',
+			[
+				'label'       => esc_html__( 'Add to Cart Text', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Add to cart', 'better-post-filter-widgets-for-elementor' ),
+				'placeholder' => esc_html__( 'Add to cart', 'better-post-filter-widgets-for-elementor' ),
+				'condition'   => [
+					'post_content' => 'Add to Cart',
 				],
 			]
 		);
@@ -1798,8 +1812,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'size' => 6,
 				],
 				'selectors'  => [
-					'{{WRAPPER}} {{CURRENT_ITEM}} i'   => 'margin-right: {{SIZE}}{{UNIT}}; vertical-align: sub;',
-					'{{WRAPPER}} {{CURRENT_ITEM}} svg' => 'margin-right: {{SIZE}}{{UNIT}}; vertical-align: sub;',
+					'{{WRAPPER}} {{CURRENT_ITEM}} i'   => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} {{CURRENT_ITEM}} svg' => 'margin-right: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -1901,6 +1915,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'active' => false,
 				],
 				'placeholder' => esc_html__( 'Enter a meta key', 'better-post-filter-widgets-for-elementor' ),
+				'default'     => 'bpfwe_swatches_image',
 				'label_block' => true,
 				'condition'   => [
 					'show_featured_image' => 'yes',
@@ -4292,9 +4307,9 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'feed_align',
 			[
-				'type'       => \Elementor\Controls_Manager::CHOOSE,
-				'label'      => esc_html__( 'Alignment', 'better-post-filter-widgets-for-elementor' ),
-				'options'    => [
+				'type'                 => \Elementor\Controls_Manager::CHOOSE,
+				'label'                => esc_html__( 'Alignment', 'better-post-filter-widgets-for-elementor' ),
+				'options'              => [
 					'left'   => [
 						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-text-align-left',
@@ -4313,7 +4328,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'center' => 'margin:0 auto; text-align:center;',
 					'right'  => 'margin-left:auto; order: 1;',
 				],
-				'selectors'  => [
+				'selectors'            => [
 					'{{WRAPPER}} .feed-title' => '{{VALUE}}',
 				],
 			]
@@ -4416,7 +4431,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				],
 				'label'      => esc_html__( 'Separator Width (%)', 'better-post-filter-widgets-for-elementor' ),
 				'selectors'  => [
-					'{{WRAPPER}} .feed-header'  => 'width: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .feed-header' => 'width: {{SIZE}}{{UNIT}};',
 				],
 				'condition'  => [
 					'feed_show_separator' => 'yes',
@@ -6927,6 +6942,353 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					'size_units' => [ 'px', '%', 'em', 'rem' ],
 					'selectors'  => [
 						'{{WRAPPER}} .product-buy-now:hover' =>
+							'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->end_controls_tab();
+
+			$this->end_controls_tabs();
+
+			$this->end_controls_section();
+
+			// ------------------------------------------------------------------------- CONTROL: Add To Cart Style
+			$this->start_controls_section(
+				'add_to_cart_style',
+				[
+					'label'     => esc_html__( 'Add To Cart', 'better-post-filter-widgets-for-elementor' ),
+					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
+					'condition' => [
+						'query_type' => [ 'custom', 'main' ],
+					],
+				]
+			);
+
+			$this->add_group_control(
+				\Elementor\Group_Control_Typography::get_type(),
+				[
+					'name'     => 'add_to_cart_typography',
+					'selector' =>
+						'{{WRAPPER}} .product-add-to-cart, {{WRAPPER}} .product-add-to-cart a',
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_align',
+				[
+					'type'      => \Elementor\Controls_Manager::CHOOSE,
+					'label'     => esc_html__( 'Alignment', 'better-post-filter-widgets-for-elementor' ),
+					'options'   => [
+						'left'   => [
+							'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
+							'icon'  => 'eicon-text-align-left',
+						],
+						'center' => [
+							'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
+							'icon'  => 'eicon-text-align-center',
+						],
+						'right'  => [
+							'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
+							'icon'  => 'eicon-text-align-right',
+						],
+					],
+					'selectors' => [
+						'{{WRAPPER}} .product-add-to-cart' =>
+							'text-align: {{VALUE}}; justify-content: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->start_controls_tabs( 'style_tabs_add_to_cart' );
+
+			// ---- Normal Tab ----
+
+			$this->start_controls_tab(
+				'add_to_cart_style_normal',
+				[
+					'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+				]
+			);
+
+			$this->add_control(
+				'add_to_cart_color',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .product-add-to-cart' => 'color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'add_to_cart_background_color',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .product-add-to-cart' => 'background-color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_border_radius',
+				[
+					'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart' =>
+							'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_padding',
+				[
+					'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart' =>
+							'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_margin',
+				[
+					'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart' =>
+							'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'view_cart_heading',
+				[
+					'type'      => \Elementor\Controls_Manager::HEADING,
+					'label'     => esc_html__( 'View Cart', 'better-post-filter-widgets-for-elementor' ),
+					'separator' => 'before',
+				]
+			);
+
+			$this->add_group_control(
+				\Elementor\Group_Control_Typography::get_type(),
+				[
+					'name'     => 'view_cart_typography',
+					'selector' => '{{WRAPPER}} .added_to_cart',
+				]
+			);
+
+			$this->add_control(
+				'view_cart_color',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .added_to_cart' => 'color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'view_cart_background_color',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .added_to_cart' => 'background-color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_border_radius',
+				[
+					'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart' =>
+							'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_padding',
+				[
+					'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart' =>
+							'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_margin',
+				[
+					'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart' =>
+							'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->end_controls_tab();
+
+			// ---- Hover Tab ----
+
+			$this->start_controls_tab(
+				'add_to_cart_style_hover',
+				[
+					'label' => esc_html__( 'Hover', 'better-post-filter-widgets-for-elementor' ),
+				]
+			);
+
+			$this->add_control(
+				'add_to_cart_color_hover',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .product-add-to-cart:hover' =>
+							'color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'add_to_cart_background_color_hover',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .product-add-to-cart:hover' =>
+							'background-color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_border_radius_hover',
+				[
+					'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart:hover' =>
+							'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_padding_hover',
+				[
+					'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart:hover' =>
+							'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'add_to_cart_margin_hover',
+				[
+					'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .product-add-to-cart:hover' =>
+							'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'view_cart_heading_hover',
+				[
+					'type'      => \Elementor\Controls_Manager::HEADING,
+					'label'     => esc_html__( 'View Cart', 'better-post-filter-widgets-for-elementor' ),
+					'separator' => 'before',
+				]
+			);
+
+			$this->add_control(
+				'view_cart_color_hover',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .added_to_cart:hover' => 'color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_control(
+				'view_cart_background_color_hover',
+				[
+					'type'      => \Elementor\Controls_Manager::COLOR,
+					'label'     => esc_html__( 'Background', 'better-post-filter-widgets-for-elementor' ),
+					'selectors' => [
+						'{{WRAPPER}} .added_to_cart:hover' => 'background-color: {{VALUE}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_border_radius_hover',
+				[
+					'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart:hover' =>
+							'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_padding_hover',
+				[
+					'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart:hover' =>
+							'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					],
+				]
+			);
+
+			$this->add_responsive_control(
+				'view_cart_margin_hover',
+				[
+					'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+					'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+					'size_units' => [ 'px', '%', 'em', 'rem' ],
+					'selectors'  => [
+						'{{WRAPPER}} .added_to_cart:hover' =>
 							'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 					],
 				]
@@ -9454,6 +9816,45 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 										}
 									}
 
+									// Display Add To Cart Button.
+									if ( 'Add to Cart' === $item['post_content'] ) {
+
+										if ( $product->is_type( 'variable' ) ) {
+
+											echo '<a class="product-add-to-cart variable add_to_cart_button elementor-repeater-item-' . esc_attr( $item['_id'] ) . '" href="' . esc_url( get_the_permalink() ) . '" ' . esc_attr( $new_tab ) . '>' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before ) . esc_html__( 'Select options', 'better-post-filter-widgets-for-elementor' ) . wp_kses_post( $after ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+										}
+
+										if ( $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() ) {
+
+											$product_id = get_the_ID();
+
+											$add_to_cart_url = esc_url(
+												add_query_arg(
+													array(
+														'add-to-cart' => $product_id,
+													),
+													wc_get_cart_url()
+												)
+											);
+
+											$classes = implode(
+												' ',
+												array(
+													'product-add-to-cart',
+													'simple',
+													'button',
+													'add_to_cart_button',
+													'ajax_add_to_cart',
+													'elementor-repeater-item-' . esc_attr( $item['_id'] ),
+												)
+											);
+
+											echo '<a href="' . esc_url( $add_to_cart_url ) . '" class="' . esc_attr( $classes ) . '" data-product_id="' . esc_attr( $product_id ) . '" data-quantity="1">' . BPFWE_Helper::sanitize_and_escape_svg_input( $pseudo_icon ) . wp_kses_post( $before . $item['product_add_to_cart_text'] . $after ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+										}
+									}
+
 									// Display Product Badge.
 									if ( 'Product Badge' === $item['post_content'] ) {
 										if ( $item['display_on_sale'] && $product->is_on_sale() ) {
@@ -9755,10 +10156,29 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 							// Get the user image meta key.
 							$user_img_field_key = $settings['user_img_field_key'];
-							$custom_user_image  = ! empty( $user_img_field_key ) ? esc_url( get_user_meta( $bpfwe_user_id, $user_img_field_key, true ) ) : '';
+							$custom_user_image = '';
+							if ( ! empty( $user_img_field_key ) ) {
+								if ( BPFWE_Helper::is_acf_field( $user_img_field_key ) ) {
+									$acf_value = get_field( $user_img_field_key, 'user_' . $bpfwe_user_id );
+									if ( is_array( $acf_value ) && ! empty( $acf_value['url'] ) ) {
+										// ACF image field returning array.
+										$custom_user_image = esc_url( $acf_value['url'] );
+									} elseif ( is_numeric( $acf_value ) ) {
+										// ACF image field returning ID.
+										$custom_user_image = esc_url( wp_get_attachment_url( $acf_value ) );
+									} elseif ( is_string( $acf_value ) && filter_var( $acf_value, FILTER_VALIDATE_URL ) ) {
+										// ACF image field returning URL.
+										$custom_user_image = esc_url( $acf_value );
+									}
+								}
+								// Fall back to plain user meta if ACF is not active or returned nothing.
+								if ( ! $custom_user_image ) {
+									$custom_user_image = esc_url( get_user_meta( $bpfwe_user_id, $user_img_field_key, true ) );
+								}
+							}
 
 							// Determine the final image URL.
-							$profile_picture_url = $custom_user_image ? $custom_user_image : '';
+							$profile_picture_url = $custom_user_image;
 
 							// Prepare escaped URLs.
 							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
@@ -10158,7 +10578,25 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 									$term_image_url = esc_url( wp_get_attachment_url( $thumbnail_id ) );
 								}
 							} else {
-								$term_image_url = ! empty( $term_img_field_key ) ? esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) ) : '';
+								if ( ! empty( $term_img_field_key ) ) {
+									if ( BPFWE_Helper::is_acf_field( $term_img_field_key ) ) {
+										$acf_value = get_field( $term_img_field_key, 'term_' . $bpfwe_term_id );
+										if ( is_array( $acf_value ) && ! empty( $acf_value['url'] ) ) {
+											// ACF image field returning array.
+											$term_image_url = esc_url( $acf_value['url'] );
+										} elseif ( is_numeric( $acf_value ) ) {
+											// ACF image field returning ID.
+											$term_image_url = esc_url( wp_get_attachment_url( $acf_value ) );
+										} elseif ( is_string( $acf_value ) && filter_var( $acf_value, FILTER_VALIDATE_URL ) ) {
+											// ACF image field returning URL.
+											$term_image_url = esc_url( $acf_value );
+										}
+									}
+									// Fall back to plain term meta if ACF is not active or returned nothing.
+									if ( ! $term_image_url ) {
+										$term_image_url = esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) );
+									}
+								}
 							}
 
 							// Prepare escaped URLs.

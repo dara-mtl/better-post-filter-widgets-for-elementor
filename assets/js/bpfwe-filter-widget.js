@@ -68,6 +68,13 @@
 				return parseInt( page, 10 );
 			}
 
+			// Elementor AJAX pagination: e-page-{widgetId}=N.
+			for ( const [ key, val ] of parsedUrl.searchParams.entries() ) {
+				if ( /^e-page-/.test( key ) && !isNaN( val ) ) {
+					return parseInt( val, 10 );
+				}
+			}
+
 			const match = url.match( /\/page\/(\d+)(\/|$)/ );
 			if ( match && match[ 1 ] ) {
 				return parseInt( match[ 1 ], 10 );
@@ -89,49 +96,63 @@
 					return;
 				}
 
-				var $target = $( targetSelector );
-				var filtersList = $target.data( 'filters-list' ) ? $target.data( 'filters-list' ).split( ',' ) : [];
+				// Split comma-separated selectors and process each target independently.
+				var targetSelectors = targetSelector.split( ',' ).map( function ( s ) {
+					return s.trim();
+				} ).filter( function ( s ) {
+					return s.length && $( s ).length;
+				} );
 
-				// Avoid duplicate widget IDs in filters-list.
-				if ( !filtersList.includes( interactionWidgetID ) ) {
-					filtersList.push( interactionWidgetID );
-					$target.data( 'filters-list', filtersList.join( ',' ) );
-					$target.attr( 'data-filters-list', filtersList.join( ',' ) );
+				if ( !targetSelectors.length ) {
+					return;
 				}
 
-				var targetWidgetID = $target.data( 'id' );
+				targetSelectors.forEach( function ( singleSelector ) {
+					var $target = $( singleSelector );
 
-				// Initialize original state only if not already set.
-				if ( !originalStates[ targetWidgetID ] ) {
-					originalStates[ targetWidgetID ] = $target.html();
-				}
+					var filtersList = $target.data( 'filters-list' ) ? $target.data( 'filters-list' ).split( ',' ) : [];
 
-				// Initialize posts per page cache only if not already set.
-				if ( !postsPerPageCache[ targetWidgetID ] ) {
-					const postWidgetSetting = $target.data( 'settings' );
-					let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt( postWidgetSetting.posts_per_page ) : null;
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( '.elementor-posts, .grid, .columns, .elementor-grid' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'article, .post, .item, .entry' ).length;
+					// Avoid duplicate widget IDs in filters-list.
+					if ( !filtersList.includes( interactionWidgetID ) ) {
+						filtersList.push( interactionWidgetID );
+						$target.data( 'filters-list', filtersList.join( ',' ) );
+						$target.attr( 'data-filters-list', filtersList.join( ',' ) );
 					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( '.swiper-wrapper' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( '.swiper-slide' ).length;
+
+					var targetWidgetID = $target.data( 'id' );
+
+					// Initialize original state only if not already set.
+					if ( !originalStates[ targetWidgetID ] ) {
+						originalStates[ targetWidgetID ] = $target.html();
 					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'ul.products' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
+
+					// Initialize posts per page cache only if not already set.
+					if ( !postsPerPageCache[ targetWidgetID ] ) {
+						const postWidgetSetting = $target.data( 'settings' );
+						let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt( postWidgetSetting.posts_per_page ) : null;
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( '.elementor-posts, .grid, .columns, .elementor-grid' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'article, .post, .item, .entry' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( '.swiper-wrapper' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( '.swiper-slide' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'ul.products' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'ul' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
+						}
+						if ( !postsPerPage ) {
+							let postWrapper = $target.find( 'div' ).first();
+							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'div' ).length;
+						}
+						postsPerPageCache[ targetWidgetID ] = postsPerPage > 0 ? postsPerPage : 50;
 					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'ul' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'li' ).length;
-					}
-					if ( !postsPerPage ) {
-						let postWrapper = $target.find( 'div' ).first();
-						if ( postWrapper.length ) postsPerPage = postWrapper.children( 'div' ).length;
-					}
-					postsPerPageCache[ targetWidgetID ] = postsPerPage > 0 ? postsPerPage : 50;
-				}
+				} );
 			} );
 		}
 		linkFilterWidgets();
@@ -730,7 +751,12 @@
 
 				if ( !filterSetting ) return;
 
-				let targetPostWidget = filterSetting?.target_selector ?? '';
+				let rawTargetSelector = filterSetting?.target_selector ?? '';
+				let targetPostWidget = rawTargetSelector.split( ',' ).map( function( s ) {
+					return s.trim();
+				} ).find( function( s ) {
+					return s.length && $( s ).length;
+				} ) || '';
 
 				if ( !targetPostWidget || !$( targetPostWidget ).length ) {
 					let $closestWidget = $( '.elementor-widget-loop-carousel, .elementor-widget-loop-grid, .elementor-widget-post-widget, .elementor-widget-posts' ).first();
@@ -818,7 +844,48 @@
 				}
 
 				// Retrieve form values, process filters, and make AJAX request for filtered posts.
-				function getFormValues( widgetInteractionID, paged, postWidgetID ) {
+				function getFormValues( widgetInteractionID, paged, postWidgetID, facetAlreadyDone ) {
+					if ( !postWidgetID && widgetInteractionID ) {
+						var $linkedTargets = $( 'div[data-filters-list*="' + widgetInteractionID + '"]' );
+						if ( $linkedTargets.length > 1 ) {
+							var targets = $linkedTargets.toArray();
+							var chain = Promise.resolve();
+							var facetFired = false;
+
+							targets.forEach( function ( el ) {
+								var id = $( el ).data( 'id' );
+								if ( !id ) return;
+
+								chain = chain.then( function () {
+									return new Promise( function ( resolve ) {
+										var thisFacetDone = facetFired;
+										facetFired = true;
+
+										function waitAndRun() {
+											if ( ajaxInProgress ) {
+												setTimeout( waitAndRun, 50 );
+												return;
+											}
+
+											getFormValues( widgetInteractionID, paged, id, thisFacetDone );
+
+											var check = setInterval( function () {
+												if ( !ajaxInProgress ) {
+													clearInterval( check );
+													resolve();
+												}
+											}, 50 );
+										}
+
+										waitAndRun();
+									} );
+								} );
+							} );
+
+							return;
+						}
+					}
+
 					if ( $document.find( 'div[data-filters-list*="' + widgetInteractionID + '"]' ).length === 0 ) {
 						linkFilterWidgets();
 					}
@@ -1226,7 +1293,7 @@
 						custom_field_like_output = reduceFields( custom_field_like ),
 						numeric_output = reduceFields( numeric_field );
 
-					const ajaxUrl = customAjax ? ajax_var.bpfwe_url : ajax_var.url;
+					//const ajaxUrl = customAjax ? ajax_var.bpfwe_url : ajax_var.url;
 
 					$.ajax( {
 						type: 'POST',
@@ -1235,7 +1302,7 @@
 						data: {
 							action: 'post_filter_results',
 							widget_id: localWidgetID,
-							filter_widget: isFacetted ? facetWidgetId : '',
+							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
 							template_id: templateID,
 							page_id: pageID,
 							group_logic: groupLogic,
@@ -1264,7 +1331,10 @@
 							query_id: queryID,
 						},
 						beforeSend: function () {
-							$loadingWidget.addClass( 'load' );
+							ajaxInProgress = true;
+							if ( isFacetted && !facetAlreadyDone ) {
+								$loadingWidget.addClass( 'load' );
+							}
 						},
 						success: function ( data ) {
 							var response = JSON.parse( data );
@@ -1391,23 +1461,25 @@
 							localTargetSelector.find( 'input' ).val( searchQuery );
 
 							reinitElementorContent( localTargetSelector );
-							$loadingWidget.removeClass( 'load' );
+							if ( isFacetted && !facetAlreadyDone ) {
+								$loadingWidget.removeClass( 'load' );
+							}
 						},
 						error: function ( xhr, status, error ) {
 							if ( ajax_var.isUserLoggedIn ) {
-							console.group('AJAX Error');
+								console.group('AJAX Error');
 								console.log('Status:', status);
 								console.log('HTTP status code:', xhr.status);
 								console.log('Error thrown:', error);
 
-								let response;
 								try {
-									response = JSON.parse(xhr.responseText);
-									console.log('AJAX Error:', response.data?.message || response.message || response.error || response);
+									const errorResponse = JSON.parse( xhr.responseText );
+									console.log( 'AJAX Error:', errorResponse.data?.message || errorResponse.message || errorResponse.error || errorResponse );
 								} catch (e) {
 									console.log('Raw server response (not JSON):', xhr.responseText);
 								}
-							console.groupEnd();
+
+								console.groupEnd();
 							}
 
 							let originalState = originalStates[ localWidgetID ];
@@ -1957,14 +2029,13 @@
 						}
 					} );
 
-					$targetPostWidget.addClass( 'filter-initialized' );
 					$targetPostWidget.data( 'current-page', 1 );
 
 					if ( $mode === "full" ) {
 						getFormValues( resetWidgetID );
 					}
 
-					$targetPostWidget.removeClass( 'filter-active' );
+					$targetPostWidget.removeClass( 'filter-active filter-initialized' );
 				}
 			},
 		} );
