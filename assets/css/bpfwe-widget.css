@@ -466,7 +466,9 @@
 .hide-swatch-label .taxonomy-filter li label .label-text,
 .hide-swatch-input .bpfwe-numeric-wrapper input,
 .hide-swatch-input .bpfwe-custom-field-wrapper input,
-.hide-swatch-input .taxonomy-filter li input {
+.hide-swatch-input .taxonomy-filter li input,
+.hide-swatch-input .field-wrapper .before,
+.hide-swatch-input .field-wrapper .after {
 	display: none;
 }
 
@@ -1323,6 +1325,95 @@ ul.child-terms {
 .bpfwe-term-remove {
 	transition: 0.3s;
 	cursor: pointer;
+}
+
+.bpfwe-slider-track {
+	position: relative;
+	height: 6px;
+	background: #ddd;
+	border-radius: 4px;
+	margin: 20px 0;
+	cursor: pointer;
+}
+
+.bpfwe-slider-track input[type="range"] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	background: transparent;
+	pointer-events: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.bpfwe-slider-handle {
+	border: 0 !important;
+}
+
+.bpfwe-slider-track input[type="range"]::-webkit-slider-thumb {
+	pointer-events: auto;
+	cursor: grab;
+}
+
+.bpfwe-slider-track input[type="range"]::-moz-range-thumb {
+	pointer-events: auto;
+	cursor: grab;
+}
+
+.bpfwe-slider-track input[type="range"]::-webkit-slider-runnable-track {
+	background: transparent;
+	border: 0;
+}
+
+.bpfwe-slider-track input[type="range"]::-moz-range-track {
+	background: transparent;
+	border: 0;
+}
+
+.bpfwe-slider-range {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	background: var(--e-global-color-accent);
+	border-radius: 4px;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.bpfwe-slider-max {
+	z-index: 3;
+}
+
+.bpfwe-slider-min {
+	z-index: 2;
+}
+
+.bpfwe-slider-handle::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	background: var(--e-global-color-accent);
+	border: 3px solid var(--e-global-color-accent);
+	border-radius: 50%;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	cursor: grab;
+}
+
+.bpfwe-slider-handle::-moz-range-thumb {
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	background: var(--e-global-color-accent);
+	border: 3px solid var(--e-global-color-accent);
+	border-radius: 50%;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	cursor: grab;
 }
 
 @media only screen and (max-width: 767px) {

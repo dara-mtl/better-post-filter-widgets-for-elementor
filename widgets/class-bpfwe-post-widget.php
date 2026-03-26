@@ -211,7 +211,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
 				'default'      => '',
-				'condition'   => [
+				'condition'    => [
 					'classic_layout' => 'feed',
 				],
 			]
@@ -9070,6 +9070,155 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
+	 * Get cached base CSS for a template.
+	 *
+	 * Retrieves the cached CSS for a given Elementor template, or generates it if not cached.
+	 *
+	 * @since 1.8.5
+	 * @access private
+	 *
+	 * @param int $template_id Elementor template post ID.
+	 * @return string The generated or cached CSS content.
+	 */
+	private function get_cached_template_base_css( $template_id ) {
+		$cache_key = 'bpfwe_tpl_base_css_' . $template_id;
+
+		$css = wp_cache_get( $cache_key );
+
+		if ( false !== $css ) {
+			return $css;
+		}
+
+		$template_post_css = \Elementor\Core\Files\CSS\Post::create( $template_id );
+		$template_post_css->update();
+
+		$css = $template_post_css->get_content();
+
+		wp_cache_set( $cache_key, $css );
+
+		return $css;
+	}
+
+	/**
+	 * Get cached dynamic CSS for a template + post.
+	 *
+	 * @since 1.8.5
+	 * @access private
+	 *
+	 * @param int $template_id                                  Elementor template post ID.
+	 * @param int $post_id                                      Post ID to generate dynamic CSS for.
+	 * @param \Elementor\Core\Files\CSS\Post $template_post_css The template Post_CSS object.
+	 * @return string The generated or cached CSS content.
+	 */
+	private function get_cached_dynamic_css( $template_id, $post_id, $template_post_css ) {
+		$cache_key = 'bpfwe_tpl_dyn_css_' . $template_id . '_' . $post_id;
+
+		$css = wp_cache_get( $cache_key );
+
+		if ( false !== $css ) {
+			return $css;
+		}
+
+		$dynamic_css = new \Elementor\Core\DynamicTags\Dynamic_CSS( $template_id, $template_post_css );
+		$dynamic_css->update();
+
+		$css = $dynamic_css->get_content();
+
+		wp_cache_set( $cache_key, $css );
+
+		return $css;
+	}
+
+	/**
+	 * Render an Elementor template in the context of a specific post.
+	 *
+	 * @since 1.8.5
+	 * @access private
+	 *
+	 * @param int $template_id Elementor template post ID to render.
+	 * @param int $post_id     ID of the post whose data should be active during render.
+	 * @return string          Rendered HTML output.
+	 */
+	private function render_template_for_post( $template_id, $post_id ) {
+		global $post;
+
+		$template_id = intval( $template_id );
+		$post_id     = intval( $post_id );
+
+		$documents = \Elementor\Plugin::$instance->documents;
+
+		$original_post = $post;
+		$post          = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		setup_postdata( $post );
+
+		$template_document = $documents->get_doc_for_frontend( $template_id );
+
+		if ( ! $template_document || ! $template_document->is_built_with_elementor() ) {
+			$post = $original_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			setup_postdata( $post );
+			return '';
+		}
+
+		$post_document = $documents->get_doc_for_frontend( $post_id );
+
+		if ( $post_document ) {
+			$documents->switch_to_document( $post_document );
+		}
+
+		// Get the template Post_CSS (used only to read dynamic_elements_ids meta).
+		$template_post_css = \Elementor\Core\Files\CSS\Post::create( $template_id );
+
+		// Cached base CSS (per template).
+		$base_css = $this->get_cached_template_base_css( $template_id );
+
+		// Cached dynamic CSS (per post).
+		$dynamic_css_content = $this->get_cached_dynamic_css(
+			$template_id,
+			$post_id,
+			$template_post_css
+		);
+
+		// Merge.
+		$combined_css = (string) $base_css . (string) $dynamic_css_content;
+
+		if ( ! empty( $combined_css ) ) {
+			$scoped_css = str_replace(
+				'.elementor-' . $template_id,
+				'.post-' . $post_id,
+				$combined_css
+			);
+
+			printf(
+				'<style id="elementor-post-%d">%s</style>',
+				absint( $post_id ),
+				$scoped_css // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+		}
+
+		if ( $post_document ) {
+			$documents->restore_document();
+		}
+
+		$documents->switch_to_document( $template_document );
+
+		ob_start();
+		$elements_data = $template_document->get_elements_data();
+
+		if ( ! empty( $elements_data ) ) {
+			$template_document->print_elements_with_wrapper( $elements_data );
+		}
+
+		$output = ob_get_clean();
+
+		$documents->restore_document();
+
+		$post = $original_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		setup_postdata( $post );
+
+		return $output;
+	}
+
+	/**
 	 * Retrieve the CSS content for the widget template.
 	 *
 	 * This function generates or retrieves the CSS styles that apply to the widget's template.
@@ -9542,11 +9691,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						if ( $use_extra_template ) {
 							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $extra_template_id ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						} else {
 							echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $settings['skin_template'] ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
 					} elseif ( $settings['skin_custom_html'] ) {
@@ -10123,7 +10272,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $extra_template_id ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -10131,7 +10280,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $settings['skin_template'] ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -10156,7 +10305,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 							// Get the user image meta key.
 							$user_img_field_key = $settings['user_img_field_key'];
-							$custom_user_image = '';
+							$custom_user_image  = '';
 							if ( ! empty( $user_img_field_key ) ) {
 								if ( BPFWE_Helper::is_acf_field( $user_img_field_key ) ) {
 									$acf_value = get_field( $user_img_field_key, 'user_' . $bpfwe_user_id );
@@ -10535,7 +10684,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'elementor-repeater-item-' . $extra_template['_id'], 'post-' . $post_id, 'post-wrapper', 'row-span-expand', $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $extra_template_id ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $extra_template_id ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -10543,7 +10692,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '
 							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '">
 							<div class="inner-content">';
-							echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( intval( $settings['skin_template'] ), $with_css = true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $this->render_template_for_post( intval( $settings['skin_template'] ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '
 							</div>
 							</' . esc_attr( $post_html_tag ) . '>';
@@ -10577,25 +10726,23 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 								if ( $thumbnail_id ) {
 									$term_image_url = esc_url( wp_get_attachment_url( $thumbnail_id ) );
 								}
-							} else {
-								if ( ! empty( $term_img_field_key ) ) {
-									if ( BPFWE_Helper::is_acf_field( $term_img_field_key ) ) {
-										$acf_value = get_field( $term_img_field_key, 'term_' . $bpfwe_term_id );
-										if ( is_array( $acf_value ) && ! empty( $acf_value['url'] ) ) {
-											// ACF image field returning array.
-											$term_image_url = esc_url( $acf_value['url'] );
-										} elseif ( is_numeric( $acf_value ) ) {
-											// ACF image field returning ID.
-											$term_image_url = esc_url( wp_get_attachment_url( $acf_value ) );
-										} elseif ( is_string( $acf_value ) && filter_var( $acf_value, FILTER_VALIDATE_URL ) ) {
-											// ACF image field returning URL.
-											$term_image_url = esc_url( $acf_value );
-										}
+							} elseif ( ! empty( $term_img_field_key ) ) {
+								if ( BPFWE_Helper::is_acf_field( $term_img_field_key ) ) {
+									$acf_value = get_field( $term_img_field_key, 'term_' . $bpfwe_term_id );
+									if ( is_array( $acf_value ) && ! empty( $acf_value['url'] ) ) {
+										// ACF image field returning array.
+										$term_image_url = esc_url( $acf_value['url'] );
+									} elseif ( is_numeric( $acf_value ) ) {
+										// ACF image field returning ID.
+										$term_image_url = esc_url( wp_get_attachment_url( $acf_value ) );
+									} elseif ( is_string( $acf_value ) && filter_var( $acf_value, FILTER_VALIDATE_URL ) ) {
+										// ACF image field returning URL.
+										$term_image_url = esc_url( $acf_value );
 									}
+								}
 									// Fall back to plain term meta if ACF is not active or returned nothing.
-									if ( ! $term_image_url ) {
-										$term_image_url = esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) );
-									}
+								if ( ! $term_image_url ) {
+									$term_image_url = esc_url( get_term_meta( $bpfwe_term_id, $term_img_field_key, true ) );
 								}
 							}
 

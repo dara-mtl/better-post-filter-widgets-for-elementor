@@ -157,6 +157,81 @@
 		}
 		linkFilterWidgets();
 
+		// Initialize range sliders.
+		function bpfweInitRangeSliders( $context ) {
+			( $context || $( document ) ).find( '.bpfwe-range-slider' ).each( function () {
+				var $numericWrapper = $( this );
+				var $flexWrapper    = $numericWrapper.parent( '.flex-wrapper' );
+
+				if ( $numericWrapper.data( 'bpfwe-slider-init' ) ) return;
+				$numericWrapper.data( 'bpfwe-slider-init', true );
+
+				var $track     = $flexWrapper.find( '.bpfwe-slider-track' ).first();
+				var $handleMin = $track.find( '.bpfwe-slider-min' );
+				var $handleMax = $track.find( '.bpfwe-slider-max' );
+				var $inputMin  = $numericWrapper.find( 'input[name^="min_"]' );
+				var $inputMax  = $numericWrapper.find( 'input[name^="max_"]' );
+				var $range     = $track.find( '.bpfwe-slider-range' );
+
+				var globalMin = parseFloat( $numericWrapper.data( 'min' ) );
+				var globalMax = parseFloat( $numericWrapper.data( 'max' ) );
+
+				var $values = $flexWrapper.find( '.bpfwe-slider-values' ).first();
+				var $valueMin = $values.find( '.bpfwe-slider-value-min' );
+				var $valueMax = $values.find( '.bpfwe-slider-value-max' );
+
+				function updateTrack() {
+					var valMin = parseFloat( $handleMin.val() );
+					var valMax = parseFloat( $handleMax.val() );
+					if ( isNaN( valMin ) || isNaN( valMax ) ) return;
+
+					// Prevent handles from crossing.
+					if ( valMin > valMax ) {
+						valMin = valMax;
+						$handleMin.val( valMin );
+					}
+					if ( valMax < valMin ) {
+						valMax = valMin;
+						$handleMax.val( valMax );
+					}
+
+					var pctMin = ( ( valMin - globalMin ) / ( globalMax - globalMin ) ) * 100;
+					var pctMax = ( ( valMax - globalMin ) / ( globalMax - globalMin ) ) * 100;
+
+					$range.css({ left: pctMin + '%', width: ( pctMax - pctMin ) + '%' });
+
+					$inputMin.val( valMin );
+					$inputMax.val( valMax );
+
+					$valueMin.text( valMin );
+					$valueMax.text( valMax );
+				}
+
+				// Live visual update while dragging.
+				$handleMin.on( 'input', updateTrack );
+				$handleMax.on( 'input', updateTrack );
+
+				$track.on( 'mouseup touchend', '.bpfwe-slider-handle', function () {
+					updateTrack();
+					$inputMin.trigger( 'change' );
+				});
+
+				// Keep sync when plugin resets the form.
+				$inputMin.on( 'change.bpfwe-slider', function () {
+					$handleMin.val( $( this ).val() );
+					updateTrack();
+				});
+				$inputMax.on( 'change.bpfwe-slider', function () {
+					$handleMax.val( $( this ).val() );
+					updateTrack();
+				});
+
+				// Initial render.
+				updateTrack();
+			});
+		}
+		bpfweInitRangeSliders();
+
 		// Utility: Resolve document ID for widget.
 		function getDocumentIdForWidget( widgetSelector ) {
 			const $widget = $( widgetSelector );
@@ -1153,6 +1228,24 @@
 								var $wrapper = $( this );
 								var snapshot = $wrapper.attr( 'data-faceted-range' );
 
+								if ( $wrapper.hasClass( 'bpfwe-range-slider' ) ) {
+									var $minInput = $wrapper.find( 'input[name^="min_"]' ).first();
+									var $maxInput = $wrapper.find( 'input[name^="max_"]' ).first();
+
+									var minVal = ( $minInput.val() || $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
+									var maxVal = ( $maxInput.val() || $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
+
+									if ( minVal !== '' && maxVal !== '' ) {
+										numeric_field.push( {
+											taxonomy: $minInput.data( 'taxonomy' ),
+											terms: [ minVal, maxVal ],
+											logic: $wrapper.data( 'logic' )
+										});
+										hasValues = true;
+									}
+									return;
+								}
+
 								$wrapper.find( 'input:not(.input-val)' ).each( function () {
 									var self = $( this );
 									var initialVal = self.attr( 'data-base-value' );
@@ -1324,6 +1417,7 @@
 							archive_post_type: $( '[name="archive_post_type"]' ).val(),
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
+							archive_search_query: $( '[name="archive_search_query"]' ).val(),
 							nonce: ajax_var.nonce,
 							performance_settings: JSON.stringify( performanceSettings ),
 							enable_query_debug: enableQueryDebug,
@@ -1739,26 +1833,26 @@
 						const $replacement = $incoming.find( selector );
 						if ( !$replacement.length ) return;
 
-						// Numeric wrapper replacement.
+						// Numeric wrapper replacement + force slider sync when it's a range slider.
 						if ( $current.find( '.bpfwe-numeric-wrapper' ).length ) {
+							const $numericWrapper = $current.find( '.bpfwe-numeric-wrapper' );
 							const $currentMin = $current.find( 'input:not(.input-val)[name^="min_"]' );
 							const $currentMax = $current.find( 'input:not(.input-val)[name^="max_"]' );
 							const $replMin = $replacement.find( 'input:not(.input-val)[name^="min_"]' );
 							const $replMax = $replacement.find( 'input:not(.input-val)[name^="max_"]' );
+
 							if ( $currentMin.length && $replMin.length ) {
-								//$currentMin.attr('min', $replMin.attr('min'));
-								$currentMin.attr( 'max', $replMin.attr( 'max' ) );
-								$currentMin.attr( 'value', $replMin.attr( 'value' ) );
-								$currentMin.attr( 'data-base-value', $replMin.attr( 'data-base-value' ) );
-								$currentMin.val( $replMin.val() );
+								$currentMin.attr( 'max', $replMin.attr( 'max' ) ).attr( 'value', $replMin.attr( 'value' ) ).attr( 'data-base-value', $replMin.attr( 'data-base-value' ) ).val( $replMin.val() );
 							}
 							if ( $currentMax.length && $replMax.length ) {
-								$currentMax.attr( 'min', $replMax.attr( 'min' ) );
-								//$currentMax.attr('max', $replMax.attr('max'));
-								$currentMax.attr( 'value', $replMax.attr( 'value' ) );
-								$currentMax.attr( 'data-base-value', $replMax.attr( 'data-base-value' ) );
-								$currentMax.val( $replMax.val() );
+								$currentMax.attr( 'min', $replMax.attr( 'min' ) ).attr( 'value', $replMax.attr( 'value' ) ).attr( 'data-base-value', $replMax.attr( 'data-base-value' ) ).val( $replMax.val() );
 							}
+
+							if ( $numericWrapper.hasClass( 'bpfwe-range-slider' ) ) {
+								$currentMin.trigger( 'change.bpfwe-slider' );
+								$currentMax.trigger( 'change.bpfwe-slider' );
+							}
+
 							return;
 						}
 
@@ -2012,6 +2106,18 @@
 								if ( maxBound !== undefined ) {
 									$min.attr( 'max', maxBound );
 									$max.attr( 'max', maxBound );
+								}
+
+								// Sync slider handles if this is a range slider.
+								const $sliderWrapper = $( this );
+								if ( $sliderWrapper.hasClass( 'bpfwe-range-slider' ) ) {
+									$sliderWrapper.find( '.bpfwe-slider-min' ).val( minVal );
+									$sliderWrapper.find( '.bpfwe-slider-max' ).val( maxVal );
+									const gMin = parseFloat( $sliderWrapper.data( 'min' ) );
+									const gMax = parseFloat( $sliderWrapper.data( 'max' ) );
+									const pctMin = ( ( parseFloat( minVal ) - gMin ) / ( gMax - gMin ) ) * 100;
+									const pctMax = ( ( parseFloat( maxVal ) - gMin ) / ( gMax - gMin ) ) * 100;
+									$sliderWrapper.find( '.bpfwe-slider-range' ).css( { left: pctMin + '%', width: ( pctMax - pctMin ) + '%' } );
 								}
 							} );
 						}

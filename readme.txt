@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.8.4
+Stable tag: 1.8.6
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,6 +139,16 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.8.6 – 2026-03-26 =
+* New: Added range slider support for numeric meta filters, including styling controls for full design customization.
+* Fix: Dynamic Archive Filtering is now fully context-aware on search result archive pages, keeping results within the searched terms.
+* Tweak: Improved and clarified descriptions for several options to enhance usability.
+
+= 1.8.5 – 2026-03-24 =
+
+* Fix: Resolved an issue where selected state style controls in the Filter widget were not applied.
+* Fix: Dynamic styling in the Post widget now correctly reflects styles defined via dynamic tags.
+
 = 1.8.4 – 2026-02-26 =
 
 * New: Add to Cart support added to the Post widget.
@@ -196,43 +206,10 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 * Tweak: Improved widget UI consistency by replacing RAW text with notice controls where appropriate.
 * Dev: Filter widget settings are now handled per widget rather than globally across linked filters.
 
-= 1.7.3 – 2025-12-03 =
-
-* Fix: Search bar issue when multiple widgets share the same filter.
-
-= 1.7.2 – 2025-12-03 =
-
-* Fix: Corrected an issue where using ?results=filter-XXXXXXX did not reload the page with the correct filter options pre-selected.
-* Fix: Resolved an issue where search queries returned empty when two or more Search widgets were linked to the same Post widget on the same page.
-* New: Added a Display Format control to the Term Meta dynamic tag, allowing terms to be shown inline, as an unordered list (ul), or as an ordered list (ol).
-* New: Added a style control for select fields inside the Filter widget.
-* New: Added a style control for customizing the Select2 background inside the Filter widget.
-* Tweak: Checked and confirmed full compatibility with WordPress 6.9.
-
-= 1.7.1 – 2025-10-29 =
-
-* Fix: Added "Include Loop Grid Query ID" switch under the Query section to prevent potential query ID conflicts.
-  * The automatic inclusion of the Loop/Post Widget Query ID is now disabled by default for backward compatibility.
-* UI/Tweak: Reorganized Filter widget UI for clarity and better grouping of query-related controls.
-* Tweak: Added `$with_css = true` parameter to the Template Grid option in the Post Widget.
-
-= 1.7.0 – 2025-10-24 =
-
-* New: Added "Include Loop Grid Query ID" switch under the Query section to prevent potential query ID conflicts
-  * Relational fields were also added to the Default Filter section, allowing pre-filtering of results based on related users or posts.
-* New: Added quick deselect pill support for numeric ranges.
-* New: Added URL-based filter triggering.
-  * Filters can now be triggered using ?results=filter-XXXXXXX (replace XXXXXXX with the Filter ID).
-  * After interacting with the widget, the URL scheme will be automatically revealed for sharing or linking.
-* New: Filter query results now detect Elementor Pro and BPFWE Post Widget `query_id`, ensuring filter results do not override the Loop Grid's own query.
-* New/Dev: Added a developer filter for extending relational meta-based terms:
-  * `bpfwe/get_relational_terms/{query_id}`
-* Fix: Prevented a potential HTTP 500 error when using a single template directly on a static page instead of assigning the template to the page itself.
-
 For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
 
-= 1.8.4 =
+= 1.8.6 =
 
-This update includes security and stability improvements.
+This update includes bug fixes and a new numeric range slider.

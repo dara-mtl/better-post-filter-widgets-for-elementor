@@ -378,7 +378,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Date Format', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'Y-m-d',
-				'options'  => [
+				'options'   => [
 					'Y-m-d'        => esc_html__( 'Year-Month-Day', 'better-post-filter-widgets-for-elementor' ),
 					'd/m/Y'        => esc_html__( 'Day/Month/Year', 'better-post-filter-widgets-for-elementor' ),
 					'l, F j'       => esc_html__( 'Weekday, Month Day', 'better-post-filter-widgets-for-elementor' ),
@@ -402,12 +402,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'H:i',
 				'options'   => [
-					'H:i'               => esc_html__( '24H (14:30)', 'better-post-filter-widgets-for-elementor' ),
-					'H:i:s'             => esc_html__( '24H with seconds (14:30:00)', 'better-post-filter-widgets-for-elementor' ),
-					'g:i A'             => esc_html__( '12H (2:30 PM)', 'better-post-filter-widgets-for-elementor' ),
-					'g:i:s A'           => esc_html__( '12H with seconds (2:30:00 PM)', 'better-post-filter-widgets-for-elementor' ),
-					'G\h i\m'           => esc_html__( 'Duration (2h 30m)', 'better-post-filter-widgets-for-elementor' ),
-					'G\h\r\s i\m\i\n'   => esc_html__( 'Duration (2hrs 30min)', 'better-post-filter-widgets-for-elementor' ),
+					'H:i'             => esc_html__( '24H (14:30)', 'better-post-filter-widgets-for-elementor' ),
+					'H:i:s'           => esc_html__( '24H with seconds (14:30:00)', 'better-post-filter-widgets-for-elementor' ),
+					'g:i A'           => esc_html__( '12H (2:30 PM)', 'better-post-filter-widgets-for-elementor' ),
+					'g:i:s A'         => esc_html__( '12H with seconds (2:30:00 PM)', 'better-post-filter-widgets-for-elementor' ),
+					'G\h i\m'         => esc_html__( 'Duration (2h 30m)', 'better-post-filter-widgets-for-elementor' ),
+					'G\h\r\s i\m\i\n' => esc_html__( 'Duration (2hrs 30min)', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'condition' => [
 					'select_filter' => [ 'Custom Field', 'Numeric' ],
@@ -498,9 +498,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
-			'visual_range',
+			'use_range_slider',
 			[
-				'label'        => esc_html__( 'Visual Range', 'better-post-filter-widgets-for-elementor' ),
+				'label'        => esc_html__( 'Use Range Slider', 'better-post-filter-widgets-for-elementor' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
@@ -509,6 +509,25 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition'    => [
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => 'range',
+					'visual_range!'        => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'visual_range',
+			[
+				'label'        => esc_html__( 'Visual Range', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'separator'    => 'before',
+				'condition'    => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
+					'use_range_slider!'    => 'yes',
 				],
 			]
 		);
@@ -526,7 +545,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => 'range',
 					'visual_range'         => 'yes',
+					'use_range_slider!'    => 'yes',
 				],
+				'description'  => esc_html__( 'When enabled, each option includes all lower values. For example, selecting 4 will match 1-4 instead of only values within that specific range.', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
@@ -586,6 +607,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'     => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::TEXT,
+				'separator' => 'before',
 				'condition' => [
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => [ 'range','input' ],
@@ -791,6 +813,43 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
+			'hide_input_swatch_numeric',
+			[
+				'label'        => esc_html__( 'Hide Input', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'default'      => '',
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'hide-swatch-input',
+				'conditions'   => [
+					'relation' => 'and',
+					'terms'    => [
+						[
+							'relation' => 'and',
+							'terms'    => [
+								[
+									'name'     => 'select_filter',
+									'operator' => '===',
+									'value'    => 'Numeric',
+								],
+								[
+									'name'     => 'filter_style_numeric',
+									'operator' => 'in',
+									'value'    => [ 'range' ],
+								],
+								[
+									'name'     => 'use_range_slider',
+									'operator' => '===',
+									'value'    => 'yes',
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$repeater->add_control(
 			'display_swatch',
 			[
 				'label'        => esc_html__( 'Display Swatch', 'better-post-filter-widgets-for-elementor' ),
@@ -827,7 +886,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'        => \Elementor\Controls_Manager::NOTICE,
 				'notice_type' => 'info',
 				'dismissible' => false,
-				'content' => sprintf(
+				'content'     => sprintf(
 					wp_kses(
 						// translators: %s is an HTML link to the taxonomy settings page.
 						__(
@@ -2269,7 +2328,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
-					'{{WRAPPER}} .form-tax input:checked + span.label-text' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .form-tax input:checked + span .label-text' => 'color: {{VALUE}};',
 				),
 			)
 		);
@@ -2278,7 +2337,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			Group_Control_Border::get_type(),
 			array(
 				'name'     => 'filter_label_border_selected',
-				'selector' => '{{WRAPPER}} .form-tax input:checked + span.label-text',
+				'selector' => '{{WRAPPER}} .form-tax input:checked + span .label-text',
 			)
 		);
 
@@ -2289,7 +2348,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px' ),
 				'selectors'  => array(
-					'{{WRAPPER}} .form-tax input:checked + span.label-text' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .form-tax input:checked + span .label-text' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 			)
 		);
@@ -2621,6 +2680,229 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_tab();
 
 		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_range_slider',
+			[
+				'label' => esc_html__( 'Range Slider', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->start_controls_tabs( 'range_slider_track_tabs' );
+
+		$this->start_controls_tab(
+			'range_slider_track_normal',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'range_slider_track_color',
+			[
+				'label'     => esc_html__( 'Track Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-slider-track' => 'background: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		// ACTIVE
+		$this->start_controls_tab(
+			'range_slider_track_active',
+			[
+				'label' => esc_html__( 'Active', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'range_slider_track_active_color',
+			[
+				'label'     => esc_html__( 'Active Track Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-slider-range' => 'background: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->add_control(
+			'range_slider_thumb_color',
+			[
+				'label'     => esc_html__( 'Thumb Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'separator' => 'before',
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-slider-handle::-webkit-slider-thumb' => 'background: {{VALUE}}; border-color: {{VALUE}};',
+					'{{WRAPPER}} .bpfwe-slider-handle::-moz-range-thumb'     => 'background: {{VALUE}}; border-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'range_slider_thumb_size',
+			[
+				'label'      => esc_html__( 'Thumb Size', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [ 'min' => 8, 'max' => 40 ],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-slider-handle::-webkit-slider-thumb' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-handle::-moz-range-thumb'     => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'range_slider_thumb_radius',
+			[
+				'label'      => esc_html__( 'Thumb Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [ 'min' => 0, 'max' => 20 ],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-slider-handle::-webkit-slider-thumb' => 'border-radius: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-handle::-moz-range-thumb' => 'border-radius: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'range_slider_track_height',
+			[
+				'label'      => esc_html__( 'Track Height', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [ 'min' => 1, 'max' => 20 ],
+				],
+				'separator'  => 'before',
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-slider-track'  => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-range'  => 'height: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'range_slider_track_radius',
+			[
+				'label'      => esc_html__( 'Track Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'range'      => [
+					'px' => [ 'min' => 0, 'max' => 20 ],
+				],
+				'selectors'  => [
+					'{{WRAPPER}} .bpfwe-slider-track' => 'border-radius: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-range' => 'border-radius: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'range_slider_spacing',
+			[
+				'label'      => esc_html__( 'Spacing', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => [ 'px' ],
+				'separator'  => 'before',
+				'selectors'  => [
+					'{{WRAPPER}} .flex-wrapper' => 'padding: {{SIZE}}{{UNIT}} 0;',
+				],
+			]
+		);
+
+		$this->add_control(
+			'range_slider_values_toggle',
+			[
+				'label'        => esc_html__( 'Hide Range Values', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'separator'    => 'before',
+				'selectors'    => [
+					'{{WRAPPER}} .bpfwe-slider-values' => '{{VALUE}}',
+				],
+				'selectors_dictionary' => [
+					'yes' => 'display: none;',
+				],
+			]
+		);
+
+		$this->add_control(
+			'range_slider_values_color',
+			[
+				'label'     => esc_html__( 'Values Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bpfwe-slider-values' => 'color: {{VALUE}};',
+				],
+				'condition'    => [
+					'range_slider_values_toggle' => '',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'range_slider_values_typography',
+				'selector' => '{{WRAPPER}} .bpfwe-slider-values',
+				'condition'    => [
+					'range_slider_values_toggle' => '',
+				],
+			]
+		);
+
+		$this->add_control(
+			'range_slider_position',
+			[
+				'label'                => esc_html__( 'Horizontal Position', 'better-post-filter-widgets-for-elementor' ),
+				'type'                 => \Elementor\Controls_Manager::CHOOSE,
+				'options'              => [
+					'left'    => [
+						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-left',
+					],
+					'center'  => [
+						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-center',
+					],
+					'right'   => [
+						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
+						'icon'  => 'eicon-h-align-right',
+					],
+				],
+				'selectors'            => [
+					'{{WRAPPER}} .bpfwe-slider-values' => '{{VALUE}}',
+				],
+				'selectors_dictionary' => [
+					'left'    => 'align-items: flex-start; text-align: left;',
+					'center'  => 'align-items: center; text-align: center;',
+					'right'   => 'align-items: flex-end; text-align: right;',
+				],
+				'condition'    => [
+					'range_slider_values_toggle' => '',
+				],
+			]
+		);
 
 		$this->end_controls_section();
 
@@ -3802,7 +4084,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				echo '</div>';
 			}
 
-			if ( is_archive() ) {
+			if ( is_archive() || is_search() ) {
 				$queried_object = get_queried_object();
 				$archive_type   = '';
 
@@ -3827,6 +4109,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					echo '<input type="hidden" name="archive_post_type" value="' . esc_attr( $queried_object->name ) . '">';
 				} elseif ( $queried_object instanceof WP_User ) {
 					echo '<input type="hidden" name="archive_id" value="' . esc_attr( $queried_object->ID ) . '">';
+				}
+
+				// Add current search query.
+				if ( is_search() ) {
+					echo '<input type="hidden" name="archive_search_query" value="' . esc_attr( get_search_query() ) . '">';
 				}
 			}
 
@@ -3904,6 +4191,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 				$wrapper_classes_tax  = [ 'flex-wrapper', $item['filter_by'] ];
 				$wrapper_classes_meta = [ 'flex-wrapper', $item['meta_key'] ];
+				if ( ! empty( $item['hide_input_swatch_numeric'] ) ) {
+					$wrapper_classes_meta[] = $item['hide_input_swatch_numeric'];
+				}
 
 				if ( '' !== $group_facet_mode ) {
 					$wrapper_classes_tax[]  = $group_facet_mode;
@@ -5732,13 +6022,30 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							echo '</div>';
 
-						} else {
-							echo '
-							<div class="bpfwe-numeric-wrapper" data-logic="OR">
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
-								<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
-							</div>
+							} else {
+							if ( ! empty( $item['use_range_slider'] ) && 'yes' === $item['use_range_slider'] ) {
+								echo '
+								<div class="bpfwe-range-slider bpfwe-numeric-wrapper" data-logic="OR" data-min="' . esc_attr( $min_value ) . '" data-max="' . esc_attr( $max_value ) . '">
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" readonly></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" readonly></span>
+								</div>
+								<div class="bpfwe-slider-track">
+									<div class="bpfwe-slider-range"></div>
+									<input type="range" class="bpfwe-slider-handle bpfwe-slider-min" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" step="1" aria-label="' . esc_attr__( 'Minimum', 'better-post-filter-widgets-for-elementor' ) . '">
+									<input type="range" class="bpfwe-slider-handle bpfwe-slider-max" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" step="1" aria-label="' . esc_attr__( 'Maximum', 'better-post-filter-widgets-for-elementor' ) . '">
+								</div>
+								<div class="bpfwe-slider-values">
+									<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-min">' . esc_html( $min_value ) . '</span>&ndash;<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-max">' . esc_html( $max_value ) . '</span>
+								</div>
+								';
+							} else {
+								echo '
+								<div class="bpfwe-numeric-wrapper" data-logic="OR">
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
+								</div>
 							';
+							}
 						}
 
 						echo '</div>';

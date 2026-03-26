@@ -289,17 +289,18 @@ class BPFWE_Ajax {
 		$numeric_output                 = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$performance_settings           = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		$group_logic        = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
-		$meta_key           = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
-		$order              = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : '';
-		$order_by           = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : '';
-		$search_terms       = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
-		$dynamic_filtering  = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
-		$post_type          = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
-		$posts_per_page     = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
-		$paged              = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
-		$enable_query_debug = ! empty( $_POST['enable_query_debug'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_query_debug'] ) ) : '';
-		$query_id           = ! empty( $_POST['query_id'] ) ? sanitize_key( $_POST['query_id'] ) : 'default';
+		$group_logic          = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
+		$meta_key             = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
+		$order                = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : '';
+		$order_by             = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : '';
+		$search_terms         = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
+		$archive_search_terms = ! empty( $_POST['archive_search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_search_query'] ) ) : '';
+		$dynamic_filtering    = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
+		$post_type            = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
+		$posts_per_page       = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
+		$paged                = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
+		$enable_query_debug   = ! empty( $_POST['enable_query_debug'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_query_debug'] ) ) : '';
+		$query_id             = ! empty( $_POST['query_id'] ) ? sanitize_key( $_POST['query_id'] ) : 'default';
 
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
@@ -349,8 +350,17 @@ class BPFWE_Ajax {
 			$args['posts_per_page'] = $final_posts_per_page;
 		}
 
+		// Resolve final search term (priority: widget > archive).
+		$final_search = '';
+
 		if ( ! empty( $search_terms ) ) {
-			$args['s'] = $search_terms;
+			$final_search = $search_terms;
+		} elseif ( ! empty( $archive_search_terms ) && $dynamic_filtering ) {
+			$final_search = $archive_search_terms;
+		}
+
+		if ( ! empty( $final_search ) ) {
+			$args['s'] = $final_search;
 		}
 
 		if ( ! empty( $meta_key ) ) {
