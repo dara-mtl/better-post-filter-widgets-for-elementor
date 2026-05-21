@@ -455,11 +455,34 @@ class BPFWE_Ajax {
 
 					$key = sanitize_key( $value['taxonomy'] );
 
-					$meta_query_or[] = [
-						'key'     => $key,
-						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
-						'compare' => count( $terms ) > 1 ? 'IN' : '=',
-					];
+					// ACF checkbox / multi-select fields serialize their values in wp_postmeta.
+					// A plain equality or IN comparison would never match; we need LIKE with the
+					// quoted form that PHP serialization uses: s:N:"value".
+					if ( \BPFWE\Inc\Classes\BPFWE_Helper::acf_field_uses_serialized_storage( $key ) ) {
+						if ( count( $terms ) > 1 ) {
+							$serialized_group = [ 'relation' => 'OR' ];
+							foreach ( $terms as $term ) {
+								$serialized_group[] = [
+									'key'     => $key,
+									'value'   => '"' . $term . '"',
+									'compare' => 'LIKE',
+								];
+							}
+							$meta_query_or[] = $serialized_group;
+						} else {
+							$meta_query_or[] = [
+								'key'     => $key,
+								'value'   => '"' . $terms[0] . '"',
+								'compare' => 'LIKE',
+							];
+						}
+					} else {
+						$meta_query_or[] = [
+							'key'     => $key,
+							'value'   => count( $terms ) > 1 ? $terms : $terms[0],
+							'compare' => count( $terms ) > 1 ? 'IN' : '=',
+						];
+					}
 				}
 			}
 

@@ -427,6 +427,38 @@ class BPFWE_Helper {
 	}
 
 	/**
+	 * Check whether an ACF field stores its value as a serialized PHP array.
+	 *
+	 * ACF checkbox fields always serialize, and select fields serialize when
+	 * "Allow Multiple Values" is enabled. Knowing this at query time lets us
+	 * switch from an equality comparison to a LIKE search on the serialized string.
+	 *
+	 * @param string $meta_key The ACF field name (not the field_XXXX key).
+	 * @return bool True when the field stores arrays in wp_postmeta.
+	 */
+	public static function acf_field_uses_serialized_storage( $meta_key ) {
+		if ( ! function_exists( 'get_field_object' ) ) {
+			return false;
+		}
+
+		$field = get_field_object( $meta_key );
+
+		if ( ! $field || ! isset( $field['type'] ) ) {
+			return false;
+		}
+
+		if ( 'checkbox' === $field['type'] ) {
+			return true;
+		}
+
+		if ( 'select' === $field['type'] && ! empty( $field['multiple'] ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Format a meta value based on given format type and options.
 	 *
 	 * @param mixed  $value  The raw meta value.

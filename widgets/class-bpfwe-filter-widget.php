@@ -5289,7 +5289,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					}
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'] . $archive_context_key;
+						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key;
 						$terms                    = get_transient( $meta_terms_transient_key );
 
 						// Invalidate cache if editing.
@@ -5387,11 +5387,25 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									foreach ( $results as $result ) {
 										$meta_value = $result->meta_value;
 
-										if ( ! is_scalar( $meta_value ) || is_serialized( $meta_value ) ) {
-											$terms_data = array(
-												'This field appears to be relational. Please use the "Relation Field" option for this field.' => '',
-											);
-											break;
+										if ( is_serialized( $meta_value ) ) {
+											$unserialized = maybe_unserialize( $meta_value );
+
+											if ( is_array( $unserialized ) ) {
+												// ACF checkbox / multi-select: extract individual values.
+												foreach ( $unserialized as $single_val ) {
+													if ( is_scalar( $single_val ) && '' !== (string) $single_val ) {
+														$val_key = (string) $single_val;
+														$terms_data[ $val_key ] = isset( $terms_data[ $val_key ] )
+															? $terms_data[ $val_key ] + (int) $result->count
+															: (int) $result->count;
+													}
+												}
+											}
+											continue;
+										}
+
+										if ( ! is_scalar( $meta_value ) ) {
+											continue;
 										}
 
 										$terms_data[ $meta_value ] = (int) $result->count;
@@ -5833,7 +5847,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . $archive_context_key;
+						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key;
 						$terms                 = get_transient( $numeric_transient_key );
 
 						// Invalidate cache if editing.
