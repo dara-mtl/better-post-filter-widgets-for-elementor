@@ -455,11 +455,30 @@ class BPFWE_Ajax {
 
 					$key = sanitize_key( $value['taxonomy'] );
 
-					$meta_query_or[] = [
-						'key'     => $key,
-						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
-						'compare' => count( $terms ) > 1 ? 'IN' : '=',
-					];
+					// Build an OR sub-group covering both storage formats in one pass:
+					//   • compare '='    → plain scalar value (single ACF select, regular meta)
+					//   • compare 'LIKE' → PHP-serialized array entry (ACF checkbox /
+					//     multi-select). The quoted pattern '"value"' matches the s:N:"value"
+					//     segment inside a serialized string without producing false positives
+					//     on substrings that lack surrounding double-quotes.
+					// This avoids a dependency on get_field_object() at AJAX time, which can
+					// return false when no post context is available.
+					$or_subgroup = [ 'relation' => 'OR' ];
+
+					foreach ( $terms as $term ) {
+						$or_subgroup[] = [
+							'key'     => $key,
+							'value'   => $term,
+							'compare' => '=',
+						];
+						$or_subgroup[] = [
+							'key'     => $key,
+							'value'   => '"' . $term . '"',
+							'compare' => 'LIKE',
+						];
+					}
+
+					$meta_query_or[] = $or_subgroup;
 				}
 			}
 
