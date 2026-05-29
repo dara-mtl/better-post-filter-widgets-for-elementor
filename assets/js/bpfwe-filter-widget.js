@@ -175,6 +175,7 @@
 
 				var globalMin = parseFloat( $numericWrapper.data( 'min' ) );
 				var globalMax = parseFloat( $numericWrapper.data( 'max' ) );
+				var hasPlus   = $numericWrapper.data( 'has-plus' ) === 1 || $numericWrapper.data( 'has-plus' ) === '1';
 
 				var $values = $flexWrapper.find( '.bpfwe-slider-values' ).first();
 				var $valueMin = $values.find( '.bpfwe-slider-value-min' );
@@ -204,7 +205,7 @@
 					$inputMax.val( valMax );
 
 					$valueMin.text( valMin );
-					$valueMax.text( valMax );
+					$valueMax.text( hasPlus && valMax >= globalMax ? valMax + '+' : valMax );
 				}
 
 				// Live visual update while dragging.

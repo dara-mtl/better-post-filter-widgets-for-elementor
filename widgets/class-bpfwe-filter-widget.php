@@ -5848,12 +5848,22 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 					if ( ! empty( $item['meta_key'] ) ) {
 						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key;
-						$terms                 = get_transient( $numeric_transient_key );
+						$transient_data        = get_transient( $numeric_transient_key );
 
 						// Invalidate cache if editing.
 						if ( $is_editor ) {
 							delete_transient( $numeric_transient_key );
-							$terms = false;
+							$transient_data = false;
+						}
+
+						// Unpack transient: new format stores ['terms' => ..., 'max_has_plus' => ...].
+						// Legacy format is a plain array of floats.
+						if ( is_array( $transient_data ) && isset( $transient_data['terms'] ) ) {
+							$terms        = $transient_data['terms'];
+							$max_has_plus = ! empty( $transient_data['max_has_plus'] );
+						} else {
+							$terms        = $transient_data; // false or legacy plain array.
+							$max_has_plus = false;
 						}
 
 						// Bypass transient for users with editing capabilities or if transient doesn't exist.
@@ -5925,12 +5935,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								if ( false === $results ) {
 									$results = $wpdb->get_col(
 										$wpdb->prepare(
-											"SELECT DISTINCT CAST(meta_value AS DECIMAL(20,6)) as num_val
+											"SELECT DISTINCT meta_value
 											FROM {$wpdb->postmeta}
 											WHERE meta_key = %s
 											AND post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")
-											AND meta_value REGEXP '^[0-9]+(\.[0-9]+)?$'
-											ORDER BY num_val ASC",
+											AND meta_value REGEXP '^[0-9]+(\.[0-9]+)?\+?$'
+											ORDER BY CAST(meta_value AS DECIMAL(20,6)) ASC",
 											array_merge( [ $meta_key ], $post_ids )
 										)
 									);
@@ -5939,6 +5949,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 										wp_cache_set( $cache_key, $results, $cache_group, 12 * HOUR_IN_SECONDS );
 									}
 								}
+
+								// Detect if the highest raw value uses a '+' suffix (e.g. "18+").
+								$last_raw     = ! empty( $results ) ? end( $results ) : '';
+								$max_has_plus = ( false !== strpos( (string) $last_raw, '+' ) );
 
 								$terms = array_filter( array_map( 'floatval', $results ) );
 
@@ -5957,7 +5971,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								$terms = apply_filters( "bpfwe/get_numeric_meta_terms/{$filter_query_id}", $terms, $this, $item );
 
 								if ( $transient_duration > 0 && ! $is_editor && ! $is_facetted ) {
-									set_transient( $numeric_transient_key, $terms, $transient_duration );
+									set_transient( $numeric_transient_key, [ 'terms' => $terms, 'max_has_plus' => $max_has_plus ], $transient_duration );
 								}
 							}
 						}
@@ -5971,6 +5985,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$min_value = floatval( min( $terms ) );
 							$max_value = floatval( max( $terms ) );
 						}
+
+						$max_label = isset( $max_has_plus ) && $max_has_plus ? intval( $max_value ) . '+' : esc_html( $max_value );
 
 						echo '
 						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
@@ -6039,7 +6055,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							} else {
 							if ( ! empty( $item['use_range_slider'] ) && 'yes' === $item['use_range_slider'] ) {
 								echo '
-								<div class="bpfwe-range-slider bpfwe-numeric-wrapper" data-logic="OR" data-min="' . esc_attr( $min_value ) . '" data-max="' . esc_attr( $max_value ) . '">
+								<div class="bpfwe-range-slider bpfwe-numeric-wrapper" data-logic="OR" data-min="' . esc_attr( $min_value ) . '" data-max="' . esc_attr( $max_value ) . '" data-has-plus="' . ( isset( $max_has_plus ) && $max_has_plus ? '1' : '0' ) . '">
 									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" readonly></span>
 									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" readonly></span>
 								</div>
@@ -6049,7 +6065,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									<input type="range" class="bpfwe-slider-handle bpfwe-slider-max" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" step="1" aria-label="' . esc_attr__( 'Maximum', 'better-post-filter-widgets-for-elementor' ) . '">
 								</div>
 								<div class="bpfwe-slider-values">
-									<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-min">' . esc_html( $min_value ) . '</span>&ndash;<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-max">' . esc_html( $max_value ) . '</span>
+									<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-min">' . esc_html( $min_value ) . '</span>&ndash;<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-max">' . esc_html( $max_label ) . '</span>
 								</div>
 								';
 							} else {
