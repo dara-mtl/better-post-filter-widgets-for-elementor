@@ -163,11 +163,7 @@ class BPFWE_Background_Image {
 			}
 		} else {
 			// 'post', 'theme', or featured_image - fall back to post context.
-			if ( ! empty( $_bpfwe_context ) ) {
-				$resolved_id = absint( $_bpfwe_context );
-			} else {
-				$resolved_id = get_the_ID();
-			}
+			$resolved_id = ! empty( $_bpfwe_context ) ? absint( $_bpfwe_context ) : get_the_ID();
 		}
 
 		if ( ! $resolved_id ) {

@@ -1143,6 +1143,13 @@ ul.child-terms {
 	transform: translate(0, -50%);
 }
 
+.field-wrapper .after {
+	position: absolute;
+	right: 5px;
+	top: 50%;
+	transform: translate(0, -50%);
+}
+
 .list-style,
 .bpfwe-term-pill {
 	display: inline-block;

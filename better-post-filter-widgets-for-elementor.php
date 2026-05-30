@@ -7,11 +7,11 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.8.6
+ * Version: 1.8.7
  * Requires PHP: 7.4
  * Requires at least: 6.2
- * Tested up to: 6.9
- * Elementor tested up to: 3.35.5
+ * Tested up to: 7.0
+ * Elementor tested up to: 4.1.1
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -40,7 +40,7 @@ require_once BPFWE_PLUGIN_DIR . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.8.6';
+	const VERSION                   = '1.8.7';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -122,6 +122,7 @@ final class BPFWE_Elementor {
 		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-background-image-handler.php';
 		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-dynamic-tag.php';
 		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-ajax.php';
+		require_once BPFWE_PLUGIN_DIR . 'inc/classes/class-bpfwe-shortcodes.php';
 
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
 	}
@@ -183,8 +184,9 @@ final class BPFWE_Elementor {
 		// Localize and enqueue plugin scripts.
 		$ajax_params = [
 			'url'            => admin_url( 'admin-ajax.php' ),
-			'bpfwe_url'      => BPFWE_PLUGIN_URL . 'inc/bpfwe-ajax-handler.php',
+			'rest_url'       => rest_url(),
 			'nonce'          => wp_create_nonce( 'ajax-nonce' ),
+			'rest_nonce'     => wp_create_nonce( 'wp_rest' ),
 			'isUserLoggedIn' => is_user_logged_in(),
 		];
 
@@ -201,8 +203,10 @@ final class BPFWE_Elementor {
 	public function backend_widget_scripts() {
 		// Localize and enqueue plugin scripts.
 		$ajax_params = [
-			'url'   => admin_url( 'admin-ajax.php' ),
-			'nonce' => wp_create_nonce( 'ajax-nonce' ),
+			'url'        => admin_url( 'admin-ajax.php' ),
+			'rest_url'   => rest_url(),
+			'nonce'      => wp_create_nonce( 'ajax-nonce' ),
+			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 		];
 		wp_enqueue_script( 'post-editor-script', plugins_url( 'assets/js/backend/post-widget-editor.js', __FILE__ ), [], self::VERSION, true );
 		wp_localize_script( 'post-editor-script', 'ajax_var', $ajax_params );
@@ -312,7 +316,7 @@ final class BPFWE_Elementor {
 		if ( BPFWE_PLUGIN_BASENAME === $plugin_file ) {
 			$links_array[] = '<a href="https://wpsmartwidgets.com/donate/" target="_blank" rel="noopener noreferrer">'
 				. '<span class="dashicons dashicons-heart" style="font-size:20px;height:20px;width:20px;"></span>'
-				. esc_html__( 'Donate', 'better-post-filter-widgets-for-elementor' )
+				. esc_html__( 'Support the plugin', 'better-post-filter-widgets-for-elementor' )
 				. '</a>';
 		}
 		return $links_array;

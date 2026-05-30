@@ -38,6 +38,32 @@ jQuery(window).on('elementor:init', function () {
 
 		const observer = new MutationObserver(() => updateControlVisibility($panel, $widget));
 		observer.observe($widget[0], { childList: true, subtree: true });
+		const widgetID = model.id;
+        
+        // Define all shortcode fields here (Control ID → Shortcode template)
+        const shortcodeFields = {
+            'feed_filter_buttons_description' : `[feed_filters id="${widgetID}"]`,
+            'feed_anchor_buttons_description' : `[feed_anchor_filters id="${widgetID}"]`,
+            // 'another_shortcode_control'    : `[my_shortcode id="${widgetID}"]`,
+        };
+
+        Object.entries(shortcodeFields).forEach(([controlId, shortcode]) => {
+            const $input = $panel.find(`.elementor-control-${controlId} input`);
+            
+            if ($input.length) {
+                $input.val(shortcode).attr('readonly', true);
+
+                $input.off('click.bpfwe-shortcode').on('click.bpfwe-shortcode', function () {
+                    this.select();
+                    document.execCommand('copy');
+
+                    elementor.notifications.showToast({
+                        message: "Copied to clipboard!",
+                        type: "success"
+                    });
+                });
+            }
+        });
 	});
 
 	function initSelect2($row) {
@@ -56,16 +82,17 @@ jQuery(window).on('elementor:init', function () {
 			minimumInputLength: 2,
 			cache: true,
 			ajax: {
-				url: ajax_var.url,
+				url: ajax_var.rest_url + 'bpfwe/v1/search-related-items',
 				dataType: 'json',
 				delay: 250,
 				data: params => ({
-					action: 'bpfwe_search_related_items',
-					nonce: ajax_var.nonce,
 					post_type: postType,
 					q: params.term || '',
 					page: params.page || 1,
 				}),
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('X-WP-Nonce', ajax_var.rest_nonce);
+				},
 				processResults: res => ({
 					results: (res.success && res.data) ?
 						res.data.map(i => ({ id: i.id, text: i.text })) : []

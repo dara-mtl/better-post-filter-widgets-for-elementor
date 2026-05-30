@@ -3,9 +3,9 @@ Contributors: nomade123456
 Donate link: https://wpsmartwidgets.com/donate/
 Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.6
+Stable tag: 1.8.7
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,6 +139,21 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.8.7 – 2026-05-29 =
+* New: Added mobile mode shortcode to dynamically reposition filter widgets at specific breakpoints.
+* New: Added boolean support for custom meta fields.
+* New: Added numeric format support for checkboxes, radio buttons, and label lists.
+* New: Added step size control for numeric ranges.
+* New: Added "after" suffix field for numeric inputs to support trailing currency symbols and European formats.
+* Fix: Fixed masonry layout flickering with infinite/load more pagination.
+* Fix: Fixed post duplication in feed layout with infinite/load more.
+* Fix: Resolved permission issues with caching plugins.
+* Fix: Improved numeric sliders (decimal support, reset behavior, dynamic step calculation).
+* Tweak: Converted filter utility classes (e.g. selectable pills) into shortcodes with backward compatibility.
+* Tweak: Added missing dynamic CSS classes and attributes to post widget.
+* Dev: Added global loop attribute filters for post rendering: bpfwe/post_wrapper_attr/loop, bpfwe/post_wrapper_inner_attr/loop, bpfwe/post_attr/loop
+* Dev: Migrated plugin-wide AJAX to REST API.
+
 = 1.8.6 – 2026-03-26 =
 * New: Added range slider support for numeric meta filters, including styling controls for full design customization.
 * Fix: Dynamic Archive Filtering is now fully context-aware on search result archive pages, keeping results within the searched terms.
@@ -210,6 +225,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.6 =
+= 1.8.7 =
 
-This update includes bug fixes and a new numeric range slider.
+This maintenance update transitions the plugin's underlying AJAX architecture to the WordPress REST API, fixes conflicts with third-party caching tools, introduces a mobile mode shortcode, and fixes bugs.

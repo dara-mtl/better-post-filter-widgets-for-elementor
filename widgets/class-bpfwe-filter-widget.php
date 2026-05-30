@@ -167,6 +167,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'active' => true,
 				],
 				'placeholder'        => esc_html__( '#id, .class', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Target post widgets using a CSS ID or class. Multiple selectors can be used, separated by commas. Each selector should be unique.', 'better-post-filter-widgets-for-elementor' ),
 				'frontend_available' => true,
 			]
 		);
@@ -349,11 +350,76 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'time'           => esc_html__( 'Time', 'better-post-filter-widgets-for-elementor' ),
 					'number'         => esc_html__( 'Number', 'better-post-filter-widgets-for-elementor' ),
 					'text'           => esc_html__( 'Text', 'better-post-filter-widgets-for-elementor' ),
+					'boolean'        => esc_html__( 'Boolean', 'better-post-filter-widgets-for-elementor' ),
 					'custom_pattern' => esc_html__( 'Custom Pattern', 'better-post-filter-widgets-for-elementor' ),
 					'custom_format'  => esc_html__( 'Custom Format', 'better-post-filter-widgets-for-elementor' ),
 				],
 				'condition' => [
+					'select_filter' => [ 'Custom Field' ],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'number_formatting',
+			[
+				'label'        => esc_html__( 'Format number', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
+				'return_value' => 'yes',
+				'default'      => '',
+				'condition'    => [
+					'select_filter'         => [ 'Numeric' ],
+					'filter_style_numeric!' => 'range',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'boolean_format',
+			[
+				'label'     => esc_html__( 'Boolean Format', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => 'yes_no',
+				'options'   => [
+					'yes_no'     => esc_html__( 'Yes / No', 'better-post-filter-widgets-for-elementor' ),
+					'true_false' => esc_html__( 'True / False', 'better-post-filter-widgets-for-elementor' ),
+					'custom'     => esc_html__( 'Custom', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition' => [
 					'select_filter' => [ 'Custom Field', 'Numeric' ],
+					'format_type'   => 'boolean',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'boolean_true_label',
+			[
+				'label'       => esc_html__( 'True Label', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_block' => true,
+				'condition'   => [
+					'select_filter'  => [ 'Custom Field', 'Numeric' ],
+					'format_type'    => 'boolean',
+					'boolean_format' => 'custom',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'boolean_false_label',
+			[
+				'label'       => esc_html__( 'False Label', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'label_block' => true,
+				'condition'   => [
+					'select_filter'  => [ 'Custom Field', 'Numeric' ],
+					'format_type'    => 'boolean',
+					'boolean_format' => 'custom',
 				],
 			]
 		);
@@ -419,14 +485,68 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$repeater->add_control(
 			'number_decimals',
 			[
-				'label'     => esc_html__( 'Decimals', 'better-post-filter-widgets-for-elementor' ),
-				'type'      => \Elementor\Controls_Manager::NUMBER,
-				'min'       => 0,
-				'max'       => 6,
-				'default'   => 0,
+				'label'      => esc_html__( 'Decimals', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => \Elementor\Controls_Manager::NUMBER,
+				'min'        => 0,
+				'max'        => 6,
+				'default'    => 0,
+
+				'conditions' => [
+					'relation' => 'or',
+					'terms'    => [
+						[
+							'relation' => 'and',
+							'terms'    => [
+								[
+									'name'     => 'select_filter',
+									'operator' => 'in',
+									'value'    => [ 'Custom Field', 'Numeric' ],
+								],
+								[
+									'name'     => 'number_formatting',
+									'operator' => '=',
+									'value'    => 'yes',
+								],
+								[
+									'name'     => 'filter_style_numeric',
+									'operator' => '!=',
+									'value'    => 'range',
+								],
+							],
+						],
+						[
+							'relation' => 'and',
+							'terms'    => [
+								[
+									'name'     => 'format_type',
+									'operator' => '=',
+									'value'    => 'number',
+								],
+								[
+									'name'     => 'select_filter',
+									'operator' => 'in',
+									'value'    => [ 'Custom Field', 'Numeric' ],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'decimal_separator',
+			[
+				'label'     => esc_html__( 'Decimal separator', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'default'   => '.',
+				'options'   => [
+					'.' => '.',
+					',' => ',',
+				],
 				'condition' => [
-					'select_filter' => [ 'Custom Field', 'Numeric' ],
-					'format_type'   => 'number',
+					'number_formatting'     => 'yes',
+					'filter_style_numeric!' => 'range',
 				],
 			]
 		);
@@ -493,6 +613,21 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'separator' => 'before',
 				'condition' => [
 					'select_filter' => 'Numeric',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'step_size',
+			[
+				'label'     => esc_html__( 'Decimal Step Size', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'min'       => 0,
+				'max'       => 6,
+				'default'   => '',
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => 'range',
 				],
 			]
 		);
@@ -608,6 +743,19 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'     => esc_html__( 'Before', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::TEXT,
 				'separator' => 'before',
+				'condition' => [
+					'select_filter'        => 'Numeric',
+					'filter_style_numeric' => [ 'range','input' ],
+					'visual_range!'        => 'yes',
+				],
+			]
+		);
+
+		$repeater->add_control(
+			'insert_after_field',
+			[
+				'label'     => esc_html__( 'After', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
 				'condition' => [
 					'select_filter'        => 'Numeric',
 					'filter_style_numeric' => [ 'range','input' ],
@@ -1491,19 +1639,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'filter_custom_handler',
-			[
-				'label'              => esc_html__( 'Custom AJAX Handler', 'better-post-filter-widgets-for-elementor' ),
-				'type'               => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
-				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => esc_html__( 'Uses a front-end AJAX endpoint instead of admin-ajax.php to reduce overhead. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
-				'default'            => 'no',
-				'frontend_available' => true,
-			]
-		);
-
-		$this->add_control(
 			'optimize_query',
 			[
 				'label'              => esc_html__( 'Load Only Post ID', 'better-post-filter-widgets-for-elementor' ),
@@ -1687,43 +1822,27 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'display_selected_terms',
+			'selected_terms_heading',
 			[
-				'label'        => esc_html__( 'Display Selected Terms', 'better-post-filter-widgets-for-elementor' ),
-				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
-				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
-				'return_value' => 'yes',
-				'separator'    => 'before',
-				'default'      => '',
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'label'     => esc_html__( 'Selected Terms Shortcodes', 'better-post-filter-widgets-for-elementor' ),
+				'separator' => 'before',
 			]
 		);
 
 		$this->add_control(
-			'selected_terms_description',
+			'selected_terms_shortcode',
 			[
-				'type'        => \Elementor\Controls_Manager::NOTICE,
-				'notice_type' => 'info',
-				'dismissible' => false,
-				'heading'     => esc_html__( 'How to Use', 'better-post-filter-widgets-for-elementor' ),
-				'content'     => esc_html__( 'Add "selected-terms-FILTERID", "selected-count-FILTERID", or "quick-deselect-FILTERID" to a Heading or Text widget. The widget needs content (use a non-breaking space to keep it blank), otherwise it will not appear on the page.', 'better-post-filter-widgets-for-elementor' ),
-				'condition'   => [
-					'display_selected_terms' => 'yes',
-				],
-			]
-		);
-
-		$this->add_control(
-			'selected_terms_class',
-			[
-				'label'       => esc_html__( 'Display Terms Class', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Selected Terms', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
-				'description' => '<script>
+				'description' => 'This shortcode will display a list of selected terms.
+				<script>
 					jQuery(document).ready(function($) {
-						var $input = $(".elementor-control-selected_terms_class input");
-						var widgetID = "selected-terms-" + elementor.getCurrentElement().model.id;
-						$input.val(widgetID).attr("readonly", true);
+						var $input = $(".elementor-control-selected_terms_shortcode input");
+						var widgetID = elementor.getCurrentElement().model.id;
+						var shortcode = "[filter_terms id=\"" + widgetID + "\"]";
+						$input.val(shortcode).attr("readonly", true);
 
 						$input.on("click", function() {
 							this.select();
@@ -1732,29 +1851,26 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								message: "Copied to clipboard!",
 								type: "success"
 							});
-							setTimeout(function() {
-								notice.close();
-							}, 1000);
+							setTimeout(function() { notice.close(); }, 1000);
 						});
 					});
 				</script>',
-				'condition'   => [
-					'display_selected_terms' => 'yes',
-				],
 			]
 		);
 
 		$this->add_control(
-			'selected_count_class',
+			'selected_count_shortcode',
 			[
-				'label'       => esc_html__( 'Display Count Class', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Selected Count', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
-				'description' => '<script>
+				'description' => 'This shortcode will display the selected terms total.
+				<script>
 					jQuery(document).ready(function($) {
-						var $input = $(".elementor-control-selected_count_class input");
-						var widgetID = "selected-count-" + elementor.getCurrentElement().model.id;
-						$input.val(widgetID).attr("readonly", true);
+						var $input = $(".elementor-control-selected_count_shortcode input");
+						var widgetID = elementor.getCurrentElement().model.id;
+						var shortcode = "[filter_count id=\"" + widgetID + "\"]";
+						$input.val(shortcode).attr("readonly", true);
 
 						$input.on("click", function() {
 							this.select();
@@ -1763,29 +1879,26 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								message: "Copied to clipboard!",
 								type: "success"
 							});
-							setTimeout(function() {
-								notice.close();
-							}, 1000);
+							setTimeout(function() { notice.close(); }, 1000);
 						});
 					});
 				</script>',
-				'condition'   => [
-					'display_selected_terms' => 'yes',
-				],
 			]
 		);
 
 		$this->add_control(
-			'quick_deselect_class',
+			'quick_deselect_shortcode',
 			[
-				'label'       => esc_html__( 'Quick Deselect Class', 'better-post-filter-widgets-for-elementor' ),
+				'label'       => esc_html__( 'Quick Deselect', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
-				'description' => '<script>
+				'description' => 'This shortcode will display a list of deselectable tags.
+				<script>
 					jQuery(document).ready(function($) {
-						var $input = $(".elementor-control-quick_deselect_class input");
-						var widgetID = "quick-deselect-" + elementor.getCurrentElement().model.id;
-						$input.val(widgetID).attr("readonly", true);
+						var $input = $(".elementor-control-quick_deselect_shortcode input");
+						var widgetID = elementor.getCurrentElement().model.id;
+						var shortcode = "[filter_tags id=\"" + widgetID + "\"]";
+						$input.val(shortcode).attr("readonly", true);
 
 						$input.on("click", function() {
 							this.select();
@@ -1794,15 +1907,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 								message: "Copied to clipboard!",
 								type: "success"
 							});
-							setTimeout(function() {
-								notice.close();
-							}, 1000);
+							setTimeout(function() { notice.close(); }, 1000);
 						});
 					});
 				</script>',
-				'condition'   => [
-					'display_selected_terms' => 'yes',
-				],
 			]
 		);
 
@@ -1815,6 +1923,59 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'condition'          => [
 					'display_selected_terms' => 'yes',
 				],
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'mobile_mode_heading',
+			[
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'label'     => esc_html__( 'Mobile Mode Shortcode', 'better-post-filter-widgets-for-elementor' ),
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'mobile_mode_shortcode',
+			[
+				'label'       => esc_html__( 'Mobile Mode', 'better-post-filter-widgets-for-elementor' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'render_type' => 'ui',
+				'description' => 'Place this shortcode in the desired mobile location to reposition one or more filter widgets at the selected breakpoint. Supports a single ID or a comma-separated list of IDs.
+				<script>
+					jQuery(document).ready(function($) {
+						var $input = $(".elementor-control-mobile_mode_shortcode input");
+						var widgetID = elementor.getCurrentElement().model.id;
+						var shortcode = "[filter_mobile_view id=\\"" + widgetID + "\\"]";
+
+						$input.val(shortcode).attr("readonly", true);
+
+						$input.on("click", function() {
+							this.select();
+							document.execCommand("copy");
+
+							var notice = elementor.notifications.showToast({
+								message: "Shortcode copied!",
+								type: "success"
+							});
+
+							setTimeout(function() {
+								notice.close();
+							}, 1000);
+						});
+					});
+				</script>',
+			]
+		);
+
+		$this->add_control(
+			'mobile_mode_breakpoint',
+			[
+				'type'               => \Elementor\Controls_Manager::SELECT,
+				'label'              => esc_html__( 'Trigger Breakpoint', 'better-post-filter-widgets-for-elementor' ),
+				'options'            => BPFWE_Helper::get_elementor_breakpoints(),
+				'default'            => '',
 				'frontend_available' => true,
 			]
 		);
@@ -2713,7 +2874,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_tab();
 
-		// ACTIVE
+		// ACTIVE.
 		$this->start_controls_tab(
 			'range_slider_track_active',
 			[
@@ -2756,7 +2917,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'       => Controls_Manager::SLIDER,
 				'size_units' => [ 'px' ],
 				'range'      => [
-					'px' => [ 'min' => 8, 'max' => 40 ],
+					'px' => [
+						'min' => 8,
+						'max' => 40,
+					],
 				],
 				'selectors'  => [
 					'{{WRAPPER}} .bpfwe-slider-handle::-webkit-slider-thumb' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
@@ -2772,7 +2936,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'       => Controls_Manager::SLIDER,
 				'size_units' => [ 'px' ],
 				'range'      => [
-					'px' => [ 'min' => 0, 'max' => 20 ],
+					'px' => [
+						'min' => 0,
+						'max' => 20,
+					],
 				],
 				'selectors'  => [
 					'{{WRAPPER}} .bpfwe-slider-handle::-webkit-slider-thumb' => 'border-radius: {{SIZE}}{{UNIT}};',
@@ -2788,12 +2955,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'       => Controls_Manager::SLIDER,
 				'size_units' => [ 'px' ],
 				'range'      => [
-					'px' => [ 'min' => 1, 'max' => 20 ],
+					'px' => [
+						'min' => 1,
+						'max' => 20,
+					],
 				],
 				'separator'  => 'before',
 				'selectors'  => [
-					'{{WRAPPER}} .bpfwe-slider-track'  => 'height: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bpfwe-slider-range'  => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-track' => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bpfwe-slider-range' => 'height: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -2805,7 +2975,10 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'type'       => Controls_Manager::SLIDER,
 				'size_units' => [ 'px' ],
 				'range'      => [
-					'px' => [ 'min' => 0, 'max' => 20 ],
+					'px' => [
+						'min' => 0,
+						'max' => 20,
+					],
 				],
 				'selectors'  => [
 					'{{WRAPPER}} .bpfwe-slider-track' => 'border-radius: {{SIZE}}{{UNIT}};',
@@ -2830,14 +3003,14 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'range_slider_values_toggle',
 			[
-				'label'        => esc_html__( 'Hide Range Values', 'better-post-filter-widgets-for-elementor' ),
-				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
-				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
-				'return_value' => 'yes',
-				'default'      => '',
-				'separator'    => 'before',
-				'selectors'    => [
+				'label'                => esc_html__( 'Hide Range Values', 'better-post-filter-widgets-for-elementor' ),
+				'type'                 => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'             => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'            => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
+				'return_value'         => 'yes',
+				'default'              => '',
+				'separator'            => 'before',
+				'selectors'            => [
 					'{{WRAPPER}} .bpfwe-slider-values' => '{{VALUE}}',
 				],
 				'selectors_dictionary' => [
@@ -2854,7 +3027,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'selectors' => [
 					'{{WRAPPER}} .bpfwe-slider-values' => 'color: {{VALUE}};',
 				],
-				'condition'    => [
+				'condition' => [
 					'range_slider_values_toggle' => '',
 				],
 			]
@@ -2863,9 +3036,9 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			[
-				'name'     => 'range_slider_values_typography',
-				'selector' => '{{WRAPPER}} .bpfwe-slider-values',
-				'condition'    => [
+				'name'      => 'range_slider_values_typography',
+				'selector'  => '{{WRAPPER}} .bpfwe-slider-values',
+				'condition' => [
 					'range_slider_values_toggle' => '',
 				],
 			]
@@ -2877,15 +3050,15 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'                => esc_html__( 'Horizontal Position', 'better-post-filter-widgets-for-elementor' ),
 				'type'                 => \Elementor\Controls_Manager::CHOOSE,
 				'options'              => [
-					'left'    => [
+					'left'   => [
 						'title' => esc_html__( 'Left', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-left',
 					],
-					'center'  => [
+					'center' => [
 						'title' => esc_html__( 'Center', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-center',
 					],
-					'right'   => [
+					'right'  => [
 						'title' => esc_html__( 'Right', 'better-post-filter-widgets-for-elementor' ),
 						'icon'  => 'eicon-h-align-right',
 					],
@@ -2894,11 +3067,11 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'{{WRAPPER}} .bpfwe-slider-values' => '{{VALUE}}',
 				],
 				'selectors_dictionary' => [
-					'left'    => 'align-items: flex-start; text-align: left;',
-					'center'  => 'align-items: center; text-align: center;',
-					'right'   => 'align-items: flex-end; text-align: right;',
+					'left'   => 'align-items: flex-start; text-align: left;',
+					'center' => 'align-items: center; text-align: center;',
+					'right'  => 'align-items: flex-end; text-align: right;',
 				],
-				'condition'    => [
+				'condition'            => [
 					'range_slider_values_toggle' => '',
 				],
 			]
@@ -4047,20 +4220,35 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							if ( $meta_key && ( '' !== $min || '' !== $max ) ) {
 								echo '<div class="bpfwe-numeric-wrapper" data-logic="' . esc_attr( $logic ) . '">';
 
-								if ( '' !== $min ) {
-									printf(
-										'<input type="number" inputmode="numeric" pattern="[0-9]*" class="input-min bpfwe-filter-item" name="min_%1$s" data-taxonomy="%1$s" value="%2$s">',
-										esc_attr( $meta_key ),
-										esc_attr( $min )
-									);
-								}
+								if ( '' !== $min || '' !== $max ) {
+									$decimals_min = ( '' !== $min && strpos( (string) $min, '.' ) !== false ) ? strlen( explode( '.', (string) $min )[1] ) : 0;
+									$decimals_max = ( '' !== $max && strpos( (string) $max, '.' ) !== false ) ? strlen( explode( '.', (string) $max )[1] ) : 0;
+									$max_decimals = max( $decimals_min, $decimals_max );
+									$step_setting = isset( $item['step_size'] ) && '' !== $item['step_size'] && $item['step_size'] > 0 ? absint( $item['step_size'] ) : null;
 
-								if ( '' !== $max ) {
-									printf(
-										'<input type="number" inputmode="numeric" pattern="[0-9]*" class="input-max bpfwe-filter-item" name="max_%1$s" data-taxonomy="%1$s" value="%2$s">',
-										esc_attr( $meta_key ),
-										esc_attr( $max )
-									);
+									if ( null !== $step_setting ) {
+										$step = '0.' . str_repeat( '0', $step_setting - 1 ) . '1';
+									} else {
+										$step = ( $max_decimals > 0 ) ? '0.' . str_repeat( '0', $max_decimals - 1 ) . '1' : '1';
+									}
+
+									if ( '' !== $min ) {
+										printf(
+											'<input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="input-min bpfwe-filter-item" name="min_%1$s" data-taxonomy="%1$s" value="%2$s" step="%3$s">',
+											esc_attr( $meta_key ),
+											esc_attr( $min ),
+											esc_attr( $step )
+										);
+									}
+
+									if ( '' !== $max ) {
+										printf(
+											'<input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="input-min bpfwe-filter-item" name="max_%1$s" data-taxonomy="%1$s" value="%2$s" step="%3$s">',
+											esc_attr( $meta_key ),
+											esc_attr( $max ),
+											esc_attr( $step )
+										);
+									}
 								}
 
 								echo '</div>';
@@ -5394,7 +5582,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												// ACF checkbox / multi-select: extract individual values.
 												foreach ( $unserialized as $single_val ) {
 													if ( is_scalar( $single_val ) && '' !== (string) $single_val ) {
-														$val_key = (string) $single_val;
+														$val_key                = (string) $single_val;
 														$terms_data[ $val_key ] = isset( $terms_data[ $val_key ] )
 															? $terms_data[ $val_key ] + (int) $result->count
 															: (int) $result->count;
@@ -5605,6 +5793,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
 								} elseif ( 'custom_format' === $format_type ) {
 									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
+								} elseif ( 'boolean' === $format_type ) {
+									$args['boolean_format'] = $item['boolean_format'] ?? 'yes_no';
+									if ( 'custom' === $args['boolean_format'] ) {
+										$args['boolean_true_label']  = $item['boolean_true_label'] ?? '';
+										$args['boolean_false_label'] = $item['boolean_false_label'] ?? '';
+									}
 								}
 
 								if ( $is_relational ) {
@@ -5672,6 +5866,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
 								} elseif ( 'custom_format' === $format_type ) {
 									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
+								} elseif ( 'boolean' === $format_type ) {
+									$args['boolean_format'] = $item['boolean_format'] ?? 'yes_no';
+									if ( 'custom' === $args['boolean_format'] ) {
+										$args['boolean_true_label']  = $item['boolean_true_label'] ?? '';
+										$args['boolean_false_label'] = $item['boolean_false_label'] ?? '';
+									}
 								}
 
 								if ( $is_relational ) {
@@ -5748,6 +5948,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
 								} elseif ( 'custom_format' === $format_type ) {
 									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
+								} elseif ( 'boolean' === $format_type ) {
+									$args['boolean_format'] = $item['boolean_format'] ?? 'yes_no';
+									if ( 'custom' === $args['boolean_format'] ) {
+										$args['boolean_true_label']  = $item['boolean_true_label'] ?? '';
+										$args['boolean_false_label'] = $item['boolean_false_label'] ?? '';
+									}
 								}
 
 								if ( $is_relational ) {
@@ -5820,6 +6026,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									$args['pattern'] = $item['custom_pattern'] ?? '{value}';
 								} elseif ( 'custom_format' === $format_type ) {
 									$args['custom_format_string'] = $item['custom_format_string'] ?? '';
+								} elseif ( 'boolean' === $format_type ) {
+									$args['boolean_format'] = $item['boolean_format'] ?? 'yes_no';
+									if ( 'custom' === $args['boolean_format'] ) {
+										$args['boolean_true_label']  = $item['boolean_true_label'] ?? '';
+										$args['boolean_false_label'] = $item['boolean_false_label'] ?? '';
+									}
 								}
 
 								if ( $is_relational ) {
@@ -5940,7 +6152,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									}
 								}
 
-								$terms = array_filter( array_map( 'floatval', $results ) );
+								$terms = array_map( 'floatval', $results );
 
 								if ( empty( $terms ) ) {
 									$terms = array(
@@ -6036,27 +6248,38 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							echo '</div>';
 
+						} else {
+								$decimals_min = ( strpos( (string) $min_value, '.' ) !== false ) ? strlen( explode( '.', (string) $min_value )[1] ) : 0;
+								$decimals_max = ( strpos( (string) $max_value, '.' ) !== false ) ? strlen( explode( '.', (string) $max_value )[1] ) : 0;
+								$max_decimals = max( $decimals_min, $decimals_max );
+								$step_setting = isset( $item['step_size'] ) && '' !== $item['step_size'] && $item['step_size'] > 0 ? absint( $item['step_size'] ) : null;
+
+							if ( null !== $step_setting ) {
+									$range_step = '0.' . str_repeat( '0', $step_setting - 1 ) . '1';
 							} else {
+									$range_step = ( $max_decimals > 0 ) ? '0.' . str_repeat( '0', $max_decimals - 1 ) . '1' : '1';
+							}
+
 							if ( ! empty( $item['use_range_slider'] ) && 'yes' === $item['use_range_slider'] ) {
 								echo '
 								<div class="bpfwe-range-slider bpfwe-numeric-wrapper" data-logic="OR" data-min="' . esc_attr( $min_value ) . '" data-max="' . esc_attr( $max_value ) . '">
-									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" readonly></span>
-									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" readonly></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="' . esc_attr( $range_step ) . '" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" readonly><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="' . esc_attr( $range_step ) . '" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" readonly><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
 								</div>
 								<div class="bpfwe-slider-track">
 									<div class="bpfwe-slider-range"></div>
-									<input type="range" class="bpfwe-slider-handle bpfwe-slider-min" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" step="1" aria-label="' . esc_attr__( 'Minimum', 'better-post-filter-widgets-for-elementor' ) . '">
-									<input type="range" class="bpfwe-slider-handle bpfwe-slider-max" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" step="1" aria-label="' . esc_attr__( 'Maximum', 'better-post-filter-widgets-for-elementor' ) . '">
+									<input type="range" class="bpfwe-slider-handle bpfwe-slider-min" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '" step="' . esc_attr( $range_step ) . '" aria-label="' . esc_attr__( 'Minimum', 'better-post-filter-widgets-for-elementor' ) . '">
+									<input type="range" class="bpfwe-slider-handle bpfwe-slider-max" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '" step="' . esc_attr( $range_step ) . '" aria-label="' . esc_attr__( 'Maximum', 'better-post-filter-widgets-for-elementor' ) . '">
 								</div>
 								<div class="bpfwe-slider-values">
-									<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-min">' . esc_html( $min_value ) . '</span>&ndash;<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-max">' . esc_html( $max_value ) . '</span>
+									<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-min">' . esc_html( $min_value ) . '</span><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span>&ndash;<span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><span class="bpfwe-slider-value-max">' . esc_html( $max_value ) . '</span><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span>
 								</div>
 								';
 							} else {
 								echo '
 								<div class="bpfwe-numeric-wrapper" data-logic="OR">
-									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"></span>
-									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="1" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="' . esc_attr( $range_step ) . '" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $min_value ) . '"><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
+									<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" data-base-min="' . esc_attr( $min_value ) . '" data-base-max="' . esc_attr( $max_value ) . '" step="' . esc_attr( $range_step ) . '" min="' . esc_attr( $min_value ) . '" max="' . esc_attr( $max_value ) . '" value="' . esc_attr( $max_value ) . '"><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
 								</div>
 							';
 							}
@@ -6077,6 +6300,17 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 							$max_value = floatval( max( $terms ) );
 						}
 
+						$decimals_min = ( '' !== $min && strpos( (string) $min_value, '.' ) !== false ) ? strlen( explode( '.', (string) $min_value )[1] ) : 0;
+						$decimals_max = ( '' !== $max && strpos( (string) $max_value, '.' ) !== false ) ? strlen( explode( '.', (string) $max_value )[1] ) : 0;
+						$max_decimals = max( $decimals_min, $decimals_max );
+						$step_setting = isset( $item['step_size'] ) && '' !== $item['step_size'] && $item['step_size'] > 0 ? absint( $item['step_size'] ) : null;
+
+						if ( null !== $step_setting ) {
+							$step = '0.' . str_repeat( '0', $step_setting - 1 ) . '1';
+						} else {
+							$step = ( $max_decimals > 0 ) ? '0.' . str_repeat( '0', $max_decimals - 1 ) . '1' : '1';
+						}
+
 						echo '
 						<div class="' . esc_attr( $wrapper_classes_meta ) . '">
 							' . ( ! empty( $item['filter_toggle'] ) && 'yes' === $item['filter_toggle'] ? '<div class="filter-title collapsible' . ( ! empty( $item['filter_toggle_initial_state'] ) && 'yes' === $item['filter_toggle_initial_state'] ? ' start-open' : '' ) . '" data-toggle-id="' . esc_attr( $item['_id'] ) . '">' . esc_html( $item['filter_title'] ) . '</div>' : '<div class="filter-title">' . esc_html( $item['filter_title'] ) . '</div>'
@@ -6084,8 +6318,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 						echo '
 						<div class="bpfwe-numeric-wrapper" data-logic="OR">
-							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" placeholder="' . esc_html( $min_placeholder ) . '"></span>
-							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" placeholder="' . esc_html( $max_placeholder ) . '"></span>
+							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="min_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $min_value ) . '" placeholder="' . esc_html( $min_placeholder ) . '" step="' . esc_attr( $step ) . '"><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
+							<span class="field-wrapper"><span class="before">' . esc_html( $item['insert_before_field'] ) . '</span><input type="number" inputmode="numeric" pattern="[0-9]*[.,]?[0-9]*" class="input-val bpfwe-filter-range-' . esc_attr( $index ) . '" name="max_' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" data-base-value="' . esc_attr( $max_value ) . '" placeholder="' . esc_html( $max_placeholder ) . '" step="' . esc_attr( $step ) . '"><span class="after">' . esc_html( $item['insert_after_field'] ) . '</span></span>
 						</div>
 						';
 
@@ -6100,11 +6334,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
+							$format_type       = ( ! empty( $item['number_formatting'] ) && 'yes' === $item['number_formatting'] ) ? 'number' : 'none';
+							$args              = array();
+							$args['decimals']  = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+							$label             = BPFWE_Helper::format_meta_value( $result, $format_type, $args );
+							$decimal_separator = isset( $item['decimal_separator'] ) ? $item['decimal_separator'] : '.';
+							$label             = number_format(
+								(float) $result,
+								$args['decimals'],
+								$decimal_separator,
+								''
+							);
+
 							echo '
 							<li>
 							<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
 							<input type="checkbox" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . '" />
-							<span>' . esc_html( $result ) . '</span>
+							<span>' . esc_html( $label ) . '</span>
 							</label>
 							</li>
 							';
@@ -6123,11 +6369,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
+							$format_type       = ( ! empty( $item['number_formatting'] ) && 'yes' === $item['number_formatting'] ) ? 'number' : 'none';
+							$args              = array();
+							$args['decimals']  = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+							$label             = BPFWE_Helper::format_meta_value( $result, $format_type, $args );
+							$decimal_separator = isset( $item['decimal_separator'] ) ? $item['decimal_separator'] : '.';
+							$label             = number_format(
+								(float) $result,
+								$args['decimals'],
+								$decimal_separator,
+								''
+							);
+
 							echo '
 							<li>
 							<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
 							<input type="radio" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . '" />
-							<span>' . esc_html( $result ) . '</span>
+							<span>' . esc_html( $label ) . '</span>
 							</label>
 							</li>
 							';
@@ -6147,11 +6405,23 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 						<ul class="taxonomy-filter ' . esc_attr( $item['show_toggle_numeric'] ) . '">
 						';
 						foreach ( $terms as $result ) {
+							$format_type       = ( ! empty( $item['number_formatting'] ) && 'yes' === $item['number_formatting'] ) ? 'number' : 'none';
+							$args              = array();
+							$args['decimals']  = isset( $item['number_decimals'] ) ? (int) $item['number_decimals'] : 0;
+							$label             = BPFWE_Helper::format_meta_value( $result, $format_type, $args );
+							$decimal_separator = isset( $item['decimal_separator'] ) ? $item['decimal_separator'] : '.';
+							$label             = number_format(
+								(float) $result,
+								$args['decimals'],
+								$decimal_separator,
+								''
+							);
+
 							echo '
 							<li class="list-style">
 							<label for="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '">
 							<input type="checkbox" id="' . esc_attr( $result ) . '-' . esc_attr( $widget_id ) . '" class="bpfwe-filter-item" name="' . esc_attr( $item['meta_key'] ) . '" data-taxonomy="' . esc_attr( $item['meta_key'] ) . '" value="' . esc_attr( $result ) . '" />
-							<span>' . esc_html( $result ) . '</span>
+							<span>' . esc_html( $label ) . '</span>
 							</label>
 							</li>
 							';

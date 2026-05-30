@@ -437,13 +437,15 @@ class BPFWE_Helper {
 	 * @return bool True when the field stores arrays in wp_postmeta.
 	 */
 	public static function acf_field_uses_serialized_storage( $meta_key ) {
-		if ( ! function_exists( 'get_field_object' ) ) {
+		if ( ! function_exists( 'acf_get_field' ) ) {
 			return false;
 		}
 
-		$field = get_field_object( $meta_key );
+		// Use acf_get_field() instead of get_field_object() -- the latter requires
+		// a post ID context to resolve by field name and returns false without one.
+		$field = acf_get_field( $meta_key );
 
-		if ( ! $field || ! isset( $field['type'] ) ) {
+		if ( ! $field || empty( $field['type'] ) ) {
 			return false;
 		}
 
@@ -576,6 +578,34 @@ class BPFWE_Helper {
 				}
 				return $value;
 
+			case 'boolean':
+				$format     = isset( $args['boolean_format'] ) ? $args['boolean_format'] : 'yes_no';
+				$normalized = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+
+				if ( null === $normalized ) {
+					return $value;
+				}
+
+				switch ( $format ) {
+					case 'true_false':
+						$formatted = $normalized ? esc_html__( 'True', 'better-post-filter-widgets-for-elementor' ) : esc_html__( 'False', 'better-post-filter-widgets-for-elementor' );
+						break;
+
+					case 'custom':
+						$true_label  = isset( $args['boolean_true_label'] ) && '' !== $args['boolean_true_label'] ? $args['boolean_true_label'] : esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' );
+						$false_label = isset( $args['boolean_false_label'] ) && '' !== $args['boolean_false_label'] ? $args['boolean_false_label'] : esc_html__( 'No', 'better-post-filter-widgets-for-elementor' );
+
+						$formatted = $normalized ? $true_label : $false_label;
+						break;
+
+					case 'yes_no':
+					default:
+						$formatted = $normalized ? esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ) : esc_html__( 'No', 'better-post-filter-widgets-for-elementor' );
+						break;
+				}
+
+				return $formatted;
+
 			case 'none':
 			default:
 				return $value;
@@ -618,10 +648,20 @@ class BPFWE_Helper {
 		$defaults = is_array( $defaults ) ? $defaults : [];
 
 		// Prepare attributes for each component.
+		// Priority: Loop (global) → Query-specific.
 		$attributes = [
-			'wrapper'       => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_attr/{$query_id}", $widget, 'wrapper', $defaults ),
-			'wrapper_inner' => self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper_inner', $defaults ),
-			'post'          => self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'post', $defaults ),
+			'wrapper'       => array_merge(
+				self::bpfwe_prepare_attributes( 'bpfwe/post_wrapper_attr/loop', $widget, 'wrapper', $defaults ),
+				self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_attr/{$query_id}", $widget, 'wrapper', $defaults )
+			),
+			'wrapper_inner' => array_merge(
+				self::bpfwe_prepare_attributes( 'bpfwe/post_wrapper_inner_attr/loop', $widget, 'wrapper_inner', $defaults ),
+				self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper_inner', $defaults )
+			),
+			'post'          => array_merge(
+				self::bpfwe_prepare_attributes( 'bpfwe/post_attr/loop', $widget, 'post', $defaults ),
+				self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'post', $defaults )
+			),
 		];
 
 		// Ensure each component has valid attributes.

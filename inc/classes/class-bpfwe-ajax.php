@@ -1,6 +1,6 @@
 <?php
 /**
- * Handles the AJAX Functions.
+ * Handles the AJAX Functions and REST API endpoints.
  *
  * @package BPFWE_Widgets
  * @since 1.0.0
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class BPFWE_Ajax
  *
- * Manages AJAX-related functionalities for the plugin.
+ * Manages AJAX-related functionalities and REST API endpoints for the plugin.
  * Includes actions such as changing post status, pinning posts, and optimizing filters.
  */
 class BPFWE_Ajax {
@@ -38,19 +38,32 @@ class BPFWE_Ajax {
 	private $filter_post_ids;
 
 	/**
-	 * Changes the status of a post via AJAX.
+	 * Changes the status of a post via REST API.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
+	 * @param WP_REST_Request $request The REST API request object.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function change_post_status() {
-		$nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-		$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+	public function change_post_status_rest( $request ) {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
 
-		// Check if nonce is set and verify it.
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) || ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_send_json_error( array( 'message' => 'Access Denied' ) );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				'Invalid nonce',
+				[ 'status' => 403 ]
+			);
+		}
+
+		$post_id = absint( $request->get_param( 'post_id' ) );
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'forbidden',
+				'You are not allowed to edit this post',
+				[ 'status' => 403 ]
+			);
 		}
 
 		// Get the current date and time.
@@ -60,75 +73,95 @@ class BPFWE_Ajax {
 
 		// Update post status and publication date.
 		$result = wp_update_post(
-			array(
+			[
 				'ID'            => $post_id,
 				'post_status'   => $new_status,
 				'post_date'     => $current_date,
 				'post_date_gmt' => get_gmt_from_date( $current_date ),
-			)
+			]
 		);
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => 'Failed to update post status' ) );
+			return new WP_Error( 'update_failed', 'Failed to update post status', [ 'status' => 500 ] );
 		}
 
-		wp_die();
+		return new WP_REST_Response(
+			[
+				'success'    => true,
+				'new_status' => $new_status,
+			],
+			200
+		);
 	}
 
 	/**
-	 * Bookmark posts via AJAX.
+	 * Bookmark/pin posts via REST API.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
+	 * @param WP_REST_Request $request The REST API request object.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function pin_post() {
-		$nonce     = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-		$pin_class = isset( $_POST['pin_class'] ) ? sanitize_text_field( wp_unslash( $_POST['pin_class'] ) ) : '';
+	public function pin_post_rest( $request ) {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
 
-		// Check if nonce is set and verify it.
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			wp_send_json_error( array( 'message' => 'Access Denied' ) );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_REST_Response(
+				[
+					'success'    => true,
+					'new_status' => $new_status,
+				],
+				200
+			);
 		}
 
-		$post_id   = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+		$pin_class = sanitize_text_field( $request->get_param( 'pin_class' ) );
+		$post_id   = absint( $request->get_param( 'post_id' ) );
 		$user_id   = get_current_user_id();
 		$post_list = [];
 
 		if ( ! empty( $user_id ) ) {
 			$post_list = get_user_meta( $user_id, 'post_id_list', true );
 			if ( ! is_array( $post_list ) ) {
-				$post_list = array();
+				$post_list = [];
 			}
 		} elseif ( isset( $_COOKIE['post_id_list'] ) ) {
-				$raw_cookie_data = isset( $_COOKIE['post_id_list'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['post_id_list'] ) ) : '';
-				$post_list       = json_decode( $raw_cookie_data, true );
-
-				// Check if json_decode failed or post_list is not an array.
+			$raw_cookie_data = sanitize_text_field( wp_unslash( $_COOKIE['post_id_list'] ) );
+			$post_list       = json_decode( $raw_cookie_data, true );
 			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $post_list ) ) {
 				$post_list = [];
 			}
 		}
 
 		$post_list = array_map( 'absint', $post_list );
-
-		$key = array_search( $post_id, $post_list, true );
+		$key       = array_search( $post_id, $post_list, true );
 
 		if ( str_contains( $pin_class, 'unpin' ) ) {
 			if ( false !== $key ) {
 				unset( $post_list[ $key ] );
 			}
 		} elseif ( ! in_array( $post_id, $post_list, true ) ) {
-				$post_list[] = $post_id;
+			$post_list[] = $post_id;
 		}
 
 		if ( ! empty( $user_id ) ) {
 			update_user_meta( $user_id, 'post_id_list', $post_list );
 		} else {
-			setcookie( 'post_id_list', wp_json_encode( $post_list ), time() + ( 86400 * 30 ), '/' );
+			$is_secure = is_ssl() || ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] );
+			setcookie(
+				'post_id_list',
+				wp_json_encode( $post_list ),
+				[
+					'expires'  => time() + ( 86400 * 30 ),
+					'path'     => '/',
+					'secure'   => $is_secure,
+					'httponly' => true,
+					'samesite' => 'Lax',
+				]
+			);
 		}
 
-		wp_die();
+		return new WP_REST_Response( [ 'success' => true ], 200 );
 	}
 
 	/**
@@ -167,60 +200,102 @@ class BPFWE_Ajax {
 	}
 
 	/**
-	 * Retrieves filtered post results based on the specified criteria.
+	 * Allowed REST API parameter keys for the filter endpoint.
+	 *
+	 * @var array
+	 */
+	private $allowed_keys = [
+		'widget_id',
+		'filter_widget',
+		'template_id',
+		'page_id',
+		'group_logic',
+		'search_query',
+		'date_query',
+		'taxonomy_output',
+		'dynamic_filtering',
+		'custom_field_output',
+		'custom_field_relational_output',
+		'custom_field_like_output',
+		'numeric_output',
+		'post_type',
+		'posts_per_page',
+		'order',
+		'order_by',
+		'order_by_meta',
+		'paged',
+		'archive_type',
+		'archive_post_type',
+		'archive_taxonomy',
+		'archive_id',
+		'archive_search_query',
+		'performance_settings',
+		'enable_query_debug',
+		'inject_id',
+		'query_id',
+	];
+
+	/**
+	 * Retrieves filtered post results based on the specified criteria via REST API.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return void
+	 * @param WP_REST_Request $request The REST API request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function post_filter_results() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+	public function post_filter_results_rest( $request ) {
+		$params = array_intersect_key(
+			$request->get_params(),
+			array_flip( $this->allowed_keys )
+		);
 
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			wp_send_json_error( array( 'message' => 'Access Denied' ) );
-		}
-
-		$template_id      = ! empty( $_POST['template_id'] ) ? absint( wp_unslash( $_POST['template_id'] ) ) : '';
-		$page_id          = ! empty( $_POST['page_id'] ) ? absint( wp_unslash( $_POST['page_id'] ) ) : '';
-		$widget_id        = ! empty( $_POST['widget_id'] ) ? sanitize_key( wp_unslash( $_POST['widget_id'] ) ) : '';
-		$filter_widget_id = ! empty( $_POST['filter_widget'] ) ? sanitize_text_field( wp_unslash( $_POST['filter_widget'] ) ) : '';
-		$inject_id        = ! empty( $_POST['inject_id'] ) ? sanitize_text_field( wp_unslash( $_POST['inject_id'] ) ) : '';
+		$template_id      = ! empty( $params['template_id'] ) ? absint( $params['template_id'] ) : '';
+		$page_id          = ! empty( $params['page_id'] ) ? absint( $params['page_id'] ) : '';
+		$widget_id        = ! empty( $params['widget_id'] ) ? sanitize_key( $params['widget_id'] ) : '';
+		$filter_widget_id = ! empty( $params['filter_widget'] ) ? sanitize_text_field( $params['filter_widget'] ) : '';
+		$inject_id        = ! empty( $params['inject_id'] ) ? sanitize_text_field( $params['inject_id'] ) : '';
 
 		if ( empty( $template_id ) || empty( $widget_id ) ) {
-			status_header( 400 );
-			wp_send_json_error(
-				array(
-				'message' => sprintf(
+			return new WP_Error(
+				'missing_parameters',
+				sprintf(
 					'A valid template ID and widget ID are required. Provided template: %s, widget: %s',
 					$template_id ? $template_id : '(empty)',
 					$widget_id ? $widget_id : '(empty)'
 				),
-				)
+				[ 'status' => 400 ]
 			);
 		}
 
 		$document = \Elementor\Plugin::$instance->documents->get( $template_id );
-
 		if ( ! $document && ! empty( $page_id ) ) {
 			$document = \Elementor\Plugin::$instance->documents->get( $page_id );
 		}
-
 		if ( ! $document ) {
-			status_header( 400 );
-			wp_send_json_error(
-				array(
-				'message' => sprintf(
-					'The template ID %s does not exist.',
+			return new WP_Error(
+				'invalid_template',
+				sprintf(
+					'
+					The template ID %s does not exist.',
 					$template_id
 				),
-				)
+				[ 'status' => 400 ]
+			);
+		}
+
+		$post_status = get_post_status( $template_id );
+		if ( 'publish' !== $post_status && ! current_user_can( 'edit_post', $template_id ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				'You do not have permission to view this layout template.',
+				[ 'status' => 403 ]
 			);
 		}
 
 		$element_data = $document->get_elements_data();
 		$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
 
-		// If widget is not not found in template_id, fallback to page_id document.
+		// If widget is not found in template_id, fallback to page_id document.
 		if ( ! $widget_data && ! empty( $page_id ) ) {
 			$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
 			$element_data = $document->get_elements_data();
@@ -228,16 +303,15 @@ class BPFWE_Ajax {
 		}
 
 		if ( ! $widget_data ) {
-			status_header( 400 );
-			wp_send_json_error(
-				array(
-				'message' => sprintf(
+			return new WP_Error(
+				'widget_not_found',
+				sprintf(
 					'Widget ID "%s" not found in template ID %s or page ID %s.',
 					$widget_id,
 					$template_id,
 					$page_id ? $page_id : '(none)'
 				),
-				)
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -262,14 +336,16 @@ class BPFWE_Ajax {
 		$taxonomy_sanitization_rules = [
 			'taxonomy' => 'sanitize_text_field',
 			'terms'    => function ( $terms ) {
-				return array_map( 'absint', (array) $terms ); },
+				return array_map( 'absint', (array) $terms );
+			},
 			'logic'    => 'sanitize_text_field',
 		];
 
 		$text_sanitization_rules = [
 			'taxonomy' => 'sanitize_text_field',
 			'terms'    => function ( $terms ) {
-				return array_map( 'sanitize_text_field', (array) $terms ); },
+				return array_map( 'sanitize_text_field', (array) $terms );
+			},
 			'logic'    => 'sanitize_text_field',
 		];
 
@@ -280,27 +356,32 @@ class BPFWE_Ajax {
 			'posts_per_page'   => 'intval',
 		];
 
-		// Sanitize all arrays with bpfwe_sanitize_nested_data(), refer to function on line 133.
-		$days_array                     = ! empty( $_POST['date_query'] ) ? array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_POST['date_query'] ) ) ) ) : [];
-		$taxonomy_output                = ! empty( $_POST['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['taxonomy_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$custom_field_output            = ! empty( $_POST['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$custom_field_relational_output = ! empty( $_POST['custom_field_relational_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_relational_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$custom_field_like_output       = ! empty( $_POST['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['custom_field_like_output'] ), $text_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$numeric_output                 = ! empty( $_POST['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( wp_unslash( $_POST['numeric_output'] ), $taxonomy_sanitization_rules ) : [];  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$performance_settings           = ! empty( $_POST['performance_settings'] ) ? $this->bpfwe_sanitize_nested_data( json_decode( wp_unslash( $_POST['performance_settings'] ), true ), $performance_sanitization_rules ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// Get and sanitize all parameters from the REST request.
+		$days_array                     = ! empty( $params['date_query'] ) ? array_map( 'trim', explode( ',', sanitize_text_field( $params['date_query'] ) ) ) : [];
+		$taxonomy_output                = ! empty( $params['taxonomy_output'] ) ? $this->bpfwe_sanitize_nested_data( $params['taxonomy_output'], $taxonomy_sanitization_rules ) : [];
+		$custom_field_output            = ! empty( $params['custom_field_output'] ) ? $this->bpfwe_sanitize_nested_data( $params['custom_field_output'], $text_sanitization_rules ) : [];
+		$custom_field_relational_output = ! empty( $params['custom_field_relational_output'] ) ? $this->bpfwe_sanitize_nested_data( $params['custom_field_relational_output'], $text_sanitization_rules ) : [];
+		$custom_field_like_output       = ! empty( $params['custom_field_like_output'] ) ? $this->bpfwe_sanitize_nested_data( $params['custom_field_like_output'], $text_sanitization_rules ) : [];
+		$numeric_output                 = ! empty( $params['numeric_output'] ) ? $this->bpfwe_sanitize_nested_data( $params['numeric_output'], $taxonomy_sanitization_rules ) : [];
+		$performance_settings_raw       = ! empty( $params['performance_settings'] ) ? $params['performance_settings'] : [];
 
-		$group_logic          = ! empty( $_POST['group_logic'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['group_logic'] ) ) ) : '';
-		$meta_key             = ! empty( $_POST['order_by_meta'] ) ? sanitize_key( wp_unslash( $_POST['order_by_meta'] ) ) : '';
-		$order                = ! empty( $_POST['order'] ) && in_array( strtoupper( wp_unslash( $_POST['order'] ) ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) : '';
-		$order_by             = ! empty( $_POST['order_by'] ) ? sanitize_key( wp_unslash( $_POST['order_by'] ) ) : '';
-		$search_terms         = ! empty( $_POST['search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['search_query'] ) ) : '';
-		$archive_search_terms = ! empty( $_POST['archive_search_query'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_search_query'] ) ) : '';
-		$dynamic_filtering    = ! empty( $_POST['dynamic_filtering'] ) ? filter_var( wp_unslash( $_POST['dynamic_filtering'] ), FILTER_VALIDATE_BOOLEAN ) : false;
-		$post_type            = ! empty( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'any';
-		$posts_per_page       = ! empty( $_POST['posts_per_page'] ) ? max( 1, absint( wp_unslash( $_POST['posts_per_page'] ) ) ) : 50;
-		$paged                = ! empty( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
-		$enable_query_debug   = ! empty( $_POST['enable_query_debug'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_query_debug'] ) ) : '';
-		$query_id             = ! empty( $_POST['query_id'] ) ? sanitize_key( $_POST['query_id'] ) : 'default';
+		if ( is_string( $performance_settings_raw ) ) {
+			$performance_settings_raw = json_decode( $performance_settings_raw, true );
+		}
+
+		$performance_settings = $this->bpfwe_sanitize_nested_data( (array) $performance_settings_raw, $performance_sanitization_rules );
+		$group_logic          = ! empty( $params['group_logic'] ) ? strtoupper( sanitize_text_field( $params['group_logic'] ) ) : '';
+		$meta_key             = ! empty( $params['order_by_meta'] ) ? sanitize_key( $params['order_by_meta'] ) : '';
+		$order                = ! empty( $params['order'] ) && in_array( strtoupper( $params['order'] ), [ 'DESC', 'ASC' ], true ) ? strtoupper( sanitize_text_field( $params['order'] ) ) : '';
+		$order_by             = ! empty( $params['order_by'] ) ? sanitize_text_field( $params['order_by'] ) : '';
+		$search_terms         = ! empty( $params['search_query'] ) ? sanitize_text_field( $params['search_query'] ) : '';
+		$archive_search_terms = ! empty( $params['archive_search_query'] ) ? sanitize_text_field( $params['archive_search_query'] ) : '';
+		$dynamic_filtering    = ! empty( $params['dynamic_filtering'] ) ? filter_var( $params['dynamic_filtering'], FILTER_VALIDATE_BOOLEAN ) : false;
+		$post_type            = ! empty( $params['post_type'] ) ? sanitize_text_field( $params['post_type'] ) : 'any';
+		$posts_per_page       = ! empty( $params['posts_per_page'] ) ? max( 1, absint( $params['posts_per_page'] ) ) : 50;
+		$paged                = ! empty( $params['paged'] ) ? max( 1, absint( $params['paged'] ) ) : 1;
+		$enable_query_debug   = ! empty( $params['enable_query_debug'] ) ? sanitize_text_field( $params['enable_query_debug'] ) : '';
+		$query_id             = ! empty( $params['query_id'] ) ? sanitize_key( $params['query_id'] ) : 'default';
 
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
@@ -321,10 +402,10 @@ class BPFWE_Ajax {
 			$post_type = 'any';
 		}
 
-		$args = array(
+		$args = [
 			'post_type' => $post_type,
 			'paged'     => $paged,
-		);
+		];
 
 		if ( ! empty( $order ) ) {
 			$args['order'] = $order;
@@ -449,83 +530,73 @@ class BPFWE_Ajax {
 			// Add CUSTOM FIELD/ACF to query.
 			if ( ! empty( $custom_field_output ) && is_array( $custom_field_output ) ) {
 				foreach ( $custom_field_output as $value ) {
-					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] )
-						? array_map( 'sanitize_text_field', $value['terms'] )
-						: [ sanitize_text_field( $value['terms'] ) ];
+					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_map( 'sanitize_text_field', $value['terms'] ) : [ sanitize_text_field( $value['terms'] ) ];
+					$key   = sanitize_text_field( $value['taxonomy'] );
 
-					$key = sanitize_key( $value['taxonomy'] );
-
-					// Build an OR sub-group covering both storage formats in one pass:
-					//   • compare '='    → plain scalar value (single ACF select, regular meta)
-					//   • compare 'LIKE' → PHP-serialized array entry (ACF checkbox /
-					//     multi-select). The quoted pattern '"value"' matches the s:N:"value"
-					//     segment inside a serialized string without producing false positives
-					//     on substrings that lack surrounding double-quotes.
-					// This avoids a dependency on get_field_object() at AJAX time, which can
-					// return false when no post context is available.
-					$or_subgroup = [ 'relation' => 'OR' ];
-
-					foreach ( $terms as $term ) {
-						$or_subgroup[] = [
+					if ( \BPFWE\Inc\Classes\BPFWE_Helper::acf_field_uses_serialized_storage( $key ) ) {
+						if ( count( $terms ) > 1 ) {
+							$serialized_group = [ 'relation' => 'OR' ];
+							foreach ( $terms as $term ) {
+								$serialized_group[] = [
+									'key'     => $key,
+									'value'   => '"' . $term . '"',
+									'compare' => 'LIKE',
+								];
+							}
+							$meta_query_or[] = $serialized_group;
+						} else {
+							$meta_query_or[] = [
+								'key'     => $key,
+								'value'   => '"' . $terms[0] . '"',
+								'compare' => 'LIKE',
+							];
+						}
+					} else {
+						$meta_query_or[] = [
 							'key'     => $key,
-							'value'   => $term,
-							'compare' => '=',
-						];
-						$or_subgroup[] = [
-							'key'     => $key,
-							'value'   => '"' . $term . '"',
-							'compare' => 'LIKE',
+							'value'   => count( $terms ) > 1 ? $terms : $terms[0],
+							'compare' => count( $terms ) > 1 ? 'IN' : '=',
 						];
 					}
-
-					$meta_query_or[] = $or_subgroup;
 				}
 			}
 
 			// Add INPUT field to query.
 			if ( ! empty( $custom_field_like_output ) && is_array( $custom_field_like_output ) ) {
-				foreach ( $custom_field_like_output as $key => $value ) {
-					$query = [
+				foreach ( $custom_field_like_output as $value ) {
+					$meta_like_or[] = [
 						'key'     => sanitize_key( $value['taxonomy'] ),
 						'value'   => implode( ' ', array_map( 'sanitize_text_field', (array) $value['terms'] ) ),
 						'compare' => 'LIKE',
 					];
-
-					$meta_like_or[] = $query;
 				}
 			}
 
 			// Add RELATIONAL FIELD to query.
 			if ( ! empty( $custom_field_relational_output ) && is_array( $custom_field_relational_output ) ) {
-				foreach ( $custom_field_relational_output as $key => $value ) {
-
+				foreach ( $custom_field_relational_output as $value ) {
 					$taxonomy_key = sanitize_key( $value['taxonomy'] );
 					$term_ids     = array_map( 'absint', (array) $value['terms'] );
 					$row_logic    = in_array( strtoupper( $value['logic'] ?? '' ), [ 'AND', 'OR' ], true ) ? strtoupper( $value['logic'] ) : '';
-
 					if ( empty( $term_ids ) ) {
 						continue;
 					}
-
 					if ( count( $term_ids ) > 1 ) {
-						$or_group = array( 'relation' => $row_logic );
-
+						$or_group = [ 'relation' => $row_logic ];
 						foreach ( $term_ids as $term_id ) {
-							$or_group[] = array(
+							$or_group[] = [
 								'key'     => $taxonomy_key,
 								'value'   => $term_id,
 								'compare' => 'LIKE',
-							);
+							];
 						}
-
 						$meta_like_or[] = $or_group;
-
 					} else {
-						$meta_like_or[] = array(
+						$meta_like_or[] = [
 							'key'     => $taxonomy_key,
 							'value'   => $term_ids[0],
 							'compare' => 'LIKE',
-						);
+						];
 					}
 				}
 			}
@@ -533,44 +604,32 @@ class BPFWE_Ajax {
 			// Add NUMERIC value field to query.
 			if ( ! empty( $numeric_output ) && is_array( $numeric_output ) ) {
 				foreach ( $numeric_output as $value ) {
-					$terms = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_slice( array_map( 'sanitize_text_field', $value['terms'] ), 0, 2 ) : [ sanitize_text_field( $value['terms'] ) ];
-
-					$query = [
+					$terms             = ! empty( $value['terms'] ) && is_array( $value['terms'] ) ? array_slice( array_map( 'sanitize_text_field', $value['terms'] ), 0, 2 ) : [ sanitize_text_field( $value['terms'] ) ];
+					$meta_numeric_or[] = [
 						'key'     => sanitize_key( $value['taxonomy'] ),
 						'value'   => count( $terms ) > 1 ? $terms : $terms[0],
 						'type'    => 'NUMERIC',
 						'compare' => count( $terms ) > 1 ? 'BETWEEN' : '>=',
 					];
-
-					$meta_numeric_or[] = $query;
 				}
 			}
 
 			// Initialize meta_query if there are any AND/OR groups or LIKE conditions.
 			if ( ! empty( $meta_query_or ) || ! empty( $meta_like_or ) || ! empty( $meta_numeric_or ) ) {
 				$args['meta_query'] = [];
-
 				if ( ( count( $meta_query_or ) + count( $meta_like_or ) + count( $meta_numeric_or ) ) > 1 || $dynamic_filtering ) {
 					$args['meta_query']['relation'] = $group_logic;
 				}
-
 				foreach ( $meta_query_or as $group_or ) {
 					$args['meta_query'][] = $group_or;
 				}
-
-				if ( ! empty( $meta_like_or ) ) {
-					foreach ( $meta_like_or as $like_query ) {
-						$args['meta_query'][] = $like_query;
-					}
+				foreach ( $meta_like_or as $like_query ) {
+					$args['meta_query'][] = $like_query;
 				}
-
-				if ( ! empty( $meta_numeric_or ) ) {
-					foreach ( $meta_numeric_or as $numeric_query ) {
-						$args['meta_query'][] = $numeric_query;
-					}
+				foreach ( $meta_numeric_or as $numeric_query ) {
+					$args['meta_query'][] = $numeric_query;
 				}
 			}
-
 			$is_empty = false;
 		}
 
@@ -588,31 +647,29 @@ class BPFWE_Ajax {
 		}
 
 		if ( $dynamic_filtering ) {
-			$archive_type     = isset( $_POST['archive_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_type'] ) ) : '';
-			$archive_taxonomy = isset( $_POST['archive_taxonomy'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_taxonomy'] ) ) : '';
-			$archive_id       = isset( $_POST['archive_id'] ) ? absint( wp_unslash( $_POST['archive_id'] ) ) : 0;
+			$archive_type     = ! empty( $params['archive_type'] ) ? sanitize_text_field( $params['archive_type'] ) : '';
+			$archive_taxonomy = ! empty( $params['archive_taxonomy'] ) ? sanitize_text_field( $params['archive_taxonomy'] ) : '';
+			$archive_id       = ! empty( $params['archive_id'] ) ? absint( $params['archive_id'] ) : 0;
 
 			// Add conditions based on the archive type.
 			switch ( $archive_type ) {
 				case 'author':
-					$args['author__in'] = array( $archive_id );
-					break;
-				case 'date':
+					$args['author__in'] = [ $archive_id ];
 					break;
 				case 'category':
 				case 'taxonomy':
-					$args['tax_query'][] = array(
+					$args['tax_query'][] = [
 						'taxonomy'         => $archive_taxonomy,
 						'field'            => 'id',
 						'terms'            => $archive_id,
 						'include_children' => true,
-					);
+					];
 					break;
 				case 'tag':
-					$args['tag__in'] = array( $archive_id );
+					$args['tag__in'] = [ $archive_id ];
 					break;
 				case 'post_type':
-					$args['post_type'] = isset( $_POST['archive_post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['archive_post_type'] ) ) : 'any';
+					$args['post_type'] = ! empty( $params['archive_post_type'] ) ? sanitize_text_field( $params['archive_post_type'] ) : 'any';
 					break;
 				case 'search':
 					$args['s'] = get_search_query();
@@ -670,7 +727,14 @@ class BPFWE_Ajax {
 
 		if ( true === $is_empty ) {
 			$this->filter_query = null;
-			return;
+			return new WP_REST_Response(
+				[
+					'html'          => '',
+					'max_num_pages' => 0,
+					'found_posts'   => 0,
+				],
+				200
+			);
 		}
 
 		if ( false === $is_empty && $filter_widget_id ) {
@@ -719,10 +783,11 @@ class BPFWE_Ajax {
 		$widget_html = $document->render_element( $widget_data );
 		remove_filter( 'found_posts', $capture_hook, 10 );
 
-		$ajax_endpoints = [
+		// Clean endpoints in pagination links.
+		$ajax_endpoints = array(
 			admin_url( 'admin-ajax.php' ),
-			plugin_dir_url( BPFWE_PLUGIN_FILE ) . 'inc/bpfwe-ajax-handler.php',
-		];
+			untrailingslashit( rest_url( 'bpfwe/v1/filter' ) ),
+		);
 
 		foreach ( $ajax_endpoints as $endpoint ) {
 			$widget_html = preg_replace_callback(
@@ -732,7 +797,19 @@ class BPFWE_Ajax {
 			);
 		}
 
-		$widget_html = preg_replace( '#/page/(\d+)/#', '?paged=$1', $widget_html );
+		// Rewrite all /page/X/ pagination to ?paged=X.
+		$widget_html = preg_replace_callback(
+			'#((?:href|data-next-page)=["\'][^"\']*)/page/(\d+)/#',
+			static fn( $matches ) => $matches[1] . '/?paged=' . $matches[2],
+			$widget_html
+		);
+
+		// Handle bare numeric homepage pagination.
+		$widget_html = preg_replace_callback(
+			'#(?<=href=["\'])' . preg_quote( trailingslashit( home_url() ), '#' ) . '(\d+)/#',
+			static fn( $matches ) => trailingslashit( home_url() ) . '?paged=' . $matches[1],
+			$widget_html
+		);
 
 		$response = [
 			'html'          => $widget_html,
@@ -753,9 +830,7 @@ class BPFWE_Ajax {
 			$response['query'] = wp_json_encode( $args, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		}
 
-		echo wp_json_encode( $response );
-
-		wp_die();
+		return new WP_REST_Response( $response, 200 );
 	}
 
 	/**
@@ -775,7 +850,7 @@ class BPFWE_Ajax {
 		// Verify the nonce.
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
 			status_header( 403 );
-			wp_die( 'Invalid or missing nonce', 'Forbidden', array( 'response' => 403 ) );
+			wp_die( 'Invalid or missing nonce', 'Forbidden', [ 'response' => 403 ] );
 		}
 	}
 
@@ -807,7 +882,7 @@ class BPFWE_Ajax {
 
 		$post_type = (array) $query->get( 'post_type' );
 
-		$exclude_post_types = array(
+		$exclude_post_types = [
 			'attachment',
 			'revision',
 			'nav_menu_item',
@@ -827,7 +902,7 @@ class BPFWE_Ajax {
 			'shop_coupon',
 			'shop_order_refund',
 			'et_pb_layout',
-		);
+		];
 
 		// If any post type in the query is in the exclusion list, bail.
 		if ( array_intersect( $post_type, $exclude_post_types ) ) {
@@ -840,30 +915,33 @@ class BPFWE_Ajax {
 	}
 
 	/**
-	 * Handles AJAX search requests for related items used in the Elementor filter widget.
+	 * Handles search requests for related items via REST API (used in Elementor filter widget repeater).
 	 *
-	 * This function verifies the AJAX nonce, then searches both posts and users
+	 * This function verifies the nonce, then searches both posts and users
 	 * matching the provided query term. Results are returned as a combined JSON
 	 * response compatible with Select2 for use within Elementor repeater fields.
 	 *
 	 * @since 1.7.0
 	 *
-	 * @return void Sends a JSON response with search results or an error message.
+	 * @param WP_REST_Request $request The REST API request object.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function bpfwe_search_related_items() {
-		$nonce = isset( $_GET['nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['nonce'] ) ) : '';
+	public function bpfwe_search_related_items_rest( $request ) {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
 
-		// Verify the nonce.
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			wp_send_json_error( [ 'message' => 'Access Denied' ], 403 );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				'Invalid nonce',
+				[ 'status' => 403 ]
+			);
 		}
 
-		$search   = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
-		$page     = isset( $_GET['page'] ) ? absint( $_GET['page'] ) : 1;
-		$per_page = 6;
-		$results  = [];
-
-		$post_type = ! empty( $_GET['post_type'] ) ? sanitize_text_field( wp_unslash( $_GET['post_type'] ) ) : 'any';
+		$search    = sanitize_text_field( $request->get_param( 'q' ) );
+		$page      = $request->get_param( 'page' ) ? absint( $request->get_param( 'page' ) ) : 1;
+		$per_page  = 6;
+		$results   = [];
+		$post_type = $request->get_param( 'post_type' ) ? sanitize_text_field( $request->get_param( 'post_type' ) ) : 'any';
 
 		// Search posts.
 		$post_query = new WP_Query(
@@ -900,7 +978,175 @@ class BPFWE_Ajax {
 			];
 		}
 
-		wp_send_json_success( $results );
+		return new WP_REST_Response(
+			[
+				'success' => true,
+				'data'    => $results,
+			],
+			200
+		);
+	}
+
+	/**
+	 * Register REST API routes.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function register_rest_routes() {
+		register_rest_route(
+			'bpfwe/v1',
+			'/filter',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'post_filter_results_rest' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'template_id'        => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'widget_id'          => [
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					],
+					'page_id'            => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'filter_widget'      => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'inject_id'          => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'group_logic'        => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'search_query'       => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'date_query'         => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'dynamic_filtering'  => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'post_type'          => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'posts_per_page'     => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'order'              => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'order_by'           => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'order_by_meta'      => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'paged'              => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'enable_query_debug' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'query_id'           => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
+		// Change Post Status - REST endpoint (replaces wp_ajax_change_post_status).
+		register_rest_route(
+			'bpfwe/v1',
+			'/change-post-status',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'change_post_status_rest' ],
+				'permission_callback' => function ( $request ) {
+					$post_id = absint( $request->get_param( 'post_id' ) );
+					return current_user_can( 'edit_post', $post_id );
+				},
+				'args'                => [
+					'post_id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		// Pin Post - REST endpoint (replaces wp_ajax_pin_post / wp_ajax_nopriv_pin_post).
+		register_rest_route(
+			'bpfwe/v1',
+			'/pin-post',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'pin_post_rest' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'post_id'   => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'pin_class' => [
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
+		// Search Related Items - REST endpoint (replaces wp_ajax_bpfwe_search_related_items).
+		register_rest_route(
+			'bpfwe/v1',
+			'/search-related-items',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'bpfwe_search_related_items_rest' ],
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'args'                => [
+					'q'         => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'page'      => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+					'post_type' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -933,7 +1179,7 @@ class BPFWE_Ajax {
 	/**
 	 * Constructor for the BPFWE_Ajax class.
 	 *
-	 * Initializes AJAX hooks and sets up the class.
+	 * Initializes AJAX hooks, REST API routes, and sets up the class.
 	 *
 	 * @since 1.0.0
 	 */
@@ -943,17 +1189,8 @@ class BPFWE_Ajax {
 		add_action( 'init', [ $this, 'reset_filter_state' ] );
 		add_action( 'admin_init', [ $this, 'reset_filter_state' ] );
 
-		add_action( 'wp_ajax_change_post_status', [ $this, 'change_post_status' ] );
-
-		add_action( 'wp_ajax_pin_post', [ $this, 'pin_post' ] );
-		add_action( 'wp_ajax_nopriv_pin_post', [ $this, 'pin_post' ] );
-
-		add_action( 'wp_ajax_post_filter_results', [ $this, 'post_filter_results' ] );
-		add_action( 'wp_ajax_nopriv_post_filter_results', [ $this, 'post_filter_results' ] );
-
-		add_action( 'template_redirect', [ $this, 'bpfwe_handle_frontend_ajax' ] );
-
-		add_action( 'wp_ajax_bpfwe_search_related_items', [ $this, 'bpfwe_search_related_items' ] );
+		// Register REST API routes.
+		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 	}
 
 	/**

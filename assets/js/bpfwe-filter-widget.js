@@ -9,14 +9,6 @@
 		let globalEventsBound = false;
 		let ajaxInProgress = false;
 
-		if ( $( '.elementor-widget-filter-widget' ).length ) {
-			dynamicHandler = 'filter-widget';
-		} else if ( $( '.elementor-widget-search-bar-widget' ).length ) {
-			dynamicHandler = 'search-bar-widget';
-		} else {
-			dynamicHandler = 'sorting-widget';
-		}
-
 		// Utility: Debounce function.
 		function debounce( func, delay ) {
 			let timeoutId;
@@ -231,6 +223,103 @@
 			});
 		}
 		bpfweInitRangeSliders();
+
+		function resetRangeSlider( $slider ) {
+			const $flex = $slider.find( '.flex-wrapper' );
+			const $track = $slider.find( '.bpfwe-slider-track' );
+
+			const $minHandle = $track.find( '.bpfwe-slider-min' );
+			const $maxHandle = $track.find( '.bpfwe-slider-max' );
+
+			const min = $slider.find( '.bpfwe-range-slider' ).data( 'min' );
+			const max = $slider.find( '.bpfwe-range-slider' ).data( 'max' );
+
+			// reset handles.
+			$minHandle.val( min );
+			$maxHandle.val( max );
+
+			// reset visuals.
+			$track.find( '.bpfwe-slider-range' ).css({
+				left: '0%',
+				width: '100%'
+			});
+
+			// reset labels.
+			const $values = $slider.find( '.bpfwe-slider-values' );
+			$values.find( '.bpfwe-slider-value-min' ).text( min );
+			$values.find( '.bpfwe-slider-value-max' ).text( max );
+		}
+
+		function bpfweInitMobileMode() {
+			$( '.elementor-widget-filter-widget' ).each( function () {
+				const $widget = $( this );
+				const $elementorDoc = $widget.closest('[data-elementor-id]');
+				const documentID = $elementorDoc.length ? 'elementor-' + $elementorDoc.data('elementor-id') : '';
+
+				if ( $widget.data( 'bpfwe-mobile-init' ) ) return;
+				$widget.data( 'bpfwe-mobile-init', true );
+
+				const widgetId = $widget.attr( 'data-id' );
+				if ( ! widgetId ) return;
+
+				const settings   = $widget.data( 'settings' ) || {};
+				const breakpoint = settings.mobile_mode_breakpoint 
+					? parseInt( settings.mobile_mode_breakpoint, 10 ) 
+					: 0;
+
+				if ( ! breakpoint ) return;
+
+				const targetSelector = `.bpfwe-mobile-${widgetId}`;
+				const $target = $(`.bpfwe-mobile-target[data-filter-id="${widgetId}"]`);
+
+				if ( ! $target.length ) return;
+
+				// Store original position ONCE
+				if ( ! $widget.data( 'bpfwe-original-parent' ) ) {
+					$widget.data( 'bpfwe-original-parent', $widget.parent() );
+					$widget.data( 'bpfwe-original-index', $widget.index() );
+				}
+
+				function updateMobileFilter() {
+					const isMobile = window.innerWidth <= breakpoint;
+
+					if ( isMobile ) {
+						if ( ! $widget.hasClass( 'bpfwe-moved' ) ) {
+
+							$widget.appendTo( $target );
+
+							if ( documentID ) {
+								$target.addClass( documentID );
+							}
+
+							$widget.addClass( 'bpfwe-moved' );
+						}
+					} else {
+						if ( $widget.hasClass( 'bpfwe-moved' ) ) {
+							const $parent = $widget.data( 'bpfwe-original-parent' );
+							const index   = $widget.data( 'bpfwe-original-index' );
+
+							if ( $parent && $parent.length ) {
+								if ( index >= $parent.children().length ) {
+									$widget.appendTo( $parent );
+								} else {
+									$widget.insertBefore( $parent.children().eq( index ) );
+								}
+							}
+
+							$widget.removeClass( 'bpfwe-moved' );
+						}
+					}
+				}
+
+				// Run once
+				updateMobileFilter();
+
+				// Resize listener
+				$( window ).on( 'resize.bpfwe-mobile', updateMobileFilter );
+			});
+		}
+		bpfweInitMobileMode();
 
 		// Utility: Resolve document ID for widget.
 		function getDocumentIdForWidget( widgetSelector ) {
@@ -908,7 +997,11 @@
 					bpfweResetLinkedWidgets( resetWidgetID, "full" );
 				} );
 
-				if ( currentUrl.includes( '?search=' ) ) {
+				// Prevents auto-search on redirect URLs with empty parameters.
+				const url = new URL(currentUrl);
+				const searchValue = url.searchParams.get('search');
+
+				if (searchValue && searchValue.trim() !== '') {
 					getFormValues();
 				}
 
@@ -1019,7 +1112,6 @@
 					let nothingFoundMessage = '';
 					let isFacetted = '';
 					let facetWidgetId = '';
-					let customAjax = false;
 					let scrollToTop = '';
 					let displaySelectedBefore = '';
 					let enableQueryDebug = '';
@@ -1095,7 +1187,6 @@
 							nothingFoundMessage = filterSettings?.nothing_found_message ?? '';
 							isFacetted = filterSettings?.is_facetted ?? '';
 							facetWidgetId = currentfilterWidgetId;
-							customAjax = filterSettings?.filter_custom_handler === 'yes';
 							scrollToTop = filterSettings?.scroll_to_top ?? '';
 							displaySelectedBefore = filterSettings?.display_selected_before ?? '';
 							enableQueryDebug = filterSettings?.enable_query_debug ?? '';
@@ -1232,17 +1323,21 @@
 									var $minInput = $wrapper.find( 'input[name^="min_"]' ).first();
 									var $maxInput = $wrapper.find( 'input[name^="max_"]' ).first();
 
-									var minVal = ( $minInput.val() || $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
-									var maxVal = ( $maxInput.val() || $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
+									var minVal  = ( $minInput.val() || $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
+									var maxVal  = ( $maxInput.val() || $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
 
-									if ( minVal !== '' && maxVal !== '' ) {
+									var minBase = ( $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
+									var maxBase = ( $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
+
+									if ( minVal !== '' && maxVal !== '' && ( minVal !== minBase || maxVal !== maxBase ) ) {
 										numeric_field.push( {
 											taxonomy: $minInput.data( 'taxonomy' ),
 											terms: [ minVal, maxVal ],
 											logic: $wrapper.data( 'logic' )
-										});
+										} );
 										hasValues = true;
 									}
+
 									return;
 								}
 
@@ -1386,14 +1481,17 @@
 						custom_field_like_output = reduceFields( custom_field_like ),
 						numeric_output = reduceFields( numeric_field );
 
-					//const ajaxUrl = customAjax ? ajax_var.bpfwe_url : ajax_var.url;
-
-					$.ajax( {
+					$.ajax({
 						type: 'POST',
-						url: ajax_var.url,
+						url: ajax_var.rest_url + 'bpfwe/v1/filter',
+						beforeSend: function (xhr) {
+							ajaxInProgress = true;
+							if ( isFacetted && !facetAlreadyDone ) {
+								$loadingWidget.addClass( 'load' );
+							}
+						},
 						async: true,
 						data: {
-							action: 'post_filter_results',
 							widget_id: localWidgetID,
 							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
 							template_id: templateID,
@@ -1418,20 +1516,13 @@
 							archive_taxonomy: $( '[name="archive_taxonomy"]' ).val(),
 							archive_id: $( '[name="archive_id"]' ).val(),
 							archive_search_query: $( '[name="archive_search_query"]' ).val(),
-							nonce: ajax_var.nonce,
 							performance_settings: JSON.stringify( performanceSettings ),
 							enable_query_debug: enableQueryDebug,
 							inject_id: injectID,
 							query_id: queryID,
 						},
-						beforeSend: function () {
-							ajaxInProgress = true;
-							if ( isFacetted && !facetAlreadyDone ) {
-								$loadingWidget.addClass( 'load' );
-							}
-						},
 						success: function ( data ) {
-							var response = JSON.parse( data );
+							var response = data;
 							var content = response.html;
 							var filters = response.filters;
 
@@ -1595,105 +1686,172 @@
 				}
 
 				function updateSelectedTermsDisplay( widgetInteractionID, displaySelectedBefore ) {
-					if ( !$( '.selected-terms-' + widgetInteractionID + ', .selected-count-' + widgetInteractionID + ', .quick-deselect-' + widgetInteractionID + ', .bpfwe-selected-terms, .bpfwe-selected-count' ).length ) return;
+
+					const selectorTerms  = '.selected-terms-' + widgetInteractionID + ', .bpfwe-selected-terms[data-filter-id="' + widgetInteractionID + '"]';
+					const selectorCount  = '.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count[data-filter-id="' + widgetInteractionID + '"]';
+					const selectorTags   = '.quick-deselect-' + widgetInteractionID + ', .bpfwe-quick-deselect[data-filter-id="' + widgetInteractionID + '"]';
+
+					if ( !$( selectorTerms + ', ' + selectorCount + ', ' + selectorTags ).length ) return;
+
 					const $filterWidget = $( `.elementor-widget-filter-widget[data-id="${widgetInteractionID}"]` );
 					if ( !$filterWidget.length ) return;
+
 					let selectedLabels = [];
-					let selectedItems = [];
+					let selectedItems  = [];
+
 					// Checkboxes & radios
 					$filterWidget.find( 'input[type="checkbox"]:checked, input[type="radio"]:checked' ).each( function () {
 						let labelText = $( this ).closest( 'label' ).find( 'span' ).first().text().trim();
 						labelText = labelText.replace( /\s*\(\d+\)\s*$/, '' ).replace( /\s*\(\–\)\s*$/, '' );
 						if ( labelText ) selectedLabels.push( labelText );
-					} );
+					});
+
 					// Selects
 					$filterWidget.find( 'select option:selected' ).each( function () {
 						let text = $( this ).text().trim();
 						text = text.replace( /\s*\(\d+\)\s*$/, '' ).replace( /\s*\(\–\)\s*$/, '' );
 						if ( text && $( this ).val() ) selectedLabels.push( text );
-					} );
+					});
+
 					// Build selectedItems
 					$filterWidget.find( 'input[type="checkbox"]:checked, input[type="radio"]:checked, select option:selected' ).each( function () {
 						const $input = $( this );
 						const value = $input.val();
-						let label = $input.is( 'option' ) ? $input.text().trim() : $input.closest( 'label' ).find( 'span' ).first().text().trim();
+
+						let label = $input.is( 'option' )
+							? $input.text().trim()
+							: $input.closest( 'label' ).find( 'span' ).first().text().trim();
+
 						label = label.replace( /\s*\(\d+\)\s*$/, '' ).replace( /\s*\(\–\)\s*$/, '' );
-						if ( value && label ) selectedItems.push( {
-							value,
-							label
-						} );
-					} );
+
+						if ( value && label ) {
+							selectedItems.push({ value, label });
+						}
+					});
+
 					// Numeric ranges
 					$filterWidget.find( '.bpfwe-numeric-wrapper' ).each( function () {
 						const $wrapper = $( this );
 						const $min = $wrapper.find( 'input[name^="min_"]' );
 						const $max = $wrapper.find( 'input[name^="max_"]' );
+
 						if ( $min.hasClass( 'input-val' ) || $max.hasClass( 'input-val' ) ) return;
+
 						if ( $min.length && $max.length ) {
 							const minVal = $min.val();
 							const maxVal = $max.val();
 							const baseMin = $min.attr( 'data-base-value' );
 							const baseMax = $max.attr( 'data-base-value' );
-							// Skip if empty
+
 							if ( minVal === '' && maxVal === '' ) return;
+
 							if ( minVal != baseMin || maxVal != baseMax ) {
 								const label = `${minVal || ''} - ${maxVal || ''}`;
+
 								selectedLabels.push( label );
-								selectedItems.push( {
+								selectedItems.push({
 									value: `${minVal || ''}-${maxVal || ''}`,
 									label: label,
 									type: 'range',
 									minInput: $min,
 									maxInput: $max
-								} );
+								});
 							}
 						}
-					} );
-					const termsCountText = selectedLabels.length > 0 ? `${selectedLabels.length} ${displaySelectedBefore}` : '';
-					$( '.selected-count-' + widgetInteractionID + ', .bpfwe-selected-count' ).each( function () {
+					});
+
+					const termsCountText = selectedLabels.length > 0
+						? `${selectedLabels.length} ${displaySelectedBefore}`
+						: '';
+
+					$( selectorCount ).each( function () {
 						const $widget = $( this );
 						const $container = $widget.find( '.elementor-widget-container' ).first();
-						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						const $target = $container.length ? $container.children().first() : $widget;
+
 						if ( $target.length ) $target.text( termsCountText );
-					} );
-					const termsText = selectedLabels.length > 0 ? `${displaySelectedBefore || ''} ${selectedLabels.join(', ')}`.trim() : '';
-					$( '.selected-terms-' + widgetInteractionID + ', .bpfwe-selected-terms' ).each( function () {
+					});
+
+					const termsText = selectedLabels.length > 0
+						? `${displaySelectedBefore || ''} ${selectedLabels.join(', ')}`.trim()
+						: '';
+
+					$( selectorTerms ).each( function () {
 						const $widget = $( this );
 						const $container = $widget.find( '.elementor-widget-container' ).first();
-						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						const $target = $container.length ? $container.children().first() : $widget;
+
 						if ( $target.length ) $target.text( termsText );
-					} );
+					});
+
 					const pillsHtml = selectedItems.map( item => {
-						if ( item.type === 'range' ) {
-							return `<span class="bpfwe-term-pill" data-range="true" data-min="${item.minInput.attr('name')}" data-max="${item.maxInput.attr('name')}" data-widget-id="${widgetInteractionID}">
-							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-							</span>`;
+
+					if ( item.type === 'range' ) {
+
+						const minName = item.minInput.attr('name');
+						const maxName = item.maxInput.attr('name');
+
+						const minVal = parseFloat( item.minInput.val() );
+						const maxVal = parseFloat( item.maxInput.val() );
+
+						const baseMin = parseFloat( item.minInput.attr('data-base-min') );
+						const baseMax = parseFloat( item.maxInput.attr('data-base-max') );
+
+						// do not create pill if still at default state.
+						if (
+							! isNaN( minVal ) &&
+							! isNaN( maxVal ) &&
+							minVal === baseMin &&
+							maxVal === baseMax
+						) {
+							return '';
 						}
-						return `<span class="bpfwe-term-pill" data-term="${item.value}">
-						<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+
+						return `<span class="bpfwe-term-pill" data-range="true" data-min="${minName}" data-max="${maxName}" data-widget-id="${widgetInteractionID}">
+							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
 						</span>`;
-					} ).join( '' );
-					$( '.quick-deselect-' + widgetInteractionID ).each( function () {
+					}
+
+						return `<span class="bpfwe-term-pill" data-term="${item.value}">
+							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+						</span>`;
+					}).join('');
+
+					$( selectorTags ).each( function () {
 						const $widget = $( this );
 						const $container = $widget.find( '.elementor-widget-container' ).first();
-						const $target = $container.length ? $container.children().first() : $widget.children().first();
+						const $target = $container.length ? $container.children().first() : $widget;
+
 						if ( $target.length ) $target.html( pillsHtml );
-					} );
-					$document.off( 'click.bpfwe-filter', '.bpfwe-term-remove' ).on( 'click.bpfwe-filter', '.bpfwe-term-remove', function () {
+					});
+
+					$document.off( 'click.bpfwe-filter', '.bpfwe-term-remove' )
+					.on( 'click.bpfwe-filter', '.bpfwe-term-remove', function () {
+
 						const $pill = $( this ).parent();
 						const widgetId = $( this ).data( 'widget-id' );
-						const $localFilterWidget = widgetId ? $( `.elementor-widget-filter-widget[data-id="${widgetId}"]` ) : $( '.elementor-widget-filter-widget' );
+
+						const $localFilterWidget = widgetId
+							? $( `.elementor-widget-filter-widget[data-id="${widgetId}"]` )
+							: $( '.elementor-widget-filter-widget' );
+
 						if ( $pill.data( 'range' ) ) {
+
 							const minName = $pill.data( 'min' );
 							const maxName = $pill.data( 'max' );
+
 							const $min = $localFilterWidget.find( `input[name="${minName}"]` );
 							const $max = $localFilterWidget.find( `input[name="${maxName}"]` );
+
 							if ( $min.length && $max.length ) {
-								$min.val( $min.attr( 'data-base-value' ) ).trigger( 'change' );
-								$max.val( $max.attr( 'data-base-value' ) ).trigger( 'change' );
+								$min.val( $min.attr( 'data-base-min' ) ).trigger( 'change' );
+								$max.val( $max.attr( 'data-base-max' ) ).trigger( 'change' );
 							}
+
 						} else if ( $localFilterWidget.length ) {
+
 							let $input = $localFilterWidget.find( `[value="${$pill.data('term')}"]` );
+
 							if ( $input.is( 'input[type="checkbox"], input[type="radio"]' ) ) {
 								$input.prop( 'checked', false ).trigger( 'change' );
 							} else if ( $input.is( 'option' ) ) {
@@ -1703,8 +1861,9 @@
 								$select.trigger( 'change' );
 							}
 						}
+
 						updateSelectedTermsDisplay( widgetId, displaySelectedBefore );
-					} );
+					});
 				}
 
 				function bpfweInfiniteScroll( widgetID, targetSelector ) {
@@ -2138,6 +2297,7 @@
 					$targetPostWidget.data( 'current-page', 1 );
 
 					if ( $mode === "full" ) {
+						resetRangeSlider( $resetWidget );
 						getFormValues( resetWidgetID );
 					}
 
@@ -2147,9 +2307,13 @@
 		} );
 
 		if ( !elementorFrontend.isEditMode() ) {
-			elementorFrontend.elementsHandler.attachHandler( dynamicHandler, FilterWidgetHandler );
+			// Fix the off-canvas shenanigans: simply attach the same handler to all three widget types.
+			elementorFrontend.elementsHandler.attachHandler( 'filter-widget', FilterWidgetHandler );
+			elementorFrontend.elementsHandler.attachHandler( 'search-bar-widget', FilterWidgetHandler );
+			elementorFrontend.elementsHandler.attachHandler( 'sorting-widget', FilterWidgetHandler );
 		} else {
 			elementorFrontend.elementsHandler.attachHandler( 'filter-widget', FilterWidgetHandler );
 		}
+
 	} );
 } )( jQuery );
