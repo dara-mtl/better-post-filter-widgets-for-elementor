@@ -1432,9 +1432,9 @@
 							}
 						},
 						success: function ( data ) {
-							var response = JSON.parse( data );
-							var content = response.html;
-							var filters = response.filters;
+							var response = ( typeof data === 'string' && data !== '0' ) ? JSON.parse( data ) : data;
+							var content = response.html || '';
+							var filters = response.filters || {};
 
 							if ( response.query && ajax_var.isUserLoggedIn ) {
 								const debugHtml = '<div class="query-debug-frame" style="background:#f5f5f5; border:1px solid #ccc; padding:10px; margin:15px 0; font-family: monospace; white-space: pre-wrap;">' + response.query + '</div>';
@@ -1444,7 +1444,7 @@
 								}
 							}
 
-							bpfweSyncFacetFilters( data, hasValues, filters );
+							bpfweSyncFacetFilters( response, hasValues, filters );
 
 							let originalState = originalStates[ localWidgetID ];
 							if ( data === '0' || !hasValues ) {
