@@ -1,20 +1,21 @@
 jQuery(window).on('elementor:init', function () {
 
 	const elementsMap = {
-		'post-pin'          : 'show-bookmark',
-		'post-title'        : 'show-title',
-		'post-taxonomy'     : 'show-taxonomy',
-		'post-content'      : 'show-content',
-		'post-excerpt'      : 'show-content',
-		'post-custom-field' : 'show-custom-field',
-		'post-read-more'    : 'show-read-more',
-		'post-meta'         : 'show-meta',
-		'post-html'         : 'show-html',
-		'edit-options'      : 'show-edit',
-		'product-price'     : 'show-price',
-		'product-rating'    : 'show-rating',
-		'product-buy-now'   : 'show-buy',
-		'product-badge'     : 'show-badge',
+		'post-pin'            : 'show-bookmark',
+		'post-title'          : 'show-title',
+		'post-taxonomy'       : 'show-taxonomy',
+		'post-content'        : 'show-content',
+		'post-excerpt'        : 'show-content',
+		'post-custom-field'   : 'show-custom-field',
+		'post-read-more'      : 'show-read-more',
+		'product-add-to-cart' : 'show-add-to-cart',
+		'post-meta'           : 'show-meta',
+		'post-html'           : 'show-html',
+		'edit-options'        : 'show-edit',
+		'product-price'       : 'show-price',
+		'product-rating'      : 'show-rating',
+		'product-buy-now'     : 'show-buy',
+		'product-badge'       : 'show-badge',
 	};
 
 	function updateControlVisibility($panel, $widget) {

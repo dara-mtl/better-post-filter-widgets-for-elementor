@@ -1920,9 +1920,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label'              => esc_html__( 'Before/After', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::TEXT,
 				'placeholder'        => esc_html__( 'Selected:', 'better-post-filter-widgets-for-elementor' ),
-				'condition'          => [
-					'display_selected_terms' => 'yes',
-				],
 				'frontend_available' => true,
 			]
 		);
@@ -2364,18 +2361,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'{{WRAPPER}} .form-tax label:not(.collapsible)' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; display: flex; align-items: center;',
 				],
 			]
-		);
-
-		$this->add_responsive_control(
-			'filter_label_spacing',
-			array(
-				'label'      => esc_html__( 'Spacing', 'better-post-filter-widgets-for-elementor' ),
-				'type'       => \Elementor\Controls_Manager::SLIDER,
-				'size_units' => array( 'px', 'em', '%', 'rem' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .form-tax label' => 'margin-bottom: {{SIZE}}{{UNIT}}; display: flex; align-items: center;',
-				),
-			)
 		);
 
 		$this->add_group_control(
@@ -3345,6 +3330,188 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			array(
 				'name'     => 'filter_label_list_hover_border',
 				'selector' => '{{WRAPPER}} .list-style label:hover span, {{WRAPPER}} .list-style label input[type="checkbox"]:checked + span',
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->end_controls_tabs();
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_selected_terms',
+			array(
+				'label' => esc_html__( 'Selected Terms/Count', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'selected_terms_filter_typography',
+				'selector' => '.bpfwe-selected-terms[data-filter-id="{{ID}}"], .bpfwe-selected-count[data-filter-id="{{ID}}"]',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_selected_terms_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'separator'  => 'before',
+				'selectors'  => array(
+					'.bpfwe-selected-terms[data-filter-id="{{ID}}"], .bpfwe-selected-count[data-filter-id="{{ID}}"]' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_selected_terms_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'.bpfwe-selected-terms[data-filter-id="{{ID}}"], .bpfwe-selected-count[data-filter-id="{{ID}}"]' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_quick_deselect',
+			array(
+				'label' => esc_html__( 'Quick Deselect Pills', 'better-post-filter-widgets-for-elementor' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'quick_deselect_filter_typography',
+				'selector' => '.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_quick_deselect_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'separator'  => 'before',
+				'selectors'  => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_quick_deselect_margin',
+			array(
+				'label'      => esc_html__( 'Margin', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->start_controls_tabs(
+			'quick_deselect_input_style_tabs'
+		);
+
+		$this->start_controls_tab(
+			'quick_deselect_input_style_normal_tab',
+			[
+				'label' => esc_html__( 'Normal', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'quick_deselect_filter_color',
+			array(
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'filter_quick_deselect_background',
+			array(
+				'label'     => esc_html__( 'Field Background', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill' => 'background-color: {{VALUE}}',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_quick_deselect_border',
+				'selector' => '.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill',
+			)
+		);
+
+		$this->add_responsive_control(
+			'filter_quick_deselect_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'better-post-filter-widgets-for-elementor' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px' ),
+				'selectors'  => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'quick_deselect_input_style_hover_tab',
+			[
+				'label' => esc_html__( 'Hover', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
+			'quick_deselect_filter_color_hover',
+			array(
+				'label'     => esc_html__( 'Color', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill:hover' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'filter_quick_deselect_background_hover',
+			array(
+				'label'     => esc_html__( 'Field Background', 'better-post-filter-widgets-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill:hover' => 'background: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'     => 'filter_quick_deselect_hover_border',
+				'selector' => '.bpfwe-quick-deselect[data-filter-id="{{ID}}"] .bpfwe-term-pill:hover',
 			)
 		);
 

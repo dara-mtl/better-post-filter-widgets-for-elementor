@@ -643,6 +643,7 @@ class BPFWE_Ajax {
 						'inclusive' => true,
 					],
 				];
+				$is_empty = false;
 			}
 		}
 

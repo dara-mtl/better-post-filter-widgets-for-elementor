@@ -1005,10 +1005,17 @@
 					getFormValues();
 				}
 
-				function postCount( $target ) {
-					let postCount = $target.find( '.post-container' ).data( 'total-post' ) || 0;
-					postCount = Number( postCount );
-					$( '.filter-post-count .number' ).text( postCount );
+				function postCount( $target, count ) {
+
+					if ( typeof count !== 'undefined' ) {
+						count = Number( count ) || 0;
+					} else {
+						count = Number(
+							$target.find( '.post-container' ).data( 'total-post' )
+						) || 0;
+					}
+
+					$( '.filter-post-count .number' ).text( count );
 				}
 
 				// Retrieve form values, process filters, and make AJAX request for filtered posts.
@@ -1425,6 +1432,10 @@
 							dateQuery = $filterWidget.find( '.bpfwe-filter-item[data-taxonomy="post_date"]' ).map( function () {
 								return this.value;
 							} ).get().join( ',' );
+							
+							if ( dateQuery ) {
+								hasValues = true;
+							}
 						}
 					} );
 
@@ -1522,9 +1533,9 @@
 							query_id: queryID,
 						},
 						success: function ( data ) {
-							var response = data;
-							var content = response.html;
-							var filters = response.filters;
+							var response = ( typeof data === 'string' && data !== '0' ) ? JSON.parse( data ) : data;
+							var content = response.html || '';
+							var filters = response.filters || {};
 
 							if ( response.query && ajax_var.isUserLoggedIn ) {
 								const debugHtml = '<div class="query-debug-frame" style="background:#f5f5f5; border:1px solid #ccc; padding:10px; margin:15px 0; font-family: monospace; white-space: pre-wrap;">' + response.query + '</div>';
@@ -1534,10 +1545,11 @@
 								}
 							}
 
-							bpfweSyncFacetFilters( data, hasValues, filters );
+							bpfweSyncFacetFilters( response, hasValues, filters );
 
 							let originalState = originalStates[ localWidgetID ];
-							if ( data === '0' || !hasValues ) {
+							if ( !hasValues ) {
+								// Case 1: no active filters - restore original widget state.
 								localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
 								var currentSettings = localTargetSelector.data( 'settings' );
 								if ( currentSettings?.pagination_type === 'cwm_infinite' ) {
@@ -1548,10 +1560,24 @@
 									currentSettings.pagination_load_type = 'ajax';
 									localTargetSelector.data( 'settings', currentSettings );
 								}
-								postCount( localTargetSelector );
+
+								postCount( localTargetSelector, response.found_posts );
+
 								var resetWidgetID = $loadingWidget.closest( '.elementor-widget-filter-widget' ).data( 'id' );
 								bpfweResetLinkedWidgets( resetWidgetID, "partial" );
+
+							} else if ( response.found_posts === 0 ) {
+								// Case 2: filters active but no results - show nothing found message.
+								if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
+									const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+									localTargetSelector.html( '<div class="no-post e-loop-nothing-found-message">' + safeMessage + '</div>' ).fadeIn().removeClass( 'load' );
+								} else {
+									localTargetSelector.html( content ).fadeIn().removeClass( 'load' );
+								}
+								localTargetSelector.addClass( 'filter-active' );
+
 							} else {
+								// Case 3: filters active with results - render filtered content.
 								if ( [ 'infinite', 'load_more', 'load_more_on_click', 'load_more_infinite_scroll', 'cwm_infinite' ].includes( paginationType ) ) {
 									if ( localTargetSelector.hasClass( 'filter-active' ) ) {
 										var existingContent = localTargetSelector.find( '.elementor-grid' ).children();
@@ -1569,36 +1595,27 @@
 
 								localTargetSelector.find( '.loader' ).fadeOut();
 
-								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length ) {
-									if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
-										const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
-										localTargetSelector.html( `<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>` );
-									}
-								} else {
-									var pagination = localTargetSelector.find( '.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );
-									pagination.addClass( 'pagination-filter' );
+								var pagination = localTargetSelector.find( '.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );
+								pagination.addClass( 'pagination-filter' );
 
-									var scrollAnchor = localTargetSelector.find( '.e-load-more-anchor' );
+								var loadMoreButton = localTargetSelector.find( '.load-more' ),
+									elementorLoadMoreButton = localTargetSelector.find( '.e-load-more-anchor' ).nextAll().find( 'a.elementor-button' );
 
-									var loadMoreButton = localTargetSelector.find( '.load-more' ),
-										elementorLoadMoreButton = localTargetSelector.find( '.e-load-more-anchor' ).nextAll().find( 'a.elementor-button' );
+								loadMoreButton.addClass( 'load-more-filter' );
+								elementorLoadMoreButton.addClass( 'load-more-filter' );
+								localTargetSelector.addClass( 'filter-active' );
 
-									loadMoreButton.addClass( 'load-more-filter' );
-									elementorLoadMoreButton.addClass( 'load-more-filter' );
-									localTargetSelector.addClass( 'filter-active' );
-
-									var currentSettings = localTargetSelector.data( 'settings' );
-									if ( currentSettings?.pagination_type === 'load_more_infinite_scroll' ) {
-										currentSettings.pagination_type = 'cwm_infinite';
-										localTargetSelector.data( 'settings', currentSettings );
-									}
-									if ( currentSettings?.pagination_load_type === 'ajax' ) {
-										currentSettings.pagination_load_type = 'cwm_ajax';
-										localTargetSelector.data( 'settings', currentSettings );
-									}
-
-									postCount( localTargetSelector );
+								var currentSettings = localTargetSelector.data( 'settings' );
+								if ( currentSettings?.pagination_type === 'load_more_infinite_scroll' ) {
+									currentSettings.pagination_type = 'cwm_infinite';
+									localTargetSelector.data( 'settings', currentSettings );
 								}
+								if ( currentSettings?.pagination_load_type === 'ajax' ) {
+									currentSettings.pagination_load_type = 'cwm_ajax';
+									localTargetSelector.data( 'settings', currentSettings );
+								}
+
+								postCount( localTargetSelector, response.found_posts );
 							}
 							localTargetSelector.removeClass( 'filter-initialized' );
 						},
@@ -1679,7 +1696,7 @@
 								localTargetSelector.data( 'settings', currentSettings );
 							}
 
-							postCount( localTargetSelector );
+							postCount( localTargetSelector, response.found_posts );
 							reinitElementorContent( localTargetSelector );
 						}
 					} );
@@ -1696,24 +1713,9 @@
 					const $filterWidget = $( `.elementor-widget-filter-widget[data-id="${widgetInteractionID}"]` );
 					if ( !$filterWidget.length ) return;
 
-					let selectedLabels = [];
-					let selectedItems  = [];
+					let selectedItems = [];
 
 					// Checkboxes & radios
-					$filterWidget.find( 'input[type="checkbox"]:checked, input[type="radio"]:checked' ).each( function () {
-						let labelText = $( this ).closest( 'label' ).find( 'span' ).first().text().trim();
-						labelText = labelText.replace( /\s*\(\d+\)\s*$/, '' ).replace( /\s*\(\–\)\s*$/, '' );
-						if ( labelText ) selectedLabels.push( labelText );
-					});
-
-					// Selects
-					$filterWidget.find( 'select option:selected' ).each( function () {
-						let text = $( this ).text().trim();
-						text = text.replace( /\s*\(\d+\)\s*$/, '' ).replace( /\s*\(\–\)\s*$/, '' );
-						if ( text && $( this ).val() ) selectedLabels.push( text );
-					});
-
-					// Build selectedItems
 					$filterWidget.find( 'input[type="checkbox"]:checked, input[type="radio"]:checked, select option:selected' ).each( function () {
 						const $input = $( this );
 						const value = $input.val();
@@ -1748,7 +1750,6 @@
 							if ( minVal != baseMin || maxVal != baseMax ) {
 								const label = `${minVal || ''} - ${maxVal || ''}`;
 
-								selectedLabels.push( label );
 								selectedItems.push({
 									value: `${minVal || ''}-${maxVal || ''}`,
 									label: label,
@@ -1759,6 +1760,14 @@
 							}
 						}
 					});
+
+					// Deduplicate by value to prevent double-registration from label+checkbox clicks.
+					selectedItems = selectedItems.filter( ( item, index, self ) =>
+						index === self.findIndex( i => i.value === item.value )
+					);
+
+					// Derive labels from the already-deduped selectedItems.
+					const selectedLabels = selectedItems.map( item => item.label );
 
 					const termsCountText = selectedLabels.length > 0
 						? `${selectedLabels.length} ${displaySelectedBefore}`
@@ -1786,31 +1795,31 @@
 
 					const pillsHtml = selectedItems.map( item => {
 
-					if ( item.type === 'range' ) {
+						if ( item.type === 'range' ) {
 
-						const minName = item.minInput.attr('name');
-						const maxName = item.maxInput.attr('name');
+							const minName = item.minInput.attr('name');
+							const maxName = item.maxInput.attr('name');
 
-						const minVal = parseFloat( item.minInput.val() );
-						const maxVal = parseFloat( item.maxInput.val() );
+							const minVal = parseFloat( item.minInput.val() );
+							const maxVal = parseFloat( item.maxInput.val() );
 
-						const baseMin = parseFloat( item.minInput.attr('data-base-min') );
-						const baseMax = parseFloat( item.maxInput.attr('data-base-max') );
+							const baseMin = parseFloat( item.minInput.attr('data-base-min') );
+							const baseMax = parseFloat( item.maxInput.attr('data-base-max') );
 
-						// do not create pill if still at default state.
-						if (
-							! isNaN( minVal ) &&
-							! isNaN( maxVal ) &&
-							minVal === baseMin &&
-							maxVal === baseMax
-						) {
-							return '';
+							// do not create pill if still at default state.
+							if (
+								! isNaN( minVal ) &&
+								! isNaN( maxVal ) &&
+								minVal === baseMin &&
+								maxVal === baseMax
+							) {
+								return '';
+							}
+
+							return `<span class="bpfwe-term-pill" data-range="true" data-min="${minName}" data-max="${maxName}" data-widget-id="${widgetInteractionID}">
+								<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
+							</span>`;
 						}
-
-						return `<span class="bpfwe-term-pill" data-range="true" data-min="${minName}" data-max="${maxName}" data-widget-id="${widgetInteractionID}">
-							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}
-						</span>`;
-					}
 
 						return `<span class="bpfwe-term-pill" data-term="${item.value}">
 							<span class="bpfwe-term-remove" data-widget-id="${widgetInteractionID}">×</span> ${item.label}

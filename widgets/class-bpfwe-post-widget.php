@@ -4099,7 +4099,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Title Style
 		$this->start_controls_section(
-			'title_style',
+			'bpfwe_title_style',
 			[
 				'label'     => esc_html__( 'Title', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -4633,7 +4633,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Content/Excerpt Style
 		$this->start_controls_section(
-			'content_style',
+			'bpfwe_content_style',
 			[
 				'label'     => esc_html__( 'Content/Excerpt', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -4809,7 +4809,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: HTML Style
 		$this->start_controls_section(
-			'html_style',
+			'bpfwe_html_style',
 			[
 				'label' => esc_html__( 'HTML/Shortcode', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
@@ -4982,7 +4982,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Taxonomy Style
 		$this->start_controls_section(
-			'taxonomy_style',
+			'bpfwe_taxonomy_style',
 			[
 				'label'     => esc_html__( 'Taxonomy', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -5153,7 +5153,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Custom Field Style
 		$this->start_controls_section(
-			'custom_field_style',
+			'bpfwe_custom_field_style',
 			[
 				'label' => esc_html__( 'Custom Field/ACF', 'better-post-filter-widgets-for-elementor' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
@@ -5323,7 +5323,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Post Meta Style
 		$this->start_controls_section(
-			'post_meta_style',
+			'bpfwe_post_meta_style',
 			[
 				'label'     => esc_html__( 'Post Meta', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -5538,7 +5538,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Read More Style
 		$this->start_controls_section(
-			'read_more_style',
+			'bpfwe_read_more_style',
 			[
 				'label'     => esc_html__( 'Read More', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -6574,7 +6574,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		if ( class_exists( 'WooCommerce' ) ) {
 			// ------------------------------------------------------------------------- CONTROL: Product Price Style
 			$this->start_controls_section(
-				'product_price_style',
+				'bpfwe_product_price_style',
 				[
 					'label'     => esc_html__( 'Product Price', 'better-post-filter-widgets-for-elementor' ),
 					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -6781,7 +6781,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 			// ------------------------------------------------------------------------- CONTROL: Buy Now Style
 			$this->start_controls_section(
-				'buy_now_style',
+				'bpfwe_buy_now_style',
 				[
 					'label'     => esc_html__( 'Buy Now', 'better-post-filter-widgets-for-elementor' ),
 					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -6950,7 +6950,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 			// ------------------------------------------------------------------------- CONTROL: Add To Cart Style
 			$this->start_controls_section(
-				'add_to_cart_style',
+				'bpfwe_add_to_cart_style',
 				[
 					'label'     => esc_html__( 'Add To Cart', 'better-post-filter-widgets-for-elementor' ),
 					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -7297,7 +7297,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 			// ------------------------------------------------------------------------- CONTROL: Product Badge Style
 			$this->start_controls_section(
-				'product_badge_style',
+				'bpfwe_product_badge_style',
 				[
 					'label'     => esc_html__( 'Product Badge', 'better-post-filter-widgets-for-elementor' ),
 					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -7466,7 +7466,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 			// ------------------------------------------------------------------------- CONTROL: Product Rating Style
 			$this->start_controls_section(
-				'product_rating_style',
+				'bpfwe_product_rating_style',
 				[
 					'label'     => esc_html__( 'Product Rating', 'better-post-filter-widgets-for-elementor' ),
 					'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -8616,7 +8616,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Post Pin Style
 		$this->start_controls_section(
-			'post_pin_style',
+			'bpfwe_post_pin_style',
 			[
 				'label'     => esc_html__( 'Bookmark', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -8764,7 +8764,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 		// ------------------------------------------------------------------------- CONTROL: Edit Options Style
 		$this->start_controls_section(
-			'edit_options_style',
+			'bpfwe_edit_options_style',
 			[
 				'label'     => esc_html__( 'Edit Options', 'better-post-filter-widgets-for-elementor' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_STYLE,
@@ -9599,6 +9599,11 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$post_type = get_post_type( $post_id );
 
 						$taxonomies    = get_object_taxonomies( $post_type, 'names' );
+						$taxonomies = array_filter( $taxonomies, function( $tax ) {
+							$tax_obj = get_taxonomy( $tax );
+							return $tax_obj && ! empty( $tax_obj->public );
+						} );
+
 						$display_terms = array();
 
 						$post_types_array = array( $post_type );
