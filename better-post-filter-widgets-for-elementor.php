@@ -7,7 +7,7 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.8.7
+ * Version: 1.8.8
  * Requires PHP: 7.4
  * Requires at least: 6.2
  * Tested up to: 7.0
@@ -40,7 +40,7 @@ require_once BPFWE_PLUGIN_DIR . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.8.7';
+	const VERSION                   = '1.8.8';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 

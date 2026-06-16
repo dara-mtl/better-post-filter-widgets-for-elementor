@@ -233,11 +233,13 @@ class BPFWE_Background_Image {
 	 */
 	private function apply_background_image( $element, $element_keys, $resolved_id ) {
 		foreach ( $element_keys as $setting_key => $data ) {
+
 			$image_url    = '';
 			$field_source = $data['field_source'] ?? 'post';
 
 			if ( 'custom_field' === $data['type'] ) {
 				$image_url = $this->resolve_image_url_from_meta( $field_source, $data['custom_key'], $resolved_id );
+
 			} elseif ( 'featured_image' === $data['type'] ) {
 				$image_url = (string) get_the_post_thumbnail_url( $resolved_id, 'full' );
 			}
@@ -247,18 +249,48 @@ class BPFWE_Background_Image {
 				return;
 			}
 
-			$css = sprintf( 'background-image: url(%s);', esc_url( $image_url ) );
+			$settings   = $element->get_settings_for_display();
+			$has_overlay = ! empty( $settings['background_overlay_background'] );
+
+			$css = '';
+
+			// Base styling (always applied as fallback).
+			if ( ! $has_overlay ) {
+				$css .= sprintf(
+					'background-image:url(%s);',
+					esc_url( $image_url )
+				);
+			}
+
 			if ( ! empty( $data['background_position'] ) ) {
 				$css .= 'background-position:' . esc_attr( $data['background_position'] ) . ';';
 			}
+
 			if ( ! empty( $data['background_repeat'] ) ) {
 				$css .= 'background-repeat:' . esc_attr( $data['background_repeat'] ) . ';';
 			}
+
 			if ( ! empty( $data['background_size'] ) ) {
 				$css .= 'background-size:' . esc_attr( $data['background_size'] ) . ';';
 			}
 
-			$element->add_render_attribute( '_wrapper', 'style', $css );
+			if ( ! empty( $css ) ) {
+				$element->add_render_attribute( '_wrapper', 'style', $css );
+			}
+
+			if ( $has_overlay ) {
+				$element->add_render_attribute( '_wrapper', 'class', 'bpfwe-has-dynamic-bg' );
+
+				$element->add_render_attribute(
+					'_wrapper',
+					'style',
+					sprintf(
+						'--bpfwe-bg:url(%s);',
+						esc_url( $image_url )
+					)
+				);
+			}
+
 			$element->add_render_attribute( '_wrapper', 'class', 'e-lazyloaded' );
 
 			return;

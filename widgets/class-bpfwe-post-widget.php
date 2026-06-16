@@ -9277,7 +9277,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$current_page   = 1;
 
 		if ( 'main' === $settings['query_type'] ) {
-			if ( is_front_page() ) {
+			if ( is_front_page() && ! is_home() ) {
 				$current_page = max( 1, get_query_var( 'page' ) );
 			} else {
 				$current_page = max( 1, get_query_var( 'paged' ) );

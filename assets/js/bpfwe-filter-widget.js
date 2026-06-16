@@ -1507,6 +1507,7 @@
 							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
 							template_id: templateID,
 							page_id: pageID,
+							current_url: window.location.href,
 							group_logic: groupLogic,
 							search_query: searchQuery,
 							date_query: dateQuery,

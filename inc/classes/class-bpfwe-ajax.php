@@ -251,6 +251,7 @@ class BPFWE_Ajax {
 
 		$template_id      = ! empty( $params['template_id'] ) ? absint( $params['template_id'] ) : '';
 		$page_id          = ! empty( $params['page_id'] ) ? absint( $params['page_id'] ) : '';
+		$current_url      = ! empty( $params['current_url'] ) ? sanitize_text_field( wp_unslash( $params['current_url'] ) ) : home_url( '/' );
 		$widget_id        = ! empty( $params['widget_id'] ) ? sanitize_key( $params['widget_id'] ) : '';
 		$filter_widget_id = ! empty( $params['filter_widget'] ) ? sanitize_text_field( $params['filter_widget'] ) : '';
 		$inject_id        = ! empty( $params['inject_id'] ) ? sanitize_text_field( $params['inject_id'] ) : '';
@@ -784,10 +785,10 @@ class BPFWE_Ajax {
 		$widget_html = $document->render_element( $widget_data );
 		remove_filter( 'found_posts', $capture_hook, 10 );
 
-		// Clean endpoints in pagination links.
+		// Clean AJAX endpoints in pagination links.
 		$ajax_endpoints = array(
 			admin_url( 'admin-ajax.php' ),
-			untrailingslashit( rest_url( 'bpfwe/v1/filter' ) ),
+			rest_url( 'bpfwe/v1/filter' ),
 		);
 
 		foreach ( $ajax_endpoints as $endpoint ) {
@@ -798,17 +799,55 @@ class BPFWE_Ajax {
 			);
 		}
 
-		// Rewrite all /page/X/ pagination to ?paged=X.
+		// Base URL for rebuilt pagination links: current page URL, stripped of any
+		// existing pagination query args.
+		$base_url = remove_query_arg( array( 'page_num', 'paged', 'page' ), $current_url );
+
+		// Rebuild data-next-page (always paged + 1), discarding Elementor's own URL entirely.
 		$widget_html = preg_replace_callback(
-			'#((?:href|data-next-page)=["\'][^"\']*)/page/(\d+)/#',
-			static fn( $matches ) => $matches[1] . '/?paged=' . $matches[2],
+			'#(data-next-page=["\'])(.*?)(["\'])#',
+			static function ( $matches ) use ( $base_url, $paged ) {
+				$new_url = esc_url( add_query_arg( 'page_num', $paged + 1, $base_url ) );
+				return $matches[1] . $new_url . $matches[3];
+			},
 			$widget_html
 		);
 
-		// Handle bare numeric homepage pagination.
+		// Rebuild <a> pagination hrefs based on their visible page number / role,
+		// discarding Elementor's own URL entirely.
 		$widget_html = preg_replace_callback(
-			'#(?<=href=["\'])' . preg_quote( trailingslashit( home_url() ), '#' ) . '(\d+)/#',
-			static fn( $matches ) => trailingslashit( home_url() ) . '?paged=' . $matches[1],
+			'#<a\b([^>]*\bclass=["\'][^"\']*\bpage-numbers\b[^"\']*["\'][^>]*)>(.*?)</a>#s',
+			static function ( $matches ) use ( $base_url, $paged ) {
+				$attrs    = $matches[1];
+				$inner    = $matches[2];
+				$is_prev  = (bool) preg_match( '#\bprev\b#', $attrs );
+				$is_next  = (bool) preg_match( '#\bnext\b#', $attrs );
+
+				if ( $is_prev ) {
+					$target_page = max( 1, $paged - 1 );
+				} elseif ( $is_next ) {
+					$target_page = $paged + 1;
+				} else {
+					// Numbered link: extract the trailing number from the link content,
+					// ignoring any "Page" screen-reader-only label text.
+					if ( preg_match( '#(\d+)\s*$#', $inner, $num_match ) ) {
+						$target_page = (int) $num_match[1];
+					} else {
+						$target_page = $paged;
+					}
+				}
+
+				$new_url = esc_url( add_query_arg( 'page_num', $target_page, $base_url ) );
+
+				// Replace the existing href attribute entirely, or add one if missing.
+				if ( preg_match( '#href=["\'][^"\']*["\']#', $attrs ) ) {
+					$new_attrs = preg_replace( '#href=["\'][^"\']*["\']#', 'href="' . $new_url . '"', $attrs );
+				} else {
+					$new_attrs = $attrs . ' href="' . $new_url . '"';
+				}
+
+				return '<a' . $new_attrs . '>' . $inner . '</a>';
+			},
 			$widget_html
 		);
 

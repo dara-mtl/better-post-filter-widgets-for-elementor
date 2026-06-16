@@ -534,7 +534,8 @@ input[type="radio"]:checked + span .bpfwe-swatch {
 
 .row-span-expand .inner-content>div:first-child,
 .row-span-expand .inner-content .e-parent {
-	min-height: 100%;
+	min-height: var(--min-height, 100%);
+	height: 100%;
 }
 
 .post-container.classic .post-wrapper>*:not(a),
