@@ -3333,6 +3333,19 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'force_dynamic_background_refresh',
+			[
+				'label'        => esc_html__( 'Force Refresh BG Images', 'better-post-filter-widgets-for-elementor' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Yes', 'bpfwe' ),
+				'label_off'    => esc_html__( 'No', 'bpfwe' ),
+				'return_value' => 'yes',
+				'default'      => 'no',
+				'description'  => esc_html__( 'Enable this if dynamic background images display the wrong image after filtering or in custom query results.', 'better-post-filter-widgets-for-elementor' ),
+			]
+		);
+
+		$this->add_control(
 			'include_post_id',
 			[
 				'label'       => esc_html__( 'Include Posts by ID', 'better-post-filter-widgets-for-elementor' ),
@@ -9331,7 +9344,12 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		global $wp_query;
 		$settings = $this->get_settings_for_display();
-
+		if ( 'yes' === $settings['force_dynamic_background_refresh'] ) {
+			add_filter(
+				'bpfwe_enable_background_image_resolution',
+				'__return_true'
+			);
+		}
 		$overlay      = 'yes' === $settings['overlay'] ? '<span class="overlay"></span>' : '';
 		$lazy_load    = 'yes' === $settings['post_slider_lazy_load'] ? 'swiper-lazy' : '';
 		$class_swiper = 'elementor-grid';
@@ -10976,6 +10994,12 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				</div>
 				';
 			}
+		}
+		if ( 'yes' === $settings['force_dynamic_background_refresh'] ) {
+			remove_filter(
+				'bpfwe_enable_background_image_resolution',
+				'__return_true'
+			);
 		}
 	}
 }

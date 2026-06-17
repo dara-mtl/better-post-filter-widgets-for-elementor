@@ -25,9 +25,12 @@ class BPFWE_Background_Image {
 	 * @return void
 	 */
 	public function set_background_image( $element ) {
-		static $cached_settings          = [];
-		static $no_dynamic_elements      = [];
-		static $applied_element_post_ids = [];
+		if ( ! apply_filters( 'bpfwe_enable_background_image_resolution', false ) ) {
+			return;
+		}
+
+		static $cached_settings     = [];
+		static $no_dynamic_elements = [];
 
 		$bg_supported_widgets = [
 			'section',
@@ -44,20 +47,20 @@ class BPFWE_Background_Image {
 
 		// error_log( 'BPFWE Background Image handler ran for element ID: ' . $element->get_id() ); --Enable for debugging.
 
-		$element_id = $element->get_id();
+		$instance_key = $element->get_id() . '|' . spl_object_id( $element );
 
 		// If we already know this element has no relevant dynamic tags, skip it.
-		if ( isset( $no_dynamic_elements[ $element_id ] ) ) {
+		if ( isset( $no_dynamic_elements[ $instance_key ] ) ) {
 			return;
 		}
 
 		// Resolve the settings/dynamic map once per element ID and cache it.
-		if ( ! isset( $cached_settings[ $element_id ] ) ) {
+		if ( ! isset( $cached_settings[ $instance_key ] ) ) {
 			$settings    = $element->get_settings();
 			$dynamic_map = $settings['__dynamic__'] ?? [];
 
 			if ( empty( $dynamic_map ) ) {
-				$no_dynamic_elements[ $element_id ] = true;
+				$no_dynamic_elements[ $instance_key ] = true;
 				return;
 			}
 
@@ -110,35 +113,35 @@ class BPFWE_Background_Image {
 								'type'                => 'custom_field',
 								'custom_key'          => $custom_key,
 								'field_source'        => $field_source,
-								'background_position' => $settings['background_position'] ?? '',
-								'background_repeat'   => $settings['background_repeat'] ?? '',
-								'background_size'     => $settings['background_size'] ?? '',
+								'background_position' => isset( $settings['background_position'] ) ? $settings['background_position'] : '',
+								'background_repeat'   => isset( $settings['background_repeat'] ) ? $settings['background_repeat'] : '',
+								'background_size'     => isset( $settings['background_size'] ) ? $settings['background_size'] : '',
 							];
 						}
 					} elseif ( 'post-featured-image' === $tag_name ) {
 						$element_keys[ $setting_key ] = [
 							'type'                => 'featured_image',
 							'field_source'        => 'post',
-							'background_position' => $settings['background_position'] ?? '',
-							'background_repeat'   => $settings['background_repeat'] ?? '',
-							'background_size'     => $settings['background_size'] ?? '',
+							'background_position' => isset( $settings['background_position'] ) ? $settings['background_position'] : '',
+							'background_repeat'   => isset( $settings['background_repeat'] ) ? $settings['background_repeat'] : '',
+							'background_size'     => isset( $settings['background_size'] ) ? $settings['background_size'] : '',
 						];
 					}
 				}
 			}
 
 			if ( empty( $element_keys ) ) {
-				$no_dynamic_elements[ $element_id ] = true;
+				$no_dynamic_elements[ $instance_key ] = true;
 				return;
 			}
 
-			$cached_settings[ $element_id ] = $element_keys;
+			$cached_settings[ $instance_key ] = $element_keys;
 		}
 
 		// Resolve the correct context ID based on field_source, mirroring what the dynamic tags themselves do.
 		global $_bpfwe_context, $bpfwe_term_id, $bpfwe_user_id;
 
-		$first_entry  = reset( $cached_settings[ $element_id ] );
+		$first_entry  = reset( $cached_settings[ $instance_key ] );
 		$field_source = $first_entry['field_source'] ?? 'post';
 
 		$resolved_id = null;
@@ -175,14 +178,7 @@ class BPFWE_Background_Image {
 			return;
 		}
 
-		// Prevent duplicate application for the same element + resolved ID combination.
-		$application_key = $element_id . '_' . $resolved_id;
-		if ( isset( $applied_element_post_ids[ $application_key ] ) ) {
-			return;
-		}
-		$applied_element_post_ids[ $application_key ] = true;
-
-		$this->apply_background_image( $element, $cached_settings[ $element_id ], $resolved_id );
+		$this->apply_background_image( $element, $cached_settings[ $instance_key ], $resolved_id );
 	}
 
 	/**
@@ -245,7 +241,7 @@ class BPFWE_Background_Image {
 			}
 
 			if ( ! $image_url ) {
-				$element->add_render_attribute( '_wrapper', 'style', 'background-image: none;' );
+				$element->add_render_attribute( '_wrapper', 'style', 'background-image:none;' );
 				return;
 			}
 
@@ -278,6 +274,7 @@ class BPFWE_Background_Image {
 				$element->add_render_attribute( '_wrapper', 'style', $css );
 			}
 
+			// Overlay handling (important fix)
 			if ( $has_overlay ) {
 				$element->add_render_attribute( '_wrapper', 'class', 'bpfwe-has-dynamic-bg' );
 
