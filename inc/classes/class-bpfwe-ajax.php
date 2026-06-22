@@ -106,17 +106,23 @@ class BPFWE_Ajax {
 		$nonce = $request->get_header( 'X-WP-Nonce' );
 
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-			return new WP_REST_Response(
-				[
-					'success'    => true,
-					'new_status' => $new_status,
-				],
-				200
+			return new WP_Error(
+				'rest_forbidden',
+				'Invalid nonce',
+				[ 'status' => 403 ]
 			);
 		}
 
-		$pin_class = sanitize_text_field( $request->get_param( 'pin_class' ) );
-		$post_id   = absint( $request->get_param( 'post_id' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
+
+		if ( empty( $post_id ) || ! get_post( $post_id ) ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post ID.', 'bpfwe' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		$user_id   = get_current_user_id();
 		$post_list = [];
 
@@ -208,6 +214,7 @@ class BPFWE_Ajax {
 		'widget_id',
 		'filter_widget',
 		'template_id',
+		'current_url',
 		'page_id',
 		'group_logic',
 		'search_query',
@@ -644,7 +651,6 @@ class BPFWE_Ajax {
 						'inclusive' => true,
 					],
 				];
-				$is_empty = false;
 			}
 		}
 
@@ -729,7 +735,7 @@ class BPFWE_Ajax {
 
 		if ( true === $is_empty ) {
 			$this->filter_query = null;
-			return new WP_REST_Response(
+			return new WP_REST_Response (
 				[
 					'html'          => '',
 					'max_num_pages' => 0,
@@ -766,24 +772,7 @@ class BPFWE_Ajax {
 
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 
-		$captured_found_posts   = null;
-		$captured_max_num_pages = null;
-
-		$capture_hook = function ( $found_posts, $query ) use ( &$captured_found_posts, &$captured_max_num_pages ) {
-			if ( $query->is_main_query() || $query->get( 'no_found_rows' ) ) {
-				return $found_posts;
-			}
-			$posts_per_page = (int) $query->get( 'posts_per_page' );
-			if ( $posts_per_page > 0 ) {
-				$captured_found_posts   = (int) $found_posts;
-				$captured_max_num_pages = (int) ceil( $found_posts / $posts_per_page );
-			}
-			return $found_posts;
-		};
-
-		add_filter( 'found_posts', $capture_hook, 10, 2 );
 		$widget_html = $document->render_element( $widget_data );
-		remove_filter( 'found_posts', $capture_hook, 10 );
 
 		// Clean AJAX endpoints in pagination links.
 		$ajax_endpoints = array(
@@ -818,10 +807,10 @@ class BPFWE_Ajax {
 		$widget_html = preg_replace_callback(
 			'#<a\b([^>]*\bclass=["\'][^"\']*\bpage-numbers\b[^"\']*["\'][^>]*)>(.*?)</a>#s',
 			static function ( $matches ) use ( $base_url, $paged ) {
-				$attrs    = $matches[1];
-				$inner    = $matches[2];
-				$is_prev  = (bool) preg_match( '#\bprev\b#', $attrs );
-				$is_next  = (bool) preg_match( '#\bnext\b#', $attrs );
+				$attrs   = $matches[1];
+				$inner   = $matches[2];
+				$is_prev = (bool) preg_match( '#\bprev\b#', $attrs );
+				$is_next = (bool) preg_match( '#\bnext\b#', $attrs );
 
 				if ( $is_prev ) {
 					$target_page = max( 1, $paged - 1 );

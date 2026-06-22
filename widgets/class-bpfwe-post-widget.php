@@ -209,7 +209,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
 				'condition'   => [
-					'classic_layout'       => 'feed',
+					'classic_layout' => 'feed',
 				],
 			]
 		);
@@ -221,7 +221,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'render_type' => 'ui',
 				'condition'   => [
-					'classic_layout'       => 'feed',
+					'classic_layout' => 'feed',
 				],
 			]
 		);
@@ -243,10 +243,10 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'post_skin',
 			[
-				'type'     => \Elementor\Controls_Manager::SELECT,
-				'label'    => esc_html__( 'Post Skin', 'better-post-filter-widgets-for-elementor' ),
-				'default'  => 'classic',
-				'options'  => [
+				'type'      => \Elementor\Controls_Manager::SELECT,
+				'label'     => esc_html__( 'Post Skin', 'better-post-filter-widgets-for-elementor' ),
+				'default'   => 'classic',
+				'options'   => [
 					'classic'     => esc_html__( 'Classic', 'better-post-filter-widgets-for-elementor' ),
 					'side'        => esc_html__( 'On Side', 'better-post-filter-widgets-for-elementor' ),
 					'banner'      => esc_html__( 'Banner', 'better-post-filter-widgets-for-elementor' ),
@@ -495,7 +495,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			[
 				'label'     => esc_html__( 'Available Tags:', 'better-post-filter-widgets-for-elementor' ),
 				'type'      => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'       => esc_html__( '#TITLE#, #CONTENT#, #EXCERPT#, #PERMALINK#, #IMAGE#', 'better-post-filter-widgets-for-elementor' ),
+				'raw'       => esc_html__( '#TITLE#, #CONTENT#, #EXCERPT#, #PERMALINK#, #IMAGE#, #ID#', 'better-post-filter-widgets-for-elementor' ),
 				'condition' => [
 					'post_skin' => 'custom_html',
 				],
@@ -3335,13 +3335,13 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'force_dynamic_background_refresh',
 			[
-				'label'        => esc_html__( 'Force Refresh BG Images', 'better-post-filter-widgets-for-elementor' ),
+				'label'        => esc_html__( 'Refresh Background Images', 'better-post-filter-widgets-for-elementor' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
 				'label_on'     => esc_html__( 'Yes', 'bpfwe' ),
 				'label_off'    => esc_html__( 'No', 'bpfwe' ),
 				'return_value' => 'yes',
 				'default'      => 'no',
-				'description'  => esc_html__( 'Enable this if dynamic background images display the wrong image after filtering or in custom query results.', 'better-post-filter-widgets-for-elementor' ),
+				'description'  => esc_html__( 'Enable this if dynamic background images display the wrong image after filtering.', 'better-post-filter-widgets-for-elementor' ),
 			]
 		);
 
@@ -9113,8 +9113,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 	 * @since 1.8.5
 	 * @access private
 	 *
-	 * @param int $template_id                                  Elementor template post ID.
-	 * @param int $post_id                                      Post ID to generate dynamic CSS for.
+	 * @param int                            $template_id                                  Elementor template post ID.
+	 * @param int                            $post_id                                      Post ID to generate dynamic CSS for.
 	 * @param \Elementor\Core\Files\CSS\Post $template_post_css The template Post_CSS object.
 	 * @return string The generated or cached CSS content.
 	 */
@@ -9616,11 +9616,14 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					if ( 'feed' === $settings['classic_layout'] ) {
 						$post_type = get_post_type( $post_id );
 
-						$taxonomies    = get_object_taxonomies( $post_type, 'names' );
-						$taxonomies = array_filter( $taxonomies, function( $tax ) {
-							$tax_obj = get_taxonomy( $tax );
-							return $tax_obj && ! empty( $tax_obj->public );
-						} );
+						$taxonomies = get_object_taxonomies( $post_type, 'names' );
+						$taxonomies = array_filter(
+							$taxonomies,
+							function ( $tax ) {
+								$tax_obj = get_taxonomy( $tax );
+								return $tax_obj && ! empty( $tax_obj->public );
+							}
+						);
 
 						$display_terms = array();
 
@@ -9726,6 +9729,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$html_content = str_replace( '#PERMALINK#', esc_url( get_permalink() ), $html_content );
 						$html_content = str_replace( '#CONTENT#', get_the_content(), $html_content );
 						$html_content = str_replace( '#EXCERPT#', get_the_excerpt(), $html_content );
+						$html_content = str_replace( '#ID#', absint( $post_id ), $html_content );
 						$html_content = str_replace( '#IMAGE#', $image, $html_content );
 
 						echo '<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' data-post-id="' . esc_attr( $post_id ) . '" ' . ( $feed_terms ? 'data-term="' . esc_attr( $feed_terms ) . '"' : '' ) . '><div class="inner-content">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -9885,8 +9889,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 							// Display Pin.
 							if ( 'Pin Post' === $item['post_content'] ) {
-								$pin_icon   = isset( $item['pin_icon'] ) ? BPFWE_Helper::bpfwe_get_icons( $item['pin_icon'] ) : '';
-								$unpin_icon = isset( $item['unpin_icon'] ) ? BPFWE_Helper::bpfwe_get_icons( $item['unpin_icon'] ) : '';
+								$pin_icon      = isset( $item['pin_icon'] ) ? BPFWE_Helper::bpfwe_get_icons( $item['pin_icon'] ) : '';
+								$unpin_icon    = isset( $item['unpin_icon'] ) ? BPFWE_Helper::bpfwe_get_icons( $item['unpin_icon'] ) : '';
 								$bpfwe_user_id = get_current_user_id();
 								$post_list     = array(); // Initialize as an empty array.
 
@@ -10705,7 +10709,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							</' . esc_attr( $post_html_tag ) . '>';
 						} else {
 							echo '
-							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) )  . '" ' . $attrs['post']['attributes'] . ' data-post-id="' . esc_attr( $bpfwe_term_id ) . '">
+							<' . esc_attr( $post_html_tag ) . ' class="' . esc_attr( implode( ' ', array_filter( [ 'post-wrapper', 'row-span-expand', 'post-' . $post_id, $attrs['post']['class'] ] ) ) ) . '" ' . $attrs['post']['attributes'] . ' data-post-id="' . esc_attr( $bpfwe_term_id ) . '">
 							<div class="inner-content">';
 							echo $this->render_template_for_post( intval( $settings['skin_template'] ), $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							echo '

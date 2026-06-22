@@ -1005,17 +1005,10 @@
 					getFormValues();
 				}
 
-				function postCount( $target, count ) {
-
-					if ( typeof count !== 'undefined' ) {
-						count = Number( count ) || 0;
-					} else {
-						count = Number(
-							$target.find( '.post-container' ).data( 'total-post' )
-						) || 0;
-					}
-
-					$( '.filter-post-count .number' ).text( count );
+				function postCount( $target ) {
+					let postCount = $target.find( '.post-container' ).data( 'total-post' ) || 0;
+					postCount = Number( postCount );
+					$( '.filter-post-count .number' ).text( postCount );
 				}
 
 				// Retrieve form values, process filters, and make AJAX request for filtered posts.
@@ -1432,10 +1425,6 @@
 							dateQuery = $filterWidget.find( '.bpfwe-filter-item[data-taxonomy="post_date"]' ).map( function () {
 								return this.value;
 							} ).get().join( ',' );
-							
-							if ( dateQuery ) {
-								hasValues = true;
-							}
 						}
 					} );
 
@@ -1506,8 +1495,8 @@
 							widget_id: localWidgetID,
 							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
 							template_id: templateID,
-							page_id: pageID,
 							current_url: window.location.href,
+							page_id: pageID,
 							group_logic: groupLogic,
 							search_query: searchQuery,
 							date_query: dateQuery,
@@ -1549,36 +1538,28 @@
 							bpfweSyncFacetFilters( response, hasValues, filters );
 
 							let originalState = originalStates[ localWidgetID ];
-							if ( !hasValues ) {
-								// Case 1: no active filters - restore original widget state.
+
+							if ( response.html === '' || !hasValues ) {
 								localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
+
 								var currentSettings = localTargetSelector.data( 'settings' );
+
 								if ( currentSettings?.pagination_type === 'cwm_infinite' ) {
 									currentSettings.pagination_type = 'load_more_infinite_scroll';
 									localTargetSelector.data( 'settings', currentSettings );
 								}
+
 								if ( currentSettings?.pagination_load_type === 'cwm_ajax' ) {
 									currentSettings.pagination_load_type = 'ajax';
 									localTargetSelector.data( 'settings', currentSettings );
 								}
 
-								postCount( localTargetSelector, response.found_posts );
+								postCount( localTargetSelector );
 
 								var resetWidgetID = $loadingWidget.closest( '.elementor-widget-filter-widget' ).data( 'id' );
+
 								bpfweResetLinkedWidgets( resetWidgetID, "partial" );
-
-							} else if ( response.found_posts === 0 ) {
-								// Case 2: filters active but no results - show nothing found message.
-								if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
-									const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
-									localTargetSelector.html( '<div class="no-post e-loop-nothing-found-message">' + safeMessage + '</div>' ).fadeIn().removeClass( 'load' );
-								} else {
-									localTargetSelector.html( content ).fadeIn().removeClass( 'load' );
-								}
-								localTargetSelector.addClass( 'filter-active' );
-
 							} else {
-								// Case 3: filters active with results - render filtered content.
 								if ( [ 'infinite', 'load_more', 'load_more_on_click', 'load_more_infinite_scroll', 'cwm_infinite' ].includes( paginationType ) ) {
 									if ( localTargetSelector.hasClass( 'filter-active' ) ) {
 										var existingContent = localTargetSelector.find( '.elementor-grid' ).children();
@@ -1596,27 +1577,55 @@
 
 								localTargetSelector.find( '.loader' ).fadeOut();
 
-								var pagination = localTargetSelector.find( '.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );
-								pagination.addClass( 'pagination-filter' );
+								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length ) {
+									if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
+										const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+										localTargetSelector.html( `<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>` );
+									}
+								} else {
+									var pagination = localTargetSelector.find( '.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );
+									pagination.addClass( 'pagination-filter' );
 
-								var loadMoreButton = localTargetSelector.find( '.load-more' ),
-									elementorLoadMoreButton = localTargetSelector.find( '.e-load-more-anchor' ).nextAll().find( 'a.elementor-button' );
+									var scrollAnchor = localTargetSelector.find( '.e-load-more-anchor' );
 
-								loadMoreButton.addClass( 'load-more-filter' );
-								elementorLoadMoreButton.addClass( 'load-more-filter' );
-								localTargetSelector.addClass( 'filter-active' );
+									var loadMoreButton = localTargetSelector.find( '.load-more' ),
+										elementorLoadMoreButton = localTargetSelector.find( '.e-load-more-anchor' ).nextAll().find( 'a.elementor-button' );
 
-								var currentSettings = localTargetSelector.data( 'settings' );
-								if ( currentSettings?.pagination_type === 'load_more_infinite_scroll' ) {
-									currentSettings.pagination_type = 'cwm_infinite';
-									localTargetSelector.data( 'settings', currentSettings );
+									loadMoreButton.addClass( 'load-more-filter' );
+									elementorLoadMoreButton.addClass( 'load-more-filter' );
+
+									var $loadMoreWrapper = localTargetSelector.find('.e-loop__load-more');
+
+									if ($loadMoreWrapper.length) {
+										$loadMoreWrapper.removeClass('e-loop__load-more');
+
+										var $buttonText = $('.elementor-button-wrapper .elementor-button .elementor-button-text');
+
+										if (!$buttonText.find('.bpfwe-dots-loader').length) {
+											$buttonText.append(
+												'<span class="bpfwe-dots-loader">' +
+													'<span></span><span></span><span></span>' +
+												'</span>'
+											);
+										}
+									}
+
+									localTargetSelector.addClass( 'filter-active' );
+
+									var currentSettings = localTargetSelector.data( 'settings' );
+
+									if ( currentSettings?.pagination_type === 'load_more_infinite_scroll' ) {
+										currentSettings.pagination_type = 'cwm_infinite';
+										localTargetSelector.data( 'settings', currentSettings );
+									}
+
+									if ( currentSettings?.pagination_load_type === 'ajax' ) {
+										currentSettings.pagination_load_type = 'cwm_ajax';
+										localTargetSelector.data( 'settings', currentSettings );
+									}
+
+									postCount( localTargetSelector );
 								}
-								if ( currentSettings?.pagination_load_type === 'ajax' ) {
-									currentSettings.pagination_load_type = 'cwm_ajax';
-									localTargetSelector.data( 'settings', currentSettings );
-								}
-
-								postCount( localTargetSelector, response.found_posts );
 							}
 							localTargetSelector.removeClass( 'filter-initialized' );
 						},
@@ -1697,7 +1706,7 @@
 								localTargetSelector.data( 'settings', currentSettings );
 							}
 
-							postCount( localTargetSelector, response.found_posts );
+							postCount( localTargetSelector );
 							reinitElementorContent( localTargetSelector );
 						}
 					} );
@@ -1979,7 +1988,7 @@
 				}
 
 				function bpfweSyncFacetFilters( data, hasValues, filters ) {
-					if ( data === '0' || !hasValues ) {
+					if ( !hasValues ) {
 						return;
 					}
 					if ( !filters || !Object.keys( filters ).length ) {
@@ -2018,8 +2027,28 @@
 							}
 
 							if ( $numericWrapper.hasClass( 'bpfwe-range-slider' ) ) {
-								$currentMin.trigger( 'change.bpfwe-slider' );
-								$currentMax.trigger( 'change.bpfwe-slider' );
+								const $sliderHandleMin = $current.find( '.bpfwe-slider-min' );
+								const $sliderHandleMax = $current.find( '.bpfwe-slider-max' );
+								const $sliderRange     = $current.find( '.bpfwe-slider-range' );
+								const $sliderValueMin  = $current.find( '.bpfwe-slider-value-min' );
+								const $sliderValueMax  = $current.find( '.bpfwe-slider-value-max' );
+
+								const newMin = parseFloat( $currentMin.val() );
+								const newMax = parseFloat( $currentMax.val() );
+								const sliderGlobalMin = parseFloat( $numericWrapper.data( 'min' ) );
+								const sliderGlobalMax = parseFloat( $numericWrapper.data( 'max' ) );
+
+								if ( $sliderHandleMin.length ) $sliderHandleMin.val( newMin );
+								if ( $sliderHandleMax.length ) $sliderHandleMax.val( newMax );
+
+								if ( ! isNaN( newMin ) && ! isNaN( newMax ) && ! isNaN( sliderGlobalMin ) && ! isNaN( sliderGlobalMax ) && sliderGlobalMax !== sliderGlobalMin ) {
+									const pctMin = ( ( newMin - sliderGlobalMin ) / ( sliderGlobalMax - sliderGlobalMin ) ) * 100;
+									const pctMax = ( ( newMax - sliderGlobalMin ) / ( sliderGlobalMax - sliderGlobalMin ) ) * 100;
+									$sliderRange.css( { left: pctMin + '%', width: ( pctMax - pctMin ) + '%' } );
+								}
+
+								if ( $sliderValueMin.length ) $sliderValueMin.text( newMin );
+								if ( $sliderValueMax.length ) $sliderValueMax.text( newMax );
 							}
 
 							return;

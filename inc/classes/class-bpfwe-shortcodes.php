@@ -4,7 +4,6 @@
  *
  * @package BPFWE_Widgets
  * @since 1.9.0
- *
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Mobile Filter Shortcode
  * Usage: [filter_mobile_view id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */
@@ -50,6 +50,7 @@ add_shortcode( 'filter_mobile_view', 'bpfwe_shortcode_filter_mobile' );
 /**
  * Selected Terms / Filter Options Shortcode
  * Usage: [filter_terms id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */
@@ -73,6 +74,7 @@ add_shortcode( 'filter_terms', 'bpfwe_shortcode_filter_terms' );
 /**
  * Filter Count Shortcode
  * Usage: [filter_count id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */
@@ -96,6 +98,7 @@ add_shortcode( 'filter_count', 'bpfwe_shortcode_filter_count' );
 /**
  * Active Filters / Quick Deselect (Tags/Chips) Shortcode
  * Usage: [filter_tags id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */
@@ -118,6 +121,7 @@ add_shortcode( 'filter_tags', 'bpfwe_shortcode_filter_tags' );
 /**
  * Feed Filtering Buttons Shortcode
  * Usage: [feed_filters id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */
@@ -141,6 +145,7 @@ add_shortcode( 'feed_filters', 'bpfwe_shortcode_feed_filters' );
 /**
  * Feed Anchor Filters Shortcode
  * Usage: [feed_anchor_filters id="123abc"]
+ *
  * @param array $atts Shortcode attributes.
  * @return string
  */

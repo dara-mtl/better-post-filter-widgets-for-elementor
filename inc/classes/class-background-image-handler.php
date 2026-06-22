@@ -245,7 +245,7 @@ class BPFWE_Background_Image {
 				return;
 			}
 
-			$settings   = $element->get_settings_for_display();
+			$settings    = $element->get_settings_for_display();
 			$has_overlay = ! empty( $settings['background_overlay_background'] );
 
 			$css = '';
