@@ -799,7 +799,7 @@
 							return;
 						}
 
-						var $paginationElement = $element.find('.e-load-more-anchor');
+						var $paginationElement = $element.find('.bpfwe-load-more-anchor');
 
 						if ($paginationElement.length) {
 							if (!postWidgetObservers[ widgetID ]) {

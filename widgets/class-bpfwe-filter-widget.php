@@ -1985,7 +1985,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				'label_on'           => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value'       => 'yes',
-				'default'            => 'yes',
+				'default'            => '',
 				'separator'          => 'before',
 				'frontend_available' => true,
 			]

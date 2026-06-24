@@ -118,7 +118,7 @@ class BPFWE_Ajax {
 		if ( empty( $post_id ) || ! get_post( $post_id ) ) {
 			return new WP_Error(
 				'invalid_post',
-				__( 'Invalid post ID.', 'bpfwe' ),
+				'Invalid post ID.',
 				[ 'status' => 400 ]
 			);
 		}
@@ -292,7 +292,8 @@ class BPFWE_Ajax {
 		}
 
 		$post_status = get_post_status( $template_id );
-		if ( 'publish' !== $post_status && ! current_user_can( 'edit_post', $template_id ) ) {
+
+		if ( 'publish' !== $post_status && ! is_user_logged_in() ) {
 			return new WP_Error(
 				'rest_forbidden',
 				'You do not have permission to view this layout template.',
@@ -735,14 +736,8 @@ class BPFWE_Ajax {
 
 		if ( true === $is_empty ) {
 			$this->filter_query = null;
-			return new WP_REST_Response (
-				[
-					'html'          => '',
-					'max_num_pages' => 0,
-					'found_posts'   => 0,
-				],
-				200
-			);
+		} else {
+			$this->filter_query = $args;
 		}
 
 		if ( false === $is_empty && $filter_widget_id ) {
@@ -767,8 +762,6 @@ class BPFWE_Ajax {
 		} else {
 			$this->filter_post_ids = null;
 		}
-
-		$this->filter_query = $args;
 
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 
@@ -841,9 +834,7 @@ class BPFWE_Ajax {
 		);
 
 		$response = [
-			'html'          => $widget_html,
-			'max_num_pages' => $captured_max_num_pages ?? 0,
-			'found_posts'   => $captured_found_posts ?? 0,
+			'html' => $widget_html,
 		];
 
 		if ( $filter_widget_id ) {

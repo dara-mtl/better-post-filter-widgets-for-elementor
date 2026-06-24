@@ -3212,7 +3212,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				'label_on'           => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
 				'label_off'          => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value'       => 'yes',
-				'default'            => 'yes',
+				'default'            => '',
 				'frontend_available' => true,
 				'conditions'         => [
 					'relation' => 'or',
@@ -10146,7 +10146,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				';
 				if ( 'infinite' === $pagination ) {
 					echo '
-						<div class="e-load-more-anchor"></div>
+						<div class="bpfwe-load-more-anchor"></div>
 					';
 				}
 			} else {
@@ -10549,7 +10549,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				';
 				if ( 'infinite' === $pagination ) {
 					echo '
-						<div class="e-load-more-anchor"></div>
+						<div class="bpfwe-load-more-anchor"></div>
 					';
 				}
 			} else {
@@ -10986,7 +10986,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 				';
 				if ( 'infinite' === $pagination ) {
 					echo '
-						<div class="e-load-more-anchor"></div>
+						<div class="bpfwe-load-more-anchor"></div>
 					';
 				}
 			} else {

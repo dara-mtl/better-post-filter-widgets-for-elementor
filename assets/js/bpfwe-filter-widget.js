@@ -891,7 +891,7 @@
 
 						var $widget = $( this ).closest( '[data-id]' );
 						var postWidgetID = $widget.data( 'id' );
-						var url = $widget.find( '.e-load-more-anchor' ).data( 'next-page' );
+						var url = $widget.find( '.bpfwe-load-more-anchor, .e-load-more-anchor' ).data( 'next-page' );
 
 						if ( url ) {
 							var paged = getPageNumber( url );
@@ -1522,6 +1522,9 @@
 							inject_id: injectID,
 							query_id: queryID,
 						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('X-WP-Nonce', ajax_var.rest_nonce);
+						},
 						success: function ( data ) {
 							var response = ( typeof data === 'string' && data !== '0' ) ? JSON.parse( data ) : data;
 							var content = response.html || '';
@@ -1539,7 +1542,7 @@
 
 							let originalState = originalStates[ localWidgetID ];
 
-							if ( response.html === '' || !hasValues ) {
+							if ( !hasValues ) {
 								localTargetSelector.html( originalState ).fadeIn().removeClass( 'load filter-active' );
 
 								var currentSettings = localTargetSelector.data( 'settings' );
@@ -1577,7 +1580,7 @@
 
 								localTargetSelector.find( '.loader' ).fadeOut();
 
-								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length ) {
+								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length || content === '' ) {
 									if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
 										const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
 										localTargetSelector.html( `<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>` );
@@ -1586,31 +1589,26 @@
 									var pagination = localTargetSelector.find( '.elementor-pagination, .pagination, nav[aria-label="Pagination"], nav[aria-label="Product Pagination"]' );
 									pagination.addClass( 'pagination-filter' );
 
-									var scrollAnchor = localTargetSelector.find( '.e-load-more-anchor' );
+									var scrollAnchor = localTargetSelector.find('.e-load-more-anchor');
 
-									var loadMoreButton = localTargetSelector.find( '.load-more' ),
-										elementorLoadMoreButton = localTargetSelector.find( '.e-load-more-anchor' ).nextAll().find( 'a.elementor-button' );
+									if (scrollAnchor.length) {
+										scrollAnchor.removeClass('e-load-more-anchor').addClass('bpfwe-load-more-anchor');
+									}
 
-									loadMoreButton.addClass( 'load-more-filter' );
-									elementorLoadMoreButton.addClass( 'load-more-filter' );
+									var loadMoreButton = localTargetSelector.find('.load-more'),
+										elementorLoadMoreButton = localTargetSelector.find('.bpfwe-load-more-anchor, .e-load-more-anchor').nextAll().find('a.elementor-button');
+
+									loadMoreButton.addClass('load-more-filter');
+									elementorLoadMoreButton.addClass('load-more-filter');
 
 									var $loadMoreWrapper = localTargetSelector.find('.e-loop__load-more');
 
 									if ($loadMoreWrapper.length) {
-										$loadMoreWrapper.removeClass('e-loop__load-more');
-
-										var $buttonText = $('.elementor-button-wrapper .elementor-button .elementor-button-text');
-
-										if (!$buttonText.find('.bpfwe-dots-loader').length) {
-											$buttonText.append(
-												'<span class="bpfwe-dots-loader">' +
-													'<span></span><span></span><span></span>' +
-												'</span>'
-											);
-										}
+										$loadMoreWrapper.removeClass('e-loop__load-more').addClass('bpfwe-load-more-wrapper');
+										localTargetSelector.find('.e-load-more-spinner').appendTo('.elementor-button-wrapper .elementor-button');
 									}
 
-									localTargetSelector.addClass( 'filter-active' );
+									localTargetSelector.addClass('filter-active');
 
 									var currentSettings = localTargetSelector.data( 'settings' );
 
@@ -1635,7 +1633,13 @@
 
 							paginationType = localTargetSelector.data( 'settings' )?.pagination || localTargetSelector.data( 'settings' )?.pagination_type || '';
 
-							var scrollAnchor = localTargetSelector.find( '.e-load-more-anchor' );
+							var scrollAnchor = localTargetSelector.find('.bpfwe-load-more-anchor');
+
+							if (!scrollAnchor.length) {
+								// Fallback only if needed.
+								scrollAnchor = localTargetSelector.find('.e-load-more-anchor');
+							}
+
 							if ( scrollAnchor.length ) {
 								var currentPage = scrollAnchor.data( 'page' );
 								maxPage = scrollAnchor.data( 'max-page' ) - 1;
@@ -1886,7 +1890,7 @@
 				}
 
 				function bpfweInfiniteScroll( widgetID, targetSelector ) {
-					var scrollAnchor = targetSelector.find( '.e-load-more-anchor' ),
+					var scrollAnchor = targetSelector.find( '.bpfwe-load-more-anchor' ),
 						$paginationNext = targetSelector.find( '.pagination-filter a.next' );
 
 					if ( !$paginationNext.length ) {
@@ -1922,7 +1926,7 @@
 				}
 
 				function elementorInfiniteScroll( widgetID, targetSelector ) {
-					var scrollAnchor = targetSelector.find( '.e-load-more-anchor' ),
+					var scrollAnchor = targetSelector.find( '.bpfwe-load-more-anchor, .e-load-more-anchor' ),
 						currentPage = targetSelector.data( 'current-page' ) || 1,
 						maxPage = scrollAnchor.data( 'max-page' );
 

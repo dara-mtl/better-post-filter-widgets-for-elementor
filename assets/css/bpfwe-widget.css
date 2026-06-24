@@ -431,7 +431,8 @@
 	animation: bpfwe-preloader-outer 3.3s linear infinite;
 }
 
-.e-load-more-anchor {
+.e-load-more-anchor,
+.bpfwe-load-more-anchor {
 	display: block;
 	height: 1px;
 }
@@ -901,10 +902,25 @@ ul.post-taxonomy li,
 }
 
 .elementor-widget-posts.load[data-settings*='load_more_infinite_scroll'].filter-active .e-load-more-spinner i,
-.elementor-widget-loop-grid.load[data-settings*='load_more_infinite_scroll'].filter-active .e-load-more-spinner i {
+.elementor-widget-loop-grid.load[data-settings*='load_more_infinite_scroll'].filter-active .e-load-more-spinner i,
+.elementor-widget-posts.load[data-settings*='load_more_infinite_scroll'].filter-active .e-load-more-spinner svg,
+.elementor-widget-loop-grid.load[data-settings*='load_more_infinite_scroll'].filter-active .e-load-more-spinner svg {
 	display: flex;
 	margin-top: var(--load-more—spacing, 30px);
 	animation: bpfwe-preloader-outer 2s linear infinite;
+}
+
+.elementor-widget-posts.load[data-settings*='load_more_on_click'].filter-active .e-load-more-spinner i,
+.elementor-widget-loop-grid.load[data-settings*='load_more_on_click'].filter-active .e-load-more-spinner i,
+.elementor-widget-posts.load[data-settings*='load_more_on_click'].filter-active .e-load-more-spinner svg,
+.elementor-widget-loop-grid.load[data-settings*='load_more_on_click'].filter-active .e-load-more-spinner svg {
+	display: flex;
+	animation: bpfwe-preloader-outer 2s linear infinite;
+}
+
+.elementor-widget-posts.load[data-settings*='load_more_on_click'].filter-active .elementor-button:has(.e-load-more-spinner) .elementor-button-text,
+.elementor-widget-loop-grid.load[data-settings*='load_more_on_click'].filter-active .elementor-button:has(.e-load-more-spinner) .elementor-button-text {
+	opacity: 0;
 }
 
 .post-container.load:not(.infinite):not(.load_more):not(.template):not(.template_list):not(.custom_html):not(.banner) .inner-content>* {

@@ -139,12 +139,14 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.8.8 – 2026-06-21 =
+= 1.8.8 – 2026-06-24 =
 
 * New: Added style controls for quick deselect pills and selected terms shortcodes.
 * Fix: Fixed filter REST API pagination issue when used with the Elementor Pro Loop Grid widget.
+* Fix: Fixed compatibility issue with Elementor Pro load more pagination when using BPFWE filtering.
 * Fix: Added plugin-specific prefix to key Post Widget controls to prevent conflicts with other third-party plugins.
 * Tweak: Dynamic background handler is now disabled by default. Sites that rely on dynamic background image resolution can re-enable it via the "Refresh Background Images" control or the `bpfwe_enable_background_image_resolution` filter.
+* Tweak: "Scroll to top" behavior is now disabled by default in both Post and Filter widgets.
 
 = 1.8.7 – 2026-05-29 =
 
