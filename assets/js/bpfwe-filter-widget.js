@@ -1123,7 +1123,6 @@
 					let performanceSettings = {
 						optimize_query: false,
 						no_found_rows: false,
-						suppress_filters: false,
 						posts_per_page: -1
 					};
 
@@ -1198,7 +1197,6 @@
 							performanceSettings = {
 								optimize_query: filterSettings?.optimize_query === 'yes',
 								no_found_rows: filterSettings?.no_found_rows === 'yes',
-								suppress_filters: filterSettings?.suppress_filters === 'yes',
 								posts_per_page: parseInt( filterSettings?.posts_per_page, 10 ) || -1
 							};
 						}
@@ -1494,6 +1492,7 @@
 						data: {
 							widget_id: localWidgetID,
 							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
+							filter_id: facetWidgetId || '',
 							template_id: templateID,
 							current_url: window.location.href,
 							page_id: pageID,
