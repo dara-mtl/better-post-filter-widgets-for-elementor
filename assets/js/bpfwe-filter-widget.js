@@ -785,7 +785,7 @@
 						}
 
 						var isTouchDevice = ( 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia( "(pointer: coarse)" ).matches );
-						var isNumericInput = $target.is( '.bpfwe-numeric-wrapper input' );
+						var isNumericInput = $target.is( '.bpfwe-numeric-wrapper input, .bpfwe-slider-handle' );
 
 						if ( ( !isTouchDevice && e.type === 'input' && isNumericInput ) || ( isTouchDevice && isNumericInput && ( $target.is( ':focus' ) || $target.val() === '' ) ) ) {
 							return;
@@ -795,6 +795,9 @@
 
 						if ( isNumericInput ) {
 							var $activeWrapper = $target.closest( '.bpfwe-numeric-wrapper' );
+							if ( !$activeWrapper.length ) {
+								$activeWrapper = $target.closest( '.flex-wrapper' ).find( '.bpfwe-numeric-wrapper' ).first();
+							}
 							snapshotNumericFacet( $widget, $activeWrapper );
 						} else {
 							$( this ).find( '.bpfwe-numeric-wrapper[data-faceted-range]' ).removeAttr( 'data-faceted-range' );
@@ -1327,7 +1330,13 @@
 									var minBase = ( $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
 									var maxBase = ( $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
 
-									if ( minVal !== '' && maxVal !== '' && ( minVal !== minBase || maxVal !== maxBase ) ) {
+									if ( snapshot ) {
+										var sliderSnapParts = snapshot.split( '|' );
+										minVal = sliderSnapParts[ 0 ];
+										maxVal = sliderSnapParts[ 1 ];
+									}
+
+									if ( minVal !== '' && maxVal !== '' && ( snapshot || minVal !== minBase || maxVal !== maxBase ) ) {
 										numeric_field.push( {
 											taxonomy: $minInput.data( 'taxonomy' ),
 											terms: [ minVal, maxVal ],

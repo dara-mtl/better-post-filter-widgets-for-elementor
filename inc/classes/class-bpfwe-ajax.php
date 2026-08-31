@@ -254,24 +254,6 @@ class BPFWE_Ajax {
 	];
 
 	/**
-	 * Clamp a requested posts_per_page to a sane range.
-	 *
-	 * @since 1.8.9
-	 *
-	 * @param mixed $value Raw posts_per_page value.
-	 * @return int Clamped value, or -1.
-	 */
-	private function clamp_posts_per_page( $value ) {
-		$value = (int) $value;
-
-		if ( -1 === $value ) {
-			return -1;
-		}
-
-		return min( 100, max( 1, abs( $value ) ) );
-	}
-
-	/**
 	 * Decide whether a requested post type may be queried.
 	 *
 	 * @since 1.8.9
@@ -457,7 +439,7 @@ class BPFWE_Ajax {
 		$archive_search_terms = ! empty( $params['archive_search_query'] ) ? sanitize_text_field( $params['archive_search_query'] ) : '';
 		$dynamic_filtering    = ! empty( $params['dynamic_filtering'] ) ? filter_var( $params['dynamic_filtering'], FILTER_VALIDATE_BOOLEAN ) : false;
 		$post_type            = ! empty( $params['post_type'] ) ? sanitize_text_field( $params['post_type'] ) : 'any';
-		$posts_per_page       = ! empty( $params['posts_per_page'] ) ? min( 100, max( 1, absint( $params['posts_per_page'] ) ) ) : 50;
+		$posts_per_page       = ! empty( $params['posts_per_page'] ) ? max( 1, absint( $params['posts_per_page'] ) ) : 50;
 		$paged                = ! empty( $params['paged'] ) ? max( 1, absint( $params['paged'] ) ) : 1;
 		$enable_query_debug   = ! empty( $params['enable_query_debug'] ) ? sanitize_text_field( $params['enable_query_debug'] ) : '';
 		$query_id             = ! empty( $params['query_id'] ) ? sanitize_key( $params['query_id'] ) : 'default';
@@ -465,7 +447,7 @@ class BPFWE_Ajax {
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
 			'no_found_rows'    => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
-			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? $this->clamp_posts_per_page( $performance_settings['posts_per_page'] ) : null,
+			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? (int) $performance_settings['posts_per_page'] : null,
 		];
 
 		$final_posts_per_page = null !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
