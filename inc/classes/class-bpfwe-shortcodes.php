@@ -3,8 +3,9 @@
  * BPFWE Shortcodes
  *
  * @package BPFWE_Widgets
- * @since 1.9.0
+ * @since 1.8.9
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

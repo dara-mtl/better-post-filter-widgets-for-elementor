@@ -3337,8 +3337,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 			[
 				'label'        => esc_html__( 'Refresh Background Images', 'better-post-filter-widgets-for-elementor' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'bpfwe' ),
-				'label_off'    => esc_html__( 'No', 'bpfwe' ),
+				'label_on'     => esc_html__( 'Yes', 'better-post-filter-widgets-for-elementor' ),
+				'label_off'    => esc_html__( 'No', 'better-post-filter-widgets-for-elementor' ),
 				'return_value' => 'yes',
 				'default'      => 'no',
 				'description'  => esc_html__( 'Enable this if dynamic background images display the wrong image after filtering.', 'better-post-filter-widgets-for-elementor' ),
@@ -9358,7 +9358,8 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$counter      = 0;
 
 		// Wrapper filter for post widget.
-		$query_id = $settings['query_id'];
+		$query_id      = isset( $settings['query_id'] ) ? sanitize_key( $settings['query_id'] ) : '';
+		$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 
 		if ( isset( $settings['classic_layout'] ) && 'carousel' === $settings['classic_layout'] ) {
 			$pagination = isset( $settings['pagination_carousel'] ) ? $settings['pagination_carousel'] : 'none';
@@ -9585,7 +9586,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 				echo '<div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" data-total-post="' . absint( $bpfwe_query->found_posts ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				while ( $bpfwe_query->have_posts() ) :
@@ -10073,7 +10073,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'format'    => ( strpos( $base, '%#%' ) !== false ) ? 'page/%#%/' : '?paged=%#%',
 							'current'   => $current_page,
 							'total'     => $total_pages,
@@ -10103,7 +10103,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'format'    => ( strpos( $base, '%#%' ) !== false ) ? 'page/%#%/' : '?paged=%#%',
 							'current'   => $current_page,
 							'total'     => $total_pages,
@@ -10241,7 +10241,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 				echo '<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div><div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				// Loop through the users.
@@ -10479,7 +10478,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'current'   => $current_page,
 							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
@@ -10508,7 +10507,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 						$bpfwe_pagination .= $nav_start;
 						$pagination_args   = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'current'   => $current_page,
 							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
@@ -10647,7 +10646,6 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 					}
 				}
 
-				$attrs_wrapper = BPFWE_Helper::bpfwe_prepare_post_widget_attributes( $query_id, $this );
 				echo '<div class="loader" style="display:none;"><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div><div class="loader-square"></div></div><div class="post-container ' . esc_attr( implode( ' ', array_filter( [ $pagination, $skin, $pinned_post, $attrs_wrapper['wrapper']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper']['attributes'] . '><div class="post-container-inner"><div class="' . esc_attr( implode( ' ', array_filter( [ $class_swiper, $attrs_wrapper['wrapper_inner']['class'] ] ) ) ) . '" ' . $attrs_wrapper['wrapper_inner']['attributes'] . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				// Loop through the terms.
@@ -10907,7 +10905,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$bpfwe_pagination .= $nav_start;
 
 						$pagination_args = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'current'   => $current_page,
 							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,
@@ -10944,7 +10942,7 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						$bpfwe_pagination .= $nav_start;
 
 						$pagination_args = [
-							'base'      => esc_url( $base ),
+							'base'      => $base,
 							'current'   => $current_page,
 							'total'     => $total_pages,
 							'prev_text' => ( 'numbers_and_prev_next' === $pagination ) ? esc_html__( '« prev', 'better-post-filter-widgets-for-elementor' ) : false,

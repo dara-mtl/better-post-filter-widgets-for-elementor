@@ -1665,19 +1665,6 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'suppress_filters',
-			[
-				'label'              => esc_html__( 'Bypass Query Modifications', 'better-post-filter-widgets-for-elementor' ),
-				'type'               => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'           => esc_html__( 'On', 'better-post-filter-widgets-for-elementor' ),
-				'label_off'          => esc_html__( 'Off', 'better-post-filter-widgets-for-elementor' ),
-				'description'        => esc_html__( 'Do NOT enable this if you are using a translation plugin (WPML, Polylang, TranslatePress, etc.). Ignores query tweaks. Default: Off. Impact on Speed: Medium.', 'better-post-filter-widgets-for-elementor' ),
-				'default'            => 'no',
-				'frontend_available' => true,
-			]
-		);
-
-		$this->add_control(
 			'posts_per_page',
 			[
 				'label'              => esc_html__( 'Posts Per Page', 'better-post-filter-widgets-for-elementor' ),

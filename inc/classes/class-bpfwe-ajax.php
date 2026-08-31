@@ -38,6 +38,14 @@ class BPFWE_Ajax {
 	private $filter_post_ids;
 
 	/**
+	 * Whether pre_get_posts_filter() is currently allowed to modify queries.
+	 *
+	 * @since 1.8.9
+	 * @var bool
+	 */
+	private $applying_filter_query = false;
+
+	/**
 	 * Changes the status of a post via REST API.
 	 *
 	 * @since 1.0.0
@@ -124,6 +132,7 @@ class BPFWE_Ajax {
 		}
 
 		$user_id   = get_current_user_id();
+		$pin_class = sanitize_text_field( $request->get_param( 'pin_class' ) );
 		$post_list = [];
 
 		if ( ! empty( $user_id ) ) {
@@ -178,8 +187,9 @@ class BPFWE_Ajax {
 	 * @return void
 	 */
 	public function reset_filter_state() {
-		$this->filter_query    = null;
-		$this->filter_post_ids = null;
+		$this->filter_query          = null;
+		$this->filter_post_ids       = null;
+		$this->applying_filter_query = false;
 	}
 
 	/**
@@ -213,6 +223,7 @@ class BPFWE_Ajax {
 	private $allowed_keys = [
 		'widget_id',
 		'filter_widget',
+		'filter_id',
 		'template_id',
 		'current_url',
 		'page_id',
@@ -243,6 +254,38 @@ class BPFWE_Ajax {
 	];
 
 	/**
+	 * Decide whether a requested post type may be queried.
+	 *
+	 * @since 1.8.9
+	 *
+	 * @param string $post_type    Requested post type.
+	 * @param array  $element_data Elements data of the resolved document.
+	 * @param string $filter_id    Element ID of the filter widget.
+	 * @return bool True when the post type may be used.
+	 */
+	private function is_post_type_allowed( $post_type, $element_data, $filter_id ) {
+		if ( ! post_type_exists( $post_type ) ) {
+			return false;
+		}
+
+		if ( is_post_type_viewable( $post_type ) ) {
+			return true;
+		}
+
+		if ( empty( $filter_id ) || empty( $element_data ) ) {
+			return false;
+		}
+
+		$filter_element = \Elementor\Utils::find_element_recursive( $element_data, $filter_id );
+
+		if ( empty( $filter_element['settings']['filter_post_type'] ) ) {
+			return false;
+		}
+
+		return $post_type === $filter_element['settings']['filter_post_type'];
+	}
+
+	/**
 	 * Retrieves filtered post results based on the specified criteria via REST API.
 	 *
 	 * @since 1.0.0
@@ -262,6 +305,8 @@ class BPFWE_Ajax {
 		$widget_id        = ! empty( $params['widget_id'] ) ? sanitize_key( $params['widget_id'] ) : '';
 		$filter_widget_id = ! empty( $params['filter_widget'] ) ? sanitize_text_field( $params['filter_widget'] ) : '';
 		$inject_id        = ! empty( $params['inject_id'] ) ? sanitize_text_field( $params['inject_id'] ) : '';
+
+		$filter_id = ! empty( $params['filter_id'] ) ? sanitize_key( $params['filter_id'] ) : '';
 
 		if ( empty( $template_id ) || empty( $widget_id ) ) {
 			return new WP_Error(
@@ -306,9 +351,17 @@ class BPFWE_Ajax {
 
 		// If widget is not found in template_id, fallback to page_id document.
 		if ( ! $widget_data && ! empty( $page_id ) ) {
-			$document     = \Elementor\Plugin::$instance->documents->get( $page_id );
-			$element_data = $document->get_elements_data();
-			$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
+			$page_document = \Elementor\Plugin::$instance->documents->get( $page_id );
+
+			if ( $page_document ) {
+				$page_status = get_post_status( $page_id );
+
+				if ( 'publish' === $page_status || is_user_logged_in() ) {
+					$document     = $page_document;
+					$element_data = $document->get_elements_data();
+					$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
+				}
+			}
 		}
 
 		if ( ! $widget_data ) {
@@ -361,7 +414,6 @@ class BPFWE_Ajax {
 		$performance_sanitization_rules = [
 			'optimize_query'   => 'sanitize_text_field',
 			'no_found_rows'    => 'sanitize_text_field',
-			'suppress_filters' => 'sanitize_text_field',
 			'posts_per_page'   => 'intval',
 		];
 
@@ -395,7 +447,6 @@ class BPFWE_Ajax {
 		$performance_settings = [
 			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
 			'no_found_rows'    => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
-			'suppress_filters' => isset( $performance_settings['suppress_filters'] ) ? filter_var( $performance_settings['suppress_filters'], FILTER_VALIDATE_BOOLEAN ) : null,
 			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? (int) $performance_settings['posts_per_page'] : null,
 		];
 
@@ -408,6 +459,10 @@ class BPFWE_Ajax {
 		set_query_var( 'page_num', $paged );
 
 		if ( 'targeted_widget' === $post_type ) {
+			$post_type = 'any';
+		}
+
+		if ( 'any' !== $post_type && ! $this->is_post_type_allowed( $post_type, $element_data, $filter_id ) ) {
 			$post_type = 'any';
 		}
 
@@ -430,10 +485,6 @@ class BPFWE_Ajax {
 
 		if ( true === $performance_settings['no_found_rows'] ) {
 			$args['no_found_rows'] = true;
-		}
-
-		if ( true === $performance_settings['suppress_filters'] ) {
-			$args['suppress_filters'] = true;
 		}
 
 		if ( -1 !== $final_posts_per_page ) {
@@ -678,7 +729,13 @@ class BPFWE_Ajax {
 					$args['tag__in'] = [ $archive_id ];
 					break;
 				case 'post_type':
-					$args['post_type'] = ! empty( $params['archive_post_type'] ) ? sanitize_text_field( $params['archive_post_type'] ) : 'any';
+					$archive_post_type = ! empty( $params['archive_post_type'] ) ? sanitize_text_field( $params['archive_post_type'] ) : 'any';
+
+					if ( 'any' !== $archive_post_type && ! $this->is_post_type_allowed( $archive_post_type, $element_data, $filter_id ) ) {
+						$archive_post_type = 'any';
+					}
+
+					$args['post_type'] = $archive_post_type;
 					break;
 				case 'search':
 					$args['s'] = get_search_query();
@@ -764,8 +821,11 @@ class BPFWE_Ajax {
 		}
 
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
+		$this->applying_filter_query = true;
 
 		$widget_html = $document->render_element( $widget_data );
+
+		$this->applying_filter_query = false;
 
 		// Clean AJAX endpoints in pagination links.
 		$ajax_endpoints = array(
@@ -854,27 +914,6 @@ class BPFWE_Ajax {
 	}
 
 	/**
-	 * Handles frontend AJAX requests for loading posts.
-	 *
-	 * Verifies the AJAX action and nonce for security.
-	 *
-	 * @since 1.6.0
-	 */
-	public function bpfwe_handle_frontend_ajax() {
-		if ( empty( $_POST['action'] ) || 'load_posts_ajax' !== $_POST['action'] ) {
-			return;
-		}
-
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-
-		// Verify the nonce.
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'ajax-nonce' ) ) {
-			status_header( 403 );
-			wp_die( 'Invalid or missing nonce', 'Forbidden', [ 'response' => 403 ] );
-		}
-	}
-
-	/**
 	 * Modifies the query to filter posts based on custom parameters.
 	 *
 	 * Hooked to `pre_get_posts` for advanced query customization.
@@ -887,6 +926,10 @@ class BPFWE_Ajax {
 	 */
 	public function pre_get_posts_filter( $query ) {
 		if ( is_admin() && ! wp_doing_ajax() ) {
+			return;
+		}
+
+		if ( ! $this->applying_filter_query ) {
 			return;
 		}
 
@@ -925,7 +968,9 @@ class BPFWE_Ajax {
 		];
 
 		// If any post type in the query is in the exclusion list, bail.
-		if ( array_intersect( $post_type, $exclude_post_types ) ) {
+		$incoming_post_type = isset( $filter_data['post_type'] ) ? (array) $filter_data['post_type'] : [];
+
+		if ( array_intersect( $post_type, $exclude_post_types ) || array_intersect( $incoming_post_type, $exclude_post_types ) ) {
 			return;
 		}
 
@@ -1040,6 +1085,10 @@ class BPFWE_Ajax {
 					'filter_widget'      => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'filter_id'          => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
 					],
 					'inject_id'          => [
 						'type'              => 'string',

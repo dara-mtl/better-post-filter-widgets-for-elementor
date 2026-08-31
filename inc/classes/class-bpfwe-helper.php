@@ -648,19 +648,33 @@ class BPFWE_Helper {
 		$defaults = is_array( $defaults ) ? $defaults : [];
 
 		// Prepare attributes for each component.
-		// Priority: Loop (global) → Query-specific.
+		// Priority: Loop (global) -> Query-specific. Both hooks are chained
+		// against the same raw attribute array (see bpfwe_prepare_attributes()),
+		// so the query-specific filter builds on top of whatever the loop
+		// filter contributed instead of silently replacing it. Formatting
+		// the loop and query-specific results into strings separately and
+		// then array_merge()-ing them would let the second string simply
+		// overwrite the first on the shared "class"/"attributes" keys,
+		// discarding the loop hook's output even when the query-specific
+		// hook added nothing.
 		$attributes = [
-			'wrapper'       => array_merge(
-				self::bpfwe_prepare_attributes( 'bpfwe/post_wrapper_attr/loop', $widget, 'wrapper', $defaults ),
-				self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_attr/{$query_id}", $widget, 'wrapper', $defaults )
+			'wrapper'       => self::bpfwe_prepare_attributes(
+				[ 'bpfwe/post_wrapper_attr/loop', "bpfwe/post_wrapper_attr/{$query_id}" ],
+				$widget,
+				'wrapper',
+				$defaults
 			),
-			'wrapper_inner' => array_merge(
-				self::bpfwe_prepare_attributes( 'bpfwe/post_wrapper_inner_attr/loop', $widget, 'wrapper_inner', $defaults ),
-				self::bpfwe_prepare_attributes( "bpfwe/post_wrapper_inner_attr/{$query_id}", $widget, 'wrapper_inner', $defaults )
+			'wrapper_inner' => self::bpfwe_prepare_attributes(
+				[ 'bpfwe/post_wrapper_inner_attr/loop', "bpfwe/post_wrapper_inner_attr/{$query_id}" ],
+				$widget,
+				'wrapper_inner',
+				$defaults
 			),
-			'post'          => array_merge(
-				self::bpfwe_prepare_attributes( 'bpfwe/post_attr/loop', $widget, 'post', $defaults ),
-				self::bpfwe_prepare_attributes( "bpfwe/post_attr/{$query_id}", $widget, 'post', $defaults )
+			'post'          => self::bpfwe_prepare_attributes(
+				[ 'bpfwe/post_attr/loop', "bpfwe/post_attr/{$query_id}" ],
+				$widget,
+				'post',
+				$defaults
 			),
 		];
 
@@ -680,7 +694,17 @@ class BPFWE_Helper {
 	/**
 	 * Prepare HTML attributes for wrapper or post containers.
 	 *
-	 * @param string                 $filter_name The filter hook name (e.g. 'bpfwe/post_wrapper_attr/query_id').
+	 * Accepts either a single filter hook name or an ordered list of them
+	 * (e.g. the "loop" global hook followed by a query-specific hook). When
+	 * multiple hook names are given, they are chained against the same raw
+	 * structured array, each one receiving the previous hook's output as its
+	 * starting point, so a later hook can add to what an earlier hook set
+	 * (e.g. append another class) instead of replacing it outright. The
+	 * array is only converted to the final class/attributes strings once,
+	 * after every hook has had a chance to run.
+	 *
+	 * @param string|string[]        $filter_names One filter hook name, or an ordered array of them
+	 *                                              (e.g. ['bpfwe/post_wrapper_attr/loop', 'bpfwe/post_wrapper_attr/query_id']).
 	 * @param \Elementor\Widget_Base $widget The widget instance.
 	 * @param string                 $context Optional. Context string passed to filter (e.g. 'wrapper' or 'post').
 	 * @param array                  $defaults Optional. Default attributes to start with.
@@ -690,8 +714,10 @@ class BPFWE_Helper {
 	 *     @type string $attributes  Final key/value attribute string (escaped).
 	 * }
 	 */
-	public static function bpfwe_prepare_attributes( $filter_name, $widget, $context = '', $defaults = array() ) {
-		if ( empty( $filter_name ) || ! is_string( $filter_name ) ) {
+	public static function bpfwe_prepare_attributes( $filter_names, $widget, $context = '', $defaults = array() ) {
+		$filter_names = array_filter( (array) $filter_names, 'is_string' );
+
+		if ( empty( $filter_names ) ) {
 			return [
 				'class'      => '',
 				'attributes' => '',
@@ -712,13 +738,22 @@ class BPFWE_Helper {
 			)
 		);
 
-		// Pass structured attributes to filter.
-		$attributes = apply_filters(
-			$filter_name,
-			$defaults,
-			$widget,
-			$context
-		);
+		// Chain every filter in order against the same raw structured
+		// array. Each hook receives the previous hook's output as $attributes,
+		// so hooks that add a class or attribute build on one another
+		// instead of one wiping out the other.
+		$attributes = $defaults;
+		foreach ( $filter_names as $filter_name ) {
+			if ( empty( $filter_name ) ) {
+				continue;
+			}
+			$attributes = apply_filters(
+				$filter_name,
+				$attributes,
+				$widget,
+				$context
+			);
+		}
 
 		// Merge classes into a string.
 		$class_attr = '';

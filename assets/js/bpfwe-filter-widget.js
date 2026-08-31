@@ -785,7 +785,7 @@
 						}
 
 						var isTouchDevice = ( 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia( "(pointer: coarse)" ).matches );
-						var isNumericInput = $target.is( '.bpfwe-numeric-wrapper input' );
+						var isNumericInput = $target.is( '.bpfwe-numeric-wrapper input, .bpfwe-slider-handle' );
 
 						if ( ( !isTouchDevice && e.type === 'input' && isNumericInput ) || ( isTouchDevice && isNumericInput && ( $target.is( ':focus' ) || $target.val() === '' ) ) ) {
 							return;
@@ -795,6 +795,9 @@
 
 						if ( isNumericInput ) {
 							var $activeWrapper = $target.closest( '.bpfwe-numeric-wrapper' );
+							if ( !$activeWrapper.length ) {
+								$activeWrapper = $target.closest( '.flex-wrapper' ).find( '.bpfwe-numeric-wrapper' ).first();
+							}
 							snapshotNumericFacet( $widget, $activeWrapper );
 						} else {
 							$( this ).find( '.bpfwe-numeric-wrapper[data-faceted-range]' ).removeAttr( 'data-faceted-range' );
@@ -1123,7 +1126,6 @@
 					let performanceSettings = {
 						optimize_query: false,
 						no_found_rows: false,
-						suppress_filters: false,
 						posts_per_page: -1
 					};
 
@@ -1198,7 +1200,6 @@
 							performanceSettings = {
 								optimize_query: filterSettings?.optimize_query === 'yes',
 								no_found_rows: filterSettings?.no_found_rows === 'yes',
-								suppress_filters: filterSettings?.suppress_filters === 'yes',
 								posts_per_page: parseInt( filterSettings?.posts_per_page, 10 ) || -1
 							};
 						}
@@ -1329,7 +1330,13 @@
 									var minBase = ( $minInput.attr( 'data-base-value' ) || '' ).toString().trim();
 									var maxBase = ( $maxInput.attr( 'data-base-value' ) || '' ).toString().trim();
 
-									if ( minVal !== '' && maxVal !== '' && ( minVal !== minBase || maxVal !== maxBase ) ) {
+									if ( snapshot ) {
+										var sliderSnapParts = snapshot.split( '|' );
+										minVal = sliderSnapParts[ 0 ];
+										maxVal = sliderSnapParts[ 1 ];
+									}
+
+									if ( minVal !== '' && maxVal !== '' && ( snapshot || minVal !== minBase || maxVal !== maxBase ) ) {
 										numeric_field.push( {
 											taxonomy: $minInput.data( 'taxonomy' ),
 											terms: [ minVal, maxVal ],
@@ -1494,6 +1501,7 @@
 						data: {
 							widget_id: localWidgetID,
 							filter_widget: ( isFacetted && !facetAlreadyDone ) ? facetWidgetId : '',
+							filter_id: facetWidgetId || '',
 							template_id: templateID,
 							current_url: window.location.href,
 							page_id: pageID,
