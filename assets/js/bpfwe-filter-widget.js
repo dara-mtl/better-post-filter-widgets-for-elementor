@@ -75,26 +75,45 @@
 			return 1;
 		}
 
+		// Resolve the post widget(s) a filter, search or sort widget drives.
+		// The picker control stores a ready-made selector in target_widget; the manual
+		// field stores one or more in target_selector. Both are honoured as written and
+		// neither is second-guessed: with both empty nothing is targeted, exactly as
+		// before the picker existed.
+		function bpfweResolveTargets( $widget ) {
+			var settings = $widget.data( 'settings' ) || {};
+			var raw = settings.target_widget || settings.target_selector || '';
+
+			if ( typeof raw !== 'string' || raw.trim() === '' ) {
+				return [];
+			}
+
+			return raw.split( ',' ).map( function ( s ) {
+				return s.trim();
+			} ).filter( function ( s ) {
+				if ( !s.length ) {
+					return false;
+				}
+
+				// A malformed selector is ignored rather than thrown: one bad saved
+				// value must not take the whole script down with it.
+				try {
+					return $( s ).length > 0;
+				} catch ( e ) {
+					return false;
+				}
+			} );
+		}
+
 		// Link filter/search/sort widgets to their target post widgets via data-filters-list.
 		function linkFilterWidgets() {
 			$( '.elementor-widget-filter-widget, .elementor-widget-search-bar-widget, .elementor-widget-sorting-widget' ).each( function () {
 				var $widget = $( this );
 				var interactionWidgetID = $widget.data( 'id' );
-				var settings = $widget.data( 'settings' );
-				var targetSelector = settings?.target_selector;
+				// Explicit target selector, or an auto-detected one when the field is left empty.
+				var targetSelectors = bpfweResolveTargets( $widget );
 
-				// Skip widgets with no valid target selector or non-existent target.
-				if ( !targetSelector || !$( targetSelector ).length ) {
-					return;
-				}
-
-				// Split comma-separated selectors and process each target independently.
-				var targetSelectors = targetSelector.split( ',' ).map( function ( s ) {
-					return s.trim();
-				} ).filter( function ( s ) {
-					return s.length && $( s ).length;
-				} );
-
+				// Nothing to bind to: no usable selector and no unambiguous post widget.
 				if ( !targetSelectors.length ) {
 					return;
 				}
@@ -918,22 +937,10 @@
 
 				if ( !filterSetting ) return;
 
-				let rawTargetSelector = filterSetting?.target_selector ?? '';
-				let targetPostWidget = rawTargetSelector.split( ',' ).map( function( s ) {
-					return s.trim();
-				} ).find( function( s ) {
-					return s.length && $( s ).length;
-				} ) || '';
+				// Same resolution path as linkFilterWidgets(), so both agree on the target.
+				let targetPostWidget = bpfweResolveTargets( this.$element )[ 0 ] || '';
 
-				if ( !targetPostWidget || !$( targetPostWidget ).length ) {
-					let $closestWidget = $( '.elementor-widget-loop-carousel, .elementor-widget-loop-grid, .elementor-widget-post-widget, .elementor-widget-posts' ).first();
-					if ( $closestWidget.length ) {
-						let widgetClass = $closestWidget.attr( 'class' )?.split( ' ' ).find( cls => cls.startsWith( 'elementor-widget-' ) ) || '';
-						targetPostWidget = $closestWidget.attr( 'id' ) ? `#${$closestWidget.attr('id')}` : widgetClass ? `.${widgetClass}` : '';
-					}
-				}
-
-				if ( !targetPostWidget || targetPostWidget === '.' ) return;
+				if ( !targetPostWidget ) return;
 
 				let currentPage = 1,
 					paginationType = '';
@@ -1302,10 +1309,12 @@
 								}
 							} );
 
-							$filterWidget.find( '.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected' ).each( function () {
+							$filterWidget.find( '.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected, .bpfwe-custom-field-relational-wrapper select option:selected' ).each( function () {
 								var self = $( this );
 								if ( self.val() ) {
-									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : custom_field;
+									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length
+										? category
+										: ( self.closest( '.bpfwe-custom-field-relational-wrapper' ).length ? custom_field_relational : custom_field );
 									targetArray.push( {
 										taxonomy: self.data( 'taxonomy' ),
 										terms: self.val(),

@@ -159,7 +159,6 @@
 					var $container = this.$element.find( '.post-container' );
 					if ( $container.length === 0 ) return;
 
-					// --- STATE GUARD ---
 					if ( $container.data( 'is-rendering-feed' ) ) return;
 					$container.data( 'is-rendering-feed', true );
 
@@ -168,7 +167,6 @@
 					var $inner = $container.find( '.post-container-inner' );
 					if ( $inner.length === 0 ) $inner = $container;
 
-					// --- CLEANUP GUARD ---
 					$inner.find( '.feed-header' ).remove();
 
 					var $grid = $inner.find( '.elementor-grid' );
@@ -310,7 +308,7 @@
 						);
 					}
 
-					// --- NAMESPACED EVENT LISTENER ---
+					// Click handler (shortcode + legacy).
 					var clickEventName = 'click.feedFilter_' + wID;
 					$( document ).off( clickEventName ).on( clickEventName, '.' + filterClass + ' a, ' + shortcodeFilterSelector + ' a', function ( e ) {
 						e.preventDefault();
@@ -477,7 +475,6 @@
 						} );
 					}
 
-					// --- RELEASE LOCK ---
 					$container.data( 'is-rendering-feed', false );
 				},
 

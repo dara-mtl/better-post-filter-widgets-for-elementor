@@ -77,6 +77,24 @@ class BPFWE_Helper {
 	}
 
 	/**
+	 * Resolve the target selector for a filter, search or sorting widget.
+	 *
+	 * The picker control stores a ready-made selector in target_widget. The
+	 * manual field stores one or more in target_selector. Only one of the two
+	 * is ever visible, so the picker simply takes precedence.
+	 *
+	 * @param array $settings Widget settings.
+	 * @return string Selector, or an empty string when no target is set.
+	 */
+	public static function bpfwe_get_target_selector( $settings ) {
+		if ( ! empty( $settings['target_widget'] ) ) {
+			return (string) $settings['target_widget'];
+		}
+
+		return ! empty( $settings['target_selector'] ) ? (string) $settings['target_selector'] : '';
+	}
+
+	/**
 	 * Retrieves a list of public post types that can be displayed in navigation menus.
 	 *
 	 * @return array Options array of post types.

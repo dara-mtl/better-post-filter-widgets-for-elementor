@@ -56,7 +56,7 @@ jQuery(window).on('elementor:init', function () {
 
                 $input.off('click.bpfwe-shortcode').on('click.bpfwe-shortcode', function () {
                     this.select();
-                    document.execCommand('copy');
+                    copyToClipboard(shortcode);
 
                     elementor.notifications.showToast({
                         message: "Copied to clipboard!",
@@ -129,10 +129,61 @@ jQuery(window).on('elementor:init', function () {
 		};
 	};
 
-	elementor.hooks.addAction('panel/open_editor/widget/filter-widget', (panel) => {
+	function copyToClipboard(text) {
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(text).catch(() => {});
+			return;
+		}
+		try {
+			const el = document.createElement('textarea');
+			el.value = text;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+		} catch (e) {}
+	}
+
+	// Stamp the read-only shortcode / Filter ID fields with a value derived
+	// strictly from THIS widget's model id. Runs on panel open and again on
+	// every panel re-render so a stale value can never survive.
+	function stampFilterIdFields($panel, widgetID) {
+		if (!widgetID) return;
+
+		const idFields = {
+			selected_terms_shortcode : `[filter_terms id="${widgetID}"]`,
+			selected_count_shortcode : `[filter_count id="${widgetID}"]`,
+			quick_deselect_shortcode : `[filter_tags id="${widgetID}"]`,
+			mobile_mode_shortcode    : `[filter_mobile_view id="${widgetID}"]`,
+			filter_id                : `filter-${widgetID}`,
+		};
+
+		Object.entries(idFields).forEach(([controlId, value]) => {
+			const $input = $panel.find(`.elementor-control-${controlId} input`);
+			if (!$input.length) return;
+
+			if ($input.val() !== value) {
+				$input.val(value);
+			}
+			$input.attr('readonly', true);
+
+			$input.off('click.bpfweId').on('click.bpfweId', function () {
+				this.select();
+				copyToClipboard(value);
+				elementor.notifications.showToast({ message: 'Copied to clipboard!', type: 'success' });
+			});
+		});
+	}
+
+	elementor.hooks.addAction('panel/open_editor/widget/filter-widget', (panel, model) => {
 		const $panel = jQuery(panel.$el);
+		const widgetID = model && model.id ? model.id : null;
 		$panel.find('.elementor-repeater-fields').each((_, el) => initSelect2(jQuery(el)));
 
+		stampFilterIdFields($panel, widgetID);
 		updateFacetVisibility($panel);
 
 		$panel.off('change.bpfweFacet').on('change.bpfweFacet', 'input[data-setting="is_facetted"]', function () {
@@ -140,6 +191,8 @@ jQuery(window).on('elementor:init', function () {
 		});
 
 		const observer = new MutationObserver(debounce(mutations => {
+			stampFilterIdFields($panel, widgetID);
+			bpfweFillTargetWidgetOptions($panel, model);
 			mutations.forEach(m => {
 				if (!m.addedNodes.length) return;
 				jQuery(m.addedNodes).find('.elementor-repeater-fields').addBack('.elementor-repeater-fields').each((_, el) => initSelect2(jQuery(el)));
@@ -154,6 +207,196 @@ jQuery(window).on('elementor:init', function () {
 	elementor.hooks.addAction('panel/close_editor/widget/filter-widget', panel => {
 		const observer = jQuery(panel.$el).data('bpfwe-observer');
 		if (observer) observer.disconnect();
+	});
+
+	/* ------------------------------------------------------------------
+	 * Post widget picker.
+	 *
+	 * target_widget is a real Elementor SELECT control, so Elementor owns
+	 * saving it and the conditional display that hides it against the manual
+	 * target_selector field. Its options cannot be registered in PHP because
+	 * they depend on what is on the page, so they are filled in here from the
+	 * preview document each time the panel opens.
+	 * --------------------------------------------------------------- */
+
+	const BPFWE_POST_WIDGET_CLASSES = Array.isArray(window.ajax_var && window.ajax_var.targetWidgets) ?
+		window.ajax_var.targetWidgets : [
+			'elementor-widget-post-widget',
+			'elementor-widget-loop-grid',
+			'elementor-widget-loop-carousel',
+			'elementor-widget-posts'
+		];
+
+	const BPFWE_POST_WIDGETS = BPFWE_POST_WIDGET_CLASSES.map(c => '.' + c).join(', ');
+
+	const BPFWE_WIDGET_LABELS = {
+		'elementor-widget-post-widget'   : 'Post Widget',
+		'elementor-widget-loop-grid'     : 'Loop Grid',
+		'elementor-widget-loop-carousel' : 'Loop Carousel',
+		'elementor-widget-posts'         : 'Posts',
+	};
+
+	function bpfwePreviewDoc() {
+		try {
+			return elementor.$preview[0].contentDocument || null;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	// Elementor data-id is unique per page, unlike a widget class, which would
+	// match every widget of that type.
+	function bpfweUniqueSelector(el) {
+		const widgetId = el.getAttribute('data-id');
+		if (widgetId) return '[data-id="' + widgetId + '"]';
+		return el.id ? '#' + el.id : '';
+	}
+
+	// Turns 'jet-listing-grid' into 'Jet Listing Grid' so widgets added through
+	// the bpfwe/target_widget_classes filter still read as names, not classes.
+	function bpfweDeriveLabel(widgetClass) {
+		return widgetClass
+			.replace(/^elementor-widget-/, '')
+			.replace(/[-_]+/g, ' ')
+			.replace(/\b\w/g, m => m.toUpperCase())
+			.trim();
+	}
+
+	function bpfweWidgetLabel(el) {
+		let label = '';
+
+		for (const [cls, name] of Object.entries(BPFWE_WIDGET_LABELS)) {
+			if (el.classList.contains(cls)) {
+				label = name;
+				break;
+			}
+		}
+
+		if (!label) {
+			const matched = BPFWE_POST_WIDGET_CLASSES.find(c => el.classList.contains(c));
+			label = matched ? bpfweDeriveLabel(matched) : 'Post widget';
+		}
+
+		const widgetId = el.getAttribute('data-id');
+		return widgetId ? label + ' (' + widgetId + ')' : label;
+	}
+
+	// A value saved by an earlier build can be unparseable as a selector. Treat it
+	// as unset so the panel falls back to the placeholder and invites a fresh pick,
+	// rather than re-offering a broken option. A valid selector that simply matches
+	// nothing in this document stays usable: the target may live elsewhere.
+	function bpfweIsUsableSelector(value) {
+		if (!value) return false;
+		try {
+			document.querySelector(value);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	// The select can only hold a value whose option exists, and the options are
+	// added here rather than registered in PHP. So on the first render the DOM
+	// reads empty while the setting is set: take the value from the model.
+	function bpfweSavedTarget(model) {
+		try {
+			if (model && typeof model.getSetting === 'function') {
+				return model.getSetting('target_widget') || '';
+			}
+
+			const settings = (model && typeof model.get === 'function') ? model.get('settings') : null;
+			if (settings && typeof settings.get === 'function') {
+				return settings.get('target_widget') || '';
+			}
+		} catch (e) {}
+
+		return '';
+	}
+
+	function bpfweFillTargetWidgetOptions($panel, model) {
+		const $select = $panel.find('select[data-setting="target_widget"]');
+		if (!$select.length) return;
+
+		const doc = bpfwePreviewDoc();
+		const widgets = (doc && BPFWE_POST_WIDGETS) ?
+			Array.prototype.slice.call(doc.querySelectorAll(BPFWE_POST_WIDGETS)) : [];
+
+		// Keep the saved value even when its widget is not in this document, so
+		// opening the panel never quietly drops a target set somewhere else.
+		const select = $select[0];
+		const raw = bpfweSavedTarget(model) || select.value || '';
+		const current = bpfweIsUsableSelector(raw) ? raw : '';
+
+		const entries = [ [ '', $select.data('placeholder') || 'Select a post widget' ] ];
+		let hasCurrent = false;
+
+		widgets.forEach(function (el) {
+			const selector = bpfweUniqueSelector(el);
+			if (!selector) return;
+			if (selector === current) hasCurrent = true;
+			entries.push([ selector, bpfweWidgetLabel(el) ]);
+		});
+
+		if (current !== '' && !hasCurrent) {
+			entries.push([ current, current ]);
+		}
+
+		// Nothing to do when the options and the shown value are both current.
+		// Elementor re-renders controls freely, so the value is checked separately:
+		// the options can survive a re-render while the selection does not.
+		const signature = JSON.stringify(entries);
+		const optionsCurrent = $select.data('bpfwe-options') === signature;
+
+		if (optionsCurrent && select.value === current) return;
+
+		if (!optionsCurrent) {
+			// Built through the DOM rather than an HTML string: a selector like
+			// [data-id="abc"] carries double quotes, which would terminate a value
+			// attribute early and store a truncated, unparseable selector.
+			select.innerHTML = '';
+			entries.forEach(function (entry) {
+				const option = document.createElement('option');
+				option.value = entry[0];
+				option.textContent = entry[1];
+				select.appendChild(option);
+			});
+			$select.data('bpfwe-options', signature);
+		}
+
+		if (select.value !== current) {
+			select.value = current;
+		}
+	}
+
+	['filter-widget', 'search-bar-widget', 'sorting-widget'].forEach(function (widgetType) {
+		elementor.hooks.addAction('panel/open_editor/widget/' + widgetType, function (panel, model) {
+			const $panel = jQuery(panel.$el);
+
+			bpfweFillTargetWidgetOptions($panel, model);
+
+			// Rescan the preview whenever the list is opened, so widgets added
+			// since the panel opened show up.
+			$panel.off('mousedown.bpfweTarget').on('mousedown.bpfweTarget', 'select[data-setting="target_widget"]', function () {
+				bpfweFillTargetWidgetOptions($panel, model);
+			});
+
+			// The filter panel already re-runs this from its own observer. The other
+			// two need one so the selection is restored when Elementor re-renders
+			// the control, which drops any option this script added.
+			if ('filter-widget' === widgetType) return;
+
+			const observer = new MutationObserver(debounce(function () {
+				bpfweFillTargetWidgetOptions($panel, model);
+			}, 200));
+
+			observer.observe($panel[0], { childList: true, subtree: true });
+			$panel.data('bpfwe-target-observer', observer);
+		});
+
+		elementor.hooks.addAction('panel/close_editor/widget/' + widgetType, function (panel) {
+			const observer = jQuery(panel.$el).data('bpfwe-target-observer');
+			if (observer) observer.disconnect();
+		});
 	});
 
 });

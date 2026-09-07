@@ -7,7 +7,7 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.8.9
+ * Version: 1.9.0-dev
  * Requires PHP: 7.4
  * Requires at least: 6.2
  * Tested up to: 7.1
@@ -40,7 +40,7 @@ require_once BPFWE_PLUGIN_DIR . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.8.9';
+	const VERSION                   = '1.9.0-dev';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -198,15 +198,53 @@ final class BPFWE_Elementor {
 	}
 
 	/**
+	 * Widget classes that target auto-detection treats as post widgets.
+	 *
+	 * Auto-detection stays deliberately conservative: binding to a widget the
+	 * AJAX response cannot re-render correctly is worse than not binding at
+	 * all. An explicit target selector is never restricted by this list, and
+	 * third-party post widgets can be added through the filter below, which
+	 * feeds both the frontend resolver and the editor target picker.
+	 *
+	 * Returning an empty array disables auto-detection entirely.
+	 *
+	 * @return array Widget CSS classes, without the leading dot.
+	 */
+	public static function get_target_widget_classes() {
+		$defaults = [
+			'elementor-widget-post-widget',
+			'elementor-widget-loop-grid',
+			'elementor-widget-loop-carousel',
+			'elementor-widget-posts',
+		];
+
+		/**
+		 * Filters the widget classes eligible for target auto-detection.
+		 *
+		 * @param array $defaults Widget CSS classes, without the leading dot.
+		 */
+		$classes = apply_filters( 'bpfwe/target_widget_classes', $defaults );
+
+		if ( ! is_array( $classes ) ) {
+			return $defaults;
+		}
+
+		$classes = array_filter( array_map( 'sanitize_html_class', $classes ) );
+
+		return array_values( array_unique( $classes ) );
+	}
+
+	/**
 	 * Enqueue backend scripts.
 	 */
 	public function backend_widget_scripts() {
 		// Localize and enqueue plugin scripts.
 		$ajax_params = [
-			'url'        => admin_url( 'admin-ajax.php' ),
-			'rest_url'   => rest_url(),
-			'nonce'      => wp_create_nonce( 'ajax-nonce' ),
-			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+			'url'           => admin_url( 'admin-ajax.php' ),
+			'rest_url'      => rest_url(),
+			'nonce'         => wp_create_nonce( 'ajax-nonce' ),
+			'rest_nonce'    => wp_create_nonce( 'wp_rest' ),
+			'targetWidgets' => self::get_target_widget_classes(),
 		];
 		wp_enqueue_script( 'post-editor-script', plugins_url( 'assets/js/backend/post-widget-editor.js', __FILE__ ), [], self::VERSION, true );
 		wp_localize_script( 'post-editor-script', 'ajax_var', $ajax_params );

@@ -139,16 +139,12 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.8.9 – 2026-08-25 =
+= 1.8.9 – 2026-08-31 =
 
 * Tweak: Confirmed compatibility with WordPress 7.1 and the latest Elementor releases.
-* Fix: Faceted result counts are no longer calculated from a single page of results.
 * Fix: Filter query arguments no longer leak into unrelated queries rendered during the same request.
 * Fix: Post types requested through the filter endpoint are now validated, so only publicly viewable types, or the type the filter widget is configured with, can be queried.
 * Fix: Fixed a fatal error when the filter endpoint received a page ID that does not resolve to an Elementor document.
-* Fix: An unpublished page can no longer be used as a fallback source for widget markup.
-* Fix: Posts per page requested through the filter endpoint is now capped.
-* Fix: Global loop attribute filters now fire on the post container even when no query ID is set.
 * Fix: Corrected the text domain on two Post Widget controls so they can be translated.
 
 = 1.8.8 – 2026-06-24 =

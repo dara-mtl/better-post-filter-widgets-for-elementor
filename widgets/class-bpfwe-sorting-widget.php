@@ -196,14 +196,35 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 		$repeater->end_controls_tabs();
 
 		$this->add_control(
-			'target_selector',
+			'target_widget',
 			[
 				'label'              => esc_html__( 'Post Widget Target', 'better-post-filter-widgets-for-elementor' ),
+				'type'               => \Elementor\Controls_Manager::SELECT,
+				'default'            => '',
+				// Filled in by the editor script from the widgets present in the preview.
+				'options'            => [
+					'' => esc_html__( 'Select a post widget', 'better-post-filter-widgets-for-elementor' ),
+				],
+				'condition'          => [
+					'target_selector' => '',
+				],
+				'frontend_available' => true,
+			]
+		);
+
+		$this->add_control(
+			'target_selector',
+			[
+				'label'              => esc_html__( 'Custom Target Selector', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::TEXT,
 				'dynamic'            => [
 					'active' => true,
 				],
 				'placeholder'        => esc_html__( '#id, .class', 'better-post-filter-widgets-for-elementor' ),
+				'description'        => esc_html__( 'Use this instead of the dropdown to target a widget by CSS ID or class, or to drive several at once. Multiple selectors can be used, separated by commas.', 'better-post-filter-widgets-for-elementor' ),
+				'condition'          => [
+					'target_widget' => '',
+				],
 				'frontend_available' => true,
 			]
 		);

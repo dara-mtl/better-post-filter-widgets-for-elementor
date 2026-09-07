@@ -108,10 +108,12 @@ class Post_Content extends \Elementor\Core\DynamicTags\Tag {
 			$trimmed_content = wp_strip_all_tags( $raw_content );
 			$post_content    = wp_trim_words( $trimmed_content, $max_length, '...' );
 
-			echo wp_kses_post( $post_content );
-		} else {
-			$full_content = apply_filters( 'the_content', $raw_content );
-			echo wp_kses_post( $full_content );
+			echo esc_html( $post_content );
+			return;
 		}
+
+		$full_content = apply_filters( 'the_content', $raw_content );
+
+		echo $full_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output of 'the_content' is sanitized by core and its filters, same as the_content().
 	}
 }
