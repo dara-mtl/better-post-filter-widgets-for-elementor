@@ -95,6 +95,108 @@ class BPFWE_Helper {
 	}
 
 	/**
+	 * Render a featured / fallback image for the Post, User and Term loops.
+	 *
+	 * Replaces the legacy spacer-PNG + CSS-background technique with a real
+	 * responsive <img>. The box shape is enforced by the `aspect-ratio` CSS
+	 * emitted by the `img-aspect-ratio` control (and its static fallback in
+	 * bpfwe-widget.css), not by the intrinsic size of a placeholder file.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array $args {
+	 *     @type int    $attachment_id Attachment ID. 0 when unknown (external URL, meta value).
+	 *     @type string $url           Image URL, used when $attachment_id is 0.
+	 *     @type string $size          Registered image size. Default 'full'.
+	 *     @type string $alt           Alt text. Empty string renders a decorative image.
+	 *     @type string $fallback_url  URL used when the primary image is missing.
+	 *     @type bool   $swiper_lazy   Emit Swiper lazy-load markup instead of a loaded <img>.
+	 *     @type bool   $eager         LCP hint: loading="eager" + fetchpriority="high".
+	 * }
+	 * @return string The <img> markup, or an empty string when nothing can be rendered.
+	 */
+	public static function bpfwe_render_featured_image( $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'attachment_id' => 0,
+				'url'           => '',
+				'size'          => 'full',
+				'alt'           => '',
+				'fallback_url'  => '',
+				'swiper_lazy'   => false,
+				'eager'         => false,
+			)
+		);
+
+		$attachment_id = absint( $args['attachment_id'] );
+		$url           = $args['url'] ? $args['url'] : ( $attachment_id ? wp_get_attachment_image_url( $attachment_id, $args['size'] ) : '' );
+
+		if ( ! $url && $args['fallback_url'] ) {
+			$attachment_id = 0;
+			$url           = $args['fallback_url'];
+		}
+
+		if ( ! $url ) {
+			return '';
+		}
+
+		$alt = trim( wp_strip_all_tags( (string) $args['alt'] ) );
+
+		if ( $args['swiper_lazy'] ) {
+			// Markup for the Lazy module of the Swiper version bundled with Elementor
+			// (v8): a `swiper-lazy` element with data-src plus a sibling preloader.
+			// The transparent src prevents a broken-image glyph before Swiper swaps
+			// in the real source. data-srcset lets Swiper pick a responsive size.
+			$srcset = $attachment_id ? wp_get_attachment_image_srcset( $attachment_id, $args['size'] ) : '';
+
+			return sprintf(
+				'<img class="swiper-lazy bpfwe-post-thumbnail" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="%1$s"%3$s data-bpfwe-src="%1$s" alt="%2$s" decoding="async" /><div class="swiper-lazy-preloader"></div>',
+				esc_url( $url ),
+				esc_attr( $alt ),
+				$srcset ? ' data-srcset="' . esc_attr( $srcset ) . '"' : ''
+			);
+		}
+
+		$loading_attrs = $args['eager']
+			? array(
+				'loading'       => 'eager',
+				'fetchpriority' => 'high',
+			)
+			: array( 'loading' => 'lazy' );
+
+		// A known attachment gives us srcset / sizes / width / height for free.
+		if ( $attachment_id ) {
+			return wp_get_attachment_image(
+				$attachment_id,
+				$args['size'],
+				false,
+				array_merge(
+					array(
+						'class'         => 'bpfwe-post-thumbnail',
+						'alt'           => $alt,
+						'decoding'      => 'async',
+						'data-bpfwe-src' => $url,
+					),
+					$loading_attrs
+				)
+			);
+		}
+
+		$extra = '';
+		foreach ( $loading_attrs as $key => $value ) {
+			$extra .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+		}
+
+		return sprintf(
+			'<img class="bpfwe-post-thumbnail" src="%1$s" data-bpfwe-src="%1$s" alt="%2$s" decoding="async"%3$s />',
+			esc_url( $url ),
+			esc_attr( $alt ),
+			$extra
+		);
+	}
+
+	/**
 	 * Retrieves a list of public post types that can be displayed in navigation menus.
 	 *
 	 * @return array Options array of post types.

@@ -4018,18 +4018,28 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 		$this->add_responsive_control(
 			'img-aspect-ratio',
 			[
-				'type'      => \Elementor\Controls_Manager::SELECT,
-				'label'     => esc_html__( 'Aspect Ratio', 'better-post-filter-widgets-for-elementor' ),
-				'default'   => '3-2',
-				'options'   => [
+				'type'                 => \Elementor\Controls_Manager::SELECT,
+				'label'                => esc_html__( 'Aspect Ratio', 'better-post-filter-widgets-for-elementor' ),
+				'default'              => '3-2',
+				'options'              => [
 					'3-2'   => '3:2',
 					'1-1'   => '1:1',
 					'4-3'   => '4:3',
 					'16-9'  => '16:9',
-					'191-1' => '19.1:1',
+					'191-1' => '1.91:1',
 				],
-				'condition' => [
+				'condition'            => [
 					'img_equal_height' => 'yes',
+				],
+				'selectors'            => [
+					'{{WRAPPER}} .post-image, {{WRAPPER}} .post-image a, {{WRAPPER}} .post-image img, {{WRAPPER}} .tax-image, {{WRAPPER}} .tax-image a, {{WRAPPER}} .tax-image img' => 'aspect-ratio: {{VALUE}};',
+				],
+				'selectors_dictionary' => [
+					'3-2'   => '3 / 2',
+					'1-1'   => '1 / 1',
+					'4-3'   => '4 / 3',
+					'16-9'  => '16 / 9',
+					'191-1' => '1.91 / 1',
 				],
 			]
 		);
@@ -9719,10 +9729,25 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 							echo '</div></' . esc_attr( $post_html_tag ) . '>';
 						}
 					} elseif ( $settings['skin_custom_html'] ) {
-							$image = '<img style="background-image: url(' . get_the_post_thumbnail_url( $bpfwe_query->ID, 'full' ) . ')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . $settings['img-aspect-ratio'] . '.png" alt="Post Image Placeholder"/>';
-						if ( ! get_the_post_thumbnail_url() ) {
-							$image = '<img style="background-image: url(' . $settings['post_default_image']['url'] . ')" src="' . plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . $settings['img-aspect-ratio'] . '.png" alt="Post Image Placeholder"/>';
-						}
+						$thumbnail_id = get_post_thumbnail_id( $bpfwe_query->ID );
+						$image        = BPFWE_Helper::bpfwe_render_featured_image(
+							[
+								'attachment_id' => $thumbnail_id,
+								'size'          => 'full',
+								'alt'           => $thumbnail_id ? (string) get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true ) : '',
+								'fallback_url'  => ! empty( $settings['post_default_image']['url'] ) ? $settings['post_default_image']['url'] : '',
+							]
+						);
+
+						/**
+						 * Filters the <img> markup substituted for #IMAGE# in the Custom HTML skin.
+						 *
+						 * @since 1.9.0
+						 *
+						 * @param string $image   Image markup.
+						 * @param int    $post_id Current post ID.
+						 */
+						$image = apply_filters( 'bpfwe_custom_html_image', $image, $post_id );
 
 						$html_content = $settings['skin_custom_html'];
 						$html_content = str_replace( '#TITLE#', esc_html( get_the_title() ), $html_content );
@@ -9743,49 +9768,31 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 						if ( 'yes' === $settings['show_featured_image'] ) {
 							$image_size = $settings['featured_img_size'] ? $settings['featured_img_size'] : 'full';
 
-							// Prepare escaped URLs.
-							$image_url             = esc_url( get_the_post_thumbnail_url( $bpfwe_query->ID, $image_size ) );
-							$image_url_id          = esc_url( get_the_post_thumbnail_url( $bpfwe_query->ID ) );
-							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
-							$default_image_url     = esc_url( $settings['post_default_image']['url'] );
-							$image_id              = attachment_url_to_postid( $image_url_id );
-							$image_alt             = ! empty( $image_id ) ? get_post_meta( $image_id, '_wp_attachment_image_alt', true ) : '';
-							$image_alt             = ! empty( $image_alt ) ? esc_attr( $image_alt ) : 'Post Image Placeholder';
+							$thumbnail_id      = get_post_thumbnail_id( $bpfwe_query->ID );
+							$default_image_url = ! empty( $settings['post_default_image']['url'] ) ? $settings['post_default_image']['url'] : '';
+							$image_alt         = $thumbnail_id ? (string) get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true ) : '';
 
-							// Lazy load image.
-							if ( 'yes' === $settings['img_equal_height'] ) {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-background="' . $image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = '<img style="background-image: url(' . $image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $image_url . '" alt="' . $image_alt . '"/>';
-								}
-								if ( ! $image_url ) {
-									if ( $lazy_load ) {
-										$image = '<img class="swiper-lazy" data-background="' . $default_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-									} else {
-										$image = '<img style="background-image: url(' . $default_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
-									}
-								}
-							} else {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-src="' . $image_url . '" data-bpfwe-src="' . $image_url . '"><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = get_the_post_thumbnail( $bpfwe_query->ID, $image_size );
-								}
-								if ( ! $image ) {
-									if ( $lazy_load ) {
-										$image = '<img class="swiper-lazy" data-src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-									} else {
-										$image = '<img src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
-									}
-								}
-							}
+							$image = BPFWE_Helper::bpfwe_render_featured_image(
+								[
+									'attachment_id' => $thumbnail_id,
+									'size'          => $image_size,
+									'alt'           => $image_alt,
+									'fallback_url'  => $default_image_url,
+									'swiper_lazy'   => (bool) $lazy_load,
+								]
+							);
+
+							// Equal-height thumbnails get their box from the img-aspect-ratio
+							// control CSS, with a static fallback keyed on this attribute.
+							$ratio_attr = ( 'yes' === $settings['img_equal_height'] && ! empty( $settings['img-aspect-ratio'] ) )
+								? ' data-ratio="' . esc_attr( $settings['img-aspect-ratio'] ) . '"'
+								: '';
 
 							// Output HTML with escaped values.
 							if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
-								echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
+								echo '<div class="post-image"' . $ratio_attr . '><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							} else {
-								echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
+								echo '<div class="post-image"' . $ratio_attr . '>' . wp_kses_post( $image . $overlay ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							}
 						}
 						echo '<div class="inner-content">';
@@ -10346,33 +10353,27 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 
 							// Determine the final image URL.
 							$profile_picture_url = $custom_user_image;
+							$default_image_url   = ! empty( $settings['post_default_image']['url'] ) ? $settings['post_default_image']['url'] : '';
 
-							// Prepare escaped URLs.
-							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
-							$default_image_url     = esc_url( $settings['post_default_image']['url'] );
+							$image = BPFWE_Helper::bpfwe_render_featured_image(
+								[
+									'url'          => $profile_picture_url,
+									'size'         => $image_size,
+									'alt'          => (string) get_the_author_meta( 'display_name', $bpfwe_user_id ),
+									'fallback_url' => $default_image_url,
+									'swiper_lazy'  => (bool) $lazy_load,
+								]
+							);
 
-							// Determine final image URL, falling back to placeholder if necessary.
-							$final_image_url = $profile_picture_url ? $profile_picture_url : $default_image_url;
-							$image_alt       = ! empty( $profile_picture_url ) ? 'User Profile Picture' : 'Profile Picture Placeholder';
-
-							// Lazy load image.
-							if ( 'yes' === $settings['img_equal_height'] ) {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-background="' . $final_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = '<img style="background-image: url(' . $final_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
-								}
-							} elseif ( $lazy_load ) {
-								$image = '<img class="swiper-lazy" data-src="' . $final_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/><div class="swiper-lazy-preloader"></div>';
-							} else {
-								$image = '<img src="' . $final_image_url . '" data-bpfwe-src="' . $final_image_url . '" alt="' . esc_attr( $image_alt ) . '"/>';
-							}
+							$ratio_attr = ( 'yes' === $settings['img_equal_height'] && ! empty( $settings['img-aspect-ratio'] ) )
+								? ' data-ratio="' . esc_attr( $settings['img-aspect-ratio'] ) . '"'
+								: '';
 
 							// Output HTML with escaped values.
 							if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
-								echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
+								echo '<div class="post-image"' . $ratio_attr . '><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							} else {
-								echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
+								echo '<div class="post-image"' . $ratio_attr . '>' . wp_kses_post( $image . $overlay ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							}
 						}
 
@@ -10763,45 +10764,29 @@ class BPFWE_Post_Widget extends \Elementor\Widget_Base {
 								}
 							}
 
-							// Prepare escaped URLs.
-							$placeholder_image_url = esc_url( plugin_dir_url( __DIR__ ) . 'assets/images/BPFWE-Placeholder-Image-' . esc_attr( $settings['img-aspect-ratio'] ) . '.png' );
-							$default_image_url     = esc_url( $settings['post_default_image']['url'] );
-							$image_alt             = ! empty( $term_image_url ) ? esc_attr( 'Taxonomy Image' ) : esc_attr( 'Default Taxonomy Image' );
+							$default_image_url  = ! empty( $settings['post_default_image']['url'] ) ? $settings['post_default_image']['url'] : '';
+							$term_attachment_id = ( ! empty( $thumbnail_id ) && $term_image_url ) ? absint( $thumbnail_id ) : 0;
 
-							// Lazy load image.
-							if ( 'yes' === $settings['img_equal_height'] ) {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-background="' . $term_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = '<img style="background-image: url(' . $term_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
-								}
-								if ( ! $term_image_url ) {
-									if ( $lazy_load ) {
-										$image = '<img class="swiper-lazy" data-background="' . $default_image_url . '" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-									} else {
-										$image = '<img style="background-image: url(' . $default_image_url . ')" src="' . $placeholder_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
-									}
-								}
-							} else {
-								if ( $lazy_load ) {
-									$image = '<img class="swiper-lazy" data-src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-								} else {
-									$image = '<img src="' . $term_image_url . '" data-bpfwe-src="' . $term_image_url . '" alt="' . $image_alt . '"/>';
-								}
-								if ( ! $term_image_url ) {
-									if ( $lazy_load ) {
-										$image = '<img class="swiper-lazy" data-src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/><div class="swiper-lazy-preloader"></div>';
-									} else {
-										$image = '<img src="' . $default_image_url . '" data-bpfwe-src="' . $default_image_url . '" alt="' . $image_alt . '"/>';
-									}
-								}
-							}
+							$image = BPFWE_Helper::bpfwe_render_featured_image(
+								[
+									'attachment_id' => $term_attachment_id,
+									'url'           => $term_attachment_id ? '' : $term_image_url,
+									'size'          => $image_size,
+									'alt'           => isset( $term ) ? (string) $term->name : '',
+									'fallback_url'  => $default_image_url,
+									'swiper_lazy'   => (bool) $lazy_load,
+								]
+							);
+
+							$ratio_attr = ( 'yes' === $settings['img_equal_height'] && ! empty( $settings['img-aspect-ratio'] ) )
+								? ' data-ratio="' . esc_attr( $settings['img-aspect-ratio'] ) . '"'
+								: '';
 
 							// Output HTML with escaped values.
 							if ( $settings['post_image_url'] && ! empty( $permalink ) ) {
-								echo '<div class="post-image"><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>';
+								echo '<div class="post-image"' . $ratio_attr . '><a href="' . esc_url( $permalink ) . '" ' . esc_attr( $new_tab ) . '>' . wp_kses_post( $image . $overlay ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							} else {
-								echo '<div class="post-image">' . wp_kses_post( $image . $overlay ) . '</div>';
+								echo '<div class="post-image"' . $ratio_attr . '>' . wp_kses_post( $image . $overlay ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							}
 						}
 

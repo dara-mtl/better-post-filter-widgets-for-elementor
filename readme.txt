@@ -139,6 +139,17 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.9.0 – 2026-09-09 =
+
+* New: Post Widget Target picker. A dropdown to choose which Post, Loop Grid, Loop Carousel or Posts widget a Filter, Search or Sorting widget controls, populated from the widgets present on the page. The previous CSS-selector field remains available as "Custom Target Selector" for advanced targeting or driving several widgets at once.
+* Tweak: Featured images now render as real responsive <img> elements, with srcset, width and height, instead of a fixed placeholder image with the photo applied as a CSS background. This improves SEO, reduces layout shift, and allows Google Images to index the thumbnails. The Aspect Ratio control now applies through CSS. Grid layouts use the browser's built-in lazy loading; carousels keep using the lazy loading of the Swiper version bundled with Elementor.
+* Fix: Relational fields displayed as a Select or Select2 now apply when filtering. Previously only the checkbox style worked, as the selected value was missing from the request.
+* Fix: The Filter ID and shortcode fields in the editor no longer briefly display another widget's ID when switching quickly between widget panels.
+* Fix: Full post content shown through the Post Content dynamic tag is no longer stripped of embedded media such as oEmbed iframes.
+* Fix: Removed generic placeholder alt text from featured images. The image's real alt text is used, or none when the image is decorative.
+* Dev: New filter `bpfwe/target_widget_classes` to control which widget classes are eligible for target auto-detection and the target picker.
+* Dev: New filter `bpfwe_custom_html_image` to override the `#IMAGE#` markup in the Custom HTML skin.
+
 = 1.8.9 – 2026-08-31 =
 
 * Tweak: Confirmed compatibility with WordPress 7.1 and the latest Elementor releases.
@@ -244,6 +255,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.8.8 =
+= 1.9.0 =
 
-Bug fixes and new styling controls for filter pills.
+Featured images now render as real <img> elements and the Aspect Ratio control applies through CSS. If you added custom CSS targeting the old placeholder-image markup (for example when styling the #IMAGE# tag in the Custom HTML skin), add `aspect-ratio` and `object-fit: cover` to those rules. In carousels with Image Equal Height, the featured image is now a standard <img> lazy-loaded through the Swiper library bundled with Elementor (when Lazy Load is enabled), instead of a CSS background image.
