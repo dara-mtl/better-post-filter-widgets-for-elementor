@@ -201,7 +201,6 @@ class BPFWE_Sorting_Widget extends \Elementor\Widget_Base {
 				'label'              => esc_html__( 'Post Widget Target', 'better-post-filter-widgets-for-elementor' ),
 				'type'               => \Elementor\Controls_Manager::SELECT,
 				'default'            => '',
-				// Filled in by the editor script from the widgets present in the preview.
 				'options'            => [
 					'' => esc_html__( 'Select a post widget', 'better-post-filter-widgets-for-elementor' ),
 				],

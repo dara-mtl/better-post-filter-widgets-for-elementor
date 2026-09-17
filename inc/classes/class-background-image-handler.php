@@ -274,7 +274,7 @@ class BPFWE_Background_Image {
 				$element->add_render_attribute( '_wrapper', 'style', $css );
 			}
 
-			// Overlay handling (important fix)
+			// Overlay handling (important fix).
 			if ( $has_overlay ) {
 				$element->add_render_attribute( '_wrapper', 'class', 'bpfwe-has-dynamic-bg' );
 

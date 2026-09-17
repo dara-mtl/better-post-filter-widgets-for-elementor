@@ -75,11 +75,7 @@
 			return 1;
 		}
 
-		// Resolve the post widget(s) a filter, search or sort widget drives.
-		// The picker control stores a ready-made selector in target_widget; the manual
-		// field stores one or more in target_selector. Both are honoured as written and
-		// neither is second-guessed: with both empty nothing is targeted, exactly as
-		// before the picker existed.
+		// Resolve the post widget(s) this widget drives.
 		function bpfweResolveTargets( $widget ) {
 			var settings = $widget.data( 'settings' ) || {};
 			var raw = settings.target_widget || settings.target_selector || '';
@@ -95,8 +91,6 @@
 					return false;
 				}
 
-				// A malformed selector is ignored rather than thrown: one bad saved
-				// value must not take the whole script down with it.
 				try {
 					return $( s ).length > 0;
 				} catch ( e ) {
@@ -940,8 +934,6 @@
 				// Same resolution path as linkFilterWidgets(), so both agree on the target.
 				let targetPostWidget = bpfweResolveTargets( this.$element )[ 0 ] || '';
 
-				if ( !targetPostWidget ) return;
-
 				let currentPage = 1,
 					paginationType = '';
 
@@ -1312,9 +1304,7 @@
 							$filterWidget.find( '.bpfwe-taxonomy-wrapper select option:selected, .bpfwe-custom-field-wrapper select option:selected, .bpfwe-custom-field-relational-wrapper select option:selected' ).each( function () {
 								var self = $( this );
 								if ( self.val() ) {
-									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length
-										? category
-										: ( self.closest( '.bpfwe-custom-field-relational-wrapper' ).length ? custom_field_relational : custom_field );
+									var targetArray = self.closest( '.bpfwe-taxonomy-wrapper' ).length ? category : ( self.closest( '.bpfwe-custom-field-relational-wrapper' ).length ? custom_field_relational : custom_field );
 									targetArray.push( {
 										taxonomy: self.data( 'taxonomy' ),
 										terms: self.val(),

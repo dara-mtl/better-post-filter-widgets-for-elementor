@@ -105,13 +105,14 @@ class BPFWE_Helper {
 	 * @since 1.9.0
 	 *
 	 * @param array $args {
+	 *     Arguments for rendering the image.
 	 *     @type int    $attachment_id Attachment ID. 0 when unknown (external URL, meta value).
 	 *     @type string $url           Image URL, used when $attachment_id is 0.
-	 *     @type string $size          Registered image size. Default 'full'.
-	 *     @type string $alt           Alt text. Empty string renders a decorative image.
-	 *     @type string $fallback_url  URL used when the primary image is missing.
-	 *     @type bool   $swiper_lazy   Emit Swiper lazy-load markup instead of a loaded <img>.
-	 *     @type bool   $eager         LCP hint: loading="eager" + fetchpriority="high".
+	 *     @type string $size         Registered image size. Default 'full'.
+	 *     @type string $alt          Alt text. Empty string renders a decorative image.
+	 *     @type string $fallback_url URL used when the primary image is missing.
+	 *     @type bool   $swiper_lazy Emit Swiper lazy-load markup instead of a loaded <img>.
+	 *     @type bool   $eager       LCP hint: loading="eager" + fetchpriority="high".
 	 * }
 	 * @return string The <img> markup, or an empty string when nothing can be rendered.
 	 */
@@ -173,9 +174,9 @@ class BPFWE_Helper {
 				false,
 				array_merge(
 					array(
-						'class'         => 'bpfwe-post-thumbnail',
-						'alt'           => $alt,
-						'decoding'      => 'async',
+						'class'          => 'bpfwe-post-thumbnail',
+						'alt'            => $alt,
+						'decoding'       => 'async',
 						'data-bpfwe-src' => $url,
 					),
 					$loading_attrs
