@@ -56,7 +56,7 @@ jQuery(window).on('elementor:init', function () {
 
                 $input.off('click.bpfwe-shortcode').on('click.bpfwe-shortcode', function () {
                     this.select();
-                    document.execCommand('copy');
+                    copyToClipboard(shortcode);
 
                     elementor.notifications.showToast({
                         message: "Copied to clipboard!",
@@ -129,10 +129,58 @@ jQuery(window).on('elementor:init', function () {
 		};
 	};
 
-	elementor.hooks.addAction('panel/open_editor/widget/filter-widget', (panel) => {
+	function copyToClipboard(text) {
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(text).catch(() => {});
+			return;
+		}
+		try {
+			const el = document.createElement('textarea');
+			el.value = text;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+		} catch (e) {}
+	}
+
+	function stampFilterIdFields($panel, widgetID) {
+		if (!widgetID) return;
+
+		const idFields = {
+			selected_terms_shortcode : `[filter_terms id="${widgetID}"]`,
+			selected_count_shortcode : `[filter_count id="${widgetID}"]`,
+			quick_deselect_shortcode : `[filter_tags id="${widgetID}"]`,
+			mobile_mode_shortcode    : `[filter_mobile_view id="${widgetID}"]`,
+			filter_id                : `filter-${widgetID}`,
+		};
+
+		Object.entries(idFields).forEach(([controlId, value]) => {
+			const $input = $panel.find(`.elementor-control-${controlId} input`);
+			if (!$input.length) return;
+
+			if ($input.val() !== value) {
+				$input.val(value);
+			}
+			$input.attr('readonly', true);
+
+			$input.off('click.bpfweId').on('click.bpfweId', function () {
+				this.select();
+				copyToClipboard(value);
+				elementor.notifications.showToast({ message: 'Copied to clipboard!', type: 'success' });
+			});
+		});
+	}
+
+	elementor.hooks.addAction('panel/open_editor/widget/filter-widget', (panel, model) => {
 		const $panel = jQuery(panel.$el);
+		const widgetID = model && model.id ? model.id : null;
 		$panel.find('.elementor-repeater-fields').each((_, el) => initSelect2(jQuery(el)));
 
+		stampFilterIdFields($panel, widgetID);
 		updateFacetVisibility($panel);
 
 		$panel.off('change.bpfweFacet').on('change.bpfweFacet', 'input[data-setting="is_facetted"]', function () {
@@ -140,6 +188,7 @@ jQuery(window).on('elementor:init', function () {
 		});
 
 		const observer = new MutationObserver(debounce(mutations => {
+			stampFilterIdFields($panel, widgetID);
 			mutations.forEach(m => {
 				if (!m.addedNodes.length) return;
 				jQuery(m.addedNodes).find('.elementor-repeater-fields').addBack('.elementor-repeater-fields').each((_, el) => initSelect2(jQuery(el)));
@@ -154,6 +203,145 @@ jQuery(window).on('elementor:init', function () {
 	elementor.hooks.addAction('panel/close_editor/widget/filter-widget', panel => {
 		const observer = jQuery(panel.$el).data('bpfwe-observer');
 		if (observer) observer.disconnect();
+	});
+
+	// Post widget picker.
+	const BPFWE_POST_WIDGET_CLASSES = Array.isArray(window.ajax_var && window.ajax_var.targetWidgets) ?
+		window.ajax_var.targetWidgets : [
+			'elementor-widget-post-widget',
+			'elementor-widget-loop-grid',
+			'elementor-widget-loop-carousel',
+			'elementor-widget-posts'
+		];
+
+	const BPFWE_POST_WIDGETS = BPFWE_POST_WIDGET_CLASSES.map(c => '.' + c).join(', ');
+
+	const BPFWE_WIDGET_LABELS = {
+		'elementor-widget-post-widget'   : 'Post Widget',
+		'elementor-widget-loop-grid'     : 'Loop Grid',
+		'elementor-widget-loop-carousel' : 'Loop Carousel',
+		'elementor-widget-posts'         : 'Posts',
+	};
+
+	function bpfwePreviewDoc() {
+		try {
+			return elementor.$preview[0].contentDocument || null;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	// Elementor data-id is unique per page, unlike a widget class, which would match every widget of that type.
+	function bpfweUniqueSelector(el) {
+		const widgetId = el.getAttribute('data-id');
+		if (widgetId) return '[data-id="' + widgetId + '"]';
+		return el.id ? '#' + el.id : '';
+	}
+
+	function bpfweDeriveLabel(widgetClass) {
+		return widgetClass.replace(/^elementor-widget-/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, m => m.toUpperCase()).trim();
+	}
+
+	function bpfweWidgetLabel(el) {
+		let label = '';
+
+		for (const [cls, name] of Object.entries(BPFWE_WIDGET_LABELS)) {
+			if (el.classList.contains(cls)) {
+				label = name;
+				break;
+			}
+		}
+
+		if (!label) {
+			const matched = BPFWE_POST_WIDGET_CLASSES.find(c => el.classList.contains(c));
+			label = matched ? bpfweDeriveLabel(matched) : 'Post widget';
+		}
+
+		const widgetId = el.getAttribute('data-id');
+		return widgetId ? label + ' (' + widgetId + ')' : label;
+	}
+
+	function bpfweIsUsableSelector(value) {
+		if (!value) return false;
+		try {
+			document.querySelector(value);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	// The saved setting is the only thing that decides what's selected.
+	function bpfweSavedTarget(model) {
+		try {
+			if (model && typeof model.getSetting === 'function') {
+				return model.getSetting('target_widget') || '';
+			}
+
+			const settings = (model && typeof model.get === 'function') ? model.get('settings') : null;
+			if (settings && typeof settings.get === 'function') {
+				return settings.get('target_widget') || '';
+			}
+		} catch (e) {}
+
+		return '';
+	}
+
+	function bpfweCurrentPageView() {
+		try {
+			return elementor.getPanelView().getCurrentPageView();
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function bpfweControlModel(name) {
+		const editor = bpfweCurrentPageView();
+		return (editor && editor.collection) ? editor.collection.findWhere({ name: name }) : null;
+	}
+
+	function bpfweControlView(name) {
+		const editor = bpfweCurrentPageView();
+		const model = bpfweControlModel(name);
+		return (editor && editor.children && model) ? editor.children.findByModelCid(model.cid) : null;
+	}
+
+	function bpfweFillTargetWidgetOptions(model) {
+		const controlModel = bpfweControlModel('target_widget');
+		const controlView  = bpfweControlView('target_widget');
+		if (!controlModel || !controlView) return;
+
+		const doc = bpfwePreviewDoc();
+		const widgets = (doc && BPFWE_POST_WIDGETS) ?
+			Array.prototype.slice.call(doc.querySelectorAll(BPFWE_POST_WIDGETS)) : [];
+
+		// Keep the saved value even when its widget is not in this document, so opening the panel never quietly drops a target set somewhere else.
+		const raw = bpfweSavedTarget(model);
+		const current = bpfweIsUsableSelector(raw) ? raw : '';
+
+		const existingOptions = controlModel.get('options') || {};
+		const options = { '': existingOptions[''] || 'Select a post widget' };
+		let hasCurrent = false;
+
+		widgets.forEach(function (el) {
+			const selector = bpfweUniqueSelector(el);
+			if (!selector) return;
+			if (selector === current) hasCurrent = true;
+			options[selector] = bpfweWidgetLabel(el);
+		});
+
+		if (current !== '' && !hasCurrent) {
+			options[current] = current;
+		}
+
+		controlModel.set('options', options);
+		controlView.render();
+	}
+
+	['filter-widget', 'search-bar-widget', 'sorting-widget'].forEach(function (widgetType) {
+		elementor.hooks.addAction('panel/open_editor/widget/' + widgetType, function (panel, model) {
+			bpfweFillTargetWidgetOptions(model);
+		});
 	});
 
 });

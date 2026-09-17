@@ -861,6 +861,41 @@ ul.post-taxonomy li,
 	background-position: center;
 }
 
+.post-image[data-ratio="3-2"],
+.tax-image[data-ratio="3-2"] {
+	aspect-ratio: 3 / 2;
+}
+
+.post-image[data-ratio="1-1"],
+.tax-image[data-ratio="1-1"] {
+	aspect-ratio: 1 / 1;
+}
+
+.post-image[data-ratio="4-3"],
+.tax-image[data-ratio="4-3"] {
+	aspect-ratio: 4 / 3;
+}
+
+.post-image[data-ratio="16-9"],
+.tax-image[data-ratio="16-9"] {
+	aspect-ratio: 16 / 9;
+}
+
+.post-image[data-ratio="191-1"],
+.tax-image[data-ratio="191-1"] {
+	aspect-ratio: 1.91 / 1;
+}
+
+.post-image[data-ratio] img,
+.tax-image[data-ratio] img,
+.post-image[data-ratio] > a,
+.tax-image[data-ratio] > a {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
 .post-container.load {
 	-webkit-transition: none !important;
 	-o-transition: none !important;

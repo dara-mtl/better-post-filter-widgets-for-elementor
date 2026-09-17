@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.9
+Stable tag: 1.9.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -72,17 +72,15 @@ Tailor the widgets to your needs using dedicated filters and developer hooks.
 
 = Connecting the Filter Widget =
 
-To link your Filter Widget to a Post or Loop Grid widget, follow these steps:
+To link your Filter Widget to a Post, Loop Grid, Loop Carousel, or Posts widget:
 
-1. Open the Post Widget settings in Elementor.
-Go to the Advanced tab and enter the following in the CSS Classes field:
-`results`
-2. Open your Filter Widget.
-In the Post Widget Target field, enter:
-`.results`
-3. Save the page. The filter will now update the correct widget.
+1. Open your Filter Widget in Elementor.
+2. In the Post Widget Target field, select the widget you want the filter to control.
+3. Save the page. The filter will now update the selected widget.
 
-Note: `results` is a reference class. You can choose any class or id name you like, as long as the Filter Widget target matches the Post Widget class (with a .) or id (with a #).
+The target picker automatically detects eligible widgets on the page, so no CSS class or ID is required.
+
+For advanced setups, you can use Custom Target Selector instead. Enter a CSS class with a `.` prefix (for example, `.results`) or an ID with a `#` prefix (for example, `#results`). Multiple selectors can also be used when needed.
 
 = The post meta are not displaying =
 
@@ -139,16 +137,22 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
-= 1.8.9 – 2026-08-25 =
+= 1.9.0 – 2026-09-17 =
+
+* New: Post Widget Target picker. A dropdown to choose which Post, Loop Grid, Loop Carousel or Posts widget a Filter, Search or Sorting widget controls, populated from the widgets present on the page. The previous CSS-selector field remains available as "Custom Target Selector" for advanced or multi targeting.
+* Tweak: Featured images now render as real responsive <img>, with srcset, width and height, and native lazy loading. This improves SEO, reduces layout shift, and allows Google Images to index the thumbnails. The Aspect Ratio control now applies through CSS.
+* Fix: Relational fields displayed as a Select or Select2 now apply when filtering. Previously only the checkbox style worked, as the selected value was missing from the request.
+* Fix: Full post content shown through the Post Content dynamic tag is no longer stripped of embedded media such as oEmbed iframes.
+* Fix: Removed generic placeholder alt text from featured images. The image's real alt text is used, or none when the image is decorative.
+* Dev: New filter `bpfwe/target_widget_classes` to control which widget classes are eligible for target auto-detection and the target picker.
+* Dev: New filter `bpfwe_custom_html_image` to override the `#IMAGE#` markup in the Custom HTML skin.
+
+= 1.8.9 – 2026-08-31 =
 
 * Tweak: Confirmed compatibility with WordPress 7.1 and the latest Elementor releases.
-* Fix: Faceted result counts are no longer calculated from a single page of results.
 * Fix: Filter query arguments no longer leak into unrelated queries rendered during the same request.
 * Fix: Post types requested through the filter endpoint are now validated, so only publicly viewable types, or the type the filter widget is configured with, can be queried.
 * Fix: Fixed a fatal error when the filter endpoint received a page ID that does not resolve to an Elementor document.
-* Fix: An unpublished page can no longer be used as a fallback source for widget markup.
-* Fix: Posts per page requested through the filter endpoint is now capped.
-* Fix: Global loop attribute filters now fire on the post container even when no query ID is set.
 * Fix: Corrected the text domain on two Post Widget controls so they can be translated.
 
 = 1.8.8 – 2026-06-24 =
@@ -176,78 +180,10 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 * Dev: Added global loop attribute filters for post rendering: bpfwe/post_wrapper_attr/loop, bpfwe/post_wrapper_inner_attr/loop, bpfwe/post_attr/loop
 * Dev: Migrated plugin-wide AJAX to REST API.
 
-= 1.8.6 – 2026-03-26 =
-
-* New: Added range slider support for numeric meta filters, including styling controls for full design customization.
-* Fix: Dynamic Archive Filtering is now fully context-aware on search result archive pages, keeping results within the searched terms.
-* Tweak: Improved and clarified descriptions for several options to enhance usability.
-
-= 1.8.5 – 2026-03-24 =
-
-* Fix: Resolved an issue where selected state style controls in the Filter widget were not applied.
-* Fix: Dynamic styling in the Post widget now correctly reflects styles defined via dynamic tags.
-
-= 1.8.4 – 2026-02-26 =
-
-* New: Add to Cart support added to the Post widget.
-* New: Added Time format option for custom field value formatting in the Filter widget.
-* New: A single Filter widget can now target multiple Post widgets using a comma-separated list of selectors.
-* New: Taxonomy terms in the Filter widget can now dynamically adapt on archive pages.
-* Fix: Resolved an issue where the Post Content dynamic tag would echo its content in the Elementor editor.
-* Fix: Background image class now correctly resolves individual images per loop item instead of repeating the first resolved image.
-* Fix: Background image class now correctly resolves context for taxonomy, user, and author loop queries instead of always defaulting to post ID.
-* Fix: ACF/SCF compatibility added to taxonomy and user query featured image resolution.
-* Tweak: Reinforced security and data validation.
-
-= 1.8.3 – 2026-02-06 =
-
-* Fix: Improved Elementor template auto-detection for more reliable AJAX rendering when using Elementor Pro templates.
-* Tweak: Added clearer validation and fallback logic when resolving templates, pages, and widget data during AJAX requests.
-* Tweak: Clarified descriptions for performance-related options to help avoid incompatible configurations.
-
-= 1.8.2 – 2026-02-02 =
-
-* Fix: Select2 search field incorrectly triggering filters on input.
-* Fix: Selected term classes incorrectly adding extra words in some setups.
-* Fix: Interaction issues with free numeric input ranges on mobile devices.
-* Fix: Numeric ranges being reset when using pagination with faceted filtering enabled.
-* Fix: "No posts found" message on the post widget causing layout issues.
-* Fix: Meta-based filters not being correctly taken into account by faceted logic.
-* Fix: Spacing inconsistency for term count numbers on dropdowns.
-* Fix: Numbered pagination not working correctly in some setups.
-* Fix: Post widget feed layout rendering incorrectly with non-Latin characters.
-* New: URL parameters can now trigger Select and Select2 fields.
-* New/Fix: Added "Elementor Template ID" field under Additional Options for filter, search, and sorting widgets. Use this to manually specify the template ID containing the target widget when AJAX filtering fails inside an Elementor Pro template.
-
-= 1.8.0 – 2026-01-22 =
-
-* New: Filter widget now supports true faceted filtering, with dynamic counts and real-time option updates.
-  * Unavailable options can be greyed out or hidden to prevent dead-end combinations.
-  * Faceted behavior is fully opt-in and can be enabled globally or per individual filter group.
-  * Feature will continue to be refined and expanded in future releases.
-* New: Post widget now has a feed-style layout, letting you group posts by taxonomy or specific terms.
-* New: Free numeric input for meta-based filters.
-  * Numeric filters are no longer limited to predefined ranges.
-  * Users can manually enter custom minimum and maximum values.
-  * Backend users can define custom placeholders for numeric inputs.
-* New: Start expanded option for Filter widget toggle mode.
-* New: Custom AJAX handler (experimental).
-  * Optional high-performance replacement for admin-ajax.php.
-  * Can be enabled per Filter widget under Performance settings.
-  * Fully isolated and opt-in — safe for testing without affecting existing sites.
-  * Planned to become the default in a future release.
-* Fix: Corrected a typo in the Post widget where "Excluded terms" was labeled as "Included terms".
-* Fix: Fixed an issue where the inner wrapper class filter was not applied correctly in the Post widget.
-* Fix: Fixed Filter widget Load More pagination compatibility with Elementor Pro widgets.
-* Fix: Potentially resolved an Elementor editor issue where container CSS could break when using the main query in the Post widget.
-* Tweak: Post terms output can now be displayed as: comma-separated, ul or ol.
-* Tweak: Improved widget UI consistency by replacing RAW text with notice controls where appropriate.
-* Dev: Filter widget settings are now handled per widget rather than globally across linked filters.
-
 For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/changelog/).
 
 == Upgrade Notice ==
 
-= 1.8.8 =
+= 1.9.0 =
 
-Bug fixes and new styling controls for filter pills.
+New: Automatically target Post, Loop Grid, Loop Carousel and Posts widgets with the new Target picker.

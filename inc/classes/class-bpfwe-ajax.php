@@ -412,9 +412,9 @@ class BPFWE_Ajax {
 		];
 
 		$performance_sanitization_rules = [
-			'optimize_query'   => 'sanitize_text_field',
-			'no_found_rows'    => 'sanitize_text_field',
-			'posts_per_page'   => 'intval',
+			'optimize_query' => 'sanitize_text_field',
+			'no_found_rows'  => 'sanitize_text_field',
+			'posts_per_page' => 'intval',
 		];
 
 		// Get and sanitize all parameters from the REST request.
@@ -445,9 +445,9 @@ class BPFWE_Ajax {
 		$query_id             = ! empty( $params['query_id'] ) ? sanitize_key( $params['query_id'] ) : 'default';
 
 		$performance_settings = [
-			'optimize_query'   => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
-			'no_found_rows'    => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
-			'posts_per_page'   => isset( $performance_settings['posts_per_page'] ) ? (int) $performance_settings['posts_per_page'] : null,
+			'optimize_query' => isset( $performance_settings['optimize_query'] ) ? filter_var( $performance_settings['optimize_query'], FILTER_VALIDATE_BOOLEAN ) : null,
+			'no_found_rows'  => isset( $performance_settings['no_found_rows'] ) ? filter_var( $performance_settings['no_found_rows'], FILTER_VALIDATE_BOOLEAN ) : null,
+			'posts_per_page' => isset( $performance_settings['posts_per_page'] ) ? (int) $performance_settings['posts_per_page'] : null,
 		];
 
 		$final_posts_per_page = null !== $performance_settings['posts_per_page'] ? $performance_settings['posts_per_page'] : $posts_per_page;
