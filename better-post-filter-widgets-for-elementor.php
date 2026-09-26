@@ -7,11 +7,11 @@
  * Author: WP Smart Widgets
  * Author URI: https://wpsmartwidgets.com/
  * Documentation URI: https://wpsmartwidgets.com/doc/better-post-and-filter-widgets/
- * Version: 1.9.0
+ * Version: 1.9.1
  * Requires PHP: 7.4
  * Requires at least: 6.2
  * Tested up to: 7.1
- * Elementor tested up to: 4.2.3
+ * Elementor tested up to: 4.3.2
  * Text Domain: better-post-filter-widgets-for-elementor
  * Domain Path: /lang
  * License: GPL-3.0-or-later
@@ -40,7 +40,7 @@ require_once BPFWE_PLUGIN_DIR . 'widget-categories.php';
  * @since 1.0.0
  */
 final class BPFWE_Elementor {
-	const VERSION                   = '1.9.0';
+	const VERSION                   = '1.9.1';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION       = '7.4';
 
@@ -188,6 +188,7 @@ final class BPFWE_Elementor {
 			'nonce'          => wp_create_nonce( 'ajax-nonce' ),
 			'rest_nonce'     => wp_create_nonce( 'wp_rest' ),
 			'isUserLoggedIn' => is_user_logged_in(),
+			'current_lang'   => apply_filters( 'wpml_current_language', '' ),
 		];
 
 		wp_register_script( 'post-widget-script', plugins_url( 'assets/js/bpfwe-post-widget.min.js', __FILE__ ), [ 'jquery' ], self::VERSION, true );

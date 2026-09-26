@@ -924,11 +924,13 @@ ul.post-taxonomy li,
 	pointer-events: none;
 }
 
-.elementor-grid {
+.elementor-grid,
+.e-collection-loop-layout-base {
 	transition: opacity 0.3s;
 }
 
 .filter-initialized .elementor-grid,
+.filter-initialized .e-collection-loop-layout-base,
 .filter-initialized .no-post,
 .elementor-widget-posts.load:not([data-settings*='load_more_infinite_scroll']):not([data-settings*='load_more_on_click']) .elementor-grid,
 .elementor-widget-loop-grid.load:not([data-settings*='load_more_infinite_scroll']):not([data-settings*='load_more_on_click']) .elementor-grid {
