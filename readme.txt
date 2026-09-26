@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -14,6 +14,8 @@ The only free pro-grade Elementor filtering system for posts, taxonomies, custom
 == Description ==
 
 The only free Elementor plugin for unlimited pro-grade filtering of all your post content. Filter by taxonomies, custom fields, ACF, relational fields, and numeric ranges – with seamless integration, no restrictions, and full customization. Get advanced filtering features without paying for limitations.
+
+[Custom development](https://wpsmartwidgets.com/hire/) – Need a feature built for your project? Hire the plugin's developer.
 
 ### Filter Widget Key Features:
 - Compatible with Elementor Pro post widget, ACF, WooCommerce and most translation plugins.
@@ -137,6 +139,13 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.9.1 – 2026-09-25 =
+
+* New: Elementor V4 atomic Loop support. Filter, Search and Sorting widgets can now target the V4 Loop, with AJAX filtering, pagination, query ID and "nothing found" handling.
+* New: When no target is set, Filter, Search and Sorting widgets automatically connect to the page's post widget if there is only one. A console notice now helps identify widgets without a target.
+* Fix: Improved multilingual compatibility for taxonomy, meta and numeric filter term caches by scoping cached results to the current language.
+* Fix: Archive-scoped, meta and numeric filter options now use the translation plugin's language filtering.
+
 = 1.9.0 – 2026-09-17 =
 
 * New: Post Widget Target picker. A dropdown to choose which Post, Loop Grid, Loop Carousel or Posts widget a Filter, Search or Sorting widget controls, populated from the widgets present on the page. The previous CSS-selector field remains available as "Custom Target Selector" for advanced or multi targeting.
@@ -184,6 +193,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.9.0 =
+= 1.9.1 =
 
-New: Automatically target Post, Loop Grid, Loop Carousel and Posts widgets with the new Target picker.
+Improved multilingual compatibility (WPML, Polylang, TranslatePress and similar) and full support for Elementor's V4 atomic Loop.

@@ -226,6 +226,7 @@ class BPFWE_Ajax {
 		'filter_id',
 		'template_id',
 		'current_url',
+		'lang',
 		'page_id',
 		'group_logic',
 		'search_query',
@@ -298,6 +299,25 @@ class BPFWE_Ajax {
 			$request->get_params(),
 			array_flip( $this->allowed_keys )
 		);
+
+		// Switch explicitly using the language the widget was rendered with.
+		if ( ! empty( $params['lang'] ) ) {
+			$lang = sanitize_key( $params['lang'] );
+
+			if ( has_action( 'wpml_switch_language' ) ) {
+				do_action( 'wpml_switch_language', $lang );
+			}
+
+			/**
+			 * Fires with the visitor's language for this filter request, before the query runs.
+			 * Hook here to switch language context for translation plugins other than WPML.
+			 *
+			 * @since 1.9.1
+			 *
+			 * @param string $lang Language code the widget was rendered with.
+			 */
+			do_action( 'bpfwe/filter_request_language', $lang );
+		}
 
 		$template_id      = ! empty( $params['template_id'] ) ? absint( $params['template_id'] ) : '';
 		$page_id          = ! empty( $params['page_id'] ) ? absint( $params['page_id'] ) : '';
@@ -385,6 +405,9 @@ class BPFWE_Ajax {
 				$ele_widget_query_id = $widget_data['settings']['post_query_query_id'];
 			} elseif ( ! empty( $widget_data['settings']['posts_query_id'] ) ) {
 				$ele_widget_query_id = $widget_data['settings']['posts_query_id'];
+			} elseif ( ! empty( $widget_data['settings']['query']['value']['query_id']['value'] ) ) {
+				// V4 Loop: prop-typed setting.
+				$ele_widget_query_id = $widget_data['settings']['query']['value']['query_id']['value'];
 			}
 
 			if ( ! empty( $widget_data['settings']['query_id'] ) ) {
@@ -823,7 +846,7 @@ class BPFWE_Ajax {
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 		$this->applying_filter_query = true;
 
-		$widget_html = $document->render_element( $widget_data );
+		$widget_html = $this->render_target_element( $document, $widget_data, $paged );
 
 		$this->applying_filter_query = false;
 
@@ -889,6 +912,21 @@ class BPFWE_Ajax {
 				}
 
 				return '<a' . $new_attrs . '>' . $inner . '</a>';
+			},
+			$widget_html
+		);
+
+		// V4 Loop pagination links (entity-encoded by Twig): point e-page-{id} back to the page.
+		$widget_html = preg_replace_callback(
+			'#href=(["\'])([^"\']*)\1#',
+			static function ( $matches ) use ( $base_url ) {
+				$href = html_entity_decode( $matches[2], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+				if ( ! preg_match( '#[?&](e-page-[a-zA-Z0-9_-]+)=(\d+)#', $href, $page ) ) {
+					return $matches[0];
+				}
+
+				return 'href="' . esc_url( add_query_arg( $page[1], (int) $page[2], $base_url ) ) . '"';
 			},
 			$widget_html
 		);
@@ -1142,6 +1180,10 @@ class BPFWE_Ajax {
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
+					'lang'               => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					],
 				],
 			]
 		);
@@ -1260,6 +1302,48 @@ class BPFWE_Ajax {
 
 		// Register REST API routes.
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
+	}
+
+	/**
+	 * Render the target element's inner markup.
+	 *
+	 * Document::render_element() only works for widgets; containers and V4 atomic
+	 * elements are printed whole and unwrapped instead.
+	 *
+	 * @since 1.9.1
+	 *
+	 * @param \Elementor\Core\Base\Document $document    Document the element belongs to.
+	 * @param array                         $widget_data Element data.
+	 * @param int                           $paged       Requested page.
+	 * @return string Inner markup of the element.
+	 */
+	private function render_target_element( $document, $widget_data, $paged = 1 ) {
+		$element = \Elementor\Plugin::$instance->elements_manager->create_element_instance( $widget_data );
+
+		if ( ! $element ) {
+			return '';
+		}
+
+		if ( $element instanceof \Elementor\Widget_Base ) {
+			return $document->render_element( $widget_data );
+		}
+
+		// V4 Loop reads its current page from $_GET.
+		$page_key = 'e-page-' . $widget_data['id'];
+
+		$_GET[ $page_key ] = (string) $paged; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		ob_start();
+		$element->print_element();
+		$html = trim( ob_get_clean() );
+
+		unset( $_GET[ $page_key ] );
+
+		if ( ! preg_match( '#^<([a-zA-Z][\w-]*)\b[^>]*>#', $html, $open ) || ! str_ends_with( $html, '</' . $open[1] . '>' ) ) {
+			return $html;
+		}
+
+		return substr( $html, strlen( $open[0] ), -strlen( '</' . $open[1] . '>' ) );
 	}
 
 	/**

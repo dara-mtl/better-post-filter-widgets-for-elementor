@@ -75,16 +75,61 @@
 			return 1;
 		}
 
+		var bpfweTargetWidgets = '.elementor-widget-post-widget, .elementor-widget-loop-grid, .elementor-widget-loop-carousel, .elementor-widget-posts, [data-e-type="e-collection-loop"]';
+		var bpfweWarnedTargets = {};
+		var bpfweAtomicPager = null;
+
+		function bpfweWarnNoTarget( $widget ) {
+			var widgetID = $widget.data( 'id' );
+
+			if ( !widgetID || bpfweWarnedTargets[ widgetID ] ) {
+				return;
+			}
+
+			bpfweWarnedTargets[ widgetID ] = true;
+
+			if ( window.console && console.warn ) {
+				console.warn( 'BPFWE: widget ' + widgetID + ' has no post widget target. Set one in "Post Widget Target" or "Custom Target Selector".' );
+			}
+		}
+
+		// No saved target: fall back to the page's only post widget, if there is exactly one.
+		function bpfweAutoTarget( $widget ) {
+			// Redirecting search bars filter on the destination page.
+			if ( $widget.find( 'form.search-post input[name="search"]' ).length ) {
+				return '';
+			}
+
+			var $candidates = $( bpfweTargetWidgets );
+
+			if ( $candidates.length !== 1 ) {
+				return '';
+			}
+
+			var widgetID = $candidates.attr( 'data-id' );
+
+			return widgetID ? '[data-id="' + widgetID + '"]' : '';
+		}
+
 		// Resolve the post widget(s) this widget drives.
 		function bpfweResolveTargets( $widget ) {
 			var settings = $widget.data( 'settings' ) || {};
 			var raw = settings.target_widget || settings.target_selector || '';
 
-			if ( typeof raw !== 'string' || raw.trim() === '' ) {
+			if ( typeof raw !== 'string' ) {
+				raw = '';
+			}
+
+			if ( raw.trim() === '' ) {
+				raw = bpfweAutoTarget( $widget );
+			}
+
+			if ( raw === '' ) {
+				bpfweWarnNoTarget( $widget );
 				return [];
 			}
 
-			return raw.split( ',' ).map( function ( s ) {
+			var resolved = raw.split( ',' ).map( function ( s ) {
 				return s.trim();
 			} ).filter( function ( s ) {
 				if ( !s.length ) {
@@ -97,6 +142,12 @@
 					return false;
 				}
 			} );
+
+			if ( !resolved.length ) {
+				bpfweWarnNoTarget( $widget );
+			}
+
+			return resolved;
 		}
 
 		// Link filter/search/sort widgets to their target post widgets via data-filters-list.
@@ -135,6 +186,10 @@
 					if ( !postsPerPageCache[ targetWidgetID ] ) {
 						const postWidgetSetting = $target.data( 'settings' );
 						let postsPerPage = postWidgetSetting?.posts_per_page ? parseInt( postWidgetSetting.posts_per_page ) : null;
+						if ( !postsPerPage ) {
+							let loopLayout = $target.find( '[data-e-type="e-collection-loop-layout"]' ).first();
+							if ( loopLayout.length ) postsPerPage = loopLayout.children( '[data-e-type="e-collection-loop-item"]' ).length;
+						}
 						if ( !postsPerPage ) {
 							let postWrapper = $target.find( '.elementor-posts, .grid, .columns, .elementor-grid' ).first();
 							if ( postWrapper.length ) postsPerPage = postWrapper.children( 'article, .post, .item, .entry' ).length;
@@ -901,6 +956,31 @@
 						getFormValues( null, paged, postWidgetID );
 					} );
 
+					// V4 Loop pagination: capture phase, so it runs before Elementor's own AJAX pager.
+					if ( bpfweAtomicPager ) {
+						document.removeEventListener( 'click', bpfweAtomicPager, true );
+					}
+
+					bpfweAtomicPager = function ( e ) {
+						var link = e.target.closest ? e.target.closest( 'a[data-e-pagination]' ) : null;
+						var $postWidget = link ? $( link ).closest( '[data-filters-list]' ) : $();
+
+						if ( !$postWidget.hasClass( 'filter-active' ) ) {
+							return;
+						}
+
+						e.preventDefault();
+						e.stopImmediatePropagation();
+
+						var url = link.getAttribute( 'href' );
+
+						if ( url ) {
+							getFormValues( null, getPageNumber( url ), $postWidget.data( 'id' ) );
+						}
+					};
+
+					document.addEventListener( 'click', bpfweAtomicPager, true );
+
 					// Load more button: fetch next page or fallback to pagination link.
 					$document.off( 'click.bpfwe-filter', '.load-more-filter' ).on( 'click.bpfwe-filter', '.load-more-filter', function ( e ) {
 						e.preventDefault();
@@ -1504,6 +1584,7 @@
 							template_id: templateID,
 							current_url: window.location.href,
 							page_id: pageID,
+							lang: ajax_var.current_lang || '',
 							group_logic: groupLogic,
 							search_query: searchQuery,
 							date_query: dateQuery,
@@ -1587,7 +1668,11 @@
 
 								localTargetSelector.find( '.loader' ).fadeOut();
 
-								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length || content === '' ) {
+								// An empty V4 Loop still renders its layout.
+								var isEmptyAtomicLoop = localTargetSelector.find( '[data-e-type="e-collection-loop-layout"]' ).length > 0 &&
+									localTargetSelector.find( '[data-e-type="e-collection-loop-item"]' ).length === 0;
+
+								if ( localTargetSelector.find( '.no-post' ).length || localTargetSelector.find( '.e-loop-nothing-found-message' ).length || isEmptyAtomicLoop || content === '' ) {
 									if ( nothingFoundMessage && nothingFoundMessage.trim() ) {
 										const safeMessage = nothingFoundMessage.replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
 										localTargetSelector.html( `<div class="no-post e-loop-nothing-found-message">${safeMessage}</div>` );

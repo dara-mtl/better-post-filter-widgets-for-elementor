@@ -214,7 +214,8 @@ jQuery(window).on('elementor:init', function () {
 			'elementor-widget-posts'
 		];
 
-	const BPFWE_POST_WIDGETS = BPFWE_POST_WIDGET_CLASSES.map(c => '.' + c).join(', ');
+	// V4 atomic elements have no elementor-widget-* class.
+	const BPFWE_POST_WIDGETS = BPFWE_POST_WIDGET_CLASSES.map(c => '.' + c).concat('[data-e-type="e-collection-loop"]').join(', ');
 
 	const BPFWE_WIDGET_LABELS = {
 		'elementor-widget-post-widget'   : 'Post Widget',
@@ -250,6 +251,10 @@ jQuery(window).on('elementor:init', function () {
 				label = name;
 				break;
 			}
+		}
+
+		if (!label && el.getAttribute('data-e-type') === 'e-collection-loop') {
+			label = 'Loop';
 		}
 
 		if (!label) {

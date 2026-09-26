@@ -1512,11 +1512,12 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
-		$taxonomies = get_taxonomies( [], 'objects' );
-		$all_terms  = [];
+		$taxonomies        = get_taxonomies( [], 'objects' );
+		$all_terms         = [];
+		$editor_locale_key = '_' . get_locale();
 
 		foreach ( $taxonomies as $index => $tax ) {
-			$terms_transient_key = 'bpfwe_terms_' . $index;
+			$terms_transient_key = 'bpfwe_terms_' . $index . $editor_locale_key;
 			$terms               = get_transient( $terms_transient_key );
 
 			if ( false === $terms ) {
@@ -1841,7 +1842,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Selected Terms', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => '[filter_terms id="' . $widget_id . '"]',
+				'default'     => '[filter_terms id="' . $this->get_id() . '"]',
 				'render_type' => 'ui',
 				'description' => esc_html__( 'This shortcode will display a list of selected terms.', 'better-post-filter-widgets-for-elementor' ),
 			]
@@ -1852,7 +1853,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Selected Count', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => '[filter_count id="' . $widget_id . '"]',
+				'default'     => '[filter_count id="' . $this->get_id() . '"]',
 				'render_type' => 'ui',
 				'description' => esc_html__( 'This shortcode will display the selected terms total.', 'better-post-filter-widgets-for-elementor' ),
 			]
@@ -1863,7 +1864,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Quick Deselect', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => '[filter_tags id="' . $widget_id . '"]',
+				'default'     => '[filter_tags id="' . $this->get_id() . '"]',
 				'render_type' => 'ui',
 				'description' => esc_html__( 'This shortcode will display a list of deselectable tags.', 'better-post-filter-widgets-for-elementor' ),
 			]
@@ -1893,7 +1894,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 			[
 				'label'       => esc_html__( 'Mobile Mode', 'better-post-filter-widgets-for-elementor' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
-				'default'     => '[filter_mobile_view id="' . $widget_id . '"]',
+				'default'     => '[filter_mobile_view id="' . $this->get_id() . '"]',
 				'label_block' => true,
 				'render_type' => 'ui',
 				'description' => esc_html__( 'Place this shortcode in the desired mobile location to reposition one or more filter widgets at the selected breakpoint. Supports a single ID or a comma-separated list of IDs.', 'better-post-filter-widgets-for-elementor' ),
@@ -4214,7 +4215,8 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		$settings           = $this->get_settings_for_display();
 		$widget_id          = $this->get_id();
-		$transient_duration = ( ! empty( $settings['transient_duration'] ) ) ? absint( $settings['transient_duration'] ) : 86400;
+		$transient_duration = ( isset( $settings['transient_duration'] ) && '' !== $settings['transient_duration'] ) ? absint( $settings['transient_duration'] ) : 86400;
+		$locale_key         = '_' . get_locale();
 		$is_editor          = current_user_can( 'edit_posts' );
 		$is_facetted        = $settings['is_facetted'] ? true : false;
 		$facet_mode         = $settings['facet_mode'] ? $settings['facet_mode'] : '';
@@ -4398,6 +4400,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					'post_type'              => 'targeted_widget' === $settings['filter_post_type'] ? 'any' : sanitize_key( $settings['filter_post_type'] ),
 					'no_found_rows'          => true,
 					'fields'                 => 'ids',
+					'suppress_filters'       => false,
 					'update_post_meta_cache' => false,
 					'update_post_term_cache' => false,
 				];
@@ -4550,7 +4553,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 				if ( 'Taxonomy' === $item['select_filter'] ) {
 
 					// Check if transient exists.
-					$transient_key = 'filter_widget_taxonomy_' . $item['filter_by'] . $archive_context_key;
+					$transient_key = 'filter_widget_taxonomy_' . $item['filter_by'] . $archive_context_key . $locale_key;
 
 					$hiterms       = get_transient( $transient_key );
 					$display_empty = 'yes' === $item['display_empty'] ? false : true;
@@ -4736,7 +4739,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
 								$terms_stack            = array();
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key;
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key . $locale_key;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								// Invalidate cache if editing.
@@ -4873,7 +4876,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												break;
 										}
 
-										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key;
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key . $locale_key;
 										$child_terms         = get_transient( $child_transient_key );
 
 										// Invalidate cache if editing.
@@ -5095,7 +5098,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 
 							if ( 'yes' === $item['show_hierarchy'] ) {
 								$terms_stack            = array();
-								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key;
+								$lowterms_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $hiterm->term_id . $archive_context_key . $locale_key;
 								$lowterms               = get_transient( $lowterms_transient_key );
 
 								// Invalidate cache if editing.
@@ -5232,7 +5235,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 												break;
 										}
 
-										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key;
+										$child_transient_key = 'filter_widget_lowterms_' . $item['filter_by'] . '_' . $term->term_id . $archive_context_key . $locale_key;
 										$child_terms         = get_transient( $child_transient_key );
 
 										// Invalidate cache if editing.
@@ -5560,7 +5563,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					}
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key;
+						$meta_terms_transient_key = 'filter_widget_meta_terms_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key . $locale_key;
 						$terms                    = get_transient( $meta_terms_transient_key );
 
 						// Invalidate cache if editing.
@@ -5582,6 +5585,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									'no_found_rows'  => true,
 									'fields'         => 'ids',
 									'meta_key'       => $item['meta_key'],
+									'suppress_filters' => false,
 									'update_post_meta_cache' => false,
 									'update_post_term_cache' => false,
 								);
@@ -6142,7 +6146,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 					$terms = array();
 
 					if ( ! empty( $item['meta_key'] ) ) {
-						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key;
+						$numeric_transient_key = 'filter_widget_numeric_' . $item['meta_key'] . '_' . sanitize_key( $settings['filter_post_type'] ) . $archive_context_key . $locale_key;
 						$terms                 = get_transient( $numeric_transient_key );
 
 						// Invalidate cache if editing.
@@ -6164,6 +6168,7 @@ class BPFWE_Filter_Widget extends \Elementor\Widget_Base {
 									'no_found_rows'  => true,
 									'fields'         => 'ids',
 									'meta_key'       => $item['meta_key'],
+									'suppress_filters' => false,
 									'update_post_meta_cache' => false,
 									'update_post_term_cache' => false,
 								);
