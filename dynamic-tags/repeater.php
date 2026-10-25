@@ -374,8 +374,20 @@ class Repeater extends Tag {
 		$user_id            = absint( $settings['user_id'] );
 		$allowed_child_tags = [ 'none', 'div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'table', 'toggle', 'tabs' ];
 		$html_tag           = in_array( $settings['child_html_tag'], $allowed_child_tags, true ) ? esc_attr( $settings['child_html_tag'] ) : '';
+		$allowed_title_tags = [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div' ];
+		$toggle_title_tag   = in_array( $settings['toggle_title_tag'], $allowed_title_tags, true ) ? $settings['toggle_title_tag'] : 'h3';
+		$tab_title_tag      = in_array( $settings['tab_title_tag'], $allowed_title_tags, true ) ? $settings['tab_title_tag'] : 'span';
 
 		if ( empty( $key ) ) {
+			return;
+		}
+
+		$object_id = 'post' === $source ? $post_id : ( $user_id ? $user_id : get_current_user_id() );
+		if ( 'author' === $source ) {
+			$object_id = is_author() ? get_queried_object_id() : (int) get_the_author_meta( 'ID' );
+		}
+
+		if ( ! BPFWE_Helper::tag_can_read_source( $source, $object_id, $key ) ) {
 			return;
 		}
 
@@ -433,11 +445,6 @@ class Repeater extends Tag {
 
 		if ( 'toggle' === $html_tag ) {
 			if ( 'per_field' === $settings['toggle_output_mode'] ) {
-				$toggle_title_tag = $settings['toggle_title_tag'];
-				if ( empty( $toggle_title_tag ) ) {
-					$toggle_title_tag = 'h3';
-				}
-
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
 					$child_key     = "child_key_{$counter}";
 					$setting_value = $settings[ $child_key ];
@@ -471,11 +478,6 @@ class Repeater extends Tag {
 					}
 				}
 			} else {
-				$toggle_title_tag = $settings['toggle_title_tag'];
-				if ( empty( $toggle_title_tag ) ) {
-					$toggle_title_tag = 'h3';
-				}
-
 				$entries_count = count( $entries );
 				for ( $i = 0; $i < $entries_count; $i++ ) {
 					$entry = $entries[ $i ];
@@ -513,12 +515,8 @@ class Repeater extends Tag {
 			if ( 'per_field' === $settings['tabs_output_mode'] ) {
 				echo '<div class="bpfwe-tabs-wrapper">';
 
-				$group_name    = 'bpfwe-tab-group-' . uniqid();
-				$first_tab     = true;
-				$tab_title_tag = $settings['tab_title_tag'];
-				if ( empty( $tab_title_tag ) ) {
-					$tab_title_tag = 'span';
-				}
+				$group_name = 'bpfwe-tab-group-' . uniqid();
+				$first_tab  = true;
 
 				for ( $counter = 1; $counter <= $max_child_keys; $counter++ ) {
 					$child_key     = "child_key_{$counter}";
@@ -558,12 +556,8 @@ class Repeater extends Tag {
 			} else {
 				echo '<div class="bpfwe-tabs-wrapper">';
 
-				$group_name    = 'bpfwe-tab-group-' . uniqid();
-				$first_tab     = true;
-				$tab_title_tag = $settings['tab_title_tag'];
-				if ( empty( $tab_title_tag ) ) {
-					$tab_title_tag = 'span';
-				}
+				$group_name = 'bpfwe-tab-group-' . uniqid();
+				$first_tab  = true;
 
 				$entries_count = count( $entries );
 				for ( $i = 0; $i < $entries_count; $i++ ) {

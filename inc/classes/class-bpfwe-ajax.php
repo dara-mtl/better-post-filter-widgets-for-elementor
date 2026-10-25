@@ -79,6 +79,18 @@ class BPFWE_Ajax {
 		$post_status  = get_post_status( $post_id );
 		$new_status   = ( 'publish' === $post_status ) ? 'draft' : 'publish';
 
+		// Publishing needs the post type's publish capability, not just edit_post.
+		if ( 'publish' === $new_status ) {
+			$post_type_object = get_post_type_object( get_post_type( $post_id ) );
+			if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+				return new WP_Error(
+					'forbidden',
+					'You are not allowed to publish this post',
+					[ 'status' => 403 ]
+				);
+			}
+		}
+
 		// Update post status and publication date.
 		$result = wp_update_post(
 			[
@@ -358,7 +370,7 @@ class BPFWE_Ajax {
 
 		$post_status = get_post_status( $template_id );
 
-		if ( 'publish' !== $post_status && ! is_user_logged_in() ) {
+		if ( 'publish' !== $post_status && ! current_user_can( 'read_post', $document->get_main_id() ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				'You do not have permission to view this layout template.',
@@ -376,7 +388,7 @@ class BPFWE_Ajax {
 			if ( $page_document ) {
 				$page_status = get_post_status( $page_id );
 
-				if ( 'publish' === $page_status || is_user_logged_in() ) {
+				if ( 'publish' === $page_status || current_user_can( 'read_post', $page_id ) ) {
 					$document     = $page_document;
 					$element_data = $document->get_elements_data();
 					$widget_data  = \Elementor\Utils::find_element_recursive( $element_data, $widget_id );
@@ -846,7 +858,9 @@ class BPFWE_Ajax {
 		// error_log( 'Debugging $args: ' . print_r( $args, true ) ); -- Enable for debugging.
 		$this->applying_filter_query = true;
 
+		\Elementor\Plugin::$instance->documents->switch_to_document( $document );
 		$widget_html = $this->render_target_element( $document, $widget_data, $paged );
+		\Elementor\Plugin::$instance->documents->restore_document();
 
 		$this->applying_filter_query = false;
 
@@ -1003,6 +1017,7 @@ class BPFWE_Ajax {
 			'shop_coupon',
 			'shop_order_refund',
 			'et_pb_layout',
+			'bsf_custom_fonts',
 		];
 
 		// If any post type in the query is in the exclusion list, bail.

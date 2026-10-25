@@ -5,7 +5,7 @@ Tags: elementor, woocommerce, product filter, post filter, ajax filter
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,6 +139,16 @@ This plugin includes both compressed and uncompressed versions of CSS and JavaSc
 
 == Changelog ==
 
+= 1.9.2 – 2026-10-25 =
+
+* Fix: Filtering no longer causes a critical error when the Custom Fonts plugin is active.
+* Fix: SVG icons now keep their classes, aria attributes, gradients and clip paths.
+* Fix: Repeater dynamic tag toggle and tab title tags now only accept the heading, span and div options listed in the control.
+* Fix: User Meta and Author Meta dynamic tags now only output the fields listed in the Field control.
+* Fix: Custom Field, Image Custom Field, Repeater, User Meta and Author Meta dynamic tags now follow the content author's role when reading site options and other users' data.
+* Fix: The frontend post status toggle now requires permission to publish before setting a post live.
+* Fix: Filter requests for unpublished templates or pages now check that the visitor can view them.
+
 = 1.9.1 – 2026-09-25 =
 
 * New: Elementor V4 atomic Loop support. Filter, Search and Sorting widgets can now target the V4 Loop, with AJAX filtering, pagination, query ID and "nothing found" handling.
@@ -193,6 +203,6 @@ For full changelog, see [Changelog](https://wpsmartwidgets.com/doc/better-post-a
 
 == Upgrade Notice ==
 
-= 1.9.1 =
+= 1.9.2 =
 
-Improved multilingual compatibility (WPML, Polylang, TranslatePress and similar) and full support for Elementor's V4 atomic Loop.
+Fixes a conflict with the Custom Fonts plugin during filtering, plus dynamic tag improvements.
