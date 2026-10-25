@@ -241,6 +241,15 @@ class Custom_Field extends Tag {
 			$user_id = get_current_user_id();
 		}
 
+		$object_id = 'post' === $source ? $post_id : $user_id;
+		if ( 'author' === $source ) {
+			$object_id = is_author() ? get_queried_object_id() : (int) get_the_author_meta( 'ID' );
+		}
+
+		if ( ! BPFWE_Helper::tag_can_read_source( $source, $object_id, $key ) ) {
+			return;
+		}
+
 		// Initialize $value.
 		$value = '';
 

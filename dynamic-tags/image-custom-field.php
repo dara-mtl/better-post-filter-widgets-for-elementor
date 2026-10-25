@@ -211,7 +211,18 @@ class Image_Custom_Field extends Data_Tag {
 		$key        = empty( $key ) ? sanitize_key( $this->get_settings( 'custom_key' ) ) : $key;
 		$is_gallery = $this->get_settings( 'is_gallery' ) === 'yes';
 
-		if ( empty( $key ) ) {
+		global $bpfwe_term_id, $bpfwe_user_id;
+
+		if ( 'user' === $source && empty( $user_id ) ) {
+			$user_id = ! empty( $bpfwe_user_id ) ? absint( $bpfwe_user_id ) : get_current_user_id();
+		}
+
+		$object_id = 'post' === $source ? $post_id : $user_id;
+		if ( 'author' === $source ) {
+			$object_id = is_author() ? get_queried_object_id() : (int) get_the_author_meta( 'ID' );
+		}
+
+		if ( empty( $key ) || ! BPFWE_Helper::tag_can_read_source( $source, $object_id, $key ) ) {
 			return [
 				'url' => esc_url( $fallback['url'] ?? '' ),
 				'id'  => absint( $fallback['id'] ?? '' ),
@@ -219,17 +230,10 @@ class Image_Custom_Field extends Data_Tag {
 		}
 
 		// Add global support for loops.
-		global $bpfwe_term_id, $bpfwe_user_id;
 		if ( 'tax' === $source && empty( $term_id ) && ! empty( $bpfwe_term_id ) ) {
 			$term_id = absint( $bpfwe_term_id );
 		} elseif ( 'tax' === $source && empty( $term_id ) && ( is_tax() || is_category() || is_tag() ) ) {
 			$term_id = get_queried_object_id();
-		}
-
-		if ( 'user' === $source && empty( $user_id ) && ! empty( $bpfwe_user_id ) ) {
-			$user_id = absint( $bpfwe_user_id );
-		} elseif ( 'user' === $source && empty( $user_id ) ) {
-			$user_id = get_current_user_id();
 		}
 
 		// Initialize value.

@@ -10,6 +10,7 @@ namespace BPFWE_Dynamic_Tag\Tags;
 
 use Elementor\Controls_Manager;
 use Elementor\Core\DynamicTags\Tag;
+use BPFWE\Inc\Classes\BPFWE_Helper;
 use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -151,7 +152,13 @@ class Author_Info_Meta extends Tag {
 		$key      = $this->get_settings( 'key' );
 		$meta_key = $this->get_settings( 'meta_key' );
 
-		if ( empty( $key ) && empty( $meta_key ) ) {
+		$allowed_keys = [ 'display_name', 'ID', 'description', 'email', 'url', 'profile_url', 'meta' ];
+		if ( ! in_array( $key, $allowed_keys, true ) || ( 'meta' === $key && empty( $meta_key ) ) ) {
+			return;
+		}
+
+		$author_id = is_author() ? get_queried_object_id() : (int) get_the_author_meta( 'ID' );
+		if ( ! BPFWE_Helper::tag_can_read_user_field( $author_id, 'meta' === $key ? $meta_key : $key ) ) {
 			return;
 		}
 

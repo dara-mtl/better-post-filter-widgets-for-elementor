@@ -409,102 +409,34 @@ class BPFWE_Helper {
 		static $allowed_html = null;
 
 		if ( null === $allowed_html ) {
-			$allowed_html = array_merge(
-				wp_kses_allowed_html( 'post' ),
-				[
-					'i'        => [ 'class' => [] ],
-					'b'        => [],
-					'strong'   => [],
-					'em'       => [],
-					'u'        => [],
-					'br'       => [],
-					'svg'      => [
-						'xmlns'               => [],
-						'width'               => [],
-						'height'              => [],
-						'viewbox'             => [],
-						'preserveaspectratio' => [],
-						'fill'                => [],
-						'stroke'              => [],
-						'stroke-width'        => [],
-						'd'                   => [],
-						'x'                   => [],
-						'y'                   => [],
-						'cx'                  => [],
-						'cy'                  => [],
-						'r'                   => [],
-						'rx'                  => [],
-						'ry'                  => [],
-						'points'              => [],
-						'transform'           => [],
-						'dy'                  => [],
-						'dx'                  => [],
-					],
-					'path'     => [
-						'd'            => [],
-						'fill'         => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-						'transform'    => [],
-					],
-					'circle'   => [
-						'cx'           => [],
-						'cy'           => [],
-						'r'            => [],
-						'fill'         => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-					],
-					'rect'     => [
-						'x'            => [],
-						'y'            => [],
-						'width'        => [],
-						'height'       => [],
-						'rx'           => [],
-						'ry'           => [],
-						'fill'         => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-					],
-					'line'     => [
-						'x1'           => [],
-						'y1'           => [],
-						'x2'           => [],
-						'y2'           => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-					],
-					'polygon'  => [
-						'points'       => [],
-						'fill'         => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-					],
-					'polyline' => [
-						'points'       => [],
-						'fill'         => [],
-						'stroke'       => [],
-						'stroke-width' => [],
-					],
-					'text'     => [
-						'x'           => [],
-						'y'           => [],
-						'fill'        => [],
-						'font-size'   => [],
-						'font-family' => [],
-						'text-anchor' => [],
-					],
-					'tspan'    => [
-						'x'           => [],
-						'y'           => [],
-						'fill'        => [],
-						'font-size'   => [],
-						'font-family' => [],
-						'dy'          => [],
-						'dx'          => [],
-					],
-				]
-			);
+			// SVG tags get the same global attributes as the post tags, so icon classes and aria-hidden survive.
+			$global = [ 'class' => [], 'id' => [], 'style' => [], 'role' => [], 'aria-hidden' => [], 'aria-label' => [], 'aria-labelledby' => [], 'data-*' => [] ];
+			$paint  = [ 'fill' => [], 'fill-rule' => [], 'fill-opacity' => [], 'stroke' => [], 'stroke-width' => [], 'stroke-linecap' => [], 'stroke-linejoin' => [], 'stroke-opacity' => [], 'clip-rule' => [], 'clip-path' => [], 'opacity' => [], 'transform' => [] ];
+			$svg    = [
+				'svg'            => [ 'xmlns' => [], 'width' => [], 'height' => [], 'viewbox' => [], 'preserveaspectratio' => [], 'focusable' => [], 'x' => [], 'y' => [] ],
+				'g'              => [],
+				'title'          => [],
+				'defs'           => [],
+				'path'           => [ 'd' => [] ],
+				'circle'         => [ 'cx' => [], 'cy' => [], 'r' => [] ],
+				'ellipse'        => [ 'cx' => [], 'cy' => [], 'rx' => [], 'ry' => [] ],
+				'rect'           => [ 'x' => [], 'y' => [], 'width' => [], 'height' => [], 'rx' => [], 'ry' => [] ],
+				'line'           => [ 'x1' => [], 'y1' => [], 'x2' => [], 'y2' => [] ],
+				'polygon'        => [ 'points' => [] ],
+				'polyline'       => [ 'points' => [] ],
+				'text'           => [ 'x' => [], 'y' => [], 'dx' => [], 'dy' => [], 'font-size' => [], 'font-family' => [], 'text-anchor' => [] ],
+				'tspan'          => [ 'x' => [], 'y' => [], 'dx' => [], 'dy' => [], 'font-size' => [], 'font-family' => [] ],
+				'clippath'       => [ 'clippathunits' => [] ],
+				'lineargradient' => [ 'x1' => [], 'y1' => [], 'x2' => [], 'y2' => [], 'gradientunits' => [], 'gradienttransform' => [] ],
+				'radialgradient' => [ 'cx' => [], 'cy' => [], 'r' => [], 'fx' => [], 'fy' => [], 'gradientunits' => [], 'gradienttransform' => [] ],
+				'stop'           => [ 'offset' => [], 'stop-color' => [], 'stop-opacity' => [] ],
+			];
+
+			foreach ( $svg as $tag => $attributes ) {
+				$svg[ $tag ] = array_merge( $global, $paint, $attributes );
+			}
+
+			$allowed_html = array_merge( wp_kses_allowed_html( 'post' ), $svg );
 		}
 
 		return wp_kses( $input, $allowed_html );
@@ -545,6 +477,143 @@ class BPFWE_Helper {
 	 */
 	public static function is_acf_field( $meta_key ) {
 		return function_exists( 'get_field_object' ) && get_field_object( $meta_key ) !== false;
+	}
+
+	/**
+	 * Get the author of the Elementor document currently being rendered.
+	 *
+	 * @return int Author ID, or 0 when unknown.
+	 */
+	public static function get_rendering_author_id() {
+		$post = null;
+
+		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->documents ) ) {
+			$document = \Elementor\Plugin::$instance->documents->get_current();
+			if ( $document ) {
+				$post = $document->get_post();
+			}
+		}
+
+		if ( ! $post ) {
+			$post = get_post();
+		}
+
+		// No content context (e.g. editor AJAX): judge the user making the request.
+		return $post ? (int) $post->post_author : get_current_user_id();
+	}
+
+	/**
+	 * Whether the author of the rendered content may read any data source in dynamic tags.
+	 *
+	 * Authors without unfiltered_html or manage_options (e.g. Contributors) are limited
+	 * so their tags cannot print site options or other users' private data.
+	 *
+	 * @return bool
+	 */
+	public static function is_trusted_tag_author() {
+		static $cache = [];
+
+		$author_id = self::get_rendering_author_id();
+
+		if ( ! isset( $cache[ $author_id ] ) ) {
+			// Content with no known author comes from imports or code, never from a limited user.
+			$cache[ $author_id ] = ! $author_id || ! get_userdata( $author_id ) || user_can( $author_id, 'unfiltered_html' ) || user_can( $author_id, 'manage_options' );
+		}
+
+		return $cache[ $author_id ];
+	}
+
+	/**
+	 * Whether a dynamic tag may read site options.
+	 *
+	 * @return bool
+	 */
+	public static function tag_can_read_options() {
+		return self::is_trusted_tag_author();
+	}
+
+	/**
+	 * Whether a dynamic tag may read meta from the given post.
+	 *
+	 * @param int    $post_id Post ID, 0 for the current post.
+	 * @param string $key     Meta key.
+	 * @return bool
+	 */
+	public static function tag_can_read_post( $post_id, $key = '' ) {
+		if ( self::is_trusted_tag_author() ) {
+			return true;
+		}
+
+		$author_id = self::get_rendering_author_id();
+		$target_id = $post_id ? $post_id : get_the_ID();
+
+		if ( $target_id && $author_id && user_can( $author_id, 'edit_post', $target_id ) ) {
+			return true;
+		}
+
+		// Limited authors only get public meta of posts they cannot edit.
+		if ( '' !== (string) $key && is_protected_meta( $key, 'post' ) ) {
+			return false;
+		}
+
+		return ! $post_id || is_post_publicly_viewable( $post_id );
+	}
+
+	/**
+	 * Whether a dynamic tag may read the given field of a user.
+	 *
+	 * Limited authors get their own data, the viewer's own data, and public profile fields of others.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $key     Field or meta key.
+	 * @return bool
+	 */
+	public static function tag_can_read_user_field( $user_id, $key ) {
+		$key = strtolower( (string) $key );
+
+		// get_the_author_meta() maps 'pass' and 'activation_key' to the user_ columns.
+		if ( in_array( $key, [ 'user_pass', 'pass', 'user_activation_key', 'activation_key', 'session_tokens', '_application_passwords' ], true ) ) {
+			return false;
+		}
+
+		if ( self::is_trusted_tag_author() ) {
+			return true;
+		}
+
+		if ( is_protected_meta( $key, 'user' ) ) {
+			return false;
+		}
+
+		$user_id = (int) $user_id;
+		if ( $user_id && ( self::get_rendering_author_id() === $user_id || get_current_user_id() === $user_id ) ) {
+			return true;
+		}
+
+		$public_keys = [ 'id', 'display_name', 'first_name', 'last_name', 'nickname', 'description', 'user_url', 'url', 'user_nicename', 'profile_url' ];
+
+		return in_array( $key, $public_keys, true );
+	}
+
+	/**
+	 * Whether a field-source dynamic tag (post, tax, user, author, theme) may read its value.
+	 *
+	 * @param string $source    Field source setting.
+	 * @param int    $object_id Post or user ID the source resolves to, 0 for the current one.
+	 * @param string $key       Field or meta key.
+	 * @return bool
+	 */
+	public static function tag_can_read_source( $source, $object_id, $key ) {
+		switch ( $source ) {
+			case 'theme':
+				return self::tag_can_read_options();
+			case 'post':
+				return self::tag_can_read_post( $object_id, $key );
+			case 'user':
+			case 'author':
+				return self::tag_can_read_user_field( $object_id, $key );
+			default:
+				return true;
+		}
 	}
 
 	/**
